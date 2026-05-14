@@ -22,8 +22,8 @@
 |---------|---------|------|--------|-------|-------|--------|---------|
 | **verification-tools** (13 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **promotion-level2** (21 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| **traceability** (18 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ⬜ |
-| **ttl-configurable** | ✅ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ | ⬜ |
+| **traceability** (18 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **ttl-configurable** (13 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -58,20 +58,20 @@
 ```
 engram-dotnet/
 ├── src/
-│   ├── Engram.Store/               ← Motor DB (3 backends)
-│   ├── Engram.Verification/         ← ✅ Nuevo: mem_verify_artifact + mem_traceability
-│   ├── Engram.MdGeneration/         ← ✅ Nuevo: mem_promote_to_md + engram promote
-│   ├── Engram.Mcp/                  ← 21 MCP tools total
-│   ├── Engram.Server/               ← HTTP API con md endpoints
-│   └── Engram.Cli/                  ← CLI con comando promote
+│   ├── Engram.Store/               ← Motor DB + RetentionConfig + TTL prune
+│   ├── Engram.Verification/         ← mem_verify_artifact + traceability
+│   ├── Engram.MdGeneration/         ← mem_promote_to_md + engram promote
+│   ├── Engram.Mcp/                  ← 24 MCP tools total
+│   ├── Engram.Server/               ← HTTP API + retention + redirects
+│   └── Engram.Cli/                  ← CLI + retention commands
 ├── tests/
-│   ├── Engram.Verification.Tests/   ← 28 tests (12 trace + 16 verify)
+│   ├── Engram.Verification.Tests/   ← 28 tests (trace + verify)
 │   ├── Engram.MdGeneration.Tests/   ← 17 tests
-│   └── Engram.Store.Tests/          ← 139 tests (0 regresiones)
+│   └── Engram.Store.Tests/          ← 161 tests (22 retention + 139 legacy)
 ├── sdd/
-│   ├── archive/                     ← Features completadas
-│   └── specs/                       ← Specs sincronizados
-└── 236 tests totales — 0 fallos
+│   ├── archive/                     ← 4 features completadas
+│   └── specs/                       ← 3 specs sincronizados
+└── 258 tests totales — 0 fallos
 ```
 
 ---
@@ -81,9 +81,10 @@ engram-dotnet/
 ```
 ✅ COMPLETADO                       🔜 PRÓXIMOS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ verification-tools               🔜 ttl-configurable (completar SDD)
-✅ promotion-level2                 🔜 Offline-First Sync (PR #14)
-✅ traceability                     🔜 Doctor Diagnostic (sprint activo)
+✅ verification-tools               🔜 Offline-First Sync (PR #14)
+✅ promotion-level2                 🔜 Doctor Diagnostic (sprint activo)
+✅ traceability                     🔜 Backend Config File (SDD proposal)
+✅ ttl-configurable
 ✅ FlowForge docs + rename
 ```
 
@@ -96,7 +97,7 @@ engram-dotnet/
 | Offline-First Sync (PR #14) | engram-dotnet | SDD completo en progreso | 32-44h, 4 fases |
 | Doctor Diagnostic | engram-dotnet | Sprint activo | 4-6h |
 | Requirement Traceability | engram-dotnet | ✅ Completo (18 tasks) | 28 tests + 52 MCP regresión |
-| TTL Configurable | engram-dotnet | Solo proposal | 7-10h + completar SDD |
+| TTL Configurable | engram-dotnet | ✅ Completo (13 tasks) | 22 tests + 0 regresiones |
 | Backend Config File | engram-dotnet | Solo proposal | 4-6h |
 | Orquestador AI opcional | EngramFlow | Solo concepto | Depende de tener features core |
 | Model Router MCP server | EngramFlow | Solo concepto | Baja prioridad |

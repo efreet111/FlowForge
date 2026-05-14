@@ -23,7 +23,18 @@ FASE 4: CIERRE      → Checkpoint ③ (Humano)  → memoria + .md
 - **4 fases**, **3 checkpoints humanos**, **5 agentes**
 - **Orquestador AI opcional** — configurable desde JSON
 - **Model routing** por tipo de tarea (Sonnet para razonar, Haiku para tareas baratas)
-- **Memory Janitor** — pruning automático con TTL configurable
+- **Memory Janitor** — pruning automático con TTL configurable (por tipo: tool_use=30d, bugfix=90d, etc.)
+
+## Estado de implementación
+
+**engram-dotnet** — 4 features implementadas, **258 tests**:
+
+| Feature | SDD | Tests |
+|---------|-----|-------|
+| ✅ verification-tools | Archivado | 16 + 52 MCP |
+| ✅ promotion-level2 (.md) | Archivado | 17 + 139 Store |
+| ✅ traceability (lineage) | Archivado | 28 + 52 MCP |
+| ✅ ttl-configurable | Archivado | 22 + 139 Store |
 
 ## Documentación
 
@@ -34,20 +45,7 @@ FASE 4: CIERRE      → Checkpoint ③ (Humano)  → memoria + .md
 | [`03-engram-dotnet-gaps.md`](docs/03-engram-dotnet-gaps.md) | Análisis de gaps con engram-dotnet |
 | [`04-roadmap.md`](docs/04-roadmap.md) | Roadmap conjunto |
 | [`05-comparison-methodologies.md`](docs/05-comparison-methodologies.md) | Investigación de metodologías Agentic SDLC |
-
-## Estado del proyecto
-
-```mermaid
-gantt
-    title FlowForge Roadmap
-    dateFormat  YYYY-MM-DD
-    section Completado
-    verification-tools           :done, 2026-05-13, 1d
-    promotion-level2             :done, 2026-05-14, 1d
-    section Próximo
-    traceability                 :active, 2026-05-14, 3d
-    ttl-configurable             :2026-05-17, 3d
-```
+| [`test-matrix.md`](docs/test-matrix.md) | 258 tests documentados |
 
 ## Licencia
 
