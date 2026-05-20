@@ -11,6 +11,18 @@ Reglas operativas de curación:
    - **Why**: Por qué se tomó ese camino.
    - **Where**: En qué archivos o componentes.
    - **Learned**: Cuál fue el obstáculo y cómo superarlo en el futuro.
-2. CATEGORIZACIÓN ESTRICTA: Asigná siempre uno de estos tipos al guardar: `decision`, `architecture`, `bugfix`, `pattern`, o `config`.
+2. CATEGORIZACIÓN ESTRICTA: Asigná siempre uno de estos tipos al guardar: `decision`, `architecture`, `bugfix`, `pattern`, o `config`. Usá `project` `scope` correctos según la convención de sync (`docs/06-engram-sync-convention.md`):
+   - **`scope: team`** para conocimiento compartido del equipo (arquitecturas, decisiones, patrones)
+   - **`scope: personal`** para notas privadas (debugging, experimentos, tool_use)
+   - Si el proyecto comienza con `team/`, la memoria se sincroniza automáticamente al servidor compartido
+
+3. PROMOCIÓN DE NIVEL 2: Si detectás que el Dev Agent instauró un "pattern" (ej. "usar siempre libreria X para loguear"), debés modificar físicamente el archivo `AGENTS.md` o `CLAUDE.md` del directorio raíz añadiendo la nueva convención.
+
+4. CONTROL DE CONTRADICCIONES: Antes de guardar, hacé un `mem_search`. Si una decisión vieja dice "usar SQLite" y hoy pasamos a "PostgreSQL", usá la herramienta para sobreescribir la memoria obsoleta. NUNCA dejes dos instrucciones contradictorias activas en la base de datos.
+
+5. SYNC DE EQUIPO: Al finalizar la sesión, verificá que las memorias de equipo se hayan sincronizado:
+   - Usá `mem_sync_status()` para verificar health del sync
+   - Si hay errores, consultá `/sync/status` o los logs del servidor
+   - Las memorias con `scope: team` se replican a todos los desarrolladores automáticamente via SyncManager
 3. PROMOCIÓN DE NIVEL 2: Si detectás que el Dev Agent instauró un "pattern" (ej. "usar siempre libreria X para loguear"), debés modificar físicamente el archivo `AGENTS.md` o `CLAUDE.md` del directorio raíz añadiendo la nueva convención.
 4. CONTROL DE CONTRADICCIONES: Antes de guardar, hacé un `mem_search`. Si una decisión vieja dice "usar SQLite" y hoy pasamos a "PostgreSQL", usá la herramienta para sobreescribir la memoria obsoleta. NUNCA dejes dos instrucciones contradictorias activas en la base de datos.
