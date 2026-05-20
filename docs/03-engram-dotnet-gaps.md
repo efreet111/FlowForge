@@ -64,13 +64,13 @@ engram-dotnet/
 
 | Item | Estado en engram-dotnet | Lo que EngramFlow necesita |
 |------|------------------------|---------------------------|
-| `PruneOldObservationsAsync` | ❌ No existe | Método en IStore que marca observaciones como deleted por TTL |
-| TTL configurable por tipo | ✅ Proposal escrita (`sdd/ttl-configurable/`), no implementada | Env vars `ENGRAM_TTL_TOOL_USE=30d`, etc. |
-| Retention Stats endpoint | ✅ Proposal escrita, no implementada | `GET /retention/stats` + CLI + MCP tool |
-| `mem_retention_prune` tool | ❌ No existe | MCP tool para pruning manual o batch |
-| `mem_retention_stats` tool | ❌ No existe | MCP tool con distribución por edad |
-| Observaciones con topic_key preservadas | ⚠️ Proposal dice que no expiran | Lógica en PruneOldObservationsAsync: saltar si topic_key != null |
-| Diario automático (cron) | ❌ No existe | Servicio background o cron externo |
+| `PruneOldObservationsAsync` | ✅ Implementado | Método en IStore que marca observaciones como deleted por TTL |
+| TTL configurable por tipo | ✅ Implementado (`sdd/ttl-configurable/`) | Env vars `ENGRAM_TTL_TOOL_USE=30d`, etc. |
+| Retention Stats endpoint | ✅ Implementado | `GET /retention/stats` + CLI + MCP tool |
+| `mem_retention_prune` tool | ✅ Implementado | MCP tool para pruning manual o batch |
+| `mem_retention_stats` tool | ✅ Implementado | MCP tool con distribución por edad |
+| Observaciones con topic_key preservadas | ✅ Implementado | Lógica en PruneOldObservationsAsync: saltar si topic_key != null |
+| Diario automático (cron) | ✅ Implementado | Servicio background o cron externo |
 
 **¿Qué hay que tocar?**
 - `IStore.cs` → nuevos métodos: `PruneOldObservationsAsync`, `GetRetentionStatsAsync`
@@ -181,8 +181,8 @@ engram-dotnet/
 - TraceRepository: persistencia con topic_key `trace/{project}/{rf-id}`
 - SpecParser extendido: sección `## Traceability` en spec.md
 
-### Fase Pendiente: TTL + Pruning (7-10h)
-**Objetivo**: Que engram-dotnet pueda expirar observaciones viejas automáticamente.
+### ✅ Completado: TTL + Pruning
+**Objetivo lograd**: engram-dotnet ya puede expirar observaciones viejas automáticamente, las tools de retención y la configuración TTL están implementadas y verificadas.
 
 1. Implementar `PruneOldObservationsAsync` en IStore + SqliteStore + PostgresStore
 2. Agregar `RetentionConfig.cs` para parsing de TTL desde env vars

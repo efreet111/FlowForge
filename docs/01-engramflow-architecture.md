@@ -38,8 +38,15 @@ La investigación de Agentsway, Twelve-Factor Agentic SDLC y ADLC muestra que:
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                           ENGRAMFLOW                                │
-│    4 fases | 3 checkpoints humanos | 5-6 agentes | Model routing    │
+│    5 fases | 4 checkpoints humanos | 6 agentes   | Model routing    │
 └─────────────────────────────────────────────────────────────────────┘
+
+FASE 0: DISCOVERY ───────────── Checkpoint ⓪ (Humano) ──────────────
+│  Asociación de memoria cruzada, mapeo de épicas y validación de HU
+│
+│  Agentes: Discovery Agent ── Análisis de contexto
+│  Entregables: Mapa de asociaciones de memoria
+│  Models: Haiku / Flash / GPT-4o-mini (rápido y barato)
 
 FASE 1: INTENCIÓN ───────────── Checkpoint ① (Humano) ──────────────
 │  Revisión de prioridades y validación de intención de negocio
@@ -86,6 +93,15 @@ FASE 4: CIERRE ─────────────── Checkpoint ③ (Hum
 ---
 
 ## 3. Roles y Responsabilidades
+
+### 3.0 Discovery Agent (Fase 0)
+
+| Aspecto | Descripción |
+|---------|-------------|
+| **Misión** | Mapear la nueva Historia de Usuario (HU) contra memorias pasadas o Épicas (memoria cruzada) antes de planificar nada. |
+| **Models** | Modelo rápido y barato (Haiku, Flash, GPT-4o-mini) porque solo lee y clasifica. |
+| **Herramientas** | MCP: search_memory, read_epics |
+| **Checkpoint** | Freno Duro: Si no hay información suficiente de negocio, se detiene todo el flujo aquí. |
 
 ### 3.1 Arch Agent (Fase 1)
 
@@ -234,52 +250,63 @@ Corregir los items marcados. El spec.md original sigue siendo válido.
 
 ## 5. Model Routing
 
-Uno de los descubrimientos más importantes de nuestro análisis. **No necesitás agentes separados — necesitás modelos separados para tareas separadas.**
+Uno de los descubrimientos más importantes de nuestro análisis es que **no necesitás agentes separados — necesitás modelos separados para tareas separadas.**
 
 | Tarea | Modelo recomendado | Costo relativo |
 |-------|-------------------|----------------|
-| Razonamiento complejo, arquitectura, diseño | Sonnet / Opus | $$$ |
-| Codificación de features | Sonnet | $$ |
-| Verificación, juicio, LLM-as-Judge | Sonnet | $$ |
-| Lectura de contexto, exploración de código | Haiku / GPT-4o-mini | $ |
-| Escritura de documentación | Haiku | $ |
-| Debug simple, análisis de errores | Haiku | $ |
+| Razonamiento complejo, arquitectura, diseño | Sonnet / Opus / Qwen 3.5 Pro | $$$ |
+| Codificación de features | Sonnet / DeepSeek | $$ |
+| Verificación, juicio, LLM-as-Judge | Sonnet / DeepSeek Pro | $$ |
+| Lectura de contexto, exploración de código | Haiku / Flash / GPT-4o-mini | $ |
+| Escritura de documentación | Haiku / Flash | $ |
+| Debug simple, análisis de errores | Haiku / Flash | $ |
 | Persistencia en DB | No necesita LLM (SQL directo) | $0 |
 | Pruning, TTL, operaciones batch | No necesita LLM (cron + SQL) | $0 |
 
-El **Model Router** es un dispatcher liviano — no un agente. Puede ser:
-- Una configuración JSON: `{"task": "architect", "model": "sonnet"}`
-- Un script que elige el modelo según el tipo de llamada
-- Un MCP server con lógica determinística de ruteo
+### Delegación al Host (IDE)
+
+**EngramFlow NO provee un "Model Router MCP Server" propio.** 
+
+Tras analizar los riesgos operativos (posibles bloqueos de cuentas, violaciones de TOS en IDEs propietarios, y problemas de manejo de keys con proxies de terceros), la decisión de arquitectura es **Delegar el Model Routing al Host (IDE)**.
+
+EngramFlow es una metodología "Client-Agnostic". La responsabilidad de mapear qué modelo se ejecuta en cada fase recae en la configuración nativa de tu entorno:
+- En **OpenCode**: Usar `opencode.json` para mapear los modelos a cada sub-agente (ej: `deepseek-v4-flash` para explore, `qwen3.5-plus` para código).
+- En **Antigravity / VS Code**: Usar un modelo potente seleccionado globalmente en la UI que actúe como monolito cargando las "skills" para hacer roleplay.
+- En **Copilot / Cursor**: Usar el selector de modelos nativo según la fase.
+
+El Model Router es una *práctica recomendada*, no un componente de software de EngramFlow.
 
 ---
 
-## 6. Orquestador Opcional
+## 6. Orquestador AI (Hybrid Escalation Manager)
 
-El flujo default **no necesita orquestador AI**. Los artefactos versionados son el protocolo de comunicación.
+El flujo default de EngramFlow **no necesita un orquestador AI continuo**. Los artefactos versionados (como `spec.md` o `rework_ticket.md`) actúan como el protocolo de comunicación y ruteo determinístico para los agentes base.
 
-Para equipos que quieran un orquestador, se configura desde JSON:
+Sin embargo, para evitar bloqueos y loops infinitos sin requerir intervención humana constante, los equipos pueden habilitar el **Orquestador AI Opcional**. Este orquestador NO actúa como un router paso a paso (lo que causaría un severo "Token Bleed"), sino que funciona estrictamente como un **Escalation Manager**.
 
-```json
-{
-  "engramFlow": {
-    "agents": ["arch", "plan", "dev", "verify", "memory"],
-    "orchestrator": {
-      "enabled": true,
-      "type": "ai",
-      "model": "sonnet",
-      "timeout_minutes": 30
-    },
-    "checkpoints": 3,
-    "model_routing": {
-      "arch": { "reasoning": "sonnet", "tools": "haiku" },
-      "dev": { "code": "sonnet", "debug": "haiku" },
-      "memory": { "classify": "haiku", "persist": "none" }
-    },
-    "max_retry_cycles": 3
-  }
-}
+### Cuándo interviene
+
+El Workflow Runner intercepta los artefactos tras cada ejecución. Si detecta que el contador de ciclos en un `rework_ticket.md` (leído desde su YAML Frontmatter) excede el límite configurado (`max_retry_cycles`), pausa el Inner Loop determinístico e invoca al Orquestador AI inyectándole el contexto (`spec.md`, `plan.md` y `rework_ticket.md`).
+
+### Data Flow
+
+```text
+[Happy Path - Determinístico]
+Dev Agent ──(código)──> Verify Agent ──(rework_ticket 1/3)──> Dev Agent ...
+
+[Escalation Path - Invoca IA]
+Verify Agent ──(rework_ticket 3/3)──> Workflow Runner ──(intercepta)──> AI Orchestrator
+                                                                             │
+                                      ┌──────────────(Analiza)───────────────┘
+                                      │
+                        [Opción A] ───┴─── [Opción B]
+                   Modifica plan.md        Detiene flujo
+                  Resetea ciclo a 1/3      Checkpoint Humano
+                          │                      │
+                      Dev Agent               (Humano)
 ```
+
+Para equipos que quieran habilitarlo, se configura desde JSON. Ver detalles en [06-ai-orchestrator.md](06-ai-orchestrator.md).
 
 ---
 

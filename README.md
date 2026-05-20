@@ -8,21 +8,22 @@ FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños 
 
 | Proyecto | Descripción |
 |----------|-------------|
-| **FlowForge** (este) | Documentación de la metodología EngramFlow |
+| **FlowForge** (este) | Metodología de desarrollo de software asistida por agentes |
 | **[engram-dotnet](https://github.com/efreet111/engram-dotnet)** | Motor de memoria persistente para agentes de IA (.NET 10) |
 
-## Metodología EngramFlow
+## Metodología FlowForge
 
 ```
-FASE 1: INTENCIÓN  → Checkpoint ① (Humano)  → spec.md
-FASE 2: ARQUITECTURA → Checkpoint ② (Humano) → plan.md
-FASE 3: EJECUCIÓN   → Inner Loop autónomo   → código + tests
-FASE 4: CIERRE      → Checkpoint ③ (Humano)  → memoria + .md
+FASE 0: DISCOVERY     → Mapeo de épicas y engramas pasados (Haiku)
+FASE 1: INTENCIÓN     → Checkpoint ① (Humano)  → spec.md (Sonnet)
+FASE 2: ARQUITECTURA  → Checkpoint ② (Humano)  → plan.md (Sonnet)
+FASE 3: EJECUCIÓN     → Inner Loop autónomo   ➔ código + tests (Sonnet/Flash)
+FASE 4: CIERRE        → Checkpoint ③ (Humano)  → memoria + markdown (Haiku)
 ```
 
-- **4 fases**, **3 checkpoints humanos**, **5 agentes**
-- **Orquestador AI opcional** — configurable desde JSON
-- **Model routing** por tipo de tarea (Sonnet para razonar, Haiku para tareas baratas)
+- **5 fases**, **3 checkpoints humanos**, **7 agentes** (Orchestrator, Discovery, Arch, Plan, Dev, Verify, Memory)
+- **Orquestador AI nativo (Semáforo)** — inyectado mediante reglas de entorno (`.cursorrules`, `.clinerules`, etc.)
+- **Model routing** óptimo por tipo de tarea (Sonnet para razonamiento denso, Haiku/Flash para lectura o clasificación barata)
 - **Memory Janitor** — pruning automático con TTL configurable (por tipo: tool_use=30d, bugfix=90d, etc.)
 
 ## Estado de implementación
@@ -45,6 +46,7 @@ FASE 4: CIERRE      → Checkpoint ③ (Humano)  → memoria + .md
 | [`03-engram-dotnet-gaps.md`](docs/03-engram-dotnet-gaps.md) | Análisis de gaps con engram-dotnet |
 | [`04-roadmap.md`](docs/04-roadmap.md) | Roadmap conjunto |
 | [`05-comparison-methodologies.md`](docs/05-comparison-methodologies.md) | Investigación de metodologías Agentic SDLC |
+| [`09-open-source-integration.md`](docs/09-open-source-integration.md) | Integración con Cursor, Cline y Estrategia Open Source |
 | [`test-matrix.md`](docs/test-matrix.md) | 258 tests documentados |
 
 ## Licencia

@@ -9,11 +9,34 @@ Index of all completed and archived changes in the engram-dotnet project.
 | Change | Date Completed | Status | Location |
 |--------|---------------|--------|----------|
 | Doctor Diagnostic | 2026-05-17 | ✅ Archived | `archive/doctor-diagnostic/` |
+| Offline-First Sync | 2026-05-19 | ✅ Archived | `archive/2026-05-19-offline-first-sync-phase4/` |
 | Backend Config File | — | 🔄 In Progress | `backend-config-file/` |
 
 ---
 
 ## Change Summaries
+
+### Offline-First Sync (2026-05-19)
+
+**Commit**: `f017440 feat: complete offline-first sync phase 4 observability`
+
+**Purpose**: Provide bidirectional sync between local SQLite and remote PostgreSQL server for team collaboration with full offline support.
+
+**Deliverables**:
+- Mutation Journal and Autosync Manager
+- Sync Enrollment and Pause logic
+- Phase 4 Observability (CLI sync status, /sync/status endpoint)
+- Conditional SyncManager registration for `ILocalSyncStore`
+- 84 tests passing (72 unit + 12 integration, 98.4% passing)
+
+**Architecture**:
+- Bidirectional mutation state stored in `engram-dotnet` local SQLite
+- Seamless recovery and cloud synchronization via `Autosync Manager`
+- Resolves network resiliency for `FlowForge` agents (e.g. `@forge-memory`) allowing them to save knowledge without network connection.
+
+**Files**: See `engram-dotnet/sdd/archive/2026-05-19-offline-first-sync-phase4/` for full specification, design, tasks, and verification report.
+
+---
 
 ### Doctor Diagnostic (2026-05-17)
 

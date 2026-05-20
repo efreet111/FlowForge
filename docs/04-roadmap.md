@@ -1,8 +1,8 @@
-# EngramFlow + engram-dotnet — Roadmap Conjunto
+# FlowForge + engram-dotnet — Roadmap Conjunto
 
-> **Última actualización**: 2026-05-14
+> **Última actualización**: 2026-05-19
 > **Versión actual (engram-dotnet)**: main (post PR #11)
-> **Versión actual (EngramFlow)**: 0.2 (diseño conceptual)
+> **Versión actual (FlowForge)**: 0.2 (diseño conceptual)
 
 ---
 
@@ -24,6 +24,7 @@
 | **promotion-level2** (21 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **traceability** (18 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **ttl-configurable** (13 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **✅ doctor-diagnostic** (14 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -35,13 +36,19 @@
 |-----------|--------|-------|
 | `01-engramflow-architecture.md` | ✅ Completo | Diseño v0.2: 4 fases, 5 agentes, 3 checkpoints |
 | `02-memory-strategy.md` | ✅ Completo | 2 niveles de memoria, TTL, promoción, Janitor |
-| `03-engram-dotnet-gaps.md` | ⚠️ Parcialmente desactualizado | 3/4 features implementadas, falta TTL |
+| `03-engram-dotnet-gaps.md` | ✅ Actualizado | 4/4 features implementadas |
 | `04-roadmap.md` | ✅ Actualizado | Este documento |
 | `05-comparison-methodologies.md` | ✅ Completo | 6 metodologías investigadas y justificadas |
+| `06-ai-orchestrator.md` | ✅ Actualizado | Rol de orquestador nativo en IDE |
+| `07-core-skills.md` | ✅ Completo | Prompts maestros de las 7 skills |
+| `08-test-plan.md` | ✅ Actualizado | Plan de testing end-to-end |
+| `09-open-source-integration.md` | ✅ Actualizado | Integración con OSS |
+| `10-memory-mapping-fallback.md` | ✅ Completo | Degradación graciosa |
+| `11-orchestrator-delegation-protocol.md` | ✅ Nuevo | Protocolo multi-agente y .flowforge.json |
 | `PRD.md` | ✅ Completo | Visión general del ecosistema FlowForge |
-| `README.md` | ✅ Creado | Visión general del proyecto |
-| `test-matrix.md` | ✅ Nuevo | 236 tests documentados por feature y tipo |
-| `new-workflow.md` | 🟡 Desactualizado | Pre-EngramFlow, conservado como referencia |
+| `README.md` | ✅ Actualizado | Visión general del proyecto |
+| `test-matrix.md` | ✅ Completo | 236 tests documentados por feature y tipo |
+| `archive/new-workflow-deprecated.md` | 🗄️ Archivado | Pre-EngramFlow, conservado como referencia |
 | `project-context.md` | ✅ Actualizado | Refleja estado actual |
 
 ### engram-dotnet SDD — Features Archivadas
@@ -51,7 +58,8 @@
 | **verification-tools** (13 tasks) | ✅ Completo | 16 + 52 MCP regresión | `sdd/archive/2026-05-14-verification-tools/` |
 | **promotion-level2** (21 tasks) | ✅ Completo | 17 + 139 Store regresión | `sdd/archive/2026-05-14-promotion-level2/` |
 | **traceability** (18 tasks) | ✅ Completo | 28 + 52 MCP regresión | `sdd/traceability/` |
-| **ttl-configurable** | ⬜ Solo proposal | — | `sdd/ttl-configurable/` |
+| **ttl-configurable** (13 tasks) | ✅ Completo | 22 + 0 regresiones | `sdd/archive/2026-05-14-ttl-configurable/` |
+| **doctor-diagnostic** (14 tasks) | ✅ Completo | 27 tests | `sdd/archive/2026-05-17-doctor-diagnostic/` |
 
 ### Arquitectura resultante
 
@@ -81,11 +89,13 @@ engram-dotnet/
 ```
 ✅ COMPLETADO                       🔜 PRÓXIMOS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ verification-tools               🔜 Offline-First Sync (PR #14)
-✅ promotion-level2                 🔜 Doctor Diagnostic (sprint activo)
-✅ traceability                     🔜 Backend Config File (SDD proposal)
-✅ ttl-configurable
-✅ FlowForge docs + rename
+✅ verification-tools               🔜 CLI Wizard: Configuración de Entorno (npx flowforge init)
+✅ promotion-level2                 🔜 Generador de Reglas (generate-rules.sh)
+✅ traceability                     🔜 Dashboard web
+✅ ttl-configurable                 🔜 Offline-First Sync (Fase 3/4 en progreso)
+✅ doctor-diagnostic
+✅ spec-7-skills-core
+✅ orchestrator-delegation-protocol
 ```
 
 ---
@@ -94,11 +104,14 @@ engram-dotnet/
 
 | Feature | Proyecto | Estado SDD | Notas |
 |---------|----------|-----------|-------|
-| Offline-First Sync (PR #14) | engram-dotnet | SDD completo en progreso | 32-44h, 4 fases |
-| Doctor Diagnostic | engram-dotnet | Sprint activo | 4-6h |
+| CLI Wizard de Configuración | FlowForge | ⏳ Siguiente en la lista | Script para generar el `.flowforge.json` (modelos, base de datos, persona) de forma interactiva en terminal |
+| Generador Automático de Reglas | FlowForge | ⏳ Siguiente en la lista | Script `generate-rules.sh` para compilar las 7 skills en un solo archivo inyectable al IDE |
+| Offline-First Sync (PR #14) | engram-dotnet | ✅ SDD completo (archivado) | 32-44h, 4 fases |
+| Doctor Diagnostic | engram-dotnet | ✅ SDD completo (archivado) | 27 tests pasando |
 | Requirement Traceability | engram-dotnet | ✅ Completo (18 tasks) | 28 tests + 52 MCP regresión |
 | TTL Configurable | engram-dotnet | ✅ Completo (13 tasks) | 22 tests + 0 regresiones |
-| Backend Config File | engram-dotnet | Solo proposal | 4-6h |
-| Orquestador AI opcional | EngramFlow | Solo concepto | Depende de tener features core |
-| Model Router MCP server | EngramFlow | Solo concepto | Baja prioridad |
-| Dashboard web | EngramFlow | Futuro | Sin fecha |
+| Backend Config File | engram-dotnet | ⏳ SDD Listo (Specs/Design/Tasks) | Esperando implementación |
+| Orquestador AI opcional | FlowForge | ✅ Reemplazado | Reemplazado por Protocolo Multi-Agente Nativo en IDE |
+| Protocolo de Delegación | FlowForge | ✅ Completado | Reglas de orquestación multi-agente / monolítico documentadas |
+| Model Router MCP server | FlowForge | ❌ Descartado (Delegado al IDE) | Client-side Routing vía `.flowforge.json` |
+| Dashboard web | FlowForge | ⏳ Specs/Design Listos | Estructura Vanilla SPA de cero dependencias para visualizar engram-dotnet |
