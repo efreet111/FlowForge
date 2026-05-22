@@ -1,8 +1,8 @@
 # FlowForge + engram-dotnet — Roadmap Conjunto
 
-> **Última actualización**: 2026-05-19
+> **Última actualización**: 2026-05-21
 > **Versión actual (engram-dotnet)**: main (post PR #11)
-> **Versión actual (FlowForge)**: 0.2 (diseño conceptual)
+> **Versión actual (FlowForge)**: 0.3 (fortalecimiento de agentes)
 
 ---
 
@@ -16,6 +16,38 @@
 
 ---
 
+## 🔴 Sistema de Checkpoints (Control Humano) — Normalizado
+
+> **Auditoría**: 2026-05-21 — Se detectó inconsistencia entre los documentos del proyecto. El README decía "3 checkpoints", la arquitectura documentaba "4", y el orquestador usaba "3" con semántica diferente.
+
+### Checkpoints Formalizados (5 puntos de control)
+
+| ID | Fase | Tipo | Ambigüedad | Disparador | Acción |
+|----|------|------|-----------|------------|--------|
+| **CKP-0** | Discovery | 🔴 HARD STOP (binario) | 0% — no se negocia | Requerimiento vago o sin contexto previo | Frenar todo, pedir clarificación |
+| **CKP-1** | Arch / spec.md | 🟡 SEMÁFORO AMARILLO | Aceptable — decide el humano | spec.md generado | *"¿Aprobás o querés ajustar algo?"* |
+| **CKP-2** | Plan / plan.md | 🟡 SEMÁFORO AMARILLO | Aceptable — decide el humano | plan.md generado | *"¿Luz verde para codificar?"* |
+| **CKP-3** | Verify (Escalation) | 🔴 FRENO DE EMERGENCIA | 0% — mecánico | 3 ciclos de rework fallidos | Detener Inner Loop, revisión manual |
+| **CKP-4** | Cierre | 🟢 DEPLOY GATE (implícito) | Aceptable — decide el humano | Memory Agent completó | Decisión de deploy |
+
+### Principios del Sistema de Checkpoints
+
+1. **CKP-0 es el más estricto**: Si el discovery no encuentra contexto O el orquestador detecta ambigüedad de negocio, no se avanza. Es binario e inapelable.
+2. **CKP-1 y CKP-2 son flexibles**: El humano puede aprobar specs/planes con partes abiertas. La defensa contra specs débiles es la **Capability Matrix** (items `deterministic`) que el Verify Agent audita en fase 3.
+3. **CKP-3 es mecánico**: El contador de ciclos está en el YAML frontmatter de `rework_ticket.md`. Si `cycle_count = 3`, se escala sin interpretación.
+4. **El Orquestador AI opcional** puede intervenir en CKP-3 con dos caminos: (A) modificar `plan.md` y resetear ciclo, o (B) escalar al humano.
+
+### Documentos a corregir (deuda documental)
+
+| Documento | Problema | Estado |
+|-----------|----------|--------|
+| `README.md` | Decía "3 checkpoints humanos" | ✅ Corregido (4 checkpoints + CKP-0 a CKP-4) |
+| `01-engramflow-architecture.md` | Checkpoint ③ solapado entre Escalation y Deploy | ✅ Corregido (CKP-3 escalation, CKP-4 deploy) |
+| `06-ai-orchestrator.md` | No mencionaba CKP-4 (deploy gate) ni distinguía Hard Stops | ✅ Corregido (tabla CKP, sección 3 actualizada) |
+| `forge-orchestrator/SKILL.md` | No distinguía entre CKP-0 y CKP-1/2 en severidad | ✅ Corregido (tabla de checkpoints, reglas de oro) |
+
+---
+
 ## Estado Actual del SDD (14 mayo 2026)
 
 | Feature | Propose | Spec | Design | Tasks | Apply | Verify | Archive |
@@ -25,6 +57,8 @@
 | **traceability** (18 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **ttl-configurable** (13 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | **✅ doctor-diagnostic** (14 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **✅ offline-first-sync** (43 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **✅ advanced-engram-integration** (5 tasks) | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 
 ---
 
@@ -34,12 +68,14 @@
 
 | Documento | Estado | Notas |
 |-----------|--------|-------|
-| `01-engramflow-architecture.md` | ✅ Completo | Diseño v0.2: 4 fases, 5 agentes, 3 checkpoints |
+| `01-engramflow-architecture.md` | ✅ Corregido (CKP normalizados) | CKP-3 escalation, CKP-4 deploy gate |
 | `02-memory-strategy.md` | ✅ Completo | 2 niveles de memoria, TTL, promoción, Janitor |
 | `03-engram-dotnet-gaps.md` | ✅ Actualizado | 4/4 features implementadas |
-| `04-roadmap.md` | ✅ Actualizado | Este documento |
+| `04-roadmap.md` | ✅ Actualizado | Este documento (v0.3 — fortalecimiento de agentes) |
 | `05-comparison-methodologies.md` | ✅ Completo | 6 metodologías investigadas y justificadas |
-| `06-ai-orchestrator.md` | ✅ Actualizado | Rol de orquestador nativo en IDE |
+| `06-ai-orchestrator.md` | ✅ Corregido (CKP normalizados) | Tabla CKP, Hard Stops vs Semáforo Amarillo |
+| `README.md` | ✅ Corregido (CKP normalizados) | 4 checkpoints + CKP-0 → CKP-4 |
+| `AGENTS.md` | ⚠️ Requiere actualización | Agregar skills especializadas al índice de agentes |
 | `07-core-skills.md` | ✅ Completo | Prompts maestros de las 7 skills |
 | `08-test-plan.md` | ✅ Actualizado | Plan de testing end-to-end |
 | `09-open-source-integration.md` | ✅ Actualizado | Integración con OSS |
@@ -60,6 +96,8 @@
 | **traceability** (18 tasks) | ✅ Completo | 28 + 52 MCP regresión | `sdd/traceability/` |
 | **ttl-configurable** (13 tasks) | ✅ Completo | 22 + 0 regresiones | `sdd/archive/2026-05-14-ttl-configurable/` |
 | **doctor-diagnostic** (14 tasks) | ✅ Completo | 27 tests | `sdd/archive/2026-05-17-doctor-diagnostic/` |
+| **offline-first-sync** (43 tasks) | ✅ Completo | 84 tests (72u + 12i) | `sdd/archive/2026-05-19-offline-first-sync-phase4/` |
+| **advanced-engram-integration** (5 tasks) | ✅ Completo | 0 (Doc & Skills) | `/skills/` |
 
 ### Arquitectura resultante
 
@@ -87,31 +125,103 @@ engram-dotnet/
 ## Timeline Actualizado
 
 ```
-✅ COMPLETADO                       🔜 PRÓXIMOS
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ verification-tools               🔜 CLI Wizard: Configuración de Entorno (npx flowforge init)
-✅ promotion-level2                 🔜 Generador de Reglas (generate-rules.sh)
-✅ traceability                     🔜 Dashboard web
-✅ ttl-configurable                 🔜 Offline-First Sync (Fase 3/4 en progreso)
-✅ doctor-diagnostic
+✅ COMPLETADO                       🔥 GRUPO A (AHORA): Motor        🔥 GRUPO B: Seguridad
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ verification-tools               🔥 Checkpoint Docs: Normalizar    🔥 forge-arch-security
+✅ promotion-level2                 🔥 Pulir Skills Core              🔥 forge-plan-security
+✅ traceability                     🔥 AGENTS.md: Actualizar índice   🔥 forge-dev-security
+✅ ttl-configurable                 🔥 CLI Wizard: forge init         🔥 forge-verify-security
+✅ doctor-diagnostic                🔥 Generador de Reglas            🔥 forge-dev-solid
+✅ offline-first-sync
 ✅ spec-7-skills-core
 ✅ orchestrator-delegation-protocol
+✅ git-repository-bootstrap
+✅ advanced-engram-integration   
+
+🔜 OLA 2                            🔷 OLA 3                         🔹 OLA 4
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🔜 forge-plan-patterns              🔷 forge-discovery-security       🔹 forge-discovery-cost
+🔜 forge-dev-testing                🔷 forge-discovery-compliance     🔹 forge-verify-a11y
+🔜 forge-dev-performance            🔷 forge-arch-performance         🔹 forge-memory-metrics
+🔜 forge-verify-complexity          🔷 forge-arch-a11y                🔹 forge-memory-changelog
+🔜 forge-verify-performance         🔷 forge-arch-domain              🔹 forge-memory-knowledge
+🔜 Dashboard web                    🔷 forge-plan-migrations
+🔜 Backend Config File              🔷 forge-plan-rollback
+                                    🔷 forge-dev-refactor
 ```
 
 ---
 
-## Features en el Backlog (sin priorizar)
+## Features en el Backlog (priorizado)
 
-| Feature | Proyecto | Estado SDD | Notas |
-|---------|----------|-----------|-------|
-| CLI Wizard de Configuración | FlowForge | ⏳ Siguiente en la lista | Script para generar el `.flowforge.json` (modelos, base de datos, persona) de forma interactiva en terminal |
-| Generador Automático de Reglas | FlowForge | ⏳ Siguiente en la lista | Script `generate-rules.sh` para compilar las 7 skills en un solo archivo inyectable al IDE |
-| Offline-First Sync (PR #14) | engram-dotnet | ✅ SDD completo (archivado) | 32-44h, 4 fases |
-| Doctor Diagnostic | engram-dotnet | ✅ SDD completo (archivado) | 27 tests pasando |
-| Requirement Traceability | engram-dotnet | ✅ Completo (18 tasks) | 28 tests + 52 MCP regresión |
-| TTL Configurable | engram-dotnet | ✅ Completo (13 tasks) | 22 tests + 0 regresiones |
-| Backend Config File | engram-dotnet | ⏳ SDD Listo (Specs/Design/Tasks) | Esperando implementación |
+### 🔥 OLA 1 — Workflow Core + Seguridad Transversal
+
+#### Grupo A: Workflow Core (prioridad máxima — hace funcionar el motor)
+
+| Feature | Proyecto | Estado | Notas |
+|---------|----------|--------|-------|
+| **Normalizar Documentación de Checkpoints** | FlowForge | 📝 Auditado (2026-05-21) | Corregir README, architecture doc, orchestrator skill, AI orchestrator doc |
+| **Pulir Skills Core** | FlowForge | 🔧 En revisión | Alinear forge-orchestrator, forge-discovery, forge-arch, forge-plan, forge-dev, forge-verify, forge-memory con checkpoints normalizados |
+| **AGENTS.md — Actualizar índice** | FlowForge | 📝 Pendiente | Agregar checkpoints normalizados + skills especializadas al índice de agentes |
+| **CLI Wizard: `forge init`** | FlowForge | 📝 Exploration + SDD parcial | C# Native AOT: config interactiva de `.flowforge.json` |
+| **Generador Automático de Reglas** | FlowForge | ⏳ Pendiente | Script para compilar skills en `.cursorrules` / `.clinerules` |
+
+#### Grupo B: Skills de Seguridad (fortalecimiento — después del motor)
+
+| Feature | Proyecto | Estado | Notas |
+|---------|----------|--------|-------|
+| **`forge-arch-security`** | FlowForge | 📋 Nueva | Threat modeling (STRIDE), RNF de seguridad obligatorios en specs |
+| **`forge-plan-security`** | FlowForge | 📋 Nueva | Secure-by-design, OWASP ASVS, input validation patterns en planes |
+| **`forge-dev-security`** | FlowForge | 📋 Nueva | OWASP Top 10, XSS/CSRF/SQLi prevention en codificación |
+| **`forge-verify-security`** | FlowForge | 📋 Nueva | SAST mental, OWASP checklist, dependency audit en verificación |
+| **`forge-dev-solid`** | FlowForge | 📋 Nueva | Validación de principios SOLID post-codificación |
+
+### 🔜 OLA 2 — Calidad de Código y Patrones
+
+| Feature | Proyecto | Estado | Notas |
+|---------|----------|--------|-------|
+| Generador Automático de Reglas | FlowForge | ⏳ Pendiente | Script `generate-rules.sh` para compilar skills en `.cursorrules` |
+| `forge-plan-patterns` | FlowForge | 📋 Nueva | Catálogo GoF, enterprise, cloud-native patterns |
+| `forge-dev-testing` | FlowForge | 📋 Nueva | Property-based testing, fuzzing, mutation testing |
+| `forge-dev-performance` | FlowForge | 📋 Nueva | N+1 detection, caching patterns, lazy/eager loading |
+| `forge-verify-complexity` | FlowForge | 📋 Nueva | Complejidad ciclomática, nesting depth, cognitive load |
+| `forge-verify-performance` | FlowForge | 📋 Nueva | Benchmark validation, profiling, memory leak detection |
+| Dashboard web | FlowForge | 📝 Specs/Design Listos | Vanilla SPA para visualizar engram-dotnet |
+| Backend Config File | engram-dotnet | 📝 SDD Listo (Specs/Design/Tasks) | Configuración por archivo para engram-dotnet |
+
+### 🔷 OLA 3 — Infraestructura y Dominio
+
+| Feature | Proyecto | Estado | Notas |
+|---------|----------|--------|-------|
+| `forge-discovery-security` | FlowForge | 📋 Nueva | Buscar CVEs, vulnerabilidades conocidas del stack |
+| `forge-discovery-compliance` | FlowForge | 📋 Nueva | Implicaciones GDPR, SOC2, HIPAA |
+| `forge-arch-performance` | FlowForge | 📋 Nueva | SLAs/SLOs medibles en RNF |
+| `forge-arch-a11y` | FlowForge | 📋 Nueva | Requisitos WCAG en specs de UI |
+| `forge-arch-domain` | FlowForge | 📋 Nueva | DDD, bounded contexts, ubiquitous language |
+| `forge-plan-migrations` | FlowForge | 📋 Nueva | Zero-downtime DB migration strategies |
+| `forge-plan-rollback` | FlowForge | 📋 Nueva | Deploy y rollback strategies |
+| `forge-dev-refactor` | FlowForge | 📋 Nueva | Catálogo Fowler, code smells, refactoring patterns |
+
+### 🔹 OLA 4 — Métricas y Conocimiento (Post-MVP)
+
+| Feature | Proyecto | Estado | Notas |
+|---------|----------|--------|-------|
+| `forge-discovery-cost` | FlowForge | 📋 Nueva | Estimar impacto en infraestructura |
+| `forge-verify-a11y` | FlowForge | 📋 Nueva | Auditoría WCAG, contraste, navegación por teclado |
+| `forge-memory-metrics` | FlowForge | 📋 Nueva | Project health: coverage, deuda técnica, cycle time |
+| `forge-memory-changelog` | FlowForge | 📋 Nueva | Auto-generación de release notes y changelogs |
+| `forge-memory-knowledge` | FlowForge | 📋 Nueva | Cross-project knowledge graph, ADR cross-referencing |
+
+---
+
+## Features Completadas / Descartadas
+
+| Feature | Proyecto | Estado | Notas |
+|---------|----------|--------|-------|
+| Offline-First Sync | engram-dotnet | ✅ Archivado | 84 tests (72u + 12i), 4 fases |
+| Doctor Diagnostic | engram-dotnet | ✅ Archivado | 27 tests pasando |
+| Requirement Traceability | engram-dotnet | ✅ Archivado | 28 tests + 52 MCP regresión |
+| TTL Configurable | engram-dotnet | ✅ Archivado | 22 tests |
 | Orquestador AI opcional | FlowForge | ✅ Reemplazado | Reemplazado por Protocolo Multi-Agente Nativo en IDE |
-| Protocolo de Delegación | FlowForge | ✅ Completado | Reglas de orquestación multi-agente / monolítico documentadas |
-| Model Router MCP server | FlowForge | ❌ Descartado (Delegado al IDE) | Client-side Routing vía `.flowforge.json` |
-| Dashboard web | FlowForge | ⏳ Specs/Design Listos | Estructura Vanilla SPA de cero dependencias para visualizar engram-dotnet |
+| Protocolo de Delegación | FlowForge | ✅ Completado | Reglas de orquestación multi-agente / monolítico |
+| Model Router MCP server | FlowForge | ❌ Descartado | Client-side Routing vía `.flowforge.json` |

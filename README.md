@@ -2,7 +2,7 @@
 
 > **Forja tu flujo de desarrollo con agentes de IA.**
 
-FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños y medianos (SMB, 2-20 personas). Define cómo integrar agentes de IA en el ciclo de desarrollo de software con 3 checkpoints humanos, 5 agentes, y un protocolo de artefactos versionados.
+FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños y medianos (SMB, 2-20 personas). Define cómo integrar agentes de IA en el ciclo de desarrollo de software con 4 checkpoints humanos, 7 agentes, y un protocolo de artefactos versionados.
 
 ## Repositorios
 
@@ -21,7 +21,7 @@ FASE 3: EJECUCIÓN     → Inner Loop autónomo   ➔ código + tests (Sonnet/Fl
 FASE 4: CIERRE        → Checkpoint ③ (Humano)  → memoria + markdown (Haiku)
 ```
 
-- **5 fases**, **3 checkpoints humanos**, **7 agentes** (Orchestrator, Discovery, Arch, Plan, Dev, Verify, Memory)
+- **5 fases**, **4 checkpoints humanos + 1 deploy gate** (CKP-0 → CKP-4), **7 agentes** (Orchestrator, Discovery, Arch, Plan, Dev, Verify, Memory)
 - **Orquestador AI nativo (Semáforo)** — inyectado mediante reglas de entorno (`.cursorrules`, `.clinerules`, etc.)
 - **Model routing** óptimo por tipo de tarea (Sonnet para razonamiento denso, Haiku/Flash para lectura o clasificación barata)
 - **Memory Janitor** — pruning automático con TTL configurable (por tipo: tool_use=30d, bugfix=90d, etc.)

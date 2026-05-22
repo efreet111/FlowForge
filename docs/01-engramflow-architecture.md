@@ -1,7 +1,7 @@
 # EngramFlow — Arquitectura
 
-> **Versión**: 0.2 (diseño conceptual)
-> **Última actualización**: 2026-05-13
+> **Versión**: 0.3 (checkpoints normalizados)
+> **Última actualización**: 2026-05-21
 > **Estado**: Draft — sujeto a cambios durante implementación
 
 ---
@@ -18,7 +18,7 @@ EngramFlow es una metodología **Agentic SDLC** diseñada para equipos pequeños
 | **Contexto on-demand** | Los agentes no reciben contexto en el prompt — lo FETCHEAN via MCP cuando lo necesitan. Reduce tokens y evita contaminación por contexto irrelevante. |
 | **Model routing por tarea** | No se usa el mismo modelo para todo. Razonamiento complejo → Sonnet/Opus. Lectura/escritura → Haiku. Persistencia → $0 (SQL directo). |
 | **Artefactos versionados como protocolo** | spec.md, plan.md y rework_ticket.md son el "contrato" entre agentes. El orquestador es opcional — los artefactos mismos dirigen el flujo. |
-| **3 checkpoints humanos** | De ~8 interrupciones humanas en un SDLC tradicional, se reduce a 3. El humano no revisa código línea por línea — valida intención, arquitectura y resultado final. |
+| **4 checkpoints humanos + 1 deploy gate** | De ~8 interrupciones humanas en un SDLC tradicional, se reduce a 5 puntos de control: CKP-0 (Hard Stop binario), CKP-1 (spec), CKP-2 (plan), CKP-3 (escalation mecánico), CKP-4 (deploy gate). El humano no revisa código línea por línea — valida intención, arquitectura, y resultado final. |
 | **Memoria estratificada** | Dos niveles: operativa (DB con TTL, 30-90 días) y estructurada (.md versionados, permanentes). Lo efímero se borra solo; lo importante se preserva. |
 | **Orquestador AI opcional** | El flujo funciona sin un agente orquestador central. Para equipos que lo quieran, se configura desde JSON. |
 
@@ -33,36 +33,42 @@ La investigación de Agentsway, Twelve-Factor Agentic SDLC y ADLC muestra que:
 
 ---
 
-## 2. Las 4 Fases y 3 Checkpoints Humanos
+## 2. Las 5 Fases, 4 Checkpoints y 1 Deploy Gate
 
 ```
 ┌─────────────────────────────────────────────────────────────────────┐
 │                           ENGRAMFLOW                                │
-│    5 fases | 4 checkpoints humanos | 6 agentes   | Model routing    │
+│  5 fases | 4 checkpoints + 1 deploy gate | 7 agentes | Model routing│
 └─────────────────────────────────────────────────────────────────────┘
 
-FASE 0: DISCOVERY ───────────── Checkpoint ⓪ (Humano) ──────────────
+FASE 0: DISCOVERY ───────────── CKP-0 🔴 HARD STOP ──────────────────
 │  Asociación de memoria cruzada, mapeo de épicas y validación de HU
 │
 │  Agentes: Discovery Agent ── Análisis de contexto
 │  Entregables: Mapa de asociaciones de memoria
 │  Models: Haiku / Flash / GPT-4o-mini (rápido y barato)
+│
+│  ⚠️  Binario e inapelable: si el requerimiento es vago, PARA TODO.
 
-FASE 1: INTENCIÓN ───────────── Checkpoint ① (Humano) ──────────────
+FASE 1: INTENCIÓN ───────────── CKP-1 🟡 SEMÁFORO AMARILLO ─────────
 │  Revisión de prioridades y validación de intención de negocio
 │
 │  Agentes: Arch Agent ─── spec.md + Capability Matrix
 │
 │  Entregables: spec.md, Capability Matrix
 │  Models: Sonnet (razonar), Haiku (leer contexto/tool_use)
+│
+│  🟡 El humano decide: "¿Aprobás o querés ajustar algo?"
 
-FASE 2: ARQUITECTURA ───────── Checkpoint ② (Humano) ──────────────
+FASE 2: ARQUITECTURA ───────── CKP-2 🟡 SEMÁFORO AMARILLO ─────────
 │  Validación y aprobación del plan de implementación
 │
 │  Agentes: Plan Agent ─── plan.md + descomposición de tareas
 │
 │  Entregables: plan.md, contratos MCP
 │  Models: Sonnet (arquitectura, descomposición), Haiku (rutinas)
+│
+│  🟡 El humano decide: "¿Luz verde para codificar?"
 
 FASE 3: EJECUCIÓN ──────────── Inner Loop autónomo ────────────────
 │  Sin checkpoint humano — autonomía supervisada con autocorrección
@@ -77,9 +83,10 @@ FASE 3: EJECUCIÓN ──────────── Inner Loop autónomo ─
 │  Feedback loop:
 │    Verify Agent falla → escribe rework_ticket.md
 │    Dev Agent lo toma como nuevo plan → reintenta
-│    Máximo 3 ciclos → si sigue fallando, ESCALATE a humano
+│    Máximo 3 ciclos → CKP-3 🔴 FRENO DE EMERGENCIA → ESCALATE a humano
+│    (El Orquestador AI opcional puede modificar plan.md o escalar)
 
-FASE 4: CIERRE ─────────────── Checkpoint ③ (Humano) ──────────────
+FASE 4: CIERRE ─────────────── CKP-4 🟢 DEPLOY GATE ────────────────
 │  Revisión final + decisión de deploy
 │
 │  Agentes:
@@ -88,6 +95,8 @@ FASE 4: CIERRE ─────────────── Checkpoint ③ (Hum
 │
 │  Entregables: CLAUDE.md actualizado, engramas persistidos, .md estructurados
 │  Models: Haiku (estructurar, clasificar), $0 (SQL directo para persistencia)
+│
+│  🟢 El humano decide: "¿Deployeamos?"
 ```
 
 ---
