@@ -129,29 +129,33 @@ engram-dotnet/
 ## Timeline Actualizado
 
 ```
-✅ COMPLETADO                       🔥 GRUPO A (AHORA): Motor        🔥 GRUPO B: Seguridad
+✅ COMPLETADO                       🔥 GRUPO B: Seguridad            🔜 OLA 2
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ verification-tools               🔥 Checkpoint Docs: Normalizar    🔥 forge-arch-security
-✅ promotion-level2                 🔥 Pulir Skills Core              🔥 forge-plan-security
-✅ traceability                     🔥 AGENTS.md: Actualizar índice   🔥 forge-dev-security
-✅ ttl-configurable                 🔥 CLI Wizard: forge init         🔥 forge-verify-security
-✅ doctor-diagnostic                🔥 Generador de Reglas            🔥 forge-dev-solid
-✅ offline-first-sync
-✅ spec-7-skills-core
-✅ orchestrator-delegation-protocol
-✅ git-repository-bootstrap
-✅ advanced-engram-integration   
+✅ verification-tools               ✅ forge-arch-security            🔜 forge-plan-patterns
+✅ promotion-level2                 ✅ forge-plan-security            🔜 forge-dev-testing
+✅ traceability                     ✅ forge-dev-security             🔜 forge-dev-performance
+✅ ttl-configurable                 ✅ forge-verify-security          🔜 forge-verify-complexity
+✅ doctor-diagnostic                ✅ forge-dev-solid                🔜 forge-verify-performance
+✅ offline-first-sync               ✅ CLI Wizard: forge init         🔜 Dashboard web
+✅ spec-7-skills-core               ✅ Checkpoint Docs: Normalizar    🔜 Backend Config File
+✅ orchestrator-delegation-protocol ✅ Pulir Skills Core
+✅ git-repository-bootstrap         ✅ AGENTS.md: Actualizar índice
+✅ advanced-engram-integration
+✅ Grupo A: Workflow Core
+✅ Grupo B: Security Skills
 
-🔜 OLA 2                            🔷 OLA 3                         🔹 OLA 4
+🔷 OLA 3                            🔹 OLA 4
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔜 forge-plan-patterns              🔷 forge-discovery-security       🔹 forge-discovery-cost
-🔜 forge-dev-testing                🔷 forge-discovery-compliance     🔹 forge-verify-a11y
-🔜 forge-dev-performance            🔷 forge-arch-performance         🔹 forge-memory-metrics
-🔜 forge-verify-complexity          🔷 forge-arch-a11y                🔹 forge-memory-changelog
-🔜 forge-verify-performance         🔷 forge-arch-domain              🔹 forge-memory-knowledge
-🔜 Dashboard web                    🔷 forge-plan-migrations
-🔜 Backend Config File              🔷 forge-plan-rollback
-                                    🔷 forge-dev-refactor
+🔷 forge-discovery-security         🔹 forge-discovery-cost
+🔷 forge-discovery-compliance       🔹 forge-verify-a11y
+🔷 forge-arch-performance           🔹 forge-memory-metrics
+🔷 forge-arch-a11y                  🔹 forge-memory-changelog
+🔷 forge-arch-domain                🔹 forge-memory-knowledge
+🔷 forge-plan-migrations
+🔷 forge-plan-rollback
+🔷 forge-dev-refactor
+🔷 Generador de Reglas
+```
 ```
 
 ---
@@ -170,15 +174,15 @@ engram-dotnet/
 | **CLI Wizard: `forge init`** | FlowForge | 📝 Exploration + SDD parcial | C# Native AOT: config interactiva de `.flowforge.json` |
 | **Generador Automático de Reglas** | FlowForge | ⏳ Pendiente | Script para compilar skills en `.cursorrules` / `.clinerules` |
 
-#### Grupo B: Skills de Seguridad (fortalecimiento — después del motor)
+#### Grupo B: Skills de Seguridad (fortalecimiento)
 
 | Feature | Proyecto | Estado | Notas |
 |---------|----------|--------|-------|
-| **`forge-arch-security`** | FlowForge | 📋 Nueva | Threat modeling (STRIDE), RNF de seguridad obligatorios en specs |
-| **`forge-plan-security`** | FlowForge | 📋 Nueva | Secure-by-design, OWASP ASVS, input validation patterns en planes |
-| **`forge-dev-security`** | FlowForge | 📋 Nueva | OWASP Top 10, XSS/CSRF/SQLi prevention en codificación |
-| **`forge-verify-security`** | FlowForge | 📋 Nueva | SAST mental, OWASP checklist, dependency audit en verificación |
-| **`forge-dev-solid`** | FlowForge | 📋 Nueva | Validación de principios SOLID post-codificación |
+| **`forge-arch-security`** | FlowForge | ✅ Creado | Threat modeling (STRIDE), RNF de seguridad obligatorios en specs |
+| **`forge-plan-security`** | FlowForge | ✅ Creado | Secure-by-design, OWASP ASVS, input validation patterns en planes |
+| **`forge-dev-security`** | FlowForge | ✅ Creado | OWASP Top 10, XSS/CSRF/SQLi prevention en codificación |
+| **`forge-verify-security`** | FlowForge | ✅ Creado | SAST mental, OWASP checklist, dependency audit en verificación |
+| **`forge-dev-solid`** | FlowForge | ✅ Creado | Validación de principios SOLID post-codificación |
 
 ### 🔜 OLA 2 — Calidad de Código y Patrones
 
