@@ -81,6 +81,8 @@
 | `09-open-source-integration.md` | ✅ Actualizado | Integración con OSS |
 | `10-memory-mapping-fallback.md` | ✅ Completo | Degradación graciosa |
 | `11-orchestrator-delegation-protocol.md` | ✅ Nuevo | Protocolo multi-agente y .flowforge.json |
+| `12-engram-tool-reference.md` | ✅ Nuevo | Referencia canónica de las 25 herramientas MCP de engram-dotnet en 6 áreas |
+| `13-edge-cases-and-risks.md` | ✅ Nuevo | Risk register, failure modes, y preguntas abiertas de la metodología |
 | `PRD.md` | ✅ Completo | Visión general del ecosistema FlowForge |
 | `README.md` | ✅ Actualizado | Visión general del proyecto |
 | `test-matrix.md` | ✅ Completo | 236 tests documentados por feature y tipo |
@@ -100,6 +102,8 @@
 | **advanced-engram-integration** (5 tasks) | ✅ Completo | 0 (Doc & Skills) | `/skills/` |
 
 ### Arquitectura resultante
+
+> 📖 **Referencia completa de herramientas**: [`12-engram-tool-reference.md`](12-engram-tool-reference.md) — 25 herramientas MCP en 6 áreas.
 
 ```
 engram-dotnet/
@@ -211,6 +215,21 @@ engram-dotnet/
 | `forge-memory-metrics` | FlowForge | 📋 Nueva | Project health: coverage, deuda técnica, cycle time |
 | `forge-memory-changelog` | FlowForge | 📋 Nueva | Auto-generación de release notes y changelogs |
 | `forge-memory-knowledge` | FlowForge | 📋 Nueva | Cross-project knowledge graph, ADR cross-referencing |
+
+---
+
+## 🔮 Ideas Futuras (Incubadora — sin priorizar)
+
+Extraídas del análisis de riesgos en [`13-edge-cases-and-risks.md`](13-edge-cases-and-risks.md). Son features que aún necesitan maduración antes de entrar al backlog priorizado.
+
+| Idea | Origen | Notas |
+|------|--------|-------|
+| **Context Poisoning Guardrail** | Edge Cases §2 | Agente ligero que valida si un engrama viejo sigue siendo relevante antes de que la Fase 2 lo use |
+| **Conflict Resolution Agent** | Edge Cases §2 | Watcher que detecta colisiones entre agentes trabajando en el mismo namespace antes del merge |
+| **Cost Observability Dashboard** | Edge Cases §2 | Dashboard (consola o web) que muestre costo en USD por fase/épica |
+| **Drift Health Check** | Edge Cases §3 | Agente que compara código actual vs plan.md cada N commits y alerta si hay desviación |
+| **Message Queue para Escrituras .md** | Edge Cases §1 | Cola secuencial en engram-dotnet para evitar colisiones de escritura en archivos de respaldo |
+| **Lineage Enforcement en CKP-3** | Edge Cases §5 | El orquestador bloquea CKP-3 si el linaje de datos no es válido |
 
 ---
 

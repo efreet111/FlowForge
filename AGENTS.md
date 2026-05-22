@@ -2,6 +2,8 @@
 
 When working on this project, load the relevant skill(s) BEFORE writing any code.
 
+> **🔧 engram-dotnet Reference**: For the complete catalog of 25 MCP tools across 6 capability areas (Core Memory, Sync, Verification, ADR Promotion, Obsidian Export, Diagnostics), see [`docs/12-engram-tool-reference.md`](docs/12-engram-tool-reference.md). Every agent should know which tools are available before starting any phase.
+
 ## How to Use
 
 1. Check the trigger column to find skills that match your current task.
