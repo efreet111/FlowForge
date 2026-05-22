@@ -129,32 +129,29 @@ engram-dotnet/
 ## Timeline Actualizado
 
 ```
-✅ COMPLETADO                       🔥 GRUPO B: Seguridad            🔜 OLA 2
+✅ COMPLETADO                       ✅ OLA 2: Calidad y Patrones      🔷 OLA 3
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ verification-tools               ✅ forge-arch-security            🔜 forge-plan-patterns
-✅ promotion-level2                 ✅ forge-plan-security            🔜 forge-dev-testing
-✅ traceability                     ✅ forge-dev-security             🔜 forge-dev-performance
-✅ ttl-configurable                 ✅ forge-verify-security          🔜 forge-verify-complexity
-✅ doctor-diagnostic                ✅ forge-dev-solid                🔜 forge-verify-performance
-✅ offline-first-sync               ✅ CLI Wizard: forge init         🔜 Dashboard web
-✅ spec-7-skills-core               ✅ Checkpoint Docs: Normalizar    🔜 Backend Config File
-✅ orchestrator-delegation-protocol ✅ Pulir Skills Core
-✅ git-repository-bootstrap         ✅ AGENTS.md: Actualizar índice
+✅ verification-tools               ✅ forge-plan-patterns             🔷 forge-discovery-security
+✅ promotion-level2                 ✅ forge-dev-testing               🔷 forge-discovery-compliance
+✅ traceability                     ✅ forge-dev-performance           🔷 forge-arch-performance
+✅ ttl-configurable                 ✅ forge-verify-complexity         🔷 forge-arch-a11y
+✅ doctor-diagnostic                ✅ forge-verify-performance        🔷 forge-arch-domain
+✅ offline-first-sync               🔜 Generador de Reglas            🔷 forge-plan-migrations
+✅ spec-7-skills-core               🔜 Dashboard web                  🔷 forge-plan-rollback
+✅ orchestrator-delegation-protocol 🔜 Backend Config File             🔷 forge-dev-refactor
+✅ git-repository-bootstrap
 ✅ advanced-engram-integration
 ✅ Grupo A: Workflow Core
 ✅ Grupo B: Security Skills
+✅ OLA 2: Quality & Patterns
 
-🔷 OLA 3                            🔹 OLA 4
+🔹 OLA 4
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔷 forge-discovery-security         🔹 forge-discovery-cost
-🔷 forge-discovery-compliance       🔹 forge-verify-a11y
-🔷 forge-arch-performance           🔹 forge-memory-metrics
-🔷 forge-arch-a11y                  🔹 forge-memory-changelog
-🔷 forge-arch-domain                🔹 forge-memory-knowledge
-🔷 forge-plan-migrations
-🔷 forge-plan-rollback
-🔷 forge-dev-refactor
-🔷 Generador de Reglas
+🔹 forge-discovery-cost
+🔹 forge-verify-a11y
+🔹 forge-memory-metrics
+🔹 forge-memory-changelog
+🔹 forge-memory-knowledge
 ```
 ```
 
@@ -188,12 +185,12 @@ engram-dotnet/
 
 | Feature | Proyecto | Estado | Notas |
 |---------|----------|--------|-------|
-| Generador Automático de Reglas | FlowForge | ⏳ Pendiente | Script `generate-rules.sh` para compilar skills en `.cursorrules` |
-| `forge-plan-patterns` | FlowForge | 📋 Nueva | Catálogo GoF, enterprise, cloud-native patterns |
-| `forge-dev-testing` | FlowForge | 📋 Nueva | Property-based testing, fuzzing, mutation testing |
-| `forge-dev-performance` | FlowForge | 📋 Nueva | N+1 detection, caching patterns, lazy/eager loading |
-| `forge-verify-complexity` | FlowForge | 📋 Nueva | Complejidad ciclomática, nesting depth, cognitive load |
-| `forge-verify-performance` | FlowForge | 📋 Nueva | Benchmark validation, profiling, memory leak detection |
+| **`forge-plan-patterns`** | FlowForge | ✅ Creado | Catálogo GoF (creational/structural/behavioral), enterprise, cloud-native patterns |
+| **`forge-dev-testing`** | FlowForge | ✅ Creado | Property-based testing, fuzzing, mutation testing, integration test patterns |
+| **`forge-dev-performance`** | FlowForge | ✅ Creado | N+1 detection, caching patterns (5 strategies), batching, lazy vs eager loading |
+| **`forge-verify-complexity`** | FlowForge | ✅ Creado | Cyclomatic complexity, nesting depth, cognitive load, code smell detection |
+| **`forge-verify-performance`** | FlowForge | ✅ Creado | N+1 query audit, memory leak detection, benchmark validation, Big-O analysis |
+| Generador Automático de Reglas | FlowForge | ⏳ Pendiente | Script para compilar skills en `.cursorrules` |
 | Dashboard web | FlowForge | 📝 Specs/Design Listos | Vanilla SPA para visualizar engram-dotnet |
 | Backend Config File | engram-dotnet | 📝 SDD Listo (Specs/Design/Tasks) | Configuración por archivo para engram-dotnet |
 
