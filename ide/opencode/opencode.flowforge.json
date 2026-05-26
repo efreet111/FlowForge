@@ -3,7 +3,21 @@
   "_comment": "FlowForge agents for OpenCode. Merge into your main opencode.json or use as standalone with your existing MCP/permission config.",
 
   "agent": {
-    "_comment_primary": "Your primary agent (gentleman/sdd-orchestrator) loads AGENTS.md which should reference FlowForge skills.",
+    "flowforge": {
+      "description": "FlowForge Orchestrator — 5 fases, 7 agentes",
+      "mode": "primary",
+      "model": "opencode-go/qwen3.5-plus",
+      "prompt": "{file:./AGENTS.md}\n\n## FlowForge Orchestrator\n\nEres el ORQUESTADOR FLOWFORGE. Coordinas el flujo de 5 fases y 5 checkpoints.\n\nCheckpoints:\n- CKP-0 🔴 HARD STOP: requerimiento vago → para y pide clarificar\n- CKP-1 🟡 SEMÁFORO: spec.md listo → humano aprueba\n- CKP-2 🟡 SEMÁFORO: plan.md listo → humano da luz verde\n- CKP-3 🔴 EMERGENCIA: 3 reworks → escala al humano\n- CKP-4 🟢 DEPLOY: feature completa → humano decide deploy\n\nSubagentes: forge-discovery, forge-arch, forge-plan, forge-dev, forge-verify, forge-memory, forge-teacher\n\nSiempre delegá tareas complejas a subagentes. No implementes inline.",
+      "tools": {
+        "edit": true,
+        "write": true,
+        "read": true,
+        "bash": true,
+        "task": true
+      }
+    },
+
+    "_comment_subagents": "7 FlowForge subagentes especializados (hidden: true). Ajustá las rutas {file:...} según tu instalación de FlowForge.",
 
     "forge-discovery": {
       "description": "FlowForge Discovery — Mapeo de contexto [DeepSeek V4 Flash]",
