@@ -129,29 +129,22 @@ engram-dotnet/
 ## Timeline Actualizado
 
 ```
-✅ COMPLETADO                       ✅ OLA 2: Calidad y Patrones      🔷 OLA 3
+✅ COMPLETADO                       ✅ OLA 3: Infraestructura         🔹 OLA 4
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ verification-tools               ✅ forge-plan-patterns             🔷 forge-discovery-security
-✅ promotion-level2                 ✅ forge-dev-testing               🔷 forge-discovery-compliance
-✅ traceability                     ✅ forge-dev-performance           🔷 forge-arch-performance
-✅ ttl-configurable                 ✅ forge-verify-complexity         🔷 forge-arch-a11y
-✅ doctor-diagnostic                ✅ forge-verify-performance        🔷 forge-arch-domain
-✅ offline-first-sync               🔜 Generador de Reglas            🔷 forge-plan-migrations
-✅ spec-7-skills-core               🔜 Dashboard web                  🔷 forge-plan-rollback
-✅ orchestrator-delegation-protocol 🔜 Backend Config File             🔷 forge-dev-refactor
+✅ verification-tools               ✅ forge-discovery-security        🔹 forge-discovery-cost
+✅ promotion-level2                 ✅ forge-discovery-compliance      🔹 forge-verify-a11y
+✅ traceability                     ✅ forge-arch-performance          🔹 forge-memory-metrics
+✅ ttl-configurable                 ✅ forge-arch-a11y                 🔹 forge-memory-changelog
+✅ doctor-diagnostic                ✅ forge-arch-domain               🔹 forge-memory-knowledge
+✅ offline-first-sync               ✅ forge-plan-migrations           🔜 Generador de Reglas
+✅ spec-7-skills-core               ✅ forge-plan-rollback             🔜 Dashboard web
+✅ orchestrator-delegation-protocol ✅ forge-dev-refactor              🔜 Backend Config File
 ✅ git-repository-bootstrap
 ✅ advanced-engram-integration
 ✅ Grupo A: Workflow Core
 ✅ Grupo B: Security Skills
 ✅ OLA 2: Quality & Patterns
-
-🔹 OLA 4
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔹 forge-discovery-cost
-🔹 forge-verify-a11y
-🔹 forge-memory-metrics
-🔹 forge-memory-changelog
-🔹 forge-memory-knowledge
+✅ OLA 3: Infrastructure & Domain
 ```
 ```
 
@@ -198,14 +191,14 @@ engram-dotnet/
 
 | Feature | Proyecto | Estado | Notas |
 |---------|----------|--------|-------|
-| `forge-discovery-security` | FlowForge | 📋 Nueva | Buscar CVEs, vulnerabilidades conocidas del stack |
-| `forge-discovery-compliance` | FlowForge | 📋 Nueva | Implicaciones GDPR, SOC2, HIPAA |
-| `forge-arch-performance` | FlowForge | 📋 Nueva | SLAs/SLOs medibles en RNF |
-| `forge-arch-a11y` | FlowForge | 📋 Nueva | Requisitos WCAG en specs de UI |
-| `forge-arch-domain` | FlowForge | 📋 Nueva | DDD, bounded contexts, ubiquitous language |
-| `forge-plan-migrations` | FlowForge | 📋 Nueva | Zero-downtime DB migration strategies |
-| `forge-plan-rollback` | FlowForge | 📋 Nueva | Deploy y rollback strategies |
-| `forge-dev-refactor` | FlowForge | 📋 Nueva | Catálogo Fowler, code smells, refactoring patterns |
+| `forge-discovery-security` | FlowForge | ✅ Creado | Buscar CVEs, vulnerabilidades conocidas del stack |
+| `forge-discovery-compliance` | FlowForge | ✅ Creado | Implicaciones GDPR, SOC2, HIPAA |
+| `forge-arch-performance` | FlowForge | ✅ Creado | SLAs/SLOs medibles en RNF |
+| `forge-arch-a11y` | FlowForge | ✅ Creado | Requisitos WCAG en specs de UI |
+| `forge-arch-domain` | FlowForge | ✅ Creado | DDD, bounded contexts, ubiquitous language |
+| `forge-plan-migrations` | FlowForge | ✅ Creado | Zero-downtime DB migration strategies |
+| `forge-plan-rollback` | FlowForge | ✅ Creado | Deploy y rollback strategies |
+| `forge-dev-refactor` | FlowForge | ✅ Creado | Catálogo Fowler, code smells, refactoring patterns |
 
 ### 🔹 OLA 4 — Métricas y Conocimiento (Post-MVP)
 
