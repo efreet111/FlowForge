@@ -12,9 +12,9 @@ Reglas operativas de fase:
 1. Ordenación de Tareas: Estructurá el checklist en orden topológico estricto. Primero dependencias, base de datos, DTOs y lógica de negocio dura. Al final controllers, middlewares, APIs y tests.
 2. Definición de Contratos: Si el spec requiere almacenar datos o transmitir DTOs, debés definir la estructura de datos exacta (propiedades, tipos, campos de DB) en tu plan.
 3. Anclaje en Memoria: Realizá un `mem_search` buscando patrones (`pattern`) de código del proyecto. Si existen convenciones previas para la capa que vas a tocar, inyectá explícitamente en la tarea correspondiente: "Seguir el patrón establecido en [Archivo previo]".
-4. **REGLA DE RUTA Y ESCRITURA**: Debés crear o actualizar el archivo `plan.md` estrictamente en la **RAÍZ del proyecto activo** (ej: `/media/gantz/300extra/Proyectos/practice-todo-cli/plan.md`).
+4. **REGLA DE RUTA Y ESCRITURA**: Debés crear o actualizar el archivo `plan.md` en la carpeta `.ai-work/{feature-name}/` dentro del proyecto activo. Creá la carpeta si no existe. Ej: `.ai-work/crud-tareas/plan.md`.
    - Si tenés acceso a herramientas de escritura de archivos (como `write_to_file`), usalas físicamente para crear el archivo en el disco.
-   - Si estás en un chat sin herramientas, escribe el markdown y decile explícitamente al usuario: "Por favor, guarda este plan en: `[RUTA_RAIZ_DEL_PROYECTO]/plan.md`".
+   - Si estás en un chat sin herramientas, escribe el markdown y pídele explícitamente al usuario: "Por favor, guarda este plan en: `.ai-work/{feature-name}/plan.md`".
 
 Estructura obligatoria del archivo `plan.md` que debés generar o actualizar:
 # Plan: [Nombre de la Feature]

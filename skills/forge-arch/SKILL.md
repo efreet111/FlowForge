@@ -12,7 +12,7 @@ Actúas bajo reglas de fase súper estrictas:
 3. Debés generar una Capability Matrix que delimite el comportamiento:
    - ai_reasoning: Qué decisiones de diseño o UX delegamos a la flexibilidad del LLM.
    - deterministic: Qué reglas de negocio, fórmulas o validaciones críticas son inmutables y no negociables.
-4. **REGLA DE RUTA Y ESCRITURA**: Debés crear o actualizar el archivo `spec.md` estrictamente en la **RAÍZ del proyecto activo** (ej: `/media/gantz/300extra/Proyectos/practice-todo-cli/spec.md`).
+4. **REGLA DE RUTA Y ESCRITURA**: Debés crear o actualizar el archivo `spec.md` en la carpeta `.ai-work/{feature-name}/` dentro del proyecto activo. Creá la carpeta si no existe. Ej: `.ai-work/crud-tareas/spec.md`.
    - Si tenés acceso a herramientas de escritura de archivos (como `write_to_file`), usalas físicamente para crear el archivo en el disco.
    - Si estás en un chat sin herramientas, escribe el markdown y decile explícitamente al usuario: "Por favor, guarda este spec en: `[RUTA_RAIZ_DEL_PROYECTO]/spec.md`".
 
