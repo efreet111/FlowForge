@@ -129,22 +129,14 @@ engram-dotnet/
 ## Timeline Actualizado
 
 ```
-✅ COMPLETADO                       ✅ OLA 3: Infraestructura         🔹 OLA 4
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✅ verification-tools               ✅ forge-discovery-security        🔹 forge-discovery-cost
-✅ promotion-level2                 ✅ forge-discovery-compliance      🔹 forge-verify-a11y
-✅ traceability                     ✅ forge-arch-performance          🔹 forge-memory-metrics
-✅ ttl-configurable                 ✅ forge-arch-a11y                 🔹 forge-memory-changelog
-✅ doctor-diagnostic                ✅ forge-arch-domain               🔹 forge-memory-knowledge
-✅ offline-first-sync               ✅ forge-plan-migrations           🔜 Generador de Reglas
-✅ spec-7-skills-core               ✅ forge-plan-rollback             🔜 Dashboard web
-✅ orchestrator-delegation-protocol ✅ forge-dev-refactor              🔜 Backend Config File
-✅ git-repository-bootstrap
-✅ advanced-engram-integration
-✅ Grupo A: Workflow Core
-✅ Grupo B: Security Skills
-✅ OLA 2: Quality & Patterns
-✅ OLA 3: Infrastructure & Domain
+✅ COMPLETADO — 30 Skills                         🔧 PRÓXIMOS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 7 Skills Core                                  🔧 Generador de Reglas
+✅ OLA 1: Security + SOLID (5)                    🔧 Dashboard web
+✅ OLA 2: Quality + Patterns (5)                  🔧 Backend Config File
+✅ OLA 3: Infrastructure & Domain (8)             🔧 CLI Wizard (forge init)
+✅ OLA 4: Metrics & Knowledge (5)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 ```
 
@@ -200,15 +192,15 @@ engram-dotnet/
 | `forge-plan-rollback` | FlowForge | ✅ Creado | Deploy y rollback strategies |
 | `forge-dev-refactor` | FlowForge | ✅ Creado | Catálogo Fowler, code smells, refactoring patterns |
 
-### 🔹 OLA 4 — Métricas y Conocimiento (Post-MVP)
+### 🔹 OLA 4 — Métricas y Conocimiento
 
 | Feature | Proyecto | Estado | Notas |
 |---------|----------|--------|-------|
-| `forge-discovery-cost` | FlowForge | 📋 Nueva | Estimar impacto en infraestructura |
-| `forge-verify-a11y` | FlowForge | 📋 Nueva | Auditoría WCAG, contraste, navegación por teclado |
-| `forge-memory-metrics` | FlowForge | 📋 Nueva | Project health: coverage, deuda técnica, cycle time |
-| `forge-memory-changelog` | FlowForge | 📋 Nueva | Auto-generación de release notes y changelogs |
-| `forge-memory-knowledge` | FlowForge | 📋 Nueva | Cross-project knowledge graph, ADR cross-referencing |
+| `forge-discovery-cost` | FlowForge | ✅ Creado | Estimar impacto en infraestructura |
+| `forge-verify-a11y` | FlowForge | ✅ Creado | Auditoría WCAG, contraste, navegación por teclado |
+| `forge-memory-metrics` | FlowForge | ✅ Creado | Project health: coverage, deuda técnica, cycle time |
+| `forge-memory-changelog` | FlowForge | ✅ Creado | Auto-generación de release notes y changelogs |
+| `forge-memory-knowledge` | FlowForge | ✅ Creado | Cross-project knowledge graph, ADR cross-referencing |
 
 ---
 
