@@ -1,8 +1,8 @@
 # FlowForge + engram-dotnet — Roadmap Conjunto
 
-> **Última actualización**: 2026-05-21
+> **Última actualización**: 2026-05-26
 > **Versión actual (engram-dotnet)**: main (post PR #11)
-> **Versión actual (FlowForge)**: 0.3 (fortalecimiento de agentes)
+> **Versión actual (FlowForge)**: 0.3 (análisis objetivo — 14 items de mejora identificados)
 
 ---
 
@@ -129,6 +129,15 @@ engram-dotnet/
 ## Timeline Actualizado
 
 ```
+✅ COMPLETADO — Skills                      🚀 SEMANA 1: MVP          🚀 SEMANA 2-3: Adopción
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ 7 Skills Core                              🚀 1. Probar OpenCode     🚀 4. QUICKSTART.md
+✅ OLA 1: Security + SOLID (5)                🚀 2. Caso CRUD real      🚀 5. Template proyecto
+✅ OLA 2: Quality + Patterns (5)              🚀 3. Artefactos demo     🚀 6. Schema flowforge.json
+✅ OLA 3: Infrastructure & Domain (8)         🚀 9. Diagnosticar engram  🚀 7. install.sh
+✅ OLA 4: Metrics & Knowledge (5)                                         🚀 8. Probar IDE files
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+```
 ✅ COMPLETADO — 30 Skills                         🔧 PRÓXIMOS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ✅ 7 Skills Core                                  🔧 Generador de Reglas
@@ -142,65 +151,62 @@ engram-dotnet/
 
 ---
 
-## Features en el Backlog (priorizado)
+## Backlog de Skills Especializadas
 
-### 🔥 OLA 1 — Workflow Core + Seguridad Transversal
+Todas las 23 skills especializadas + 1 teacher están **completadas** (7 core + 23 especializadas + 1 teacher = 31 total).
 
-#### Grupo A: Workflow Core (prioridad máxima — hace funcionar el motor)
+Ver detalle en [`15-agent-skills-technical-spec.md`](15-agent-skills-technical-spec.md) y estructura en `skills/`.
 
-| Feature | Proyecto | Estado | Notas |
-|---------|----------|--------|-------|
-| **Normalizar Documentación de Checkpoints** | FlowForge | 📝 Auditado (2026-05-21) | Corregir README, architecture doc, orchestrator skill, AI orchestrator doc |
-| **Pulir Skills Core** | FlowForge | 🔧 En revisión | Alinear forge-orchestrator, forge-discovery, forge-arch, forge-plan, forge-dev, forge-verify, forge-memory con checkpoints normalizados |
-| **AGENTS.md — Actualizar índice** | FlowForge | 📝 Pendiente | Agregar checkpoints normalizados + skills especializadas al índice de agentes |
-| **CLI Wizard: `forge init`** | FlowForge | 📝 Exploration + SDD parcial | C# Native AOT: config interactiva de `.flowforge.json` |
-| **Generador Automático de Reglas** | FlowForge | ⏳ Pendiente | Script para compilar skills en `.cursorrules` / `.clinerules` |
+El foco actual está en el **[Plan de Mejora — 14 items](#🚀-plan-de-mejora--14-items-para-llevar-flowforge-a-producción)** que antecede a esta sección.
 
-#### Grupo B: Skills de Seguridad (fortalecimiento)
+---
 
-| Feature | Proyecto | Estado | Notas |
-|---------|----------|--------|-------|
-| **`forge-arch-security`** | FlowForge | ✅ Creado | Threat modeling (STRIDE), RNF de seguridad obligatorios en specs |
-| **`forge-plan-security`** | FlowForge | ✅ Creado | Secure-by-design, OWASP ASVS, input validation patterns en planes |
-| **`forge-dev-security`** | FlowForge | ✅ Creado | OWASP Top 10, XSS/CSRF/SQLi prevention en codificación |
-| **`forge-verify-security`** | FlowForge | ✅ Creado | SAST mental, OWASP checklist, dependency audit en verificación |
-| **`forge-dev-solid`** | FlowForge | ✅ Creado | Validación de principios SOLID post-codificación |
+## 🚀 Plan de Mejora — 14 items para llevar FlowForge a Producción
 
-### 🔜 OLA 2 — Calidad de Código y Patrones
+> **Análisis objetivo**: 2026-05-26 — El proyecto es 96% documentación, 4% código. No se ha probado con un proyecto real. Estos items son necesarios para que FlowForge sea usable en el día a día.
 
-| Feature | Proyecto | Estado | Notas |
-|---------|----------|--------|-------|
-| **`forge-plan-patterns`** | FlowForge | ✅ Creado | Catálogo GoF (creational/structural/behavioral), enterprise, cloud-native patterns |
-| **`forge-dev-testing`** | FlowForge | ✅ Creado | Property-based testing, fuzzing, mutation testing, integration test patterns |
-| **`forge-dev-performance`** | FlowForge | ✅ Creado | N+1 detection, caching patterns (5 strategies), batching, lazy vs eager loading |
-| **`forge-verify-complexity`** | FlowForge | ✅ Creado | Cyclomatic complexity, nesting depth, cognitive load, code smell detection |
-| **`forge-verify-performance`** | FlowForge | ✅ Creado | N+1 query audit, memory leak detection, benchmark validation, Big-O analysis |
-| Generador Automático de Reglas | FlowForge | ⏳ Pendiente | Script para compilar skills en `.cursorrules` |
-| Dashboard web | FlowForge | 📝 Specs/Design Listos | Vanilla SPA para visualizar engram-dotnet |
-| Backend Config File | engram-dotnet | 📝 SDD Listo (Specs/Design/Tasks) | Configuración por archivo para engram-dotnet |
+### ⏰ Semana 1 — MVP Funcional (probar que existe)
 
-### 🔷 OLA 3 — Infraestructura y Dominio
+| Item | Prioridad | Estado | Notas |
+|------|-----------|--------|-------|
+| **1. Probar ide/opencode en tu OpenCode** | P0 | 📋 Pendiente | Cargar los 7 subagentes en opencode.json y verificar que deleguen correctamente |
+| **2. Ejecutar Caso 1 (CRUD) de docs/14** | P0 | 📋 Pendiente | Proyecto real (Task Manager API) de punta a punta: discovery → spec → plan → dev → verify → memory |
+| **3. Crear artefactos de ejemplo** | P0 | 📋 Pendiente | spec.md, plan.md, cert-report.md reales del proyecto demo, listos para mostrar |
 
-| Feature | Proyecto | Estado | Notas |
-|---------|----------|--------|-------|
-| `forge-discovery-security` | FlowForge | ✅ Creado | Buscar CVEs, vulnerabilidades conocidas del stack |
-| `forge-discovery-compliance` | FlowForge | ✅ Creado | Implicaciones GDPR, SOC2, HIPAA |
-| `forge-arch-performance` | FlowForge | ✅ Creado | SLAs/SLOs medibles en RNF |
-| `forge-arch-a11y` | FlowForge | ✅ Creado | Requisitos WCAG en specs de UI |
-| `forge-arch-domain` | FlowForge | ✅ Creado | DDD, bounded contexts, ubiquitous language |
-| `forge-plan-migrations` | FlowForge | ✅ Creado | Zero-downtime DB migration strategies |
-| `forge-plan-rollback` | FlowForge | ✅ Creado | Deploy y rollback strategies |
-| `forge-dev-refactor` | FlowForge | ✅ Creado | Catálogo Fowler, code smells, refactoring patterns |
+### ⏰ Semana 2 — Onboarding Mínimo
 
-### 🔹 OLA 4 — Métricas y Conocimiento
+| Item | Prioridad | Estado | Notas |
+|------|-----------|--------|-------|
+| **4. QUICKSTART.md de 1 página** | P0 | 📋 Pendiente | "FlowForge en 5 minutos": qué instalar, qué escribir, qué esperar |
+| **5. Template de proyecto FlowForge** | P1 | 📋 Pendiente | Repo separado (o branch) con `.flowforge.json`, `.ai-work/`, estructura pre-creada |
+| **6. Schema de `.flowforge.json`** | P1 | 📋 Pendiente | Documentar el schema completo con modelos, persona, DB, teacher_mode, SAST config |
 
-| Feature | Proyecto | Estado | Notas |
-|---------|----------|--------|-------|
-| `forge-discovery-cost` | FlowForge | ✅ Creado | Estimar impacto en infraestructura |
-| `forge-verify-a11y` | FlowForge | ✅ Creado | Auditoría WCAG, contraste, navegación por teclado |
-| `forge-memory-metrics` | FlowForge | ✅ Creado | Project health: coverage, deuda técnica, cycle time |
-| `forge-memory-changelog` | FlowForge | ✅ Creado | Auto-generación de release notes y changelogs |
-| `forge-memory-knowledge` | FlowForge | ✅ Creado | Cross-project knowledge graph, ADR cross-referencing |
+### ⏰ Semana 3 — Instalación y Testing
+
+| Item | Prioridad | Estado | Notas |
+|------|-----------|--------|-------|
+| **7. install.sh / install.ps1** | P1 | 📋 Pendiente | Script que detecte OpenCode / Cursor / Antigravity / VS Code y copie archivos automáticamente |
+| **8. Probar IDE files en todos los IDEs** | P1 | 📋 Pendiente | Verificar que los 20 archivos de `ide/` funcionan en OpenCode, Cursor, Antigravity, VS Code |
+| **9. Diagnóstico de engram-dotnet** | P0 | 📋 Pendiente | La memoria no conecta en varias sesiones — diagnosticar: ¿MCP? ¿red? ¿servidor? |
+| **10. Manejo de features concurrentes** | P2 | 📋 Pendiente | Protocolo para cuando dos devs trabajan features que tocan el mismo código (lock, merge, conflict) |
+
+### ⏰ Semana 4 — Medición y Maduración
+
+| Item | Prioridad | Estado | Notas |
+|------|-----------|--------|-------|
+| **11. KPIs de efectividad** | P2 | 📋 Pendiente | Definir métricas: tiempo por feature (ciclo completo), bugs post-deploy, rework rate, tokens consumidos |
+| **12. 3 features con FlowForge vs ad-hoc** | P2 | 📋 Pendiente | Correr 3 features con FlowForge y 3 sin, comparar KPIs. Evidencia empírica. |
+| **13. Guía de migración** | P2 | 📋 Pendiente | "De Scrum a FlowForge", "De ad-hoc a FlowForge" — tablas de equivalencia |
+| **14. Release versioning** | P3 | 📋 Pendiente | Adoptar semver, publicar releases en GitHub con changelog |
+
+### 📊 Resumen de Prioridades
+
+| Prioridad | Items | Semana |
+|-----------|-------|--------|
+| **P0 — Hace que FlowForge funcione de verdad** | 1, 2, 3, 4, 9 | Semana 1-2 |
+| **P1 — Hace que FlowForge sea adoptable** | 5, 6, 7, 8 | Semana 2-3 |
+| **P2 — Hace que FlowForge sea medible** | 10, 11, 12, 13 | Semana 4 |
+| **P3 — Ecosistema** | 14 | Post-MVP |
 
 ---
 
