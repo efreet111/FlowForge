@@ -93,3 +93,11 @@ Load these on-demand when the context demands domain expertise. The core skills 
 ---
 
 *This file acts as a public contract for IDE-native AI agents (Cursor Composer, Cline, Antigravity, OpenCode) to adhere strictly to the FlowForge methodology.*
+
+---
+
+## 🧑‍🏫 Cross-Cutting Skills (Afectan a cualquier agente)
+
+| Skill | Trigger | Path |
+|-------|---------|------|
+| `forge-teacher` | When `teacher_mode: true` in config — any agent should load this to explain decisions and teach patterns | [`skills/forge-teacher/SKILL.md`](skills/forge-teacher/SKILL.md) |

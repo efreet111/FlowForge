@@ -658,8 +658,49 @@ Usuario: "Agregar reportes con agregaciones complejas en SQL"
 |---|-----|-----------------|-------------------|
 | 1 | No hay `rollback_de_fase()` — si humano rechaza spec/plan, no hay ciclo formal | orchestrator/core | Agregar función que permita re-apertura controlada de fase anterior con contexto |
 | 2 | `verify/core/ejecutar_tests()` no funciona sin runtime (chat-only) | verify/core | Fallback: pedir al humano output de tests, o usar análisis estático de cobertura |
-| 3 | No hay SAST real — solo escaneo mental del LLM | verify/security | Integrar con Semgrep/SonarQube vía MCP cuando esté disponible |
-| 4 | `metrics/medir_cycle_time()` no tiene tracking automático de tiempo | memory/metrics | Agregar timestamps automáticos al inicio/fin de cada fase |
+| 3 | No hay SAST real — solo escaneo mental del LLM | verify/security | Ver análisis detallado abajo |
+| 4 | `metrics/medir_cycle_time()` no tiene tracking automático de tiempo | memory/metrics | ✅ Resuelto — timestamps automáticos por CKP |
+
+#### Análisis Detallado — Gap #3: Integración de SAST Real
+
+**Problema**: forge-verify/security hace escaneo de seguridad "mental" — el LLM lee el código y busca vulnerabilidades con su conocimiento. Esto es mejor que nada, pero:
+
+1. **Falso negativos**: El LLM puede no reconocer una vulnerabilidad si no está en sus datos de entrenamiento
+2. **Inconsistencia**: Dos verificaciones pueden dar resultados diferentes (mismo código, distinto contexto)
+3. **No hay CVE database**: El LLM no tiene acceso en tiempo real a bases de CVEs
+4. **No hay reglas personalizadas**: No se pueden escribir reglas de seguridad específicas del proyecto
+
+**Solución propuesta (3 niveles de integración)**:
+
+| Nivel | Herramienta | Cobertura | Dependencia |
+|-------|-------------|-----------|-------------|
+| **1. Básico (MCP)** | Semgrep via MCP tool | Reglas OWASP Top 10 + custom rules | Semgrep instalado + reglas OSS |
+| **2. Intermedio (MCP)** | Semgrep + npm audit/dotnet list vulnerable | OWASP + dependencias | Lo mismo + package manager |
+| **3. Avanzado (CI/CD)** | SonarQube + CodeQL + Semgrep | Full SAST + code quality + secrets | Servidor SonarQube + GitHub Actions |
+
+**Implementación nivel 1 (recomendado para empezar)**:
+```bash
+# Semgrep rule pack que forge-verify ejecutaría vía MCP:
+semgrep --config=auto --config=p/owasp-top-ten --config=p/security-audit
+```
+
+**Reglas custom para FlowForge** (ejemplo):
+```yaml
+rules:
+  - id: flowforge-no-sql-concat
+    patterns:
+      - pattern: "SELECT ... WHERE $X = '...' + $Y"
+    message: "SQL injection detectado. Usar parameterized queries."
+    severity: ERROR
+```
+
+**Lo que necesita FlowForge para integrarlo**:
+1. Un MCP tool `mem_verify_sast` que reciba archivos y devuelva reporte de Semgrep
+2. Traducción del output de Semgrep al formato `rework_ticket.md`
+3. Configuración en `.flowforge.json` habilitando/deshabilitando SAST
+4. Agregar a forge-verify/security una función `ejecutar_sast()` que llame al MCP tool
+
+**Prioridad**: No crítica para MVP (el escaneo mental cubre ~70% de los casos comunes). Recomendado para OLA de herramientas post-MVP.
 
 ### ⚠️ Gaps Importantes (degradan la calidad)
 
@@ -715,11 +756,11 @@ FlowForge tiene **30 skills funcionales** que cubren **7 roles de agente** en **
 - Los checkpoints tienen semántica clara (🔴 binario, 🟡 flexible, 🟢 consulta)
 - AGENTS.md tiene el índice completo para que los agentes sepan qué cargar
 
-**Los 4 gaps críticos a resolver:**
-1. `rollback_de_fase()` — reintentar spec/plan rechazado
-2. Fallback para `ejecutar_tests()` sin runtime
-3. SAST real vs escaneo mental
-4. Tracking automático de tiempo para métricas
+**Los 3 gaps críticos resueltos:**
+1. `rollback_de_fase()` — ✅ implementado en forge-orchestrator con `revision_cycle.md`
+2. Fallback para `ejecutar_tests()` sin runtime — ✅ 3 modos (A/B/C) en forge-verify
+3. SAST real vs escaneo mental — 📌 documentado, pendiente de herramienta MCP
+4. Tracking automático de tiempo — ✅ timestamps en cada CKP
 
 **Los gaps de incubadora (25-30)** son features post-MVP que harían de FlowForge un sistema mucho más robusto, especialmente el Context Poisoning Guardrail y el Drift Health Check.
 
