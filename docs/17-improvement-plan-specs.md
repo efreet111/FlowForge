@@ -175,6 +175,51 @@
 
 ---
 
+### Item 15: Auditoría y limpieza de documentación
+
+**Objetivo**: Revisar los 17 documentos de `docs/`, identificar redundancias, contenido obsoleto, fusionar lo que corresponda, archivar lo que no aporta. Demasiada documentación desactualizada es ruido que perjudica la adopción.
+
+**Criterios de éxito**:
+- [ ] Cada doc revisado tiene estado: ✅ OK / 🔧 Requiere actualización / 🗄️ Archivar
+- [ ] Docs con "5 agentes", "3 checkpoints", "v0.1", "2026-05-13" actualizados o archivados
+- [ ] Docs pequeños (< 50 líneas) fusionados con docs principales cuando tenga sentido
+- [ ] Docs huérfanos (sin enlaces desde otros docs) identificados y tratados
+- [ ] Tabla de contenido actualizada en docs/04-roadmap.md
+
+**Sospechosos de obsolescencia** (revisar primero):
+
+| Documento | Líneas | Riesgo |
+|-----------|--------|--------|
+| `03-engram-dotnet-gaps.md` | 214 | Todos los gaps están cerrados. ¿Sigue siendo útil o es histórico? |
+| `07-core-skills.md` | 45 | Truncado — sobrevive como esqueleto. ¿Fusionar con 15? |
+| `05-comparison-methodologies.md` | 249 | Escrito en v0.1. ¿Sigue siendo relevante o es histórico? |
+| `02-memory-strategy.md` | 237 | Puede tener referencias desactualizadas a engram-dotnet |
+| `test-matrix.md` + `testing-capabilities.md` | 162 | Dos docs de testing. ¿Fusionar? |
+| `archive/new-workflow-deprecated.md` | — | Ya archivado. ¿Mantener o eliminar? |
+| `docs/06-engram-sync-convention.md` | 166 | ¿Sigue siendo relevante tras offline-first sync? |
+| `09-open-source-integration.md` | 151 | Escrito antes de los IDE files. ¿Está obsoleto? |
+
+**Enfoque**:
+1. Leer cada doc y clasificarlo:
+   - **✅ OK**: mantenlo como está
+   - **🔧 Requiere update**: corregir referencias (checkpoints, skills, etc.)
+   - **🗄️ Archivar**: mover a `docs/archive/` con nota de reemplazo
+   - **➕ Fusionar**: combinar con otro doc más completo
+2. Docs candidatos a archivar: `03-engram-dotnet-gaps.md` (histórico, gaps cerrados), `05-comparison-methodologies.md` (histórico)
+3. Docs candidatos a fusionar: `test-matrix.md` + `testing-capabilities.md`
+4. Actualizar el checklist de documentación en `04-roadmap.md`
+
+**Dependencias**: Items 1-3 (para saber qué docs están desactualizados vs la realidad probada)
+
+**Esfuerzo**: 2-3 h
+
+**Deliverables**:
+- `docs/` limpio y actualizado
+- Checklist de documentación actualizado en roadmap
+- Posiblemente: docs archivados, fusionados, o redirigidos
+
+---
+
 ### Item 6: Schema de `.flowforge.json`
 
 **Objetivo**: Documentar el schema completo de configuración de FlowForge, incluyendo modelos, persona, teacher_mode, SAST config.
@@ -388,20 +433,22 @@
 | Semana | Items | Esfuerzo estimado |
 |--------|-------|-------------------|
 | Semana 1 | 1, 2, 3, 9 | 3-5 h |
-| Semana 2 | 4, 5, 6 | 4.5 h |
+| Semana 2 | 4, 15, 5, 6 | 6.5 h |
 | Semana 3 | 7, 8, 10 | 6-8 h |
 | Semana 4 | 11, 12, 13, 14 | 8-10 h |
-| **Total** | **14** | **21-27 h** |
+| **Total** | **15** | **23-30 h** |
 
 ## 📋 Dependencias Entre Items
 
 ```
-Item 1 (OpenCode) ──→ Item 2 (Caso CRUD) ──→ Item 3 (Artefactos)
-                                        │
-                    Item 4 (QUICKSTART) ←┘
-                    Item 5 (Template) ←──┘
-                              │
-                    Item 6 (Schema) ─ ─ ─ ─ ─ (independiente)
+Item 1 (OpenCode) ──→ Item 2 (Caso CRUD) ──→ Item 3 (Artefactos) ──→ Item 15 (Auditar Docs)
+                                        │                              │
+                    Item 4 (QUICKSTART) ←┘                              │
+                    Item 5 (Template) ←──┘                              │
+                              │                                         │
+                    Item 6 (Schema) ─ ─ ─ ─ ─ (independiente)           │
+                                                                        │
+                    Item 15 (Docs) ──→ actualizar ──→ docs/04 (checklist)
                     
 Item 8 (Probar IDEs) ──→ Item 7 (install.sh)
                               │

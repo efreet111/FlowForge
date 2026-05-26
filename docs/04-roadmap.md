@@ -178,6 +178,7 @@ El foco actual está en el **[Plan de Mejora — 14 items](#🚀-plan-de-mejora-
 | Item | Prioridad | Estado | Notas |
 |------|-----------|--------|-------|
 | **4. QUICKSTART.md de 1 página** | P0 | 📋 Pendiente | "FlowForge en 5 minutos": qué instalar, qué escribir, qué esperar |
+| **15. Auditoría y limpieza de documentación** | P0 | 📋 Pendiente | Revisar los 17 docs, identificar redundancias, contenido obsoleto ("5 agentes", "3 checkpoints"), fusionar docs pequeños, archivar lo que no aporta |
 | **5. Template de proyecto FlowForge** | P1 | 📋 Pendiente | Repo separado (o branch) con `.flowforge.json`, `.ai-work/`, estructura pre-creada |
 | **6. Schema de `.flowforge.json`** | P1 | 📋 Pendiente | Documentar el schema completo con modelos, persona, DB, teacher_mode, SAST config |
 
