@@ -1,8 +1,107 @@
 # FlowForge — Especificación Técnica de Agentes, Skills y Flujos
 
 > **Propósito**: Entender qué hace cada agente con cada skill, detectar faltantes
-> **Versión**: 1.0 (post-OLA 1-4)
-> **Skills**: 30 | **Agentes**: 7 | **Checkpoints**: 5
+> **Versión**: 1.1 (post-OLA 1-4, gaps resueltos)
+> **Skills**: 31 (7 core + 23 especializadas + 1 teacher) | **Agentes**: 7 | **Checkpoints**: 5
+
+---
+
+## 📖 RESUMEN "FOR DUMMIES" — ¿Qué es FlowForge?
+
+FlowForge es una **metodología de trabajo con IA** que organiza cómo los agentes (ChatGPT, Claude, etc.) desarrollan software. En lugar de pedirle a la IA "haceme esta feature" y esperar que salga bien, FlowForge divide el trabajo en **5 fases** con **5 puntos de control** donde un humano revisa y aprueba.
+
+### El flujo en 3 pasos (lo mínimo que necesitás saber)
+
+1. **El humano pide algo** → La IA investiga contexto previo (Fase 0: Discovery). Si el pedido es muy vago ("mejorá el login"), la IA PARA y pregunta: *"¿Mejorar en velocidad, UI, o agregar OAuth?"* Esto evita construir cosas que nadie pidió.
+
+2. **La IA documenta antes de codificar** → Escribe un `spec.md` (qué va a hacer) y un `plan.md` (cómo lo va a hacer). El humano revisa ambos y da luz verde. Si no le gusta, la IA corrige (máx 3 intentos).
+
+3. **La IA construye, testea, se audita a sí misma** → Codifica, corre tests, los arregla si fallan. Otro agente "verificador" audita el código línea por línea. Si encuentra errores, se corrige (máx 3 intentos). Al final, documenta lo aprendido y el humano decide si deployea.
+
+### Los 7 agentes (quién hace qué)
+
+| # | Agente | Qué hace | Fase |
+|---|--------|----------|------|
+| 1 | **Discovery** 🕵️ | Investiga contexto, riesgos de seguridad, costos | 0 |
+| 2 | **Arch** 📐 | Escribe la especificación técnica | 1 |
+| 3 | **Plan** 📋 | Divide en lista de tareas | 2 |
+| 4 | **Dev** 💻 | Escribe el código y los tests | 3 |
+| 5 | **Verify** ⚖️ | Audita el código contra la especificación | 3 |
+| 6 | **Memory** 🧠 | Guarda lo aprendido para la próxima | 4 |
+| 7 | **Orchestrator** 🚦 | Coordina a todos y aplica los checkpoints | Todas |
+
+### Las 5 reglas de tránsito (checkpoints)
+
+| Luz | Significado | Cuándo |
+|-----|-------------|--------|
+| 🔴 Roja | **PARÁ**. No se puede avanzar. Es binario — no hay "más o menos". | Pedido vago o 3 errores seguidos |
+| 🟡 Amarilla | **Consultá**. El humano decide si seguir. | Spec o plan listos para revisar |
+| 🟢 Verde | **Informá**. Preguntá si deployear, pero no frenes. | Feature terminada |
+
+### Lo que hace especial a FlowForge
+
+- **31 skills especializadas**: cada agente tiene "superpoderes" extra que se activan solos según lo que haga falta (seguridad, accesibilidad, rendimiento, migraciones, etc.)
+- **Memoria persistente**: todo lo que aprende la IA en una sesión queda guardado para la próxima (con engram-dotnet)
+- **Se integra en tu IDE**: archivos listos para OpenCode, Cursor, Antigravity, VS Code
+
+---
+
+## 🔧 RESUMEN TÉCNICO — Para el Equipo de Desarrollo
+
+### Arquitectura General
+
+```
+Usuario: "Quiero feature X"
+   │
+   ├── Fase 0: DISCOVERY ── CKP-0 🔴 HARD STOP
+   │   forge-discovery (4 skills)
+   │   Output: Context Map
+   │
+   ├── Fase 1: INTENCIÓN ── CKP-1 🟡 HUMAN GATE
+   │   forge-arch (5 skills: core + seguridad + performance + a11y + domain)
+   │   Output: spec.md + Capability Matrix (ai_reasoning vs deterministic)
+   │
+   ├── Fase 2: ARQUITECTURA ── CKP-2 🟡 HUMAN GATE
+   │   forge-plan (5 skills: core + seguridad + patrones + migraciones + rollback)
+   │   Output: plan.md con checklist topológico + contratos
+   │
+   ├── Fase 3: EJECUCIÓN ── Inner Loop autónomo
+   │   forge-dev (6 skills) ↔ forge-verify (5 skills)
+   │   Output: código + tests + PASS o rework_ticket.md
+   │   CKP-3 🔴 si cycle_count = 3
+   │
+   └── Fase 4: CIERRE ── CKP-4 🟢 DEPLOY GATE
+       forge-memory (4 skills)
+       Output: session summary + ADRs + métricas + changelog
+```
+
+### Skills por Agente (31 total)
+
+| Agente | Core | OLA 1 | OLA 2 | OLA 3 | OLA 4 | Total |
+|--------|------|-------|-------|-------|-------|-------|
+| Orchestrator | 1 | — | — | — | — | 1 |
+| Discovery | 1 | — | — | security, compliance | cost | 4 |
+| Arch | 1 | security | — | performance, a11y, domain | — | 5 |
+| Plan | 1 | security | patterns | migrations, rollback | — | 5 |
+| Dev | 1 | security, solid | testing, performance | refactor | — | 6 |
+| Verify | 1 | security | complexity, performance | — | a11y | 5 |
+| Memory | 1 | — | — | — | metrics, changelog, knowledge | 4 |
+| Cross | — | — | — | — | — | teacher | 1 |
+
+### Gaps Críticos Resueltos
+
+| Gap | Solución | Archivo |
+|-----|----------|---------|
+| Rollback de fase (CKP-1/CKP-2 rechazado) | `revision_cycle.md` con max 3 ciclos | forge-orchestrator/SKILL.md |
+| Verify sin runtime (chat-only) | 3 modos: pegar output → PASS degradado → PENDING | forge-verify/SKILL.md |
+| Timestamps manuales para métricas | `mem_save` automático en cada CKP | forge-orchestrator + memory/metrics |
+| SAST real (no mental) | Documentado en Gap #3 — requiere tooling MCP | docs/15 § gaps |
+
+### Documentos Relacionados
+
+- `14-flowforge-complete-reference.md` — Casos de prueba prácticos
+- `16-ide-integration-plan.md` — Integración con OpenCode/Cursor/Antigravity/VS Code
+- `ide/` — Archivos listos para copiar a cada IDE
 
 ---
 
