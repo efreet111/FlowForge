@@ -2,7 +2,7 @@
 
 > **Forja tu flujo de desarrollo con agentes de IA.**
 
-FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños y medianos (SMB, 2-20 personas). Define cómo integrar agentes de IA en el ciclo de desarrollo de software con 4 checkpoints humanos, 7 agentes, y un protocolo de artefactos versionados.
+FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños y medianos (SMB, 2-20 personas). Define cómo integrar agentes de IA en el ciclo de desarrollo de software con 5 checkpoints formales, 7 agentes, 31 skills especializadas, y un protocolo de artefactos versionados.
 
 ## Repositorios
 
@@ -14,21 +14,45 @@ FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños 
 ## Metodología FlowForge
 
 ```
-FASE 0: DISCOVERY     → Mapeo de épicas y engramas pasados (Haiku)
-FASE 1: INTENCIÓN     → Checkpoint ① (Humano)  → spec.md (Sonnet)
-FASE 2: ARQUITECTURA  → Checkpoint ② (Humano)  → plan.md (Sonnet)
-FASE 3: EJECUCIÓN     → Inner Loop autónomo   ➔ código + tests (Sonnet/Flash)
-FASE 4: CIERRE        → Checkpoint ③ (Humano)  → memoria + markdown (Haiku)
+FASE 0: DISCOVERY ──── CKP-0 🔴 HARD STOP
+FASE 1: INTENCIÓN ──── CKP-1 🟡 spec.md (humano aprueba)
+FASE 2: ARQUITECTURA ─ CKP-2 🟡 plan.md (humano aprueba)
+FASE 3: EJECUCIÓN ──── Inner Loop autónomo + CKP-3 🔴 (3 ciclos máx)
+FASE 4: CIERRE ─────── CKP-4 🟢 deploy gate (humano decide)
 ```
 
-- **5 fases**, **4 checkpoints humanos + 1 deploy gate** (CKP-0 → CKP-4), **7 agentes** (Orchestrator, Discovery, Arch, Plan, Dev, Verify, Memory)
-- **Orquestador AI nativo (Semáforo)** — inyectado mediante reglas de entorno (`.cursorrules`, `.clinerules`, etc.)
-- **Model routing** óptimo por tipo de tarea (Sonnet para razonamiento denso, Haiku/Flash para lectura o clasificación barata)
-- **Memory Janitor** — pruning automático con TTL configurable (por tipo: tool_use=30d, bugfix=90d, etc.)
+- **5 fases**, **5 checkpoints (CKP-0 → CKP-4)**, **7 agentes** (Orchestrator, Discovery, Arch, Plan, Dev, Verify, Memory)
+- **31 skills**: 7 core + 23 especializadas (seguridad, SOLID, performance, a11y, patrones, DDD, migraciones, métricas) + 1 teacher toggleable
+- **Checkpoints con semántica de colores**: 🔴 binario e inapelable, 🟡 flexible con autoridad humana, 🟢 decisión de release
+- **Orquestador AI nativo (Semáforo)** — inyectado mediante reglas de IDE
+- **Model routing** óptimo por tipo de tarea
+- **Memory Janitor** — pruning automático con TTL configurable
+
+## Skills (31 total)
+
+| OLA | Cantidad | Enfoque |
+|-----|----------|---------|
+| Core | 7 | Flujo base (orchestrator, discovery, arch, plan, dev, verify, memory) |
+| OLA 1 | 5 | Seguridad + SOLID (STRIDE, OWASP, SAST) |
+| OLA 2 | 5 | Calidad + Patrones (GoF, testing, performance, complejidad) |
+| OLA 3 | 8 | Infraestructura (CVE, compliance, DDD, migraciones, rollback, refactor) |
+| OLA 4 | 5 | Métricas (costos, a11y verify, project health, changelog, knowledge graph) |
+| Cross | 1 | forge-teacher (modo profesor toggleable) |
+
+## IDE Integration
+
+Archivos listos para usar en `ide/`:
+
+| IDE | Archivos |
+|-----|----------|
+| **OpenCode** | `opencode.flowforge.json` — 7 subagentes con `{file:...}` a skills |
+| **Cursor** | `cursor/rules/*.mdc` + `cursor/agents/*.md` |
+| **Antigravity** | `antigravity/rules/*.md` + `antigravity/workflows/*.md` |
+| **VS Code** | `vscode/copilot-instructions.md` |
 
 ## Estado de implementación
 
-**engram-dotnet** — 4 features implementadas, **258 tests**:
+**engram-dotnet** — 7 features implementadas, **258 tests**:
 
 | Feature | SDD | Tests |
 |---------|-----|-------|
@@ -36,18 +60,19 @@ FASE 4: CIERRE        → Checkpoint ③ (Humano)  → memoria + markdown (Haiku
 | ✅ promotion-level2 (.md) | Archivado | 17 + 139 Store |
 | ✅ traceability (lineage) | Archivado | 28 + 52 MCP |
 | ✅ ttl-configurable | Archivado | 22 + 139 Store |
+| ✅ doctor-diagnostic | Archivado | 27 tests |
+| ✅ offline-first-sync | Archivado | 84 tests |
+| ✅ advanced-engram-integration | Archivado | Doc & Skills |
 
 ## Documentación
 
 | Documento | Descripción |
 |-----------|-------------|
 | [`01-engramflow-architecture.md`](docs/01-engramflow-architecture.md) | Diseño completo de la metodología |
-| [`02-memory-strategy.md`](docs/02-memory-strategy.md) | Estrategia de 2 niveles de memoria |
-| [`03-engram-dotnet-gaps.md`](docs/03-engram-dotnet-gaps.md) | Análisis de gaps con engram-dotnet |
-| [`04-roadmap.md`](docs/04-roadmap.md) | Roadmap conjunto |
-| [`05-comparison-methodologies.md`](docs/05-comparison-methodologies.md) | Investigación de metodologías Agentic SDLC |
-| [`09-open-source-integration.md`](docs/09-open-source-integration.md) | Integración con Cursor, Cline y Estrategia Open Source |
-| [`test-matrix.md`](docs/test-matrix.md) | 258 tests documentados |
+| [`04-roadmap.md`](docs/04-roadmap.md) | Roadmap v0.3 con 4 OLAS |
+| [`14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md) | Referencia completa + 7 casos de prueba |
+| [`15-agent-skills-technical-spec.md`](docs/15-agent-skills-technical-spec.md) | Especificación técnica de agentes |
+| [`16-ide-integration-plan.md`](docs/16-ide-integration-plan.md) | Integración con 4 IDEs |
 
 ## Licencia
 
