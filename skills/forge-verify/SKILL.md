@@ -38,8 +38,34 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
    * Cross‑check code values against the `spec.md`. If the spec says "Default priority: MEDIUM", ensure the code reflects exactly that. Any deviation (e.g., "LOW" or a different case) is an immediate failure.
    * Verify that each Given‑When‑Then scenario in `spec.md` is covered by a unit test in the test suite.
 3. **Test Execution Check (No Green Output = No PASS)**:
-   * Run the test suite yourself (`npm run test`, `dotnet test`, etc.) and read the result.
-   * **DO NOT** award a PASS unless you have a 100% green test output. If you lack console tools, request the user to paste a green test log; otherwise, reject the delivery.
+    * Run the test suite yourself (`npm run test`, `dotnet test`, etc.) and read the result.
+    * **DO NOT** award a PASS unless you have a 100% green test output.
+    
+    **⚠️ Fallback (sin acceso a terminal)**:
+    Si no tenés herramientas de terminal para ejecutar los tests, tenés 3 opciones en orden de preferencia:
+    
+    **Opción A (preferida)** → Pedí al humano que pegue el output de los tests:
+    *"Por favor, ejecutá `npm run test` y pegame el output completo."*
+    * Si el output muestra 100% verde → podés emitir PASS (con degradación flag).
+    * Si el output muestra fallos → rework_ticket.md.
+    * Si el humano no responde → Opción B.
+    
+    **Opción B (aceptable)** → Ejecutá un análisis estático sin tests:
+    * Revisión línea por línea de la lógica (Step Zero).
+    * Verificación de constantes contra spec (Step 2).
+    * Verificación de cobertura GWT: chequeá que EXISTAN los tests (aunque no se hayan ejecutado).
+    * Si todo OK → emití **PASS DEGRADADO** con esta notación:
+      ```
+      ⚠️ PASS DEGRADADO — Tests no ejecutados (sin runtime)
+      - Spec compliance: ✅
+      - Cobertura GWT: ✅ (N tests declarados, no ejecutados)
+      - Tests ejecutados: ❌ No disponible
+      - Se requiere ejecución manual ANTES del deploy.
+      ```
+    
+    **Opción C (último recurso)** → Rechazar sin runtime:
+    *"No puedo verificar el código sin ejecutar los tests. Necesito acceso al runtime o que un humano ejecute la suite."*
+    * Esto retorna un **PENDING** (ni PASS ni FAIL) y escala al orquestador.
 4. **Capability Matrix & Manual Validation**:
    * Ensure every element marked as `deterministic` in the Capability Matrix is implemented as immutable hard‑coded logic, not model‑driven.
    * **Mandatory Manual Checklist**: When emitting a PASS, generate a `## 🔍 Manual Verification Steps` section listing practical steps for the user to verify runtime behaviors not captured by automated tests (e.g., network cut simulation, UI interactions).

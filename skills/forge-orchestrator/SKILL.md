@@ -24,6 +24,8 @@ Al recibir una nueva solicitud o cambio, evaluás en qué fase estamos usando `.
 
 **REGLA MNEMOTÉCNICA**: Los checkpoints ROJOS (CKP-0, CKP-3) son BINARIOS — parás sí o sí. Los checkpoints AMARILLOS (CKP-1, CKP-2) CONSULTAN pero el humano decide. El VERDE (CKP-4) es una decisión de release, no un freno.
 
+**NUEVO: Ciclo de Revisión en CKP-1 y CKP-2**: Si el humano rechaza el spec o el plan, NO es un hard stop. Tenés hasta **3 ciclos de revisión** para corregir. Usá un archivo `revision_cycle.md` en la raíz para trackear el contador (similar a rework_ticket.md). Si llegás a 3 sin aprobación, ESCALÁ al humano.
+
 ### Paso 0: Discovery — CKP-0 🔴
 Invocás al sub-agente `@forge-discovery` (modelo rápido). 
 Él buscará épicas y memorias anteriores. Recibís su "Mapa de Asociaciones". 
@@ -31,11 +33,42 @@ Invocás al sub-agente `@forge-discovery` (modelo rápido).
 
 ### Paso 1: Intención — CKP-1 🟡
 Si el humano aclara o el Discovery es exitoso, le pasás la pelota al sub-agente `@forge-arch` inyectándole el Mapa de Asociaciones y pidiéndole que cree el `spec.md`.
+
 **🟡 CKP-1 (Semáforo Amarillo)**: Una vez que el `spec.md` está escrito, DEBÉS detenerte. Decile al humano: *"spec.md generado. ¿Aprobás o querés ajustar algo?"* No avances sin confirmación EXPLÍCITA.
+
+**🔄 Ciclo de Revisión de Spec**: Si el humano rechaza el spec:
+1. Creá o actualizá un archivo `revision_cycle.md` en la raíz con frontmatter YAML:
+   ```yaml
+   ---
+   phase: "spec"
+   cycle_count: 1      ← incrementá cada vez
+   max_cycles: 3
+   rejection_reason: "lo que el humano dijo que está mal"
+   ---
+   ```
+2. Pasale el `revision_cycle.md` a `@forge-arch` junto con el feedback del humano.
+3. El arch agent genera una nueva versión del spec.md incorporando el feedback.
+4. Si `cycle_count` llega a 3 y el humano sigue rechazando → ESCALÁ: *"El spec fue rechazado 3 veces. Se requiere intervención manual para definir el alcance."*
+5. **NUNCA avances a Fase 2 sin aprobación explícita del spec, incluso si ya van 3 intentos.**
 
 ### Paso 2: Arquitectura — CKP-2 🟡
 Con el OK del humano, llamás a `@forge-plan` para que lea el `spec.md` y genere el `plan.md`.
+
 **🟡 CKP-2 (Semáforo Amarillo)**: Al terminar, DEBÉS detenerte y preguntar: *"plan.md generado. ¿Luz verde para codificar?"*. Sin confirmación EXPLÍCITA, no avances.
+
+**🔄 Ciclo de Revisión de Plan**: Si el humano rechaza el plan:
+1. Creá o actualizá `revision_cycle.md` (o mismo archivo, cambiando phase a "plan"):
+   ```yaml
+   ---
+   phase: "plan"
+   cycle_count: 1
+   max_cycles: 3
+   rejection_reason: "lo que el humano dijo que está mal del plan"
+   ---
+   ```
+2. Pasale el `revision_cycle.md` a `@forge-plan` junto con el feedback.
+3. El plan agent genera una nueva versión del plan.md.
+4. Si `cycle_count` llega a 3 → ESCALÁ: *"El plan fue rechazado 3 veces. Se requiere revisión manual del diseño."*
 
 ### Paso 3: Ejecución y Validación (Inner Loop) — CKP-3 🔴
 Con luz verde, activás la ejecución:
@@ -51,11 +84,50 @@ Con luz verde, activás la ejecución:
 Si recibís el "PASS", llamás a `@forge-memory` para extraer los aprendizajes y guardar la sesión.
 **🟢 CKP-4 (Deploy Gate)**: Cuando Memory termina, le consultás al humano: *"Feature completada. ¿Procedemos con el deploy?"* No es un freno — es una decisión de release. Respetá lo que el humano decida.
 
+## ⏱️ Timestamps Automáticos (Para Métricas de Cycle Time)
+
+En CADA checkpoint, guardá un timestamp para que el Memory Agent pueda medir cycle time automáticamente:
+
+```
+CKP-0 superado → mem_save(
+  title="CKP-0 PASS: Discovery completado",
+  type=metrics,
+  topic_key="metrics/timestamp/ckp0-pass"
+)
+
+CKP-1 superado → mem_save(
+  title="CKP-1 PASS: Spec aprobado",
+  type=metrics,
+  topic_key="metrics/timestamp/ckp1-pass"
+)
+
+CKP-2 superado → mem_save(
+  title="CKP-2 PASS: Plan aprobado",
+  type=metrics,
+  topic_key="metrics/timestamp/ckp2-pass"
+)
+
+CKP-3 superado (PASS) → mem_save(
+  title="CKP-3 PASS: Verify aprobado", 
+  type=metrics,
+  topic_key="metrics/timestamp/ckp3-pass"
+)
+
+CKP-4 completado → mem_save(
+  title="CKP-4: Deploy decidido",
+  type=metrics,
+  topic_key="metrics/timestamp/ckp4-pass"
+)
+```
+
+**Importante**: No es necesario si engram-dotnet no está disponible. Es una optimización de métricas, no un blocker del flujo.
+
 ## Reglas de Oro del Orquestador
 1. **Jamás te saltes los Checkpoints**. La metodología tiene 5 puntos de control (CKP-0 a CKP-4). Los ROJOS (CKP-0, CKP-3) son BINARIOS: parás sí o sí. Los AMARILLOS (CKP-1, CKP-2) requieren confirmación EXPLÍCITA del humano antes de avanzar. El VERDE (CKP-4) es una consulta de deploy.
 2. **No confundas Hard Stop con Semáforo Amarillo**: CKP-0 y CKP-3 son inapelables. CKP-1 y CKP-2 permiten que el humano apruebe specs/planes con partes abiertas — es SU decisión, no la tuya.
-3. **Sos un orquestador, delega siempre**. No intentes modificar el código por tu cuenta.
-4. **Leé el `cycle_count` del frontmatter YAML del `rework_ticket.md`**. Si es 3, no interpretes — escalá. El límite es mecánico.
+3. **Los Ciclos de Revisión (CKP-1, CKP-2) tienen límite**: máximo 3 rechazos por fase. Usá `revision_cycle.md` para trackear el contador. Si llegás a 3, ESCALÁ. No intentes una 4ta corrección automática.
+4. **Sos un orquestador, delega siempre**. No intentes modificar el código por tu cuenta.
+5. **Leé el `cycle_count` del frontmatter YAML del `rework_ticket.md`**. Si es 3, no interpretes — escalá. El límite es mecánico.
 
 ## Protocolo de Delegación (El Pase de Testigo)
 Tu forma de invocar a los sub-agentes depende de las capacidades del entorno en el que corrés:

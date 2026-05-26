@@ -26,18 +26,35 @@ Observation:
   - What: "Feature [name] added N unit tests, M integration tests. Coverage changed X%"
 ```
 
-### Cycle Time
-```
-Feature cycle time:
-  Discovery phase:     X h
-  Spec + Design phase: X h
-  Implementation:      X h (N cycles of Ralph Wiggum)
-  Verification:        X h (N rework tickets)
-  Total:               X h
+### Cycle Time (Automático desde Timestamps)
 
-Observation:
-  - File: mem_save with type=metrics, topic_key=metrics/cycle-time
-  - What: "Feature [name] completed in [total time]. Reworks: [N]"
+El orquestador guarda automáticamente un timestamp en cada checkpoint. Vos los leés:
+
+```bash
+# Buscar timestamps de esta sesión
+mem_search(topic_key="metrics/timestamp/*", limit=10)
+
+# Los timestamps tienen este formato:
+# timestamp/ckp0-pass — "Discovery completado a las HH:MM"
+# timestamp/ckp1-pass — "Spec aprobado a las HH:MM"  
+# timestamp/ckp2-pass — "Plan aprobado a las HH:MM"
+# timestamp/ckp3-pass — "Verify PASS a las HH:MM"
+# timestamp/ckp4-pass — "Deploy decidido a las HH:MM"
+```
+
+**Cálculo automático de cycle time**:
+```
+Cycle time = timestamp[ckp4] - timestamp[ckp0] = total
+Discovery  = timestamp[ckp1] - timestamp[ckp0]
+Spec+Plan  = timestamp[ckp2] - timestamp[ckp1]
+Ejecución  = timestamp[ckp3] - timestamp[ckp2]
+Cierre     = timestamp[ckp4] - timestamp[ckp3]
+```
+
+**Si faltan timestamps** (orquestador no los guardó):
+1. Intentá estimar desde el session summary actual (si tiene fechas)
+2. Si no hay datos → guardá "cycle_time: unknown — timestamps no disponibles"
+3. Reportá el gap: "⏱️ Para medir cycle time automáticamente, el orquestador debe guardar timestamps en cada CKP"
 ```
 
 ### Tech Debt
