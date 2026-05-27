@@ -20,7 +20,7 @@ Before processing closure, verify ALL manual tests are done:
 **Block closure if:**
 - PM-* section doesn't exist → "Blocked: no manual tests defined. Return to forge-arch."
 - Any PM has `[ ]` → "Blocked: manual tests pending: PM-2, PM-4"
-- `rework.md` has `Estado: abierto` → "Blocked: open rework. Fix before closing."
+- `rework_ticket.md` (or legacy `rework.md`) open → "Blocked: open rework. Fix before closing."
 
 **If all PM `[x]` and no open rework → proceed.**
 

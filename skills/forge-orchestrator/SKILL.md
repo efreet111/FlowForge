@@ -122,6 +122,23 @@ CKP-4 completado → mem_save(
 
 **Importante**: No es necesario si engram-dotnet no está disponible. Es una optimización de métricas, no un blocker del flujo.
 
+## Rework intake (reporte de bug del humano)
+
+Cuando el humano reporta un error (prueba manual fallida, regresión, comportamiento incorrecto), **no arregles código vos** aunque sea "rápido".
+
+1. Identificá `feature-slug` (carpeta en `.ai-work/`).
+2. Creá o actualizá `.ai-work/{feature-slug}/rework_ticket.md` con: Esperado, Obtenido, pasos, evidencia, entorno, severidad, y `cycle_count` en frontmatter YAML.
+3. Delegá a `@forge-dev` con el ticket como prioridad absoluta.
+4. Si el problema es auditoría spec↔código, delegá primero a `@forge-verify` para el ticket, luego a dev.
+
+**Prohibido**: parchear `src/`, tests, dashboards o métricas en el hilo del orquestador. Eso rompe el contrato de delegación.
+
+Detalle compartido entre IDEs: `ide/shared/workflow-orchestrator-parity.md`.
+
+### Cierre sin PM-*
+
+Antes de CKP-4: si hay PM-* sin `[x]` en `spec.md`, **no** cierres. Instruí ejecutar PM y reintentar `/flow-close`. Preview solo como `summary.preview.md` si el humano lo pide explícitamente.
+
 ## Reglas de Oro del Orquestador
 1. **Jamás te saltes los Checkpoints**. La metodología tiene 5 puntos de control (CKP-0 a CKP-4). Los ROJOS (CKP-0, CKP-3) son BINARIOS: paras sí o sí. Los AMARILLOS (CKP-1, CKP-2) requieren confirmación EXPLÍCITA del humano antes de avanzar. El VERDE (CKP-4) es una consulta de deploy.
 2. **No confundas Hard Stop con Semáforo Amarillo**: CKP-0 y CKP-3 son inapelables. CKP-1 y CKP-2 permiten que el humano apruebe specs/planes con partes abiertas — es SU decisión, no la tuya.

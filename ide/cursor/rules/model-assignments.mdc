@@ -1,27 +1,106 @@
 ---
 alwaysApply: false
-description: Model assignments for FlowForge agents. Adapt to your available models.
+description: Model assignments FlowForge — Budget tier alineado a Cursor docs (models-and-pricing).
 ---
 
 ## Model Assignments
 
-The orchestrator reads this table at session start. When delegating, use the preferred model.
+<!--
+  Fuente oficial (May 2026): https://cursor.com/docs/models-and-pricing
+  - Pool Auto + Composer 2.5: uso incluido generoso en Pro; tarifa fija Auto o $0.5/$2.5M Composer 2.5.
+  - Pool API: cada subagente con model explícito consume créditos API ($20/mo en Pro).
+  - Subagentes FlowForge usan pool API → elegir modelos baratos de la tabla oficial abajo.
+  - Reglas de delegación: workflow.mdc (nunca inline por modelo caído).
+-->
+
+**Perfil activo: Budget (Pro básico, uso intensivo)**  
+Basado en precios API de Cursor docs — prioriza input ≤ $0.75/1M salvo verify.
 
 | Agent | Preferred Model | Fallback | Mode | Purpose |
 |-------|----------------|----------|------|---------|
-| forge-discovery | `claude-4.5-haiku-thinking` | `gpt-5-mini` | pinned | Fast search, cheap |
-| forge-arch | `claude-4.5-sonnet-thinking` | `gpt-5.2` | pinned | Reasoning + spec writing |
-| forge-plan | `claude-4.5-sonnet-thinking` | `gpt-5.2` | pinned | Architecture + task breakdown |
-| forge-dev | `gpt-5.3-codex` | `claude-4.5-sonnet-thinking` | pinned | Code iteration |
-| forge-verify | `claude-4.6-opus-high-thinking` | `claude-4.5-sonnet-thinking` | pinned | Rigorous audit |
-| forge-memory | `claude-4.5-haiku-thinking` | `gpt-5-mini` | pinned | Documentation, cheap |
-| default | `claude-4.5-haiku-thinking` | `gpt-5-mini` | pinned | Cheap fallback |
+| forge-discovery | `gpt-5-mini` | `gemini-3-flash` | pinned | Mecánico; GPT-5 Mini $0.25/$2 (docs) |
+| forge-arch | `kimi-k2.5` | `gpt-5.4-mini-medium` | pinned | Spec largo; Kimi $0.6/$3 |
+| forge-plan | `kimi-k2.5` | `gpt-5.4-mini-medium` | pinned | Plan + checklist; mismo tier |
+| forge-dev | `gpt-5.1-codex-mini` | `composer-2.5-fast` | pinned | Código; Codex Mini $0.25/$2 + 4× limits (docs) |
+| forge-verify | `kimi-k2.5` | `claude-4.5-haiku-thinking` | pinned | Auditoría sin Sonnet ($3/$15) |
+| forge-memory | `gpt-5-mini` | `gemini-3-flash` | pinned | Síntesis barata |
+| default | `gpt-5-mini` | `gemini-3-flash` | pinned | Último recurso |
 
-## Cost Policy
+---
 
-- Discovery/Memory: cheapest model (read/classify only)
-- Dev: specialized code model (iterative)
-- Arch/Plan: reasoning model (design heavy)
-- Verify: strongest model (judgment quality matters)
+## Referencia Cursor (docs oficiales)
 
-Adapt this file to the models available in your environment.
+Documentación: [Models & Pricing](https://cursor.com/docs/models-and-pricing) · [Available models](https://cursor.com/help/models-and-usage/available-models)
+
+### Dos pools (importante en Pro $20)
+
+| Pool | Cuándo se usa | Implicación FlowForge |
+|------|---------------|------------------------|
+| **Auto + Composer 2.5** | Elegís Auto o Composer 2.5 en el chat principal | Uso incluido generoso; no aplica si el Task fija otro `model` |
+| **API** | Elegís un modelo concreto (GPT, Claude, Kimi, …) | **Cada subagente** con `model:` en frontmatter/Task consume este pool |
+
+Los slugs de esta tabla deben coincidir con los que ves en el **model picker** de Cursor. Varios modelos baratos vienen **hidden by default** — activálos en Settings → Models si no aparecen.
+
+### Modelos baratos que usamos (precio API / 1M tokens, Cursor docs)
+
+| Slug FlowForge | Nombre en docs | Input | Output | Notas |
+|----------------|----------------|-------|--------|-------|
+| `gpt-5-mini` | GPT-5 Mini | $0.25 | $2 | Más barato OpenAI; discovery/memory |
+| `gpt-5.1-codex-mini` | GPT-5.1 Codex Mini | $0.25 | $2 | Agentic code; 4× rate limits vs Codex full |
+| `gemini-3-flash` | Gemini 3 Flash | $0.50 | $3 | Fallback rápido Google |
+| `composer-2.5-fast` | Composer 2.5 | $0.50 | $2.50 | Fallback dev; también pool Auto+Composer |
+| `kimi-k2.5` | Kimi K2.5 | $0.60 | $3 | Arch/plan/verify — buen ratio reasoning/precio |
+| `gpt-5.4-mini-medium` | GPT-5.4 Mini | $0.75 | $4.50 | Fallback arch/plan |
+| `claude-4.5-haiku-thinking` | Claude 4.5 Haiku | $1.00 | $5 | Fallback verify |
+
+### Evitar en Budget (queman API rápido)
+
+| Modelo docs | Input | Por qué no en Budget |
+|-------------|-------|----------------------|
+| Claude 4 Sonnet / 4.5 Sonnet | $3 | 12× más caro que GPT-5 Mini en input |
+| Claude 4.6 Opus | $5 | Solo Quality tier / release crítico |
+| GPT-5.3 Codex / GPT-5.4 | $1.75–2.50 | Reservar para Quality tier dev |
+
+---
+
+## Asignación por rol (justificación)
+
+| Agente | Preferred | Por qué (docs) |
+|--------|-----------|----------------|
+| discovery | `gpt-5-mini` | Keywords + context map; no requiere reasoning profundo |
+| arch / plan | `kimi-k2.5` | Documentos estructurados largos; más barato que Haiku/Sonnet |
+| dev | `gpt-5.1-codex-mini` | Cursor documenta variant mini para agentic coding |
+| verify | `kimi-k2.5` | Juicio adversarial sin pagar Sonnet; Haiku si Kimi no está |
+| memory | `gpt-5-mini` | Resumen documental |
+
+---
+
+## Quality tier (upgrade puntual)
+
+Cuando el crédito API lo permita o el release lo exija:
+
+| Agent | Preferred | Fallback |
+|-------|-----------|----------|
+| forge-arch | `claude-4.5-sonnet-thinking` | `kimi-k2.5` |
+| forge-plan | `claude-4.5-sonnet-thinking` | `kimi-k2.5` |
+| forge-dev | `gpt-5.3-codex` | `gpt-5.1-codex-mini` |
+| forge-verify | `claude-4.6-opus-high-thinking` | `claude-4-sonnet` |
+
+---
+
+## How to use and maintain
+
+1. Session start: leer tabla **Budget** activa.
+2. Delegación: pasar **Preferred** en Task cuando el tool lo soporte.
+3. Modelo no disponible: mismo subagente → **Fallback** → **default** → Auto (ver `workflow.mdc`).
+4. Trazabilidad: requested / effective / fallback en cada delegación.
+5. Ajuste personal: comparar slugs con tu model picker; si falta uno, sustituir por el más barato **de la misma fila de rol** en la tabla de referencia.
+
+## Tips Pro $20 (uso intensivo)
+
+1. **Subagentes** = pool API → esta tabla Budget minimiza consumo.
+2. **Chat orquestador** sin modelo fijado → podés usar **Auto** (tarifa fija, pool separado) para coordinar; los subagentes siguen con modelos baratos.
+3. Activar modelos **hidden** (Codex Mini, Kimi, Haiku) en Cursor Settings si no delegan.
+4. Monitorear usage dashboard cuando hagas `/flow-dev` largo (Codex Mini loops).
+
+Adapt slugs to models **enabled in your Cursor subscription**.

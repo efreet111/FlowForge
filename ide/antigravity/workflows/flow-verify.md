@@ -1,14 +1,10 @@
-# /flow-verify — Audit implementation against spec
+# /flow-verify — Audit implementation
 
-When invoked, run the Verify phase:
+1. Delegate to **forge-verify** with paths to `spec.md`, `plan.md`, and codebase.
+2. Output: `.ai-work/{feature-slug}/verify-report.md` (PASS or findings).
+3. On failure: `rework_ticket.md` → delegate **forge-dev** again.
+4. CKP-3 🔴: if `cycle_count >= 3` in rework ticket → escalate; no 4th automatic attempt.
 
-1. Delegate to forge-verify with spec.md, plan.md, and the code diff
-2. forge-verify audits:
-   - Line-by-line inspection (debug prints, missing returns)
-   - Spec compliance (constants, Capability Matrix)
-   - Test coverage (Given-When-Then → unit tests)
-   - Security (OWASP Top 10, secrets scan, dependency audit)
-   - Complexity (cyclomatic, nesting, cognitive load)
-   - Performance (N+1, memory leaks, Big-O)
-3. Output: PASS + manual verification steps, OR rework_ticket.md
-4. If 3 rework cycles → CKP-3 ESCALATE to human
+Verify does not evaluate PM-* (human runs those before `/flow-close`).
+
+Orchestrator does not write verify-report inline.

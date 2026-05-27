@@ -16,6 +16,21 @@
 
 ---
 
+## Release Gate (antes de hacerlo público)
+
+Mientras FlowForge esté **privado**, la instalación remota desde `raw.githubusercontent.com` **no es un objetivo** (va a devolver 404).
+
+Antes de hacerlo público, este repo debería cumplir como mínimo:
+
+- **Demo replicable**: un proyecto pequeño (repo separado o carpeta `examples/`) con `spec.md`, `plan.md` y evidencia de verify (PASS o reworks), más pasos reproducibles.
+- **Definición formal de demo**: ver [`docs/18-replicable-demo-definition.md`](18-replicable-demo-definition.md).
+- **Prueba real en Cursor**: validar que `ide/cursor/` + `ide/install.ps1` funcionan (y que el flujo `/flow-start` es usable).
+- **Instaladores validados**: al menos 1 Linux y Windows.
+- **Docs coherentes**: sin contradicciones en CKP-0..CKP-4 (README/QUICKSTART/docs/14).
+- **Archivos OSS listos**: `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`.
+
+---
+
 ## 🔴 Sistema de Checkpoints (Control Humano) — Normalizado
 
 > **Auditoría**: 2026-05-21 — Se detectó inconsistencia entre los documentos del proyecto. El README decía "3 checkpoints", la arquitectura documentaba "4", y el orquestador usaba "3" con semántica diferente.
@@ -186,7 +201,7 @@ El foco actual está en el **[Plan de Mejora — 14 items](#🚀-plan-de-mejora-
 
 | Item | Prioridad | Estado | Notas |
 |------|-----------|--------|-------|
-| **7. install.sh / install.ps1** | P1 | 📋 Pendiente | Script que detecte OpenCode / Cursor / Antigravity / VS Code y copie archivos automáticamente |
+| **7. install.sh / install.ps1** | P0 | 📋 Pendiente | Script que detecte OpenCode / Cursor / Antigravity / VS Code y copie archivos automáticamente (pre-requisito del Release Gate) |
 | **8. Probar IDE files en todos los IDEs** | P1 | 📋 Pendiente | Verificar que los 20 archivos de `ide/` funcionan en OpenCode, Cursor, Antigravity, VS Code |
 | **9. Diagnóstico de engram-dotnet** | P0 | 📋 Pendiente | La memoria no conecta en varias sesiones — diagnosticar: ¿MCP? ¿red? ¿servidor? |
 | **10. Manejo de features concurrentes** | P2 | 📋 Pendiente | Protocolo para cuando dos devs trabajan features que tocan el mismo código (lock, merge, conflict) |
@@ -204,8 +219,8 @@ El foco actual está en el **[Plan de Mejora — 14 items](#🚀-plan-de-mejora-
 
 | Prioridad | Items | Semana |
 |-----------|-------|--------|
-| **P0 — Hace que FlowForge funcione de verdad** | 1, 2, 3, 4, 9 | Semana 1-2 |
-| **P1 — Hace que FlowForge sea adoptable** | 5, 6, 7, 8 | Semana 2-3 |
+| **P0 — Hace que FlowForge funcione de verdad** | 1, 2, 3, 4, 7, 9 | Semana 1-3 |
+| **P1 — Hace que FlowForge sea adoptable** | 5, 6, 8 | Semana 2-3 |
 | **P2 — Hace que FlowForge sea medible** | 10, 11, 12, 13 | Semana 4 |
 | **P3 — Ecosistema** | 14 | Post-MVP |
 

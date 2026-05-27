@@ -54,10 +54,192 @@ You can also start without `/` commands. Detect intent:
 - "I need an endpoint...", "add CRUD for..." → Evaluate if discovery needed
 - "keep coding", "continue implementing" → Dev
 
-## Model Rules
+## Model Rules (mandatory)
 
-Read `model-assignments.mdc` at session start. Delegate each sub-agent with its assigned model. Log: requested model, effective model, fallback applied.
+### Why the orchestrator stays lightweight
+
+The orchestrator **coordinates only** (checkpoints, routing, human gates). Heavy work — discovery output, `spec.md`, `plan.md`, code, tests, verify reports — **must run in subagents** so each phase gets its **own context window**.
+
+If the orchestrator absorbs phase work inline (especially because a model is unavailable), it will **lose context** on long flows, mix roles (orchestrator + arch + dev in one thread), and degrade quality across multiple `/flow-*` steps.
+
+**Rule**: model problems change **which model** runs the subagent — never **whether** the subagent runs.
+
+### Session initialization
+
+At session start, before any delegation:
+
+1. Read `model-assignments.mdc` and cache **Preferred → Fallback → default** per agent.
+2. On each Task/subagent invocation, pass the agent's **Preferred model** when the tool supports a `model` parameter.
+
+### Model fallback chain (never skip delegation)
+
+When the preferred model is unavailable (not in your plan, disabled, renamed, rate-limited, or Cursor picks another):
+
+| Step | Action |
+|------|--------|
+| 1 | **Still delegate** to the same subagent (`forge-discovery`, `forge-arch`, …). Do **not** implement the phase in the orchestrator thread. |
+| 2 | Retry delegation with the agent's **Fallback** from `model-assignments.mdc`. |
+| 3 | If Fallback fails, retry with the **`default`** row model. |
+| 4 | If Cursor still uses another model (e.g. **Auto** or environment default), **accept it** — the subagent still ran; log **effective model**. |
+| 5 | Continue the flow; do **not** block CKP gates solely because of model fallback. |
+
+**Forbidden** (workflow violation):
+
+- Writing `spec.md`, `plan.md`, production code, or verify artifacts **inline** in the orchestrator because "the model wasn't available".
+- Skipping Task/subagent delegation for any `/flow-*` phase when intent is to run that phase.
+- Impersonating `forge-arch`, `forge-dev`, etc. in the orchestrator context without explicit human approval.
+
+### Traceability (log every delegation)
+
+After each delegation, record and show when summarizing:
+
+| Field | Meaning |
+|-------|---------|
+| **Agent** | e.g. `forge-arch` |
+| **Requested model** | Preferred from `model-assignments.mdc` |
+| **Effective model** | What actually executed |
+| **Fallback applied** | yes / no |
+
+When the user asks for audit or troubleshooting, include this table.
+
+### When delegation itself fails (not a model issue)
+
+If Task/subagent **spawn fails twice** (tool error, timeout, empty handoff):
+
+1. Report the blocker to the human with what was attempted (agent name, models tried).
+2. Do **not** silently take over arch/plan/dev/verify unless the human explicitly says: *"continuá inline solo este paso"*.
+3. Suggest: Reload Window, verify `.cursor/agents/forge-*.md` exists, retry: *"Delegá a forge-{phase} según workflow.mdc"*.
+
+### What the orchestrator may do inline (only)
+
+- `/flow-status` — read `.ai-work/`, summarize phase (no heavy artifact generation).
+- CKP gate messages (approve spec? green light to code?).
+- Routing, retry instructions, model traceability tables.
+- Short clarifications to the human.
+
+Everything else → **delegate**.
 
 ## Git Safety
 
 See `git-sin-push.mdc`. Never `git push` unless the human explicitly requests it. Commits are fine; pushes require confirmation.
+
+---
+
+## Slash commands vs IDE (important)
+
+`/flow-start`, `/flow-plan`, etc. are **workflow conventions** (text the user types). They may appear in `.cursor/commands/` for autocomplete, but they always work as a **literal message** in **Agent** mode. The orchestrator must route them even if autocomplete does not show them.
+
+**The human must NEVER load `SKILL.md` or `@skills/...` manually.** Skills are compiled into `.cursor/agents/forge-*.md`. Your job is to **delegate** to those subagents with the **Task** tool (`subagent_type` matching the agent name, e.g. `forge-discovery`).
+
+If the model says "load the skill first" or answers as a generic assistant without delegating, that is a **workflow violation** — retry delegation immediately.
+
+---
+
+## Intent activation (slash optional)
+
+Detect natural language the same way as slash commands:
+
+| Intent signals | Delegate to |
+|----------------|-------------|
+| "empezar feature", "nueva feature", "CRUD de…", `/flow-start` | `forge-discovery` → then `forge-arch` |
+| "armar el plan", `/flow-plan` | `forge-plan` |
+| "implementar", "seguir codificando", `/flow-dev` | `forge-dev` |
+| "verificar", "auditar", `/flow-verify` | `forge-verify` |
+| "cerrar feature", `/flow-close` | `forge-memory` |
+| "reporté un error", "hay un bug", "falló", "no se cumple", "se rompió" | **Rework intake** → `forge-dev` |
+| "en qué fase estamos", `/flow-status` | orchestrator only (read `.ai-work/`) |
+
+Do **not** implement product code inline when the intent is to run a phase — delegate.
+
+---
+
+## Rework intake (bug report) — orchestrator never fixes code
+
+When the human reports a bug (manual test failed, regression, unexpected behavior), the orchestrator **must not** patch code inline “because it is easy”.
+
+**Orchestrator responsibilities (allowed inline)**:
+
+1. Determine `feature-slug` (prefer the active folder under `.ai-work/`; otherwise ask which feature).
+2. Create or update `.ai-work/{feature-slug}/rework_ticket.md` with: **Expected**, **Actual**, steps to reproduce, evidence, environment, severity (P0–P3), `cycle_count` in YAML frontmatter.
+3. **Delegate** to `forge-dev` via Task tool with the report and `feature-slug`.
+
+**Forbidden**: editing `src/**`, `tests/**`, `docs/**`, dashboards, or metrics inline; writing `verify-report.md` inline (use `forge-verify`).
+
+If the bug is spec↔code mismatch only: `forge-verify` first → `rework_ticket.md` → `forge-dev`.
+
+Shared reference: `ide/shared/workflow-orchestrator-parity.md`.
+
+---
+
+## `/flow-start <feature-description>`
+
+**When**: New feature or epic.
+
+**Human part**: One message, e.g. `/flow-start CRUD de tareas` (slug folder: `crud-tareas` in kebab-case).
+
+**Orchestrator (mandatory)**:
+
+0. If the message contains `/flow-start` or equivalent intent, **do not** answer as a generic assistant or jump to code.
+1. Derive `feature-slug` (kebab-case) from the description.
+2. **Delegate** to subagent `forge-discovery` via Task tool. Pass: user text, `feature-slug`.
+3. If Discovery returns **BLOCKED** (CKP-0 🔴): **STOP**. Ask the human for clarification. Do not invoke `forge-arch`.
+4. If Discovery returns **CLEAR**: **Delegate** to `forge-arch` with the Context Map and `feature-slug`. Arch must create `.ai-work/{feature-slug}/spec.md`.
+5. **CKP-1 🟡**: When `spec.md` exists, stop and ask: *"spec.md generado en `.ai-work/{feature-slug}/`. ¿Apruebas o ajustás algo?"* Do not run `/flow-plan` until explicit approval.
+
+---
+
+## `/flow-plan`
+
+**Prerequisite**: Approved `spec.md` under `.ai-work/{feature-slug}/`.
+
+**Orchestrator**: Delegate to `forge-plan`. Output: `.ai-work/{feature-slug}/plan.md`.
+
+**CKP-2 🟡**: Stop and ask: *"plan.md generado. ¿Luz verde para codear?"*
+
+---
+
+## `/flow-dev`
+
+**Prerequisite**: Approved `plan.md`.
+
+**Orchestrator**: Delegate to `forge-dev`. If `rework_ticket.md` or `rework.md` is open, dev fixes that first.
+
+Do **not** implement inline unless Task delegation failed **twice** — then report the blocker to the human (see **Model Rules → When delegation itself fails**). Model fallback is **not** a reason to implement inline.
+
+---
+
+## `/flow-verify`
+
+**Orchestrator**: Delegate to `forge-verify`. Outputs under `.ai-work/{feature-slug}/`.
+
+**CKP-3 🔴**: If `cycle_count >= 3`, escalate to human.
+
+---
+
+## `/flow-close`
+
+**Orchestrator**: Delegate to `forge-memory`. Memory agent enforces PM-* gates before CKP-4.
+
+**CKP-4 🟢**: Ask human: *"Feature lista. ¿Deploy / merge?"*
+
+### No cierre sin PM-* (importante)
+
+- Si `forge-memory` reporta PM-* pendientes (cualquier `[ ]`), el orquestador **NO** debe avanzar el cierre.
+- El orquestador debe instruir: ejecutar PM-*, marcar `[x]` en `spec.md`, y reintentar `/flow-close`.
+- Solo si el humano dice explícitamente **"preview de cierre"** se permite un borrador, y debe quedar como **preview** (no cierre real).
+
+---
+
+## `/flow-status`
+
+Read `.ai-work/` folders and summarize phase — without delegating unless the user asks to continue.
+
+---
+
+## Diagnosis: "no delega" or "pedí cargar el skill"
+
+1. **Agent files**: `.cursor/agents/forge-*.md` must exist (install via `ide/install.ps1` or copy from `ide/cursor/agents/`).
+2. **Mode**: Agent mode with Task/subagent support.
+3. **Reload**: Cursor → Reload Window after changing agents.
+4. **Retry**: *"Según workflow.mdc, delegá a forge-discovery con Task; no pidas cargar skills."*
+5. **Skill vs Agent**: In Cursor, use **agents** (`forge-discovery`); `skills/` is source-of-truth compiled into agents — not for manual `@` loading.

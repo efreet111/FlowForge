@@ -8,12 +8,34 @@
 
 **Linux / macOS:**
 ```bash
+# Nota: este comando solo funciona cuando el repo FlowForge es PÚBLICO.
 curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.sh | bash
 ```
 
 **Windows (PowerShell):**
 ```powershell
+# Nota: este comando solo funciona cuando el repo FlowForge es PÚBLICO.
 iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
+```
+
+### Modo privado (recomendado mientras lo estás preparando)
+Si el repo está privado, instalá en modo local:
+
+```bash
+git clone https://github.com/efreet111/FlowForge.git
+cd FlowForge
+```
+
+Luego ejecutá el instalador según tu OS:
+
+```bash
+# Linux/macOS
+bash ide/install.sh
+```
+
+```powershell
+# Windows (PowerShell)
+.\ide\install.ps1
 ```
 
 ## 2. Primer comando
@@ -31,7 +53,7 @@ El agente va a seguir este flujo automático:
 ```
 /flow-start
   ├── forge-discovery  → investiga contexto, CVEs, compliance
-  ├── CKP-0 🟢         → requerimiento claro, continuá
+  ├── CKP-0 🔴         → si falta contexto o el requerimiento es vago: PARAR y pedir clarificación
   ├── forge-arch       → escribe spec.md con RF/RNF + escenarios
   ├── CKP-1 🟡         → humano aprueba spec
   ├── forge-plan       → descompone en tareas con contratos
@@ -58,4 +80,14 @@ El agente va a seguir este flujo automático:
 
 ---
 
-> **¿Problemas?** Abrí un issue en https://github.com/efreet111/FlowForge
+## Troubleshooting rápido
+
+- **Veo 404 al instalar con `raw.githubusercontent.com`**: el repo está privado (o la ruta/branch no coincide). Usá “Modo privado” (arriba) o hacé el repo público.
+- **`git` no está instalado**: instalalo desde Git for Windows o tu package manager en Linux/macOS.
+- **`fatal: detected dubious ownership` en Windows**: marcá el repo como seguro con:
+
+```powershell
+git config --global --add safe.directory E:/Proyectos/FlowForge
+```
+
+> **¿Problemas?** Abrí un issue en `https://github.com/efreet111/FlowForge`

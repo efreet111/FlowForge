@@ -16,11 +16,30 @@ FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños 
 ## Instalación en 1 línea
 
 ```bash
+# Cuando el repo sea PÚBLICO:
 # Linux/macOS
 curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.sh | bash
 
 # Windows (PowerShell)
 iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
+```
+
+### Modo privado (mientras lo estás preparando)
+Si este repo está privado, la instalación remota (`raw.githubusercontent.com`) va a devolver 404. Usá instalación local:
+
+```bash
+git clone https://github.com/efreet111/FlowForge.git
+cd FlowForge
+```
+
+```bash
+# Linux/macOS
+bash ide/install.sh
+```
+
+```powershell
+# Windows (PowerShell)
+.\ide\install.ps1
 ```
 
 Después de instalar, reiniciá el IDE, seleccioná el agente **`flowforge`** y probá:
@@ -92,6 +111,13 @@ Archivos listos para usar en `ide/`:
 | [`14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md) | Referencia completa + 7 casos de prueba |
 | [`15-agent-skills-technical-spec.md`](docs/15-agent-skills-technical-spec.md) | Especificación técnica de agentes |
 | [`16-ide-integration-plan.md`](docs/16-ide-integration-plan.md) | Integración con 4 IDEs |
+
+## Docs map (por dónde empezar)
+
+- **Empezar en 5 minutos**: [`QUICKSTART.md`](QUICKSTART.md)
+- **Referencia completa + casos de prueba**: [`docs/14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md)
+- **Integración IDE**: [`ide/README.md`](ide/README.md)
+- **Roadmap**: [`docs/04-roadmap.md`](docs/04-roadmap.md)
 
 ## Licencia
 

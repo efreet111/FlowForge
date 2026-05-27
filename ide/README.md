@@ -2,37 +2,72 @@
 
 This directory contains ready-to-use IDE integration files for **OpenCode, Cursor, Antigravity, and VS Code**.
 
-## Quick Install
+> Para onboarding en español: [`../QUICKSTART.md`](../QUICKSTART.md) y [`../docs/14-flowforge-complete-reference.md`](../docs/14-flowforge-complete-reference.md).
 
-### OpenCode (nativo)
-```bash
-# Mergear los agentes FlowForge en tu opencode.json existente
-# Copiá las entradas de 'agent' de ide/opencode/opencode.flowforge.json
-# en tu ~/.config/opencode/opencode.json (dentro del objeto "agent")
+## Paridad entre IDEs (v0.4)
 
-# O usarlo como referencia para crear los subagentes manualmente.
-# Los prompts cargan los archivos SKILL.md directamente desde el repo FlowForge.
+Fuente compartida del orquestador (todos los IDEs deben alinearse a esto):
+
+```text
+ide/shared/workflow-orchestrator-parity.md
 ```
 
-### Cursor
+| Regla | Cursor | Antigravity | VS Code | OpenCode |
+|-------|--------|-------------|---------|----------|
+| Orquestador no codea producto | `cursor/rules/workflow.mdc` | `antigravity/rules/workflow.md` | `vscode/agents/forge-orchestrator.agent.md` | `opencode` + shared file |
+| Rework intake → `rework_ticket.md` | ✅ | ✅ + `workflows/flow-rework.md` | ✅ handoff Fix Rework | ✅ en prompt |
+| PM-* gate en cierre | ✅ | ✅ | ✅ | ✅ (skills + parity) |
+| `verify-report.md` (no cert-report) | ✅ | ✅ | ✅ | ✅ |
+| `.ai-work/{slug}/` kebab-case | ✅ | ✅ | ✅ | ✅ |
+| Dev marca checklist plan | skills + agents compilados | skills on-demand | `.github/agents` | `{file:skills}` |
+
+**Regenerar agentes Cursor** tras cambiar skills:
+
+```bash
+python ide/cursor/compile-agents-from-skills.py
+```
+
+## Quick Install (recomendado)
+
+### Windows (PowerShell)
+```powershell
+cd ide
+.\install.ps1
+
+# Por proyecto (Antigravity + .cursor + .github/agents):
+.\install.ps1 -ProjectPath "E:\Proyectos\mi-app"
+```
+
+### Linux / macOS
+```bash
+cd ide
+bash install.sh
+
+# Por proyecto:
+bash install.sh /path/to/mi-app
+```
+
+El instalador:
+
+1. Copia `ide/shared/` → `~/.flowforge/shared/` (paridad orquestador)
+2. Recompila agentes Cursor desde `skills/` (si hay Python)
+3. Instala Cursor (`~/.cursor`), OpenCode (`~/.config/opencode/flowforge/`), VS Code (`~/.vscode`)
+4. Con ruta de proyecto: `.agents/`, `.cursor/`, `.github/agents/`, `.flowforge/shared/`
+
+### Manual (si preferís)
+
+**OpenCode:** mergeá `agent{}` de `opencode.flowforge.json` en `~/.config/opencode/opencode.json`. El bundle en `flowforge/` usa `{file:./flowforge/shared/workflow-orchestrator-parity.md}`.
+
+**Cursor:**
 ```bash
 cp ide/cursor/rules/*.mdc ~/.cursor/rules/
 cp ide/cursor/agents/*.md  ~/.cursor/agents/
+cp ide/cursor/commands/*.md ~/.cursor/commands/
 ```
 
-### Antigravity (per-project)
-```bash
-mkdir -p .agents/rules .agents/workflows
-cp ide/antigravity/rules/*.md .agents/rules/
-cp ide/antigravity/workflows/*.md .agents/workflows/
-cp ide/antigravity/AGENTS.md .
-```
+**Antigravity (por proyecto):** ver `install.sh <proyecto>` o copiar `ide/antigravity/` a `.agents/`.
 
-### VS Code / Copilot
-```bash
-mkdir -p .vscode
-cp ide/vscode/copilot-instructions.md .vscode/
-```
+**VS Code:** `install.sh <proyecto>` copia a `.github/agents/` y `.vscode/copilot-instructions.md`.
 
 ## What Each IDE Gets
 
@@ -42,7 +77,8 @@ cp ide/vscode/copilot-instructions.md .vscode/
 | Model assignments | Inline in agent config | `rules/model-assignments.mdc` | `rules/model-assignments.md` | Embedded |
 | Git safety | Via `permission.bash` in opencode.json | `rules/git-sin-push.mdc` | `rules/git-sin-push.md` | Embedded |
 | Agent instructions | `{file:...}` references to `skills/*/SKILL.md` | `agents/forge-*.md` (6 files) | Referenced via workflow.md | Embedded |
-| Slash commands | Via AGENTS.md or custom commands | Via rules | `workflows/flow-*.md` (4 files) | N/A |
+| Shared parity doc | `../shared/workflow-orchestrator-parity.md` | copy ref in workflow | in copilot + orchestrator | `{file:../shared/...}` |
+| Slash commands | Via rules / `.cursor/commands` | `workflows/flow-*.md` (6) | handoffs + chat | AGENTS.md |
 | MCP integration | Native engram MCP | N/A | N/A | N/A |
 
 ## OpenCode — Detalle

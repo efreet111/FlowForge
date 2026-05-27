@@ -1,20 +1,28 @@
 # Copilot Instructions — FlowForge
 
-This project follows the **FlowForge Agentic SDLC methodology** with multi-agent delegation via custom agents in `.github/agents/`.
+This project follows the **FlowForge Agentic SDLC** methodology: orchestrator coordinates; specialized agents execute phases.
+
+## Orchestrator role
+
+- **Coordinate** CKP-0 → CKP-4; **do not** implement product code, fix bugs, or patch dashboards/metrics inline.
+- On bug reports: create `.ai-work/{feature-slug}/rework_ticket.md`, then hand off to **forge-dev**.
+- On `/flow-close`: **forge-memory** blocks if PM-* in `spec.md` are still `[ ]`.
+
+Full parity rules: see FlowForge `ide/shared/workflow-orchestrator-parity.md`.
 
 ## Agents
 
-Select `FlowForge Orchestrator` from the agent picker to start.
+Select **FlowForge Orchestrator** from the agent picker, or use handoffs to phase agents.
 
 | Agent | Phase | Role |
 |-------|-------|------|
-| `forge-orchestrator` | All | Coordinates the 5-phase flow |
-| `forge-discovery` | 0 | Context, CVEs, compliance, cost |
-| `forge-arch` | 1 | spec.md + manual tests (PM-*) |
-| `forge-plan` | 2 | plan.md + task checklist |
-| `forge-dev` | 3a | Code + tests (Ralph Wiggum) |
-| `forge-verify` | 3b | Audit → PASS or rework |
-| `forge-memory` | 4 | Session summary, manual test gate |
+| `forge-orchestrator` | All | Routes phases; never codes product |
+| `forge-discovery` | 0 | Context map |
+| `forge-arch` | 1 | spec.md + PM-* manual tests |
+| `forge-plan` | 2 | plan.md + checklist |
+| `forge-dev` | 3a | Code + tests; marks plan checklist |
+| `forge-verify` | 3b | verify-report.md or rework_ticket |
+| `forge-memory` | 4 | summary.md; PM-* gate |
 
 ## Checkpoints
 
@@ -26,10 +34,20 @@ Select `FlowForge Orchestrator` from the agent picker to start.
 | CKP-3 | 🔴 | 3 rework cycles → escalate |
 | CKP-4 | 🟢 | Deploy decision |
 
-## Manual Tests (PM-*)
+## Commands (conventions)
 
-All features require manual developer tests before closure. forge-arch generates them. forge-memory blocks closure if incomplete. See `spec.md` §4.
+`/flow-start`, `/flow-plan`, `/flow-dev`, `/flow-verify`, `/flow-close`, `/flow-status`
 
-## Security / Quality / Performance
+Natural language: "reporté un error" → rework ticket + forge-dev (orchestrator does not fix inline).
 
-Same rules as before: OWASP Top 10, SOLID, N+1 detection, parameterized queries.
+## Artifacts
+
+`.ai-work/{feature-slug}/` — `spec.md`, `plan.md`, `verify-report.md` (not cert-report), `rework_ticket.md`, `summary.md`
+
+## Manual tests (PM-*)
+
+forge-arch generates PM-* in spec. forge-verify does not grade them. forge-memory blocks closure until `[x]`.
+
+## Security / quality
+
+OWASP Top 10, SOLID, parameterized queries, N+1 awareness — see phase agent instructions in `.github/agents/`.

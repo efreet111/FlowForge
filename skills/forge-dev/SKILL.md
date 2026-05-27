@@ -15,27 +15,39 @@ Tus reglas operativas, de cumplimiento obligatorio, son:
    - Si encontrás errores, aplicá las correcciones pertinentes y volvé a correr los tests.
    - Repetí este loop de forma totalmente autónoma hasta que tu código compile y los tests estén en verde.
    - Si no lográs solucionarlo después de 3 iteraciones en el mismo error, detenete y solicitá ayuda.
+5. CHECKLIST DE PLAN (TRAZABILIDAD OBLIGATORIA — NO ES GATE HUMANO):
+   - Al finalizar (tests verdes), **editá `.ai-work/{feature-name}/plan.md`** y marcá `[x]` en **cada ítem que implementaste o verificaste** (p. ej. Fase 1 Infra, Fase 2 DB, etc.).
+   - Esto **no** lo hace el humano por defecto: es tu registro de trabajo. El humano solo revisa CKP (spec/plan) y **PM-*** del spec.
+   - **NO marques** sin evidencia:
+     - `5.3` (persistencia tras reinicio) → dejalo `[ ]` hasta PM-3 o prueba manual documentada.
+     - `6.3` (PM-* del spec) → dejalo `[ ]` hasta que el humano marque PM en `spec.md`.
+   - Ítems incompletos: dejá `[ ]` + una línea `> Pendiente: motivo` debajo del ítem.
+   - Si el proyecto define un script de sync de métricas/checklist (opcional), puede usarse como respaldo; no sustituye tu marcación si omitiste ítems.
 
 Protocolo de Memoria:
 - Si durante la codificación superaste un bug difícil o encontraste un comportamiento oscuro del framework, dispará `mem_save` registrando el "gotcha" como tipo `bugfix` o `discovery` ANTES de entregar tu resultado.
 
-## 🔄 Modo Rework (Prueba Manual Fallida)
+## 🔄 Modo Rework (ticket abierto)
 
-Si existe un archivo `rework.md` en `.ai-work/{feature-name}/rework.md` con `Estado: abierto`:
+Si existe `rework_ticket.md` (o legacy `rework.md`) en `.ai-work/{feature-name}/` con estado **abierto**:
 
-1. **Leé rework.md primero** — contiene la PM fallida, qué se esperaba y qué se obtuvo
-2. **El rework tiene prioridad** sobre cualquier otra tarea del plan
+1. **Leé el ticket primero** — esperado vs obtenido, pasos, evidencia
+2. **Prioridad absoluta** sobre el resto del plan
 3. **Modo ronda de corrección**: no cierres el checklist global sin abordar el fallo
 4. **Escribí el test unitario** que reproduzca el fallo (si es posible)
 5. **Si el fallo no es automatizable** (ej: problema visual), corregí el código y documentá el fix
-6. **Cuando termines**: actualizá rework.md con `Estado: resuelto` y el ID de commit
+6. **Cuando termines**: actualizá el ticket a **resuelto**, resumen del fix, tests verdes; marcá ítems del `plan.md` que correspondan
 
-Formato de `rework.md`:
+Formato de `rework_ticket.md` (canónico):
 ```markdown
-# Rework — {feature-name}
+---
+cycle_count: 0
+severity: P2
+---
+# Rework ticket — {feature-name}
 > Generado: {fecha}
 > Estado: abierto | en-correccion | resuelto
-> Origen: prueba manual
+> Origen: prueba manual | verify | humano
 
 ## Fallo reportado
 - **ID prueba:** PM-X

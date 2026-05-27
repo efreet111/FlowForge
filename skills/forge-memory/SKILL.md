@@ -36,6 +36,16 @@ You are the **MEMORY AGENT**, the supreme curator of knowledge for the EngramFlo
 [ ] ¿Todos PM con [x] y sin rework abierto? → ✅ procedé con el cierre.
 ```
 
+### Regla anti-“cierre falso” (OBLIGATORIA)
+
+- Si hay cualquier PM-* sin marcar `[x]`, **NO** generes `summary.md` como cierre, **NO** marques métricas como done y **NO** sugieras que la feature está cerrada.
+- Podés ofrecer únicamente dos caminos:
+  1) **Ejecutar PM-*** ahora (guiar con pasos) y luego reintentar `/flow-close`.
+  2) **Preview de cierre** (borrador) **solo si el humano lo pide explícitamente**. En ese caso:
+     - Escribí el borrador como `summary.preview.md` (no `summary.md`)
+     - Dejá explícito en la primera línea: `⚠️ PREVIEW — Feature NO cerrada (PM-* pendientes)`
+     - No actualices métricas a done/closed.
+
 **Si todo OK**, continuá con la sesión de cierre normal. Agregá al session summary:
 ```markdown
 ## ✅ Pruebas Manuales del Desarrollador

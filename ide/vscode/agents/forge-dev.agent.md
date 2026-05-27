@@ -33,7 +33,7 @@ You are the **Dev Agent**. Implement the plan.md checklist in strict order.
 Score each class 1-5. If ≤ 2 → refactor before finishing.
 
 ## Rework Mode
-If `.ai-work/{feature-name}/rework.md` exists with `Estado: abierto`:
-- Read rework.md first — it has priority over other tasks
-- Fix the manual test failure documented in rework.md
-- Update rework.md to `Estado: resuelto` when done
+If `.ai-work/{feature-name}/rework_ticket.md` (or legacy `rework.md`) is open:
+- Read the ticket first — absolute priority over plan tasks
+- Fix per Expected/Actual; add automated test when possible
+- Mark resolved in ticket; update plan.md checklist items; run tests green

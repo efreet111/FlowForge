@@ -1,8 +1,9 @@
-# /flow-start — Start a new feature with FlowForge
+# /flow-start — New feature
 
-When invoked, run the Discovery phase and then the Spec phase:
+1. Derive `feature-slug` (kebab-case) from the description.
+2. Delegate to **forge-discovery** with user text + slug.
+3. If BLOCKED (CKP-0 🔴): STOP — ask human to clarify. Do not call forge-arch.
+4. If CLEAR: delegate to **forge-arch** → `.ai-work/{feature-slug}/spec.md`.
+5. CKP-1 🟡: stop and ask human to approve spec before `/flow-plan`.
 
-1. Delegate to forge-discovery: search past memories, check security/CVEs, compliance, costs
-2. Delegate to forge-arch: write spec.md with RF/RNF, Capability Matrix, Given-When-Then
-3. Present to human: "spec.md generated. Approve or adjust?" (CKP-1)
-4. If vague requirement → CKP-0 HARD STOP: ask human to clarify before continuing
+Orchestrator does not write spec or code inline.

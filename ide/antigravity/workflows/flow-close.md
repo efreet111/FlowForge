@@ -1,11 +1,9 @@
-# /flow-close — Close the feature and persist memory
+# /flow-close — Memory + deploy gate
 
-When invoked, run the Memory phase (CKP-4):
+1. Delegate to **forge-memory**.
+2. Memory blocks if any PM-* in `spec.md` still `[ ]` or rework ticket open.
+3. If blocked: instruct human to run PM-*, mark `[x]`, retry `/flow-close`.
+4. Preview only if human says **"preview de cierre"** → `summary.preview.md`, not `summary.md`.
+5. CKP-4 🟢: ask human about deploy/merge.
 
-1. Delegate to forge-memory to:
-   - Write session summary (Goal, Discoveries, Accomplished, Next Steps)
-   - Persist learnings to engram-dotnet (mem_save)
-   - Promote architecture decisions to ADRs (mem_promote_to_md)
-   - Capture metrics: test coverage, cycle time, tech debt
-   - Update CHANGELOG.md
-2. Present: "Feature complete. Deploy?" (CKP-4)
+Orchestrator does not generate `summary.md` inline when PM-* are pending.
