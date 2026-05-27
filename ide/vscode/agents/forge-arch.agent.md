@@ -1,4 +1,5 @@
 ---
+user-invocable: true
 description: FlowForge Arch — Fase 1. Escribe spec.md con RF/RNF, STRIDE security, Given-When-Then y pruebas manuales.
 name: forge-arch
 tools: ['search/codebase', 'web/fetch', 'terminal']

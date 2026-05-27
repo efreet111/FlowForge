@@ -1,4 +1,5 @@
 ---
+user-invocable: true
 description: FlowForge Memory — Fase 4. Cierra la feature, persiste aprendizajes, verifica pruebas manuales (PM-*).
 name: forge-memory
 tools: ['search/codebase', 'terminal']

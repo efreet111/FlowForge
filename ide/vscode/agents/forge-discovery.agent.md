@@ -1,4 +1,5 @@
 ---
+user-invocable: true
 description: FlowForge Discovery — Fase 0. Investiga contexto previo, CVEs, compliance y costos antes de planificar.
 name: forge-discovery
 tools: ['search/codebase', 'search/usages', 'web/fetch']

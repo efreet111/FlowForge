@@ -1,4 +1,5 @@
 ---
+user-invocable: true
 description: FlowForge Verify — Fase 3b. Audita código contra spec.md línea por línea. Emite PASS o rework_ticket.md.
 name: forge-verify
 tools: ['search/codebase', 'terminal']

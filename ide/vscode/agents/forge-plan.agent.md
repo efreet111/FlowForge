@@ -1,4 +1,5 @@
 ---
+user-invocable: true
 description: FlowForge Plan — Fase 2. Descompone spec.md en tareas atómicas con contratos y patrones de diseño.
 name: forge-plan
 tools: ['search/codebase', 'terminal']

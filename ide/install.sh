@@ -110,9 +110,13 @@ fi
 # --- Detect VS Code ───────────────────────────────────────────────────────
 if [ -d "${HOME}/.vscode" ] || [ -d "${HOME}/.vscode-server" ]; then
   echo -e "${GREEN}[✓] VS Code detectado${NC}"
-  mkdir -p "${HOME}/.vscode"
+  mkdir -p "${HOME}/.vscode/agents"
   [ -f "$FLOWFORGE_REPO/ide/vscode/copilot-instructions.md" ] && cp "$FLOWFORGE_REPO/ide/vscode/copilot-instructions.md" "${HOME}/.vscode/"
-  echo -e "  ${GREEN}✓${NC} Copilot instructions copiadas"
+  for agent in "$FLOWFORGE_REPO/ide/vscode/agents/"*.agent.md; do
+    [ -f "$agent" ] && cp "$agent" "${HOME}/.vscode/agents/" && echo -e "  ${GREEN}✓${NC} Agent $(basename $agent) copiado"
+  done
+  echo -e "  ${YELLOW}Nota:${NC} Para agentes por proyecto, copiá ide/vscode/agents/ a tu-proyecto/.github/agents/"
+  echo -e "  Y asegurate de que tu proyecto tenga git init + al menos 1 commit."
   INSTALLED=1
 fi
 
