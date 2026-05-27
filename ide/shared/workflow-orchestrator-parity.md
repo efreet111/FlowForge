@@ -1,97 +1,97 @@
-# FlowForge — Paridad de orquestador (todos los IDEs)
+# FlowForge — Orchestrator parity (all IDEs)
 
-> Fuente compartida: incluir o copiar en Cursor, Antigravity, VS Code, OpenCode.
-> El orquestador **coordina**; no implementa producto salvo excepciones listadas abajo.
+> Shared source: include or copy into Cursor, Antigravity, VS Code, and OpenCode.
+> The orchestrator **coordinates**; it does not implement product code except as listed below.
 
-## Artefactos (por feature)
+## Artifacts (per feature)
 
-Carpeta: `.ai-work/{feature-slug}/` (kebab-case, sin prefijo `FLOW-`).
+Folder: `.ai-work/{feature-slug}/` (kebab-case, no `FLOW-` prefix).
 
-| Archivo | Agente | Notas |
-|---------|--------|--------|
-| `context-map.md` | forge-discovery | Salida fase 0 |
-| `spec.md` | forge-arch | Incluye PM-* (pruebas manuales) |
-| `plan.md` | forge-plan | Checklist `[ ]` / `[x]` — lo marca **forge-dev** |
-| `verify-report.md` | forge-verify | PASS o hallazgos (no usar `cert-report.md`) |
-| `rework_ticket.md` | verify → dev | Prioridad sobre plan si está abierto |
-| `revision_cycle.md` | orquestador | Rechazos CKP-1/CKP-2 (máx. 3) |
-| `summary.md` | forge-memory | Solo si PM-* completas |
+| File | Agent | Notes |
+|------|--------|--------|
+| `context-map.md` | forge-discovery | Phase 0 output |
+| `spec.md` | forge-arch | Includes PM-* (manual tests) |
+| `plan.md` | forge-plan | Checklist `[ ]` / `[x]` — marked by **forge-dev** |
+| `verify-report.md` | forge-verify | PASS or findings (do not use `cert-report.md`) |
+| `rework_ticket.md` | verify → dev | Takes priority over plan when open |
+| `revision_cycle.md` | orchestrator | CKP-1/CKP-2 rejections (max 3) |
+| `summary.md` | forge-memory | Only when PM-* are complete |
 
-## Intención en lenguaje natural
+## Natural-language intent
 
-| Señales | Acción |
+| Signals | Action |
 |---------|--------|
-| "empezar feature", "nueva feature", `/flow-start` | forge-discovery → forge-arch |
-| "armar el plan", `/flow-plan` | forge-plan |
-| "implementar", "seguir codificando", `/flow-dev` | forge-dev |
-| "verificar", "auditar", `/flow-verify` | forge-verify |
-| "cerrar feature", `/flow-close` | forge-memory |
-| "reporté un error", "hay un bug", "falló", "no se cumple" | **Rework intake** → forge-dev |
-| "en qué fase", `/flow-status` | orquestador lee `.ai-work/` solo |
+| "start feature", "new feature", `/flow-start` | forge-discovery → forge-arch |
+| "build the plan", `/flow-plan` | forge-plan |
+| "implement", "keep coding", `/flow-dev` | forge-dev |
+| "verify", "audit", `/flow-verify` | forge-verify |
+| "close feature", `/flow-close` | forge-memory |
+| "reported a bug", "there is a bug", "failed", "does not meet spec" | **Rework intake** → forge-dev |
+| "what phase", `/flow-status` | orchestrator reads `.ai-work/` only |
 
-## Rework intake (reporte de bug) — el orquestador NO arregla código
+## Rework intake (bug report) — orchestrator does NOT fix code
 
-Ante bug, regresión o prueba manual fallida:
+On bug, regression, or failed manual test:
 
-**Permitido inline (orquestador):**
+**Allowed inline (orchestrator):**
 
-1. Resolver `feature-slug` (carpeta activa en `.ai-work/` o preguntar).
-2. Crear/actualizar `.ai-work/{feature-slug}/rework_ticket.md` con:
-   - **Esperado** / **Obtenido**
-   - Pasos para reproducir
-   - Evidencia (logs, capturas, request/response)
-   - Entorno
-   - Severidad (P0–P3)
-   - `cycle_count` en frontmatter YAML (0 al crear; +1 tras cada intento fallido)
-3. **Delegar** a `forge-dev` con el reporte y la ruta del ticket.
+1. Resolve `feature-slug` (active folder under `.ai-work/` or ask).
+2. Create/update `.ai-work/{feature-slug}/rework_ticket.md` with:
+   - **Expected** / **Actual**
+   - Reproduction steps
+   - Evidence (logs, screenshots, request/response)
+   - Environment
+   - Severity (P0–P3)
+   - `cycle_count` in YAML frontmatter (0 on create; +1 after each failed attempt)
+3. **Delegate** to `forge-dev` with the report and ticket path.
 
-**Prohibido inline:**
+**Forbidden inline:**
 
-- Editar `src/**`, `tests/**`, `docs/**`, dashboards o métricas como "arreglo rápido".
-- Escribir `verify-report.md` — delegar a `forge-verify`.
+- Edit `src/**`, `tests/**`, `docs/**`, dashboards, or metrics as a "quick fix".
+- Write `verify-report.md` — delegate to `forge-verify`.
 
-Si el fallo es desalineación spec↔código sin bug de runtime: `forge-verify` genera `rework_ticket.md` → luego `forge-dev`.
+If the issue is spec↔code misalignment without a runtime bug: `forge-verify` writes `rework_ticket.md` → then `forge-dev`.
 
-**CKP-3:** si `cycle_count >= 3` en `rework_ticket.md`, escalar al humano. No intentar 4.º ciclo.
+**CKP-3:** if `cycle_count >= 3` in `rework_ticket.md`, escalate to the human. Do not attempt a 4th cycle.
 
-## Cierre sin PM-* (CKP-4)
+## Close without PM-* (CKP-4)
 
-- Si `forge-memory` reporta PM-* con `[ ]`, **no** cerrar la feature.
-- Instruir: ejecutar PM-*, marcar `[x]` en `spec.md`, reintentar `/flow-close`.
-- Solo con frase explícita **"preview de cierre"**: borrador en `summary.preview.md` con aviso de NO cerrado.
+- If `forge-memory` reports PM-* still `[ ]`, **do not** close the feature.
+- Instruct: run PM-*, mark `[x]` in `spec.md`, retry `/flow-close`.
+- Only on explicit **"close preview"**: draft `summary.preview.md` with a NOT-CLOSED warning.
 
-## Dev completado (definición)
+## Dev done (definition)
 
-`dev` no está "done" solo por tests verdes. Requiere:
+`dev` is not "done" with green tests alone. Requires:
 
-- Checklist de `plan.md` marcado por **forge-dev** (ítems 5.3 / 6.3 según reglas del skill dev).
-- PM-* marcadas en `spec.md` antes de `/flow-close`.
-- `verify-report.md` con PASS cuando corresponda.
+- `plan.md` checklist marked by **forge-dev** (items 5.3 / 6.3 per dev skill rules).
+- PM-* marked in `spec.md` before `/flow-close`.
+- `verify-report.md` with PASS when applicable.
 
-Proyectos opcionales pueden exponer un script de sync (ej. `npm run flow-metrics`); es **respaldo**, no sustituye la marcación del agente.
+Optional projects may expose a sync script (e.g. `npm run flow-metrics`); it is **backup**, not a substitute for agent checklist marks.
 
-## Orquestador: solo inline
+## Orchestrator: inline only
 
-- `/flow-status` (lectura `.ai-work/`)
-- Mensajes CKP (aprobar spec/plan, deploy)
-- Crear `rework_ticket.md` / `revision_cycle.md` (metadatos, no código producto)
-- Tabla de trazabilidad de delegación (agente, modelo pedido, modelo efectivo)
-- Aclaraciones breves al humano
+- `/flow-status` (read `.ai-work/`)
+- CKP messages (approve spec/plan, deploy)
+- Create `rework_ticket.md` / `revision_cycle.md` (metadata, not product code)
+- Delegation trace table (agent, requested model, effective model)
+- Brief clarifications to the human
 
-Todo lo demás → **delegar** al subagente de la fase.
+Everything else → **delegate** to the phase subagent.
 
-## Delegación obligatoria
+## Mandatory delegation
 
-- Problemas de modelo cambian **qué modelo** usa el subagente, no **si** se delega.
-- Si la delegación falla 2 veces (timeout, spawn): reportar al humano. No tomar dev/verify inline salvo: *"continuá inline solo este paso"*.
-- No pedir al humano cargar `SKILL.md` manualmente; el IDE debe usar agentes/reglas compiladas o `{file:skills/...}`.
+- Model issues change **which model** the subagent uses, not **whether** to delegate.
+- If delegation fails twice (timeout, spawn): report to the human. Do not take dev/verify inline unless: *"continue inline for this step only"*.
+- Do not ask the human to load `SKILL.md` manually; the IDE must use compiled agents/rules or `{file:skills/...}`.
 
-## forge-dev: prioridad rework
+## forge-dev: rework priority
 
-Si existe `rework_ticket.md` (o legacy `rework.md`) con estado abierto:
+If `rework_ticket.md` (or legacy `rework.md`) exists with **open** status:
 
-1. Leer el ticket primero.
-2. Prioridad sobre el resto del plan.
-3. Reproducir (test automatizado si es posible), corregir, tests verdes.
-4. Actualizar ticket a resuelto con resumen del cambio.
-5. Marcar ítems correspondientes en `plan.md`.
+1. Read the ticket first.
+2. Priority over the rest of the plan.
+3. Reproduce (automated test when possible), fix, green tests.
+4. Update ticket to resolved with change summary.
+5. Mark corresponding items in `plan.md`.

@@ -1,12 +1,12 @@
 # Contexto del Proyecto FlowForge
 
-> **Última actualización**: 2026-05-25
+> **Última actualización**: 2026-05-27
 
 ---
 
 ## Estado Actual
 
-FlowForge está en **v0.3 — Fase de Fortalecimiento de Agentes**. La metodología EngramFlow está completamente definida con 5 checkpoints formalizados y **31 skills** (7 core + 23 especializadas + 1 teacher cross-cutting). El repositorio tiene 16 documentos en `docs/` y archivos de integración IDE en `ide/`.
+FlowForge está en **v0.4.0 — Paridad IDE y documentación pública**. La metodología EngramFlow está completamente definida con 5 checkpoints formalizados y **31 skills** (7 core + 23 especializadas + 1 teacher cross-cutting). El repositorio tiene 16 documentos en `docs/` y archivos de integración IDE en `ide/`.
 
 - **Directorio raíz**: `/media/gantz/300extra/Proyectos/FlowForge/`
 - **Repositorio engram-dotnet**: `/media/gantz/300extra/Proyectos/engram-dotnet/`
@@ -15,7 +15,7 @@ FlowForge está en **v0.3 — Fase de Fortalecimiento de Agentes**. La metodolog
 
 **FlowForge** es una metodología Agentic SDLC diseñada para equipos SMB (2-20 personas) que integran agentes de IA en su ciclo de desarrollo. Se complementa con **engram-dotnet**, un motor de memoria persistente en .NET 10 con 25 herramientas MCP.
 
-### Pilares del diseño actual (v0.3)
+### Pilares del diseño actual (v0.4)
 
 1. **5 fases, 5 checkpoints (CKP-0 → CKP-4), 7 agentes**
 2. **31 skills totales**: 7 core + 10 OLA 1+2 (seguridad, SOLID, calidad, patrones) + 8 OLA 3 (infraestructura, dominio) + 5 OLA 4 (métricas, conocimiento) + 1 teacher cross-cutting

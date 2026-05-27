@@ -1,6 +1,6 @@
 ---
 name: forge-discovery
-description: Fase 0 FlowForge: discovery y CKP-0. Invocado por el orquestador.
+description: FlowForge phase 0: discovery and CKP-0. Invoked by orchestrator.
 model: gpt-5-mini
 readonly: false
 background: false

@@ -29,7 +29,7 @@ The orchestrator enforces 5 control points. Learn the difference:
 
 ---
 
-## Core FlowForge Skills (v0.3)
+## Core FlowForge Skills (v0.4)
 
 | Skill | Fase | CKP | Trigger / Context | Path |
 |-------|------|-----|-------------------|------|

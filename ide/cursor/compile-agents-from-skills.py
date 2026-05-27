@@ -21,12 +21,12 @@ MODELS = {
 }
 
 DESCRIPTIONS = {
-    "forge-discovery": "Fase 0 FlowForge: discovery y CKP-0. Invocado por el orquestador.",
-    "forge-arch": "Fase 1 FlowForge: spec.md y GWT. Invocado tras discovery.",
-    "forge-plan": "Fase 2 FlowForge: plan.md. Invocado en /flow-plan.",
-    "forge-dev": "Fase 3 FlowForge: implementacion. Invocado en /flow-dev.",
-    "forge-verify": "Fase 3b FlowForge: auditoria. Invocado en /flow-verify.",
-    "forge-memory": "Fase 4 FlowForge: cierre CKP-4. Invocado en /flow-close.",
+    "forge-discovery": "FlowForge phase 0: discovery and CKP-0. Invoked by orchestrator.",
+    "forge-arch": "FlowForge phase 1: spec.md and GWT. Invoked after discovery.",
+    "forge-plan": "FlowForge phase 2: plan.md. Invoked via /flow-plan.",
+    "forge-dev": "FlowForge phase 3: implementation. Invoked via /flow-dev.",
+    "forge-verify": "FlowForge phase 3b: audit. Invoked via /flow-verify.",
+    "forge-memory": "FlowForge phase 4: close and CKP-4. Invoked via /flow-close.",
 }
 
 PREAMBLE = """You are the **{name}** subagent of FlowForge. You are an **EXECUTOR**: do the work in this context window.

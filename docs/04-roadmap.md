@@ -2,7 +2,7 @@
 
 > **Última actualización**: 2026-05-26
 > **Versión actual (engram-dotnet)**: main (post PR #11)
-> **Versión actual (FlowForge)**: 0.3 (análisis objetivo — 14 items de mejora identificados)
+> **Versión actual (FlowForge)**: **0.4.0** — ver [`VERSION.md`](../VERSION.md) y [`CHANGELOG.md`](../CHANGELOG.md)
 
 ---
 
@@ -27,10 +27,10 @@ Mientras FlowForge esté **privado**, la instalación remota desde `raw.githubus
 | **Replicación por documentación** | ✅ | [`QUICKSTART.md`](../QUICKSTART.md), [`ide/README.md`](../ide/README.md), [`docs/18-replicable-demo-definition.md`](18-replicable-demo-definition.md) (runbook) |
 | **Paridad IDE v0.4** | ✅ | `ide/shared/workflow-orchestrator-parity.md` + Cursor / Antigravity / VS Code / OpenCode |
 | **Instaladores** | ✅ | `ide/install.ps1`, `ide/install.sh` (+ `-ProjectPath` para Antigravity/`.cursor` en repo) |
-| **Prueba real del flujo** | 🟡 | Validado en Cursor (demo local); falta smoke en VS Code / Antigravity / OpenCode |
-| **Docs CKP coherentes** | 🟡 | CKP-0..4 alineados; auditoría doc item **15** pendiente |
+| **Prueba real del flujo** | ✅ | Caso CRUD completado (demo local); evidencia en [`examples/crud-tareas/`](../examples/crud-tareas/) |
+| **Docs CKP coherentes** | 🟡 | CKP-0..4 alineados; item **15** en curso (core docs + ide EN) |
 | **Archivos OSS** | ✅ | `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md` |
-| **Idioma público** | 🟡 | **`README.md` + `QUICKSTART.md` EN** ✅ · **`README.es.md` ES** ✅ · resto de `docs/` pendiente |
+| **Idioma público** | 🟡 | README/QUICKSTART EN+ES ✅ · core `docs/` EN ✅ · skills especializadas / `docs/05` pendiente |
 
 ### Opcional (no bloquea release)
 
@@ -59,15 +59,15 @@ Mientras FlowForge esté **privado**, la instalación remota desde `raw.githubus
 |--------------|---------|
 | **4** QUICKSTART | Existe + modo privado |
 | **7** install.ps1 / install.sh | Implementados con paridad + compile agents |
-| **2** Caso CRUD (parcial) | Corrido en demo local; evidencia en `.ai-work/` local, no repo público |
-| **3** Artefactos ejemplo (parcial) | spec/plan/verify en demo local; replicación vía docs |
+| **2** Caso CRUD | ✅ Completado en demo local |
+| **3** Artefactos ejemplo | ✅ [`examples/crud-tareas/`](../examples/crud-tareas/) |
 
 ### 🔴 RELEASE — hacer antes de publicar
 
 | Item | Acción concreta |
 |------|-----------------|
-| **15** Auditoría docs | Unificar “5 vs 7 agentes”, `cert-report` → `verify-report`, CKP en todos los docs |
-| **i18n** | `README.md` EN + `README.es.md`; QUICKSTART + `docs/14` EN (mínimo) |
+| **15** Auditoría docs | 🟡 Core EN + `ide/` EN; pendiente `docs/05`, skills especializadas |
+| **i18n** | 🟡 README/QUICKSTART EN+ES; ver [`I18N.md`](I18N.md) |
 | **8** (mínimo) | 1 smoke por IDE: install → `/flow-start` en proyecto vacío |
 | **1** | OpenCode: merge `opencode.flowforge.json` + rutas `{file:...}` documentadas |
 
@@ -235,16 +235,16 @@ El foco actual está en el **[Plan de Mejora — 14 items](#🚀-plan-de-mejora-
 
 | Item | Prioridad | Estado | Notas |
 |------|-----------|--------|-------|
-| **1. Probar ide/opencode en tu OpenCode** | P0 | 📋 Pendiente | Cargar los 7 subagentes en opencode.json y verificar que deleguen correctamente |
-| **2. Ejecutar Caso 1 (CRUD) de docs/14** | P0 | 📋 Pendiente | Proyecto real (Task Manager API) de punta a punta: discovery → spec → plan → dev → verify → memory |
-| **3. Crear artefactos de ejemplo** | P0 | 🟡 Parcial | Runbook docs/18; artefactos en demo local, no repo público |
+| **1. Probar ide/opencode en tu OpenCode** | P0 | 📋 Pendiente | Smoke en Linux: bundle + `/flow-start` (usuario usa OpenCode + modelos free) |
+| **2. Ejecutar Caso 1 (CRUD) de docs/14** | P0 | ✅ Hecho | Demo local completado según expectativa |
+| **3. Crear artefactos de ejemplo** | P0 | ✅ Hecho | `examples/crud-tareas/` en repo |
 
 ### ⏰ Semana 2 — Onboarding Mínimo
 
 | Item | Prioridad | Estado | Notas |
 |------|-----------|--------|-------|
 | **4. QUICKSTART.md de 1 página** | P0 | ✅ Hecho | Instalación local/pública + primer `/flow-start` |
-| **15. Auditoría y limpieza de documentación** | P0 | 📋 Pendiente | Revisar los 17 docs, identificar redundancias, contenido obsoleto ("5 agentes", "3 checkpoints"), fusionar docs pequeños, archivar lo que no aporta |
+| **15. Auditoría y limpieza de documentación** | P0 | 🟡 En curso | Core docs + ide EN; skills core EN; pendiente especializadas y `docs/05` |
 | **5. Template de proyecto FlowForge** | P1 | 📋 Pendiente | Repo separado (o branch) con `.flowforge.json`, `.ai-work/`, estructura pre-creada |
 | **6. Schema de `.flowforge.json`** | P1 | 📋 Pendiente | Documentar el schema completo con modelos, persona, DB, teacher_mode, SAST config |
 
