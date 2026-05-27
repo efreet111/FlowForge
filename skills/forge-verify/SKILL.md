@@ -67,8 +67,12 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
     *"No puedo verificar el código sin ejecutar los tests. Necesito acceso al runtime o que un humano ejecute la suite."*
     * Esto retorna un **PENDING** (ni PASS ni FAIL) y escala al orquestador.
 4. **Capability Matrix & Manual Validation**:
-   * Ensure every element marked as `deterministic` in the Capability Matrix is implemented as immutable hard‑coded logic, not model‑driven.
-   * **Mandatory Manual Checklist**: When emitting a PASS, generate a `## 🔍 Manual Verification Steps` section listing practical steps for the user to verify runtime behaviors not captured by automated tests (e.g., network cut simulation, UI interactions).
+    * Ensure every element marked as `deterministic` in the Capability Matrix is implemented as immutable hard‑coded logic, not model‑driven.
+    * **Mandatory Manual Checklist**: When emitting a PASS, generate a `## 🔍 Manual Verification Steps` section listing practical steps for the user to verify runtime behaviors not captured by automated tests (e.g., network cut simulation, UI interactions).
+5. **Pruebas Manuales PM-* (NO EVALUAR)**: 
+    * La sección `## 4. Pruebas Manuales del Desarrollador (PM-*)` del `spec.md` contiene pruebas que debe ejecutar el HUMANO. NO las evalúes.
+    * Tu veredicto aplica SOLO a los RF/RNF y tests automatizados (Capa A).
+    * En tu reporte, agregá una nota: `## Pruebas Manuales Pendientes: El desarrollador debe ejecutar los PM-* del spec.md antes del cierre (flow-close).`
 
 ---
 

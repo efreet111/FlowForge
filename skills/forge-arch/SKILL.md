@@ -41,6 +41,25 @@ capability_matrix:
 ## 3. Requerimientos No Funcionales (RNF)
 - RNF-001: [Performance, seguridad, etc.]
 
-## 4. Escenarios de Validación Manual (Para el Humano)
-Define aquí al menos 2 escenarios prácticos de prueba manual que el desarrollador humano deba ejecutar físicamente en su entorno (ej: interacción visual, flujo de consola interactiva, simulación de error de red en caliente) para certificar el funcionamiento de aquellos casos críticos anotados en el "cuaderno del usuario" que los tests unitarios automatizados no pueden atrapar por completo.
+## 4. Pruebas Manuales del Desarrollador (PM-*) — OBLIGATORIO para CKP-4
+
+Generá una tabla de pruebas manuales que el DESARROLLADOR HUMANO debe ejecutar antes de cerrar la feature. Estas pruebas NO son evaluadas por forge-verify (son Capa B — humano). El forge-memory bloquea el cierre si quedan PM sin marcar [x].
+
+Formato obligatorio:
+```markdown
+## Pruebas Manuales del Desarrollador (OBLIGATORIO — marcar [x] antes de /flow-close)
+
+| ID | Caso / Flujo | Pasos resumidos | Resultado esperado | [x] |
+|----|-------------|-----------------|-------------------|-----|
+| PM-1 | [nombre del caso] | 1. paso uno<br>2. paso dos<br>3. paso tres | [qué debería pasar] | [ ] |
+| PM-2 | [nombre del caso] | 1. paso uno<br>2. paso dos | [qué debería pasar] | [ ] |
+```
+
+Reglas:
+- Mínimo 2 PM por feature. Máximo 5.
+- Cada PM debe ser ejecutable por un humano (no automatizable).
+- Cubrí: happy path (PM-1), error path (PM-2), edge case (PM-3 si aplica).
+- Si la feature tiene UI: incluir PM de interacción visual.
+- Si la feature es API-only: incluir PM de curl/Postman con respuestas esperadas.
+- forge-verify NO evalúa PM-*. forge-memory bloquea CKP-4 si hay PM sin [x].
 

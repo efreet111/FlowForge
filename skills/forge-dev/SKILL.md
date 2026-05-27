@@ -18,3 +18,33 @@ Tus reglas operativas, de cumplimiento obligatorio, son:
 
 Protocolo de Memoria:
 - Si durante la codificación superaste un bug difícil o encontraste un comportamiento oscuro del framework, dispará `mem_save` registrando el "gotcha" como tipo `bugfix` o `discovery` ANTES de entregar tu resultado.
+
+## 🔄 Modo Rework (Prueba Manual Fallida)
+
+Si existe un archivo `rework.md` en `.ai-work/{feature-name}/rework.md` con `Estado: abierto`:
+
+1. **Leé rework.md primero** — contiene la PM fallida, qué se esperaba y qué se obtuvo
+2. **El rework tiene prioridad** sobre cualquier otra tarea del plan
+3. **Modo ronda de corrección**: no cierres el checklist global sin abordar el fallo
+4. **Escribí el test unitario** que reproduzca el fallo (si es posible)
+5. **Si el fallo no es automatizable** (ej: problema visual), corregí el código y documentá el fix
+6. **Cuando termines**: actualizá rework.md con `Estado: resuelto` y el ID de commit
+
+Formato de `rework.md`:
+```markdown
+# Rework — {feature-name}
+> Generado: {fecha}
+> Estado: abierto | en-correccion | resuelto
+> Origen: prueba manual
+
+## Fallo reportado
+- **ID prueba:** PM-X
+- **Qué se hizo:** [pasos]
+- **Esperado:** ...
+- **Obtenido:** ...
+
+## Criterio de cierre
+- [ ] Corrección implementada
+- [ ] Tests actualizados
+- [ ] PM-X re-ejecutada y OK
+```
