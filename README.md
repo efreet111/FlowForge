@@ -50,6 +50,21 @@ Archivos listos para usar en `ide/`:
 | **Antigravity** | `antigravity/rules/*.md` + `antigravity/workflows/*.md` |
 | **VS Code** | `vscode/copilot-instructions.md` |
 
+### Instalación rápida
+
+```bash
+# Linux/macOS
+curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.sh | bash
+
+# Windows (PowerShell)
+iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
+```
+
+Después de instalar, reiniciá el IDE, seleccioná el agente `flowforge` y probá:
+```
+/flow-start CRUD de tareas — endpoints REST para crear, listar, actualizar y eliminar tareas
+```
+
 ## Estado de implementación
 
 **engram-dotnet** — 7 features implementadas, **258 tests**:
