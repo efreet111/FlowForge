@@ -30,7 +30,7 @@ Mientras FlowForge esté **privado**, la instalación remota desde `raw.githubus
 | **Prueba real del flujo** | ✅ | Caso CRUD completado (demo local); evidencia en [`examples/crud-tareas/`](../examples/crud-tareas/) |
 | **Docs CKP coherentes** | 🟡 | CKP-0..4 alineados; item **15** en curso (core docs + ide EN) |
 | **Archivos OSS** | ✅ | `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md` |
-| **Idioma público** | 🟡 | README/QUICKSTART EN+ES ✅ · core `docs/` EN ✅ · skills especializadas / `docs/05` pendiente |
+| **Idioma público** | 🟡 | README/QUICKSTART EN+ES ✅ · core `docs/` + `09`/`05`/`15` summary EN ✅ · Part 1 tables in `15` parcial |
 
 ### Opcional (no bloquea release)
 

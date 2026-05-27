@@ -4,6 +4,13 @@ All notable changes to the FlowForge methodology and IDE packs are documented he
 
 Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning follows [SemVer](https://semver.org/).
 
+## [0.4.1] - 2026-05-27
+
+### Changed
+
+- English: `docs/05`, `docs/09`, `docs/project-context`, `docs/15` (executive sections)
+- `skills/forge-teacher` translated to English
+
 ## [0.4.0] - 2026-05-27
 
 ### Added
