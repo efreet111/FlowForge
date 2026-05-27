@@ -1,6 +1,8 @@
 # FlowForge
 
 > **Forja tu flujo de desarrollo con agentes de IA.**
+>
+> 🔥 [`QUICKSTART.md`](QUICKSTART.md) — Empezá a usar FlowForge en 5 minutos
 
 FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños y medianos (SMB, 2-20 personas). Define cómo integrar agentes de IA en el ciclo de desarrollo de software con 5 checkpoints formales, 7 agentes, 31 skills especializadas, y un protocolo de artefactos versionados.
 
@@ -10,6 +12,23 @@ FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños 
 |----------|-------------|
 | **FlowForge** (este) | Metodología de desarrollo de software asistida por agentes |
 | **[engram-dotnet](https://github.com/efreet111/engram-dotnet)** | Motor de memoria persistente para agentes de IA (.NET 10) |
+
+## Instalación en 1 línea
+
+```bash
+# Linux/macOS
+curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.sh | bash
+
+# Windows (PowerShell)
+iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
+```
+
+Después de instalar, reiniciá el IDE, seleccioná el agente **`flowforge`** y probá:
+```
+/flow-start CRUD de tareas
+```
+
+> 📖 Más detalles en [`QUICKSTART.md`](QUICKSTART.md)
 
 ## Metodología FlowForge
 
@@ -49,21 +68,6 @@ Archivos listos para usar en `ide/`:
 | **Cursor** | `cursor/rules/*.mdc` + `cursor/agents/*.md` |
 | **Antigravity** | `antigravity/rules/*.md` + `antigravity/workflows/*.md` |
 | **VS Code** | `vscode/copilot-instructions.md` |
-
-### Instalación rápida
-
-```bash
-# Linux/macOS
-curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.sh | bash
-
-# Windows (PowerShell)
-iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
-```
-
-Después de instalar, reiniciá el IDE, seleccioná el agente `flowforge` y probá:
-```
-/flow-start CRUD de tareas — endpoints REST para crear, listar, actualizar y eliminar tareas
-```
 
 ## Estado de implementación
 
