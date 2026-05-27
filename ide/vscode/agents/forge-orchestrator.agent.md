@@ -2,7 +2,8 @@
 user-invocable: true
 description: FlowForge Orchestrator — 5 fases, 5 checkpoints. Coordina el flujo de desarrollo con agentes especializados.
 name: FlowForge Orchestrator
-tools: ['search/codebase', 'search/usages', 'web/fetch', 'terminal']
+tools: ['agent', 'search/codebase', 'search/usages', 'web/fetch', 'terminal']
+agents: ['forge-discovery', 'forge-arch', 'forge-plan', 'forge-dev', 'forge-verify', 'forge-memory']
 model: ['claude-sonnet-4-20250514', 'gpt-5.2']
 handoffs:
   - label: Start Discovery
