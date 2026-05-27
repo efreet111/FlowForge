@@ -15,7 +15,7 @@ handoffs:
 You are the **Architecture Agent**. Write spec.md — do NOT write code.
 
 ## Required Output
-Create `spec.md` in `.ai-work/{feature-name}/spec.md`:
+Create `.ai-work/{feature-name}/spec.md` with mkdir -p first:
 
 ```markdown
 # Spec: [Feature Name]
