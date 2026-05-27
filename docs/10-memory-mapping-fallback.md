@@ -1,65 +1,66 @@
-# Memoria Cruzada (Épicas) y Estrategia de Fallback
+# Cross-memory (epics) and fallback strategy
 
-> **Versión**: 1.0 (Refinamiento Arquitectónico)
-> **Tema**: Integración de Historias de Usuario (HUs) y Graceful Degradation
+> **Version**: 1.0  
+> **Topic**: User stories and graceful degradation
 
-La metodología EngramFlow asume que el conocimiento se acumula con el tiempo. Sin embargo, en el mundo real, los desarrollos no ocurren en el vacío. Una nueva Historia de Usuario (HU) casi siempre depende del contexto de una Épica mayor o de HUs previas.
-
-Este documento formaliza cómo la **Fase 0 (Discovery)** mapea la memoria cruzada y cómo el sistema sobrevive si el motor `engram-dotnet` no está disponible.
+FlowForge assumes knowledge accumulates over time. New user stories usually depend on a larger epic or prior work. This document defines how **Phase 0 (Discovery)** maps cross-memory and how the system behaves when **engram-dotnet** is unavailable.
 
 ---
 
-## 1. Fase 0: Context Discovery (Mapeo de Épicas)
+## 1. Phase 0: context discovery (epic mapping)
 
-Antes de que el `Arch Agent` escriba una sola línea de especificación (Fase 1), el Orquestador invoca la **Fase 0**.
+Before the Arch Agent writes a line of spec (Phase 1), the orchestrator runs **Phase 0**.
 
-### El Rol del Discovery Agent (`@forge-discovery`)
-- **Misión**: Leer el requerimiento inicial del humano y buscar en la memoria del proyecto (vía MCP o archivos locales) cualquier contexto relacionado, restricciones o Épicas previas.
-- **Model Routing**: Como esta fase es de puramente de lectura y clasificación (Data Fetching), se debe usar un modelo **rápido y barato** (como Claude 3 Haiku, Gemini 1.5 Flash o GPT-4o-mini). No se requiere razonamiento arquitectónico pesado aquí.
+### Discovery Agent (`@forge-discovery`)
 
-### Proceso de Mapeo de Memoria Cruzada
-Cuando se inicia una nueva HU (ej. "Agregar login con Google"), el Discovery Agent realiza lo siguiente:
-1. Extrae las *keywords* principales (ej: "login", "auth", "security").
-2. Consulta la base de memoria buscando esas keywords.
-3. Si encuentra engramas previos (ej. una HU anterior que implementó JWT), extrae sus IDs o referencias.
-4. Genera un **Mapa de Asociaciones** (Association Map) que inyecta en el prompt inicial del `Arch Agent`.
+- **Mission**: Read the human request and search project memory (MCP or local files) for related context, constraints, and past epics.
+- **Model routing**: Fast, cheap models (Haiku, Flash, GPT-4o-mini) — read/classify only, not heavy architecture.
 
-*Ejemplo del output de Fase 0 (entregado al Arch Agent):*
-> "Atención Arch Agent: Para esta nueva HU de Login con Google, tené en cuenta que pertenecemos a la **Epic: Identity v2**. La memoria indica que en la HU anterior (engrama #104) se definió que TODAS las cookies deben ser `HttpOnly`. Asegurate de incluir esto en tu `spec.md`."
+### Cross-memory mapping process
+
+For a new story (e.g. “Add Google login”):
+
+1. Extract keywords (`login`, `auth`, `oauth`).
+2. Query memory (engram or local fallback).
+3. If prior engrams exist (e.g. JWT story), capture IDs/references.
+4. Produce a **Context Map** injected into the Arch Agent prompt.
+
+*Example Phase 0 output for Arch:*
+
+> “Arch Agent: this story belongs to **Epic: Identity v2**. Memory shows engram #104 required **HttpOnly** cookies. Include that in `spec.md`.”
 
 ---
 
-## 2. Estrategia de Fallback (Graceful Degradation)
+## 2. Fallback strategy (graceful degradation)
 
-El diseño ideal de FlowForge asume que el backend **`engram-dotnet`** está corriendo en el puerto local, brindando capacidades de búsqueda semántica (Vector DB/SQLite) y un servidor MCP robusto. 
+The ideal path assumes **engram-dotnet** running locally with MCP. If a team cannot run .NET or the server is down, use **graceful degradation**.
 
-Pero, ¿qué pasa si un equipo no quiere instalar .NET o no tiene el servidor levantado?
-La respuesta es **Graceful Degradation (Degradación Elegante)**.
+### Local file protocol
 
-### El Protocolo de Fallback a Archivos Locales
-Si la conexión a `engram-dotnet` falla (timeout o conexión rechazada), el Orquestador y los Agentes deben cambiar automáticamente a un **modo de archivo estático (File-based Memory)**.
+On MCP failure (timeout, connection refused), agents switch to **file-based memory**:
 
-1. **Ubicación**: En lugar de hacer HTTP POST, el `Memory Agent` escribe el engrama como un archivo Markdown estructurado en una carpeta oculta dentro del proyecto:
-   `./.engram/local_memory/obs-<timestamp>.md`
+1. **Location**: `./.engram/local_memory/obs-<timestamp>.md`
+2. **Shape**: YAML frontmatter + markdown body (mirrors DB metadata)
+3. **Search**: `grep` / ripgrep over `./.engram/local_memory/*.md` instead of `mem_search`
 
-2. **Estructura del Engrama Local**:
-   El archivo utilizará YAML Frontmatter para simular la metadata de la base de datos:
-   ```markdown
-   ---
-   title: "Fixed N+1 en lista de usuarios"
-   type: "bugfix"
-   topic_key: "performance/user-list"
-   date: "2026-05-19"
-   ---
-   
-   ## What
-   Se implementó Include() en EF Core para pre-cargar los roles.
-   
-   ## Why
-   ...
-   ```
+```markdown
+---
+title: "Fixed N+1 on user list"
+type: "bugfix"
+topic_key: "performance/user-list"
+date: "2026-05-19"
+---
 
-3. **Búsqueda en Fallback**:
-   Cuando el `Discovery Agent` necesita buscar memoria, y `engram-dotnet` no responde, en lugar de usar la herramienta `mem_search`, ejecuta un `grep` (o búsqueda por expresiones regulares) sobre la carpeta `./.engram/local_memory/*.md` para encontrar las *keywords*.
+## What
+Added Include() in EF Core to eager-load roles.
+```
 
-Esta arquitectura garantiza que FlowForge funcione al 100% como metodología incluso en entornos totalmente desconectados, simples, o donde instalar dependencias externas de backend sea imposible.
+FlowForge remains fully usable as a methodology without the Engram server — only persistent semantic search is degraded.
+
+---
+
+## References
+
+- [`02-memory-strategy.md`](02-memory-strategy.md)
+- [`forge-discovery/SKILL.md`](../skills/forge-discovery/SKILL.md)
+- [`12-engram-tool-reference.md`](12-engram-tool-reference.md)

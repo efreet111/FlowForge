@@ -26,36 +26,36 @@ Observation:
   - What: "Feature [name] added N unit tests, M integration tests. Coverage changed X%"
 ```
 
-### Cycle Time (Automático desde Timestamps)
+### Cycle time (from orchestrator timestamps)
 
-El orquestador guarda automáticamente un timestamp en cada checkpoint. Vos los leés:
+The orchestrator may save a timestamp at each checkpoint. Read them:
 
 ```bash
-# Buscar timestamps de esta sesión
 mem_search(topic_key="metrics/timestamp/*", limit=10)
 
-# Los timestamps tienen este formato:
-# timestamp/ckp0-pass — "Discovery completado a las HH:MM"
-# timestamp/ckp1-pass — "Spec aprobado a las HH:MM"  
-# timestamp/ckp2-pass — "Plan aprobado a las HH:MM"
-# timestamp/ckp3-pass — "Verify PASS a las HH:MM"
-# timestamp/ckp4-pass — "Deploy decidido a las HH:MM"
+# Examples:
+# metrics/timestamp/ckp0-pass — discovery complete
+# metrics/timestamp/ckp1-pass — spec approved
+# metrics/timestamp/ckp2-pass — plan approved
+# metrics/timestamp/ckp3-pass — verify PASS
+# metrics/timestamp/ckp4-pass — deploy decided
 ```
 
-**Cálculo automático de cycle time**:
+**Automatic cycle time:**
+
 ```
-Cycle time = timestamp[ckp4] - timestamp[ckp0] = total
-Discovery  = timestamp[ckp1] - timestamp[ckp0]
-Spec+Plan  = timestamp[ckp2] - timestamp[ckp1]
-Ejecución  = timestamp[ckp3] - timestamp[ckp2]
-Cierre     = timestamp[ckp4] - timestamp[ckp3]
+Total     = ckp4 - ckp0
+Discovery = ckp1 - ckp0
+Spec+Plan = ckp2 - ckp1
+Execution = ckp3 - ckp2
+Close     = ckp4 - ckp3
 ```
 
-**Si faltan timestamps** (orquestador no los guardó):
-1. Intentá estimar desde el session summary actual (si tiene fechas)
-2. Si no hay datos → guardá "cycle_time: unknown — timestamps no disponibles"
-3. Reportá el gap: "⏱️ Para medir cycle time automáticamente, el orquestador debe guardar timestamps en cada CKP"
-```
+**If timestamps are missing:**
+
+1. Estimate from session summary dates if present.
+2. Otherwise persist `cycle_time: unknown`.
+3. Note: orchestrator should call `mem_save` per CKP for automatic metrics.
 
 ### Tech Debt
 ```

@@ -11,6 +11,15 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 - English: `docs/05`, `docs/09`, `docs/project-context`, `docs/15` (executive sections)
 - `skills/forge-teacher` translated to English
 
+## [0.4.1] - 2026-05-27
+
+### Changed
+
+- English docs: `04-roadmap`, `07-core-skills`, `10-memory-mapping-fallback`, `13-edge-cases-and-risks`
+- `docs/15` Part 1: English headers; orchestrator table EN; legacy catalog note
+- `forge-memory/metrics` skill: English cycle-time section
+- `docs/03` header: reflects implemented engram features
+
 ## [0.4.0] - 2026-05-27
 
 ### Added

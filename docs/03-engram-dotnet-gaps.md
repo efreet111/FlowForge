@@ -1,9 +1,10 @@
-# EngramFlow — Gaps Analysis: engram-dotnet
+# FlowForge — engram-dotnet gaps analysis
 
-> **Versión**: 0.2
-> **Última actualización**: 2026-05-13
-> **Repositorio analizado**: [efreet111/engram-dotnet](https://github.com/efreet111/engram-dotnet)
-> **Ruta local**: `/media/gantz/300extra/Proyectos/engram-dotnet/`
+> **Version**: 0.3 (historical gap tracker — most items **implemented**)
+> **Last updated**: 2026-05-27
+> **Repository**: [efreet111/engram-dotnet](https://github.com/efreet111/engram-dotnet)
+
+> **Status summary:** TTL/pruning, Level-2 promotion, verification tools, doctor diagnostic, and offline-first sync are **done** in engram-dotnet. Use this doc for architecture context and MCP tool mapping — not as a blocking backlog.
 
 ---
 

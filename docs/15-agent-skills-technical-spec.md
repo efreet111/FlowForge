@@ -113,7 +113,7 @@ Each agent has:
 - **Specialized skills** — on demand
 - **Checkpoint** — human gate when applicable
 
-> **Note:** Function names in the tables below are **conceptual identifiers** from the original catalog (`evaluar_fase`, `delegar_arch`, …). Executable instructions are in English in `skills/*/SKILL.md`.
+> **Note:** Function names in Part 1 tables are **legacy conceptual identifiers** (`evaluar_fase`, `delegar_arch`, …). Some table cells may still be in Spanish. **At runtime, always follow English `skills/*/SKILL.md`** — not this catalog verbatim.
 
 ---
 
@@ -126,35 +126,35 @@ Each agent has:
 
 #### Core Skill `forge-orchestrator/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
-| `evaluar_fase()` | Prompt del usuario + `.flowforge.json` | Fase actual (0-4) o "nueva solicitud" | Lee archivos existentes (spec.md, plan.md) y el estado del proyecto | Inicio de cualquier interacción |
-| `delegar_discovery()` | Prompt del usuario | Context Map + veredicto CKP-0 | Invoca a forge-discovery con el prompt original | Fase = 0 |
-| `aplicar_ckp0()` | Context Map | 🔴 STOP o 🟢 continuar | Si descubrimiento vago o sin contexto → PARA. Si claro → avanza a Fase 1 | Después de discovery |
-| `delegar_arch()` | Context Map + prompt original | spec.md + Capability Matrix | Invoca forge-arch con el Context Map | CKP-0 superado |
-| `aplicar_ckp1()` | spec.md | 🟡 "¿Aprobás?" o continuar | Presenta spec.md al humano y espera confirmación explícita | spec.md generado |
-| `delegar_plan()` | spec.md aprobado | plan.md | Invoca forge-plan con el spec.md | CKP-1 aprobado |
-| `aplicar_ckp2()` | plan.md | 🟡 "¿Luz verde?" o continuar | Presenta plan.md al humano y espera confirmación | plan.md generado |
-| `delegar_dev()` | plan.md | Código + tests | Invoca forge-dev con el plan.md | CKP-2 aprobado |
-| `delegar_verify()` | Código generado | PASS o rework_ticket.md | Invoca forge-verify sobre el diff | Dev completa su ciclo |
-| `aplicar_ckp3()` | rework_ticket.md | 🔴 ESCALAR o 🔄 reintentar | Si cycle_count = 3 → para y escala. Si < 3 → devuelve a dev | Verify emite FAIL |
-| `delegar_memory()` | Resultado del ciclo | Session summary + ADRs | Invoca forge-memory para cerrar la sesión | Verify emite PASS |
-| `aplicar_ckp4()` | Session summary | 🟢 "¿Deployeamos?" o continuar | Pregunta al humano si deployea | Memory completó |
+| `evaluar_fase()` | User prompt + config | Current phase (0–4) or new request | Reads existing artifacts and project state | Any interaction start |
+| `delegar_discovery()` | User prompt | Context map + CKP-0 verdict | Invokes forge-discovery | Phase 0 |
+| `aplicar_ckp0()` | Context map | 🔴 STOP or 🟢 continue | Vague or no context → STOP; else Phase 1 | After discovery |
+| `delegar_arch()` | Context map + prompt | spec.md + capability matrix | Invokes forge-arch | CKP-0 passed |
+| `aplicar_ckp1()` | spec.md | 🟡 approve prompt or wait | Human explicit approval | spec.md written |
+| `delegar_plan()` | Approved spec | plan.md | Invokes forge-plan | CKP-1 passed |
+| `aplicar_ckp2()` | plan.md | 🟡 green light or wait | Human explicit approval | plan.md written |
+| `delegar_dev()` | plan.md | Code + tests | Invokes forge-dev | CKP-2 passed |
+| `delegar_verify()` | Generated code | PASS or rework_ticket.md | Invokes forge-verify | Dev cycle done |
+| `aplicar_ckp3()` | rework_ticket.md | 🔴 ESCALATE or 🔄 retry | cycle_count = 3 → escalate; else dev | Verify FAIL |
+| `delegar_memory()` | Cycle result | Session summary + ADRs | Invokes forge-memory | Verify PASS |
+| `aplicar_ckp4()` | Session summary | 🟢 deploy question | Human deploy decision | Memory done |
 
 **Gap (resolved)**: Phase rollback uses `revision_cycle.md` (max 3) — see `forge-orchestrator/SKILL.md`.
 
 ---
 
-### 2. forge-discovery — Fase 0
+### 2. forge-discovery — Phase 0
 
-**Rol**: Mapear contexto previo antes de planificar.
+**Role**: Map prior context before planning.
 **Checkpoint**: CKP-0 🔴
 
 ---
 
 #### Core Skill `forge-discovery/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `extraer_keywords()` | Prompt del usuario | 3-5 términos técnicos/de negocio | Parsea el prompt, extrae términos como "auth", "login", "jwt" | Inicio de discovery |
 | `mem_search_engram()` | Keywords + proyecto | IDs de observaciones candidatas | `mem_search()` contra engram-dotnet con filtro de proyecto | Keywords extraídas |
@@ -166,7 +166,7 @@ Each agent has:
 
 #### Specialized: Security `forge-discovery/security/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `escanear_cves_stack()` | Stack tecnológico | Lista de CVEs conocidos | Busca `mem_search(keywords: ["CVE", stack_component])` en engram + conocimiento externo | Feature toca auth/datos/APIs |
 | `evaluar_riesgo_dependencia()` | Dependencia propuesta | 🔴 Crítico / 🟡 Alto / 🟢 Bajo | Evalúa CVSS, mantenimiento del repo, historial de seguridad | Feature introduce nueva dependencia |
@@ -174,7 +174,7 @@ Each agent has:
 
 #### Specialized: Compliance `forge-discovery/compliance/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `identificar_regulaciones()` | Tipo de datos que procesa la feature | GDPR, SOC2, HIPAA, PCI-DSS, o Ninguna | Clasifica el tipo de dato (personal/salud/pago/biométrico) y cruza con regulación aplicable | Feature toca datos de usuarios |
 | `generar_requisitos_compliance()` | Regulación identificada | Checklist de requisitos (consentimiento, retención, cifrado, etc.) | Según la regulación, genera los RNF de compliance que deben aparecer en el spec | Regulación identificada |
@@ -182,7 +182,7 @@ Each agent has:
 
 #### Specialized: Cost `forge-discovery/cost/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `estimar_compute()` | Perfil de CPU de la feature | Costo mensual estimado en USD | Evalúa si es CRUD (< 5% CPU), batch (burst), real-time, ML, o file processing | Feature nueva |
 | `estimar_storage()` | Proyección de datos por mes | Costo de storage + backup por mes | Calcula registros × tamaño × retención + backups | Feature almacena datos |
@@ -190,23 +190,23 @@ Each agent has:
 | `estimar_api_externa()` | Servicio externo + volumen de llamadas | Costo por mes | Costo por llamada o % de transacción × volumen | Feature usa API de terceros |
 | `generar_cost_profile()` | Todas las estimaciones | Perfil de costo: LOW/MEDIUM/HIGH + proyecciones a escala | Suma todos los componentes con proyecciones a 10K/100K/1M usuarios | Todas las estimaciones listas |
 
-**Gaps detectados**:
-1. No hay skill para `analisis_competencia()` — ¿existen alternativas open source que resuelvan esto?
-2. No hay `factibilidad_tecnica()` — ¿la API externa requerida realmente existe y tiene la documentación adecuada?
-3. `compliance/identificar_regulaciones()` depende de que el usuario especifique el tipo de dato — no hay detección automática desde el código existente.
+**Gaps identified**:
+1. No `analisis_competencia()` skill — open-source alternative scan missing.
+2. No `factibilidad_tecnica()` — external API existence/docs not verified automatically.
+3. `compliance/identificar_regulaciones()` relies on user-stated data type — no auto-detection from existing code.
 
 ---
 
-### 3. forge-arch — Fase 1
+### 3. forge-arch — Phase 1
 
-**Rol**: Traducir intención humana en spec.md ejecutable.
+**Role**: Translate human intent into executable `spec.md`.
 **Checkpoint**: CKP-1 🟡
 
 ---
 
 #### Core Skill `forge-arch/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `escribir_objetivo()` | Context Map + prompt | Sección "Objetivo y Alcance" del spec | Define qué resuelve y qué queda fuera del alcance | Inicio de spec |
 | `definir_rf()` | Requerimientos funcionales del prompt | RF-001 a RF-N con escenarios GWT | Cada RF tiene descripción + 2 escenarios Given-When-Then | Objetivo definido |
@@ -217,7 +217,7 @@ Each agent has:
 
 #### Specialized: Security `forge-arch/security/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `aplicar_stride()` | Arquitectura propuesta | 6 RNF-SEC obligatorios (Spoofing, Tampering, Repudiation, Disclosure, DoS, Elevation) | Por cada threat del modelo STRIDE, genera al menos 1 RNF-SEC | Feature toca auth/datos/APIs |
 | `definir_rnf_auth()` | Feature con auth | RNF-SEC-AUTH-001-003 | Endpoints protegidos, JWT con expiración, lockout por intentos fallidos | Feature requiere login |
@@ -228,7 +228,7 @@ Each agent has:
 
 #### Specialized: Performance `forge-arch/performance/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `definir_slo_api()` | Endpoints expuestos | RNF-PERF-001 a 004 (p99, p50, throughput, TTFB) | Define latencias máximas por endpoint según tipo | Feature expone API |
 | `definir_slo_db()` | Consultas a DB | RNF-PERF-005 a 008 (query time, pool, index hit, write batch) | Limita tiempos de consulta y conexiones concurrentes | Feature accede a DB |
@@ -239,7 +239,7 @@ Each agent has:
 
 #### Specialized: A11y `forge-arch/a11y/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `determinar_nivel_wcag()` | Proyecto + tipo de feature | Nivel A / AA / AAA requerido | Customer-facing → AA. Gobierno → AAA. Internal tool → A. Default: AA | Feature con UI |
 | `definir_rnf_formularios()` | Componentes de formulario | RNF-A11Y-001 a 005 | Labels, errores asociados, autocomplete, required fields | Feature tiene formularios |
@@ -253,7 +253,7 @@ Each agent has:
 
 #### Specialized: Domain `forge-arch/domain/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `identificar_contextos()` | Descripción de la feature | Lista de bounded contexts involucrados | Analiza qué áreas del dominio toca la feature (Ordering, Billing, Shipping, etc.) | Feature con lógica de negocio compleja |
 | `definir_lenguaje_ubicuo()` | Términos de negocio extraídos del prompt | Glosario de términos con definiciones precisas | Cada término tiene: nombre, definición de negocio (no técnica), sinónimos, eventos que produce | Contextos identificados |
@@ -261,7 +261,7 @@ Each agent has:
 | `definir_eventos_dominio()` | Cambios de estado significativos | Tabla de eventos con producer/consumers/payload | Por cada estado -> evento: qué lo produce, quién lo consume, qué datos lleva | Agregados diseñados |
 | `detectar_anti_patrones_domain()` | Diseño propuesto | Flag si hay anti-patrones (anemia, acoplamiento cross-context, god aggregate) | Revisa que no haya: getters-only sin lógica, imports entre contextos, aggregates con > 5 entidades | Diseño completo |
 
-**Gaps detectados**:
+**Gaps identified**:
 1. No hay función `definir_stack_tecnologico()` — el arch asume el stack existente sin evaluar si es el adecuado para la feature
 2. `a11y/determinar_nivel_wcag()` necesita consultar configuración del proyecto — no hay un mecanismo formal de configuración todavía (depende del CLI Wizard)
 3. No hay `definir_contratos_api()` — los contratos entre servicios (OpenAPI, gRPC) no se especifican en el spec, quedan para el plan
@@ -269,16 +269,16 @@ Each agent has:
 
 ---
 
-### 4. forge-plan — Fase 2
+### 4. forge-plan — Phase 2
 
-**Rol**: Descomponer spec.md en tareas atómicas.
+**Role**: Descomponer spec.md en tareas atómicas.
 **Checkpoint**: CKP-2 🟡
 
 ---
 
 #### Core Skill `forge-plan/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `analizar_impacto()` | spec.md | Análisis de impacto: componentes existentes tocados + nuevas dependencias | Identifica qué archivos existen y se modifican, qué librerías nuevas se necesitan | Inicio de plan |
 | `ordenar_tareas_topologicas()` | Lista de cambios necesarios | Checklist ordenado: DB/DTOs → lógica → controllers → tests | Primero dependencias (DB, modelos), luego infraestructura (endpoints), al final tests | Análisis de impacto listo |
@@ -288,7 +288,7 @@ Each agent has:
 
 #### Specialized: Security `forge-plan/security/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `aplicar_principios_secure_design()` | Plan propuesto | Tasks con anotaciones [SEC] aplicando Least Privilege, Defense in Depth, Fail Securely, Never Trust Input, Secure by Default | Cada tarea hereda principios de seguridad | Cualquier plan |
 | `verificar_asvs_authentication()` | Plan que toca auth | Checklist V2: password policy, brute force, credential recovery | Marca si falta alguna tarea de autenticación | Plan tiene auth |
@@ -300,7 +300,7 @@ Each agent has:
 
 #### Specialized: Patterns `forge-plan/patterns/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `seleccionar_patron_creacional()` | Problema de creación de objetos | Singleton / Factory / Builder / Prototype + justificación | Árbol de decisión: ¿instancia única? → Singleton. ¿Familia de objetos? → Abstract Factory | Plan tiene creación compleja de objetos |
 | `seleccionar_patron_estructural()` | Problema de relación entre objetos | Adapter / Decorator / Facade / Flyweight + justificación | Árbol de decisión: ¿interfaces incompatibles? → Adapter. ¿Agregar comportamiento sin modificar? → Decorator | Plan tiene objetos con interfaces incompatibles |
@@ -311,7 +311,7 @@ Each agent has:
 
 #### Specialized: Migrations `forge-plan/migrations/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `clasificar_tipo_migracion()` | Cambios en DB del plan | 🟢 Additive / 🟡 Modifying / 🔴 Destructive | ¿Agrega columnas? → Additive. ¿Renombra/cambia tipo? → Modifying. ¿Elimina? → Destructive | Plan toca DB |
 | `generar_fases_migracion()` | Cambio de DB | Plan en 1-4 fases (pre-deploy, code deploy, post-deploy, future release) | Cada fase es una tarea separada del checklist con su propio SQL y rollback | Tipo de migración identificado |
@@ -321,7 +321,7 @@ Each agent has:
 
 #### Specialized: Rollback `forge-plan/rollback/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `seleccionar_estrategia_deploy()` | Cambios del plan | Rolling / Blue-Green / Canary / Feature Flag | Árbol de decisión: ¿breaking change? → Blue-Green. ¿Riesgo alto? → Canary + Feature Flag. ¿Stateless? → Rolling | Plan listo |
 | `definir_plan_rollback()` | Estrategia seleccionada + cambios | Plan de rollback: pasos, criterios, tiempo estimado de recuperación | Documenta paso a paso cómo revertir, cuándo decidir hacerlo, y cuánto tiempo lleva | Estrategia seleccionada |
@@ -329,7 +329,7 @@ Each agent has:
 | `calcular_nivel_riesgo()` | Todos los cambios del plan | LOW / MEDIUM / HIGH / CRITICAL | Según: ¿breaking change? ¿schema migration? ¿multi-service? ¿payment/auth? | Plan completo |
 | `verificar_anti_patrones_deploy()` | Plan de rollback | Flag: "We'll fix forward", sin rollback probado, sin smoke test | Detector de malas prácticas de deploy | Plan de rollback definido |
 
-**Gaps detectados**:
+**Gaps identified**:
 1. `patterns/seleccionar_patron_*()` no tiene acceso a un catálogo formal — depende del conocimiento del modelo. Si el modelo no conoce un patrón, no lo va a sugerir.
 2. No hay `definir_orden_deploy()` — tareas paralelizables vs secuenciales. Qué se deploya primero si son múltiples servicios.
 3. `rollback/calcular_nivel_riesgo()` es subjetivo — no hay pesos objetivos para cada factor de riesgo.
@@ -337,16 +337,16 @@ Each agent has:
 
 ---
 
-### 5. forge-dev — Fase 3a
+### 5. forge-dev — Phase 3a
 
-**Rol**: Codificar siguiendo el plan.md al pie de la letra.
+**Role**: Codificar siguiendo el plan.md al pie de la letra.
 **Checkpoint**: Inner Loop (sin checkpoint humano directo)
 
 ---
 
 #### Core Skill `forge-dev/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `implementar_plan()` | plan.md (checklist) | Código implementado | Para cada tarea del checklist en orden, escribe el código | CKP-2 aprobado |
 | `reportar_defecto_plan()` | Firma inviable detectada | ⚠️ STOP + reporte de defecto estructural | Si el plan pide una firma imposible en el lenguaje, NO inventa una solución — reporta | Durante implementación, firma inviable |
@@ -357,7 +357,7 @@ Each agent has:
 
 #### Specialized: Security `forge-dev/security/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `verificar_owasp_a01()` | Código de endpoints | ✅ / 🚨 Broken Access Control | Cada endpoint: ¿checkea identidad? ¿row ownership? ¿admin endpoint gated? | Código con endpoints |
 | `verificar_owasp_a02()` | Código con crypto | ✅ / 🚨 Cryptographic Failures | Passwords: ¿bcrypt? ¿cost ≥ 12? ¿no MD5/SHA-1? Tokens: ¿crypto.randomBytes? | Código con hashing/encryption |
@@ -370,7 +370,7 @@ Each agent has:
 
 #### Specialized: SOLID `forge-dev/solid/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `auditar_srp()` | Clase modificada | ✅/🚩 Single Responsibility | ¿Describible sin "and"/"or"? ¿Cambia por una sola razón? ¿< 200 líneas? | Cada clase nueva o modificada |
 | `auditar_ocp()` | Clase con condicionales de tipo | ✅/🚩 Open/Closed | ¿switch/if-else checkeando tipo? ¿Podría agregar comportamiento sin modificar? | Cada clase con lógica condicional |
@@ -381,7 +381,7 @@ Each agent has:
 
 #### Specialized: Testing `forge-dev/testing/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `escribir_tests_propiedad()` | Función con propiedades matemáticas | Property-based test | `decode(encode(x)) == x`, sort mantiene elementos, `add(x,0)== x` | Función tiene propiedades predecibles |
 | `escribir_fuzzing()` | Función que acepta input externo | Test con 14 inputs maliciosos | null, whitespace, SQL injection, XSS, path traversal, Unicode, emoji, NaN, Infinity, etc. | Función expuesta a input externo |
@@ -391,7 +391,7 @@ Each agent has:
 
 #### Specialized: Performance `forge-dev/performance/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `detectar_n_plus_1()` | Loop con query dentro | 🚨 Alerta N+1 + solución (eager loading / batch query) | Escanea: ¿for/foreach/map con db.query/Items.Where adentro? | Código con loops y acceso a datos |
 | `aplicar_cache_aside()` | Datos consultados frecuentemente | Implementación de caché con TTL + invalidation | Cache → miss → fetch from source → store with TTL → return | Datos de referencia o consulta frecuente |
@@ -401,7 +401,7 @@ Each agent has:
 
 #### Specialized: Refactor `forge-dev/refactor/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `extract_method()` | Función > 30 líneas o con bloques comentados | N funciones más pequeñas con nombres de intención | Identifica bloques lógicos por comentarios, los extrae en métodos separados | Función larga detectada |
 | `rename_variable()` | Nombre poco claro (t, o, data) | Nombre con intención clara (total, order, orderData) | Busca variables de 1 letra, abreviaturas, nombres ambiguos | Variable con nombre pobre |
@@ -412,7 +412,7 @@ Each agent has:
 | `separate_query_modifier()` | Método que consulta Y modifica | Método command (void) + método query (return) | Separa side effects de lecturas | Método híbrido detectado |
 | `preservar_tests_durante_refactor()` | Tests existentes | Tests VERDES después de cada transformación | 1 transformación → run tests → VERDES → siguiente transformación. Si falla → git checkout | Antes de empezar refactor |
 
-**Gaps detectados**:
+**Gaps identified**:
 1. `testing/escribir_fuzzing()` no es específico por lenguaje — los 14 inputs son genéricos. Faltan: fuzzing de JSON malformed, XML bombs, buffer overflows específicos del lenguaje.
 2. No hay `testing/cobertura_mutation_tool()` — la mutación mental es débil comparada con herramientas reales (Stryker, PIT).
 3. `performance/detectar_n_plus_1()` no tiene acceso a un profiler real — solo hace escaneo estático del código.
@@ -421,16 +421,16 @@ Each agent has:
 
 ---
 
-### 6. forge-verify — Fase 3b
+### 6. forge-verify — Phase 3b
 
-**Rol**: Auditar el código contra el spec.md y emitir PASS o Rework Ticket.
+**Role**: Auditar el código contra el spec.md y emitir PASS o Rework Ticket.
 **Checkpoint**: CKP-3 🔴
 
 ---
 
 #### Core Skill `forge-verify/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `inspeccionar_linea_por_linea()` | Diff del código modificado | Lista de errores obvios (missing returns, empty blocks, debug prints) | Lee cada línea del diff buscando errores sintácticos/lógicos | Verify inicia |
 | `verificar_constantes_spec()` | Código vs spec.md | ✅ Coinciden o 🚨 Desviación detectada | Si spec dice "Default: MEDIUM", el código debe tener exactamente "MEDIUM" | Constantes en spec |
@@ -442,7 +442,7 @@ Each agent has:
 
 #### Specialized: Security `forge-verify/security/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `auditar_flujo_auth()` | Endpoints del diff | ✅/🚨 Auth flow correcto | Por cada endpoint: ¿auth checkeado ANTES de lógica? ¿token VALIDADO (no solo decodificado)? ¿claims verificados? ¿middleware chain correcto? | Código con endpoints |
 | `auditar_autorizacion()` | Recursos protegidos | ✅/🚨 Authorization correcto | ¿Row ownership check? ¿Admin bypass sin role check? ¿Privilege escalation por param? | Código con recursos por usuario |
@@ -454,7 +454,7 @@ Each agent has:
 
 #### Specialized: Complexity `forge-verify/complexity/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `calcular_mcc()` | Función individual | MCC score (1 + if/for/while/case/catch/&&/||) | Cuenta puntos de decisión en la función | Cada función en el diff |
 | `calcular_nesting_depth()` | Función individual | Máxima profundidad de indentación | Encuentra el nivel de anidamiento más profundo | MCC calculado |
@@ -465,7 +465,7 @@ Each agent has:
 
 #### Specialized: Performance `forge-verify/performance/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `auditar_n_plus_1()` | Endpoints del diff | 🚨 N+1 detectado → rework | Por cada endpoint: contar DB round trips. Si loop + query → N+1 | Endpoint con acceso a datos |
 | `detectar_memory_leaks()` | Código con recursos | 🚨 Leak detectado (event handler sin unsubscribe, static collection, timer sin dispose, HttpClient sin reuse) | Escanea: ¿+= event sin -=? ¿static List/Dictionary? ¿new Timer()? ¿new HttpClient()? | Código con recursos |
@@ -475,7 +475,7 @@ Each agent has:
 
 #### Specialized: A11y `forge-verify/a11y/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `auditar_html_semantico()` | Template/JSX/HTML del diff | X/5 checks semánticos pasados | ¿<button> no <div>? ¿headings orden lógico? ¿<nav>? ¿<main> único? ¿<label> asociado? | Feature con UI |
 | `auditar_aria()` | Atributos ARIA en el diff | X/7 checks ARIA pasados | ¿role? ¿alt text? ¿aria-label vs visible? ¿aria-live? ¿aria-expanded? ¿aria-current? ¿aria-describedby? | UI existente |
@@ -483,7 +483,7 @@ Each agent has:
 | `auditar_contraste()` | Colores en CSS/styles | X/4 checks contraste pasados | 4.5:1 texto, 3:1 large text, 3:1 UI components, no color-only info | UI con colores |
 | `emitir_veredicto_a11y()` | Resultados de auditoría | PASS / REWORK | Si bloqueos → rework. Si solo recomendaciones → PASS condicional | Auditorías completadas |
 
-**Gaps detectados**:
+**Gaps identified**:
 1. `verify/core/ejecutar_tests()` depende de poder correr el test suite — en entornos donde no hay runtime (ej: solo chat), esto no es posible. No hay fallback claro.
 2. `verify/security/auditar_owasp_top10()` no tiene acceso a un SAST real (SonarQube, Semgrep) — solo hace escaneo mental. Faltan herramientas reales.
 3. `verify/performance/verificar_benchmark()` requiere que el dev haya escrito benchmarks — si no los escribió, no hay nada que verificar.
@@ -491,16 +491,16 @@ Each agent has:
 
 ---
 
-### 7. forge-memory — Fase 4
+### 7. forge-memory — Phase 4
 
-**Rol**: Cerrar el ciclo: sintetizar, persistir, promover.
+**Role**: Cerrar el ciclo: sintetizar, persistir, promover.
 **Checkpoint**: CKP-4 🟢
 
 ---
 
 #### Core Skill `forge-memory/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `detectar_topicos_evolutivos()` | Título de observación a guardar | topic_key normalizado | `mem_suggest_topic_key(title)` → devuelve key estable como `architecture/auth-model` | Antes de mem_save |
 | `sintetizar_offline()` | Archivos en `.engram/local_memory/` | Observaciones consolidadas deduplicadas | Lee archivos locales, filtra noise (debug prints), mergea bugs similares, comprime en 1 observación canónica | Modo offline detectado |
@@ -510,7 +510,7 @@ Each agent has:
 
 #### Specialized: Metrics `forge-memory/metrics/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `calcular_coverage_delta()` | Coverage antes/después + tests agregados | Observación `metrics/test-coverage` | Busca cobertura previa en mem_search, calcula delta, guarda tendencia | Feature completa |
 | `medir_cycle_time()` | Tiempo por fase (horas) | Observación `metrics/cycle-time` | Suma horas de discovery + spec + plan + implementación + verify | Feature completa |
@@ -520,7 +520,7 @@ Each agent has:
 
 #### Specialized: Changelog `forge-memory/changelog/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `parsear_git_log()` | Commits desde último tag | Lista de commits clasificados por tipo | `git log oneline --no-decorate` desde último tag. Clasifica: feat → Added, fix → Fixed, perf → Performance, sec → Security | Pre-release |
 | `compilar_changelog()` | Commits clasificados + features del release | CHANGELOG.md en formato Keep a Changelog | Agrupa commits por sección (Added/Changed/Fixed/Security/Performance/Deprecated) con enlaces a commits | Commits clasificados |
@@ -529,7 +529,7 @@ Each agent has:
 
 #### Specialized: Knowledge `forge-memory/knowledge/SKILL.md`
 
-| Función | Input | Output | Proceso | Trigger |
+| Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `detectar_afectacion_cross_project()` | Observación a guardar | Lista de proyectos afectados + tipo de relación | Analiza si la decisión afecta a otros proyectos (API change, schema change, deprecation) | Observación con impacto potencial cross-project |
 | `crear_cross_reference()` | Observación + proyecto afectado | Observación cross-ref en el proyecto destino | Guarda en engram: "CROSS-REF: Auth migration affects service-web" con type=discovery y scope=team | Afectación detectada |
@@ -537,7 +537,7 @@ Each agent has:
 | `linkear_adrs_cross_project()` | ADR promovido | ADR.md con sección Cross-References + enlaces a ADRs de otros proyectos | Agrega en el frontmatter del ADR las referencias a proyectos afectados | ADR promovido |
 | `alertar_breaking_change()` | Breaking change detectado | Alerta al orquestador + lista de equipos afectados | Si el cambio afecta API, schema o dependencia de otro proyecto → alerta | Cambio con impacto cross-project detectado |
 
-**Gaps detectados**:
+**Gaps identified**:
 1. `metrics/medir_cycle_time()` no tiene un mecanismo para medir el tiempo REAL — depende de que el humano reporte horas. No hay tracking automático.
 2. `metrics/evaluar_tech_debt()` depende del reporte de verify/complexity — si ese skill no se cargó, no hay datos de code smells.
 3. `changelog/parsear_git_log()` requiere que los commits sigan conventional commits — si no, la clasificación falla.
