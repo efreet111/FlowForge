@@ -21,8 +21,14 @@ if [ -z "${FLOWFORGE_REPO:-}" ]; then
   else
     # Running remotely — clone repo
     echo -e "🌐 Modo remoto: descargando FlowForge..."
-    TEMP_DIR=$(mktemp -d /tmp/flowforge-install-XXXXXX)
-    trap "rm -rf $TEMP_DIR" EXIT
+    # mktemp portability (Linux/macOS)
+    if command -v mktemp >/dev/null 2>&1; then
+      TEMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t flowforge-install)"
+    else
+      echo -e "❌ Error: mktemp no está disponible en este sistema."
+      exit 1
+    fi
+    trap 'rm -rf "$TEMP_DIR"' EXIT
     git clone --depth 1 https://github.com/efreet111/FlowForge.git "$TEMP_DIR" 2>/dev/null || {
       echo -e "❌ Error: No se pudo clonar el repositorio. Verificá tu conexión a internet."
       exit 1

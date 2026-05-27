@@ -77,7 +77,7 @@ echo "🚀 Iniciando instalación de Skills de EngramFlow..."
 
 # Directorios de destino según el IDE del usuario
 COPILOT_SKILLS_DIR="$HOME/.copilot/skills"
-LOCAL_AGENT_SKILLS_DIR="./.agent/skills"
+LOCAL_AGENT_SKILLS_DIR="./.agents/skills"
 
 # 1. Crear directorios si no existen
 mkdir -p "$COPILOT_SKILLS_DIR"

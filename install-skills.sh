@@ -17,7 +17,7 @@ echo ""
 
 # Buscar repositorios de skills de copilotos e IDEs
 COPILOT_SKILLS_DIR="$HOME/.copilot/skills"
-LOCAL_AGENT_SKILLS_DIR="./.agent/skills"
+LOCAL_AGENT_SKILLS_DIR="./.agents/skills"
 
 # Determinar origen de las skills
 SOURCE_SKILLS_DIR="./skills"
@@ -51,9 +51,9 @@ fi
 # Copiar a local .agent
 cp -r "$SOURCE_SKILLS_DIR"/* "$LOCAL_AGENT_SKILLS_DIR/" 2>/dev/null
 if [ $? -eq 0 ]; then
-    echo -e "   - ${GREEN}OK${NC} Sincronizadas en .agent/skills/ del proyecto."
+    echo -e "   - ${GREEN}OK${NC} Sincronizadas en .agents/skills/ del proyecto."
 else
-    echo -e "   - ${RED}FAILED${NC} Error al copiar a local .agent."
+    echo -e "   - ${RED}FAILED${NC} Error al copiar a local .agents."
 fi
 
 # 3. Finalizar y dar instrucciones

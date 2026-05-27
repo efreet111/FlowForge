@@ -17,6 +17,11 @@ if ($IsRemote) {
     $TempDir = Join-Path $env:TEMP "flowforge-install-$([System.Guid]::NewGuid().ToString().Substring(0,8))"
     
     try {
+        if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+            Write-Host "❌ Error: 'git' no está instalado o no está en PATH." -ForegroundColor Red
+            Write-Host "   Instalalo desde: https://git-scm.com/download/win" -ForegroundColor Yellow
+            exit 1
+        }
         git clone --depth 1 "https://github.com/efreet111/FlowForge.git" $TempDir 2>&1 | Out-Null
         Write-Host "✅ Repositorio descargado temporalmente en $TempDir" -ForegroundColor Green
     } catch {
