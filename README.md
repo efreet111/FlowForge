@@ -1,22 +1,23 @@
 # FlowForge
 
-> **Forja tu flujo de desarrollo con agentes de IA.**
+> **Forge your AI-agent software development workflow.**
 >
-> 🔥 [`QUICKSTART.md`](QUICKSTART.md) — Empezá a usar FlowForge en 5 minutos
+> 🇪🇸 [README en español](README.es.md) · 🔥 [`QUICKSTART.md`](QUICKSTART.md) — Get started in 5 minutes
 
-FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños y medianos (SMB, 2-20 personas). Define cómo integrar agentes de IA en el ciclo de desarrollo de software con 5 checkpoints formales, 7 agentes, 31 skills especializadas, y un protocolo de artefactos versionados.
+FlowForge is an **Agentic SDLC methodology** for small and mid-size teams (2–20 people). It defines how to integrate AI agents into the software lifecycle with **5 formal checkpoints**, **7 agents**, **31 specialized skills**, and a versioned artifact protocol under `.ai-work/{feature-slug}/`.
 
-## Repositorios
+## Related projects
 
-| Proyecto | Descripción |
-|----------|-------------|
-| **FlowForge** (este) | Metodología de desarrollo de software asistida por agentes |
-| **[engram-dotnet](https://github.com/efreet111/engram-dotnet)** | Motor de memoria persistente para agentes de IA (.NET 10) |
+| Project | Description |
+|---------|-------------|
+| **FlowForge** (this repo) | Agent-assisted development methodology + IDE packs |
+| **[engram-dotnet](https://github.com/efreet111/engram-dotnet)** | Persistent memory engine for AI agents (.NET 10) |
 
-## Instalación en 1 línea
+## Install
+
+**Public repo** (one-liner):
 
 ```bash
-# Cuando el repo sea PÚBLICO:
 # Linux/macOS
 curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.sh | bash
 
@@ -24,101 +25,87 @@ curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install
 iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
 ```
 
-### Modo privado (mientras lo estás preparando)
-Si este repo está privado, la instalación remota (`raw.githubusercontent.com`) va a devolver 404. Usá instalación local:
+**Private repo** (local install):
 
 ```bash
 git clone https://github.com/efreet111/FlowForge.git
 cd FlowForge
+bash ide/install.sh          # Linux/macOS
+# .\ide\install.ps1          # Windows
 ```
 
-```bash
-# Linux/macOS
-bash ide/install.sh
-```
+**Per-project bundle** (Antigravity + `.cursor` + `.github/agents`):
 
 ```powershell
-# Windows (PowerShell)
-.\ide\install.ps1
+.\ide\install.ps1 -ProjectPath "C:\path\to\your-app"
 ```
 
-Después de instalar, reiniciá el IDE, seleccioná el agente **`flowforge`** y probá:
-```
-/flow-start CRUD de tareas
-```
-
-> 📖 Más detalles en [`QUICKSTART.md`](QUICKSTART.md)
-
-## Metodología FlowForge
+Then: reload your IDE, select the **flowforge** orchestrator (or enable FlowForge rules), and run:
 
 ```
-FASE 0: DISCOVERY ──── CKP-0 🔴 HARD STOP
-FASE 1: INTENCIÓN ──── CKP-1 🟡 spec.md (humano aprueba)
-FASE 2: ARQUITECTURA ─ CKP-2 🟡 plan.md (humano aprueba)
-FASE 3: EJECUCIÓN ──── Inner Loop autónomo + CKP-3 🔴 (3 ciclos máx)
-FASE 4: CIERRE ─────── CKP-4 🟢 deploy gate (humano decide)
+/flow-start Task CRUD — create, list, update, delete tasks with title, description, status, timestamps
 ```
 
-- **5 fases**, **5 checkpoints (CKP-0 → CKP-4)**, **7 agentes** (Orchestrator, Discovery, Arch, Plan, Dev, Verify, Memory)
-- **31 skills**: 7 core + 23 especializadas (seguridad, SOLID, performance, a11y, patrones, DDD, migraciones, métricas) + 1 teacher toggleable
-- **Checkpoints con semántica de colores**: 🔴 binario e inapelable, 🟡 flexible con autoridad humana, 🟢 decisión de release
-- **Orquestador AI nativo (Semáforo)** — inyectado mediante reglas de IDE
-- **Model routing** óptimo por tipo de tarea
-- **Memory Janitor** — pruning automático con TTL configurable
+See [`QUICKSTART.md`](QUICKSTART.md) for the full walkthrough.
 
-## Skills (31 total)
+## Methodology (5 phases, 5 checkpoints)
 
-| OLA | Cantidad | Enfoque |
-|-----|----------|---------|
-| Core | 7 | Flujo base (orchestrator, discovery, arch, plan, dev, verify, memory) |
-| OLA 1 | 5 | Seguridad + SOLID (STRIDE, OWASP, SAST) |
-| OLA 2 | 5 | Calidad + Patrones (GoF, testing, performance, complejidad) |
-| OLA 3 | 8 | Infraestructura (CVE, compliance, DDD, migraciones, rollback, refactor) |
-| OLA 4 | 5 | Métricas (costos, a11y verify, project health, changelog, knowledge graph) |
-| Cross | 1 | forge-teacher (modo profesor toggleable) |
+```
+PHASE 0: DISCOVERY  ── CKP-0 🔴 HARD STOP (vague requirement → stop)
+PHASE 1: INTENT     ── CKP-1 🟡 spec.md (human approves)
+PHASE 2: PLAN       ── CKP-2 🟡 plan.md (human green-lights)
+PHASE 3: EXECUTION  ── inner loop + CKP-3 🔴 (max 3 rework cycles)
+PHASE 4: CLOSE      ── CKP-4 🟢 deploy gate (human decides)
+```
 
-## IDE Integration
+| Principle | Detail |
+|-----------|--------|
+| **7 agents** | Orchestrator, Discovery, Arch, Plan, Dev, Verify, Memory |
+| **31 skills** | 7 core + specialized (security, SOLID, performance, …) + optional teacher |
+| **Orchestrator coordinates only** | Does not patch product code; bug reports → `rework_ticket.md` → **forge-dev** |
+| **Same flow, any IDE** | Cursor, VS Code, Antigravity, OpenCode — see [`ide/README.md`](ide/README.md) |
 
-Archivos listos para usar en `ide/`:
+## IDE integration
 
-| IDE | Archivos |
-|-----|----------|
-| **OpenCode** | `opencode.flowforge.json` — 7 subagentes con `{file:...}` a skills |
-| **Cursor** | `cursor/rules/*.mdc` + `cursor/agents/*.md` |
-| **Antigravity** | `antigravity/rules/*.md` + `antigravity/workflows/*.md` |
-| **VS Code** | `vscode/copilot-instructions.md` |
+| IDE | Pack location |
+|-----|----------------|
+| **Cursor** | `ide/cursor/` → `~/.cursor/` or project `.cursor/` |
+| **VS Code** | `ide/vscode/` → `.github/agents/` + `.vscode/copilot-instructions.md` |
+| **Antigravity** | `ide/antigravity/` → `.agents/rules` + `.agents/workflows` |
+| **OpenCode** | `ide/opencode/opencode.flowforge.json` (merge into your config) |
 
-## Estado de implementación
+Shared orchestrator contract: [`ide/shared/workflow-orchestrator-parity.md`](ide/shared/workflow-orchestrator-parity.md)
 
-**engram-dotnet** — 7 features implementadas, **258 tests**:
+## Skills overview (31)
 
-| Feature | SDD | Tests |
-|---------|-----|-------|
-| ✅ verification-tools | Archivado | 16 + 52 MCP |
-| ✅ promotion-level2 (.md) | Archivado | 17 + 139 Store |
-| ✅ traceability (lineage) | Archivado | 28 + 52 MCP |
-| ✅ ttl-configurable | Archivado | 22 + 139 Store |
-| ✅ doctor-diagnostic | Archivado | 27 tests |
-| ✅ offline-first-sync | Archivado | 84 tests |
-| ✅ advanced-engram-integration | Archivado | Doc & Skills |
+| Wave | Count | Focus |
+|------|-------|--------|
+| Core | 7 | Base flow (orchestrator → memory) |
+| OLA 1 | 5 | Security + SOLID |
+| OLA 2 | 5 | Quality + patterns |
+| OLA 3 | 8 | Infra (CVE, compliance, DDD, migrations, …) |
+| OLA 4 | 5 | Metrics, changelog, knowledge graph |
+| Cross | 1 | forge-teacher (toggleable) |
 
-## Documentación
+## engram-dotnet status
 
-| Documento | Descripción |
-|-----------|-------------|
-| [`01-engramflow-architecture.md`](docs/01-engramflow-architecture.md) | Diseño completo de la metodología |
-| [`04-roadmap.md`](docs/04-roadmap.md) | Roadmap v0.3 con 4 OLAS |
-| [`14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md) | Referencia completa + 7 casos de prueba |
-| [`15-agent-skills-technical-spec.md`](docs/15-agent-skills-technical-spec.md) | Especificación técnica de agentes |
-| [`16-ide-integration-plan.md`](docs/16-ide-integration-plan.md) | Integración con 4 IDEs |
+7 shipped features, **258 tests** (verification, promotion, traceability, TTL, doctor, offline sync, advanced integration). Optional MCP memory — methodology works without it.
 
-## Docs map (por dónde empezar)
+## Documentation
 
-- **Empezar en 5 minutos**: [`QUICKSTART.md`](QUICKSTART.md)
-- **Referencia completa + casos de prueba**: [`docs/14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md)
-- **Integración IDE**: [`ide/README.md`](ide/README.md)
-- **Roadmap**: [`docs/04-roadmap.md`](docs/04-roadmap.md)
+| Doc | Purpose |
+|-----|---------|
+| [`QUICKSTART.md`](QUICKSTART.md) | 5-minute start |
+| [`docs/14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md) | Full reference + 7 test cases |
+| [`docs/16-ide-integration-plan.md`](docs/16-ide-integration-plan.md) | IDE integration design |
+| [`docs/18-replicable-demo-definition.md`](docs/18-replicable-demo-definition.md) | Replicable runbook (no public demo repo required) |
+| [`docs/04-roadmap.md`](docs/04-roadmap.md) | Roadmap + release gate |
+| [`docs/I18N.md`](docs/I18N.md) | Translation + doc audit tracker |
 
-## Licencia
+## Contributing
 
-MIT
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). Security: [`SECURITY.md`](SECURITY.md).
+
+## License
+
+MIT — see [`LICENSE`](LICENSE).

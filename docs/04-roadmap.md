@@ -18,16 +18,67 @@
 
 ## Release Gate (antes de hacerlo público)
 
-Mientras FlowForge esté **privado**, la instalación remota desde `raw.githubusercontent.com` **no es un objetivo** (va a devolver 404).
+Mientras FlowForge esté **privado**, la instalación remota desde `raw.githubusercontent.com` devuelve 404 — usar instalación local (`ide/install.ps1` / `install.sh`).
 
-Antes de hacerlo público, este repo debería cumplir como mínimo:
+### Obligatorio para “listo para publicar”
 
-- **Demo replicable**: un proyecto pequeño (repo separado o carpeta `examples/`) con `spec.md`, `plan.md` y evidencia de verify (PASS o reworks), más pasos reproducibles.
-- **Definición formal de demo**: ver [`docs/18-replicable-demo-definition.md`](18-replicable-demo-definition.md).
-- **Prueba real en Cursor**: validar que `ide/cursor/` + `ide/install.ps1` funcionan (y que el flujo `/flow-start` es usable).
-- **Instaladores validados**: al menos 1 Linux y Windows.
-- **Docs coherentes**: sin contradicciones en CKP-0..CKP-4 (README/QUICKSTART/docs/14).
-- **Archivos OSS listos**: `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`.
+| Criterio | Estado | Notas |
+|----------|--------|-------|
+| **Replicación por documentación** | ✅ | [`QUICKSTART.md`](../QUICKSTART.md), [`ide/README.md`](../ide/README.md), [`docs/18-replicable-demo-definition.md`](18-replicable-demo-definition.md) (runbook) |
+| **Paridad IDE v0.4** | ✅ | `ide/shared/workflow-orchestrator-parity.md` + Cursor / Antigravity / VS Code / OpenCode |
+| **Instaladores** | ✅ | `ide/install.ps1`, `ide/install.sh` (+ `-ProjectPath` para Antigravity/`.cursor` en repo) |
+| **Prueba real del flujo** | 🟡 | Validado en Cursor (demo local); falta smoke en VS Code / Antigravity / OpenCode |
+| **Docs CKP coherentes** | 🟡 | CKP-0..4 alineados; auditoría doc item **15** pendiente |
+| **Archivos OSS** | ✅ | `LICENSE`, `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md` |
+| **Idioma público** | 🟡 | **`README.md` + `QUICKSTART.md` EN** ✅ · **`README.es.md` ES** ✅ · resto de `docs/` pendiente |
+
+### Opcional (no bloquea release)
+
+- **Repo demo publicado** (`flowforge-demo-task-manager`): útil como referencia, no requerido si el runbook en docs alcanza.
+- **Carpeta `examples/`** en FlowForge: alternativa futura al demo externo.
+- **engram-dotnet estable en MCP** (roadmap item **9**): mejora memoria, no bloquea metodología sin Engram.
+
+### i18n — decisión de producto (pendiente)
+
+| Ámbito | Idioma target | Archivo / nota |
+|--------|---------------|----------------|
+| README principal (GitHub) | **English** | `README.md` |
+| Entrada en español | **Español** | `README.es.md` (mantener como puerta de entrada LATAM) |
+| `QUICKSTART.md`, `docs/*`, `skills/*/SKILL.md`, `ide/*` | **English** | Migración por fases; mensajes de producto en APIs pueden quedar ES en ejemplos |
+| Comandos `/flow-*` y CKP gates | Bilingüe mínimo | Los prompts al humano en gates pueden conservar ES en `README.es.md` |
+
+---
+
+## Plan de mejora — qué sacar del backlog para v0.4 “listo”
+
+> Los 14 items completos son **post-MVP**. Para publicar v0.4, enfocarse solo en lo marcado **RELEASE**.
+
+### ✅ Ya hecho (sacar del “pendiente crítico”)
+
+| Item roadmap | Qué era |
+|--------------|---------|
+| **4** QUICKSTART | Existe + modo privado |
+| **7** install.ps1 / install.sh | Implementados con paridad + compile agents |
+| **2** Caso CRUD (parcial) | Corrido en demo local; evidencia en `.ai-work/` local, no repo público |
+| **3** Artefactos ejemplo (parcial) | spec/plan/verify en demo local; replicación vía docs |
+
+### 🔴 RELEASE — hacer antes de publicar
+
+| Item | Acción concreta |
+|------|-----------------|
+| **15** Auditoría docs | Unificar “5 vs 7 agentes”, `cert-report` → `verify-report`, CKP en todos los docs |
+| **i18n** | `README.md` EN + `README.es.md`; QUICKSTART + `docs/14` EN (mínimo) |
+| **8** (mínimo) | 1 smoke por IDE: install → `/flow-start` en proyecto vacío |
+| **1** | OpenCode: merge `opencode.flowforge.json` + rutas `{file:...}` documentadas |
+
+### 🟡 Post-release (dejar en roadmap, no bloquear)
+
+| Items | Motivo |
+|-------|--------|
+| **5** Template repo, **6** `.flowforge.json` schema | Adopción avanzada |
+| **9** engram MCP diagnóstico | Infra opcional |
+| **10–14** KPIs, migración Scrum, semver releases | Maduración |
+| **Demo repo público** | Opcional |
 
 ---
 
@@ -186,13 +237,13 @@ El foco actual está en el **[Plan de Mejora — 14 items](#🚀-plan-de-mejora-
 |------|-----------|--------|-------|
 | **1. Probar ide/opencode en tu OpenCode** | P0 | 📋 Pendiente | Cargar los 7 subagentes en opencode.json y verificar que deleguen correctamente |
 | **2. Ejecutar Caso 1 (CRUD) de docs/14** | P0 | 📋 Pendiente | Proyecto real (Task Manager API) de punta a punta: discovery → spec → plan → dev → verify → memory |
-| **3. Crear artefactos de ejemplo** | P0 | 📋 Pendiente | spec.md, plan.md, cert-report.md reales del proyecto demo, listos para mostrar |
+| **3. Crear artefactos de ejemplo** | P0 | 🟡 Parcial | Runbook docs/18; artefactos en demo local, no repo público |
 
 ### ⏰ Semana 2 — Onboarding Mínimo
 
 | Item | Prioridad | Estado | Notas |
 |------|-----------|--------|-------|
-| **4. QUICKSTART.md de 1 página** | P0 | 📋 Pendiente | "FlowForge en 5 minutos": qué instalar, qué escribir, qué esperar |
+| **4. QUICKSTART.md de 1 página** | P0 | ✅ Hecho | Instalación local/pública + primer `/flow-start` |
 | **15. Auditoría y limpieza de documentación** | P0 | 📋 Pendiente | Revisar los 17 docs, identificar redundancias, contenido obsoleto ("5 agentes", "3 checkpoints"), fusionar docs pequeños, archivar lo que no aporta |
 | **5. Template de proyecto FlowForge** | P1 | 📋 Pendiente | Repo separado (o branch) con `.flowforge.json`, `.ai-work/`, estructura pre-creada |
 | **6. Schema de `.flowforge.json`** | P1 | 📋 Pendiente | Documentar el schema completo con modelos, persona, DB, teacher_mode, SAST config |
@@ -201,7 +252,7 @@ El foco actual está en el **[Plan de Mejora — 14 items](#🚀-plan-de-mejora-
 
 | Item | Prioridad | Estado | Notas |
 |------|-----------|--------|-------|
-| **7. install.sh / install.ps1** | P0 | 📋 Pendiente | Script que detecte OpenCode / Cursor / Antigravity / VS Code y copie archivos automáticamente (pre-requisito del Release Gate) |
+| **7. install.sh / install.ps1** | P0 | ✅ Hecho | Paridad v0.4, shared parity, `-ProjectPath`, compile agents |
 | **8. Probar IDE files en todos los IDEs** | P1 | 📋 Pendiente | Verificar que los 20 archivos de `ide/` funcionan en OpenCode, Cursor, Antigravity, VS Code |
 | **9. Diagnóstico de engram-dotnet** | P0 | 📋 Pendiente | La memoria no conecta en varias sesiones — diagnosticar: ¿MCP? ¿red? ¿servidor? |
 | **10. Manejo de features concurrentes** | P2 | 📋 Pendiente | Protocolo para cuando dos devs trabajan features que tocan el mismo código (lock, merge, conflict) |

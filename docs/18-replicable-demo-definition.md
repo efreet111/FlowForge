@@ -1,82 +1,103 @@
-# FlowForge — Definición de Demo Replicable (Release Gate)
+# FlowForge — Replicable Demo Definition (Release Gate)
 
-## Objetivo
-Una **demo replicable** es evidencia mínima y reproducible de que FlowForge funciona en un entorno real (idealmente **Cursor**) y que un tercero puede repetir el flujo sin “telepatía” del autor.
+## Goal
 
-Esta demo es un **requisito previo** para publicar FlowForge como open source.
+A **replicable demo** is minimal, reproducible evidence that FlowForge works in a real environment and that a third party can repeat the flow without author “telepathy.”
 
----
-
-## Forma recomendada
-
-### Opción A (recomendada): repo demo separado
-Crear un repo independiente, por ejemplo: `flowforge-demo-task-manager`.
-
-**Ventajas**:
-- Permite versionar artefactos `spec.md`/`plan.md`/reworks junto con el código.
-- Evita contaminar el repo de metodología con un proyecto app.
-- Es ideal para que terceros “clonen y prueben” sin contexto.
-
-### Opción B: carpeta `examples/` dentro de FlowForge
-Crear `examples/task-manager/` dentro de este repo.
-
-**Ventaja**: una sola URL.\n+**Desventaja**: agranda el repo y mezcla “metodología” con “producto demo”.
+**A separate public demo repository is optional.** Replication is satisfied when the step-by-step runbook in this doc plus [`QUICKSTART.md`](../QUICKSTART.md) and [`ide/README.md`](../ide/README.md) are sufficient.
 
 ---
 
-## Proyecto de demo (scope fijo)
+## Recommended shapes
 
-### Nombre
-**Task Manager API**
+### Option A: separate demo repo (optional)
 
-### Stack (Cursor-first, low friction)
-- **Node.js + TypeScript**
-- **SQLite** (para evitar dependencia de PostgreSQL/Redis en la primera demo)
-- **Tests** con `vitest` (o `jest`) + `supertest`
+Example: `flowforge-demo-task-manager` (local only is fine).
 
-### Reglas de scope (para que sea replicable)
-- Sin auth en V1 (auth se deja como “Caso 2” en docs/14).\n+- Sin UI.\n+- CRUD simple con validaciones.
+- Version artifacts next to application code
+- Keeps the methodology repo clean
 
----
+### Option B: `examples/` inside FlowForge (future)
 
-## Artefactos obligatorios (lo que hay que “subir”)
-
-En el proyecto demo debe existir, versionado en git:
-
-### 1) `docs/spec.md`
-- RFs con IDs (ej: `RF-001`..)\n+- RNFs mínimos (logging, error handling)\n+- Escenarios Given-When-Then por RF\n+- Capability Matrix (ai_reasoning vs deterministic)
-
-### 2) `docs/plan.md`
-- “Proposed Changes” con lista explícita de archivos a tocar\n+- Checklist topológico (tareas ordenadas)\n+- Plan de tests (qué ejecutar, y qué constituye PASS)
-
-### 3) Evidencia de Verify
-Una de estas dos (idealmente ambas):
-- `docs/verify-report.md` con:\n  - Resultado final (PASS)\n  - Resumen de auditoría (seguridad básica, complejidad, performance mínima)\n  - “Manual test steps”
-- y/o un historial de reworks:\n  - `docs/rework_ticket.md` (si hubo) con `cycle_count` y motivo
-
-### 4) `README.md` del demo
-Debe incluir:\n+- Prerrequisitos\n+- Cómo correr tests\n+- Cómo correr API\n+- Cómo ejecutar el flujo FlowForge en Cursor (pasos exactos)
+Single URL, but mixes methodology and sample product.
 
 ---
 
-## Criterios de aceptación (Definition of Done)
+## Sample project scope
 
-La demo se considera “replicable” si se cumplen TODOS:
+**Name:** Task Manager API
 
-1. **Clonado en limpio**: un tercero puede clonar el repo y correr `npm test` con éxito.\n+2. **No hay pasos ocultos**: todo prerequisito está en el README.\n+3. **FlowForge trazable**: `spec.md` y `plan.md` están completos y coherentes.\n+4. **Verify auditable**: existe `verify-report.md` o evidencia equivalente.\n+5. **Cursor probado**: hay una sección “Cursor runbook” con pasos y resultados esperados.
+**Stack (low friction):**
+
+- Node.js + TypeScript
+- SQLite
+- `vitest` + `supertest`
+
+**V1 scope:**
+
+- No auth (Case 2 in docs/14)
+- No UI
+- Simple CRUD + validation
 
 ---
 
-## Runbook mínimo para Cursor (pasos reproducibles)
+## Required artifacts (in the target project)
 
-En una máquina nueva (o ambiente limpio):
+Under `.ai-work/{feature-slug}/` (kebab-case, no `FLOW-` prefix):
 
-1. Instalar FlowForge en Cursor (modo local si FlowForge es privado).\n+2. Abrir el repo demo en Cursor.\n+3. Ejecutar:\n+   - `/flow-start CRUD de tareas`\n+4. Revisar el `spec.md` generado y aprobar CKP-1.\n+5. Ejecutar:\n+   - `/flow-dev`\n+6. Revisar/ejecutar tests (los comandos exactos deben estar en el plan).\n+7. Ejecutar:\n+   - `/flow-verify`\n+8. Confirmar PASS.\n+9. Ejecutar:\n+   - `/flow-close` (si aplica) y decidir deploy gate.
-
-**Resultado esperado**: el repo queda con los artefactos `spec.md`, `plan.md`, verify PASS y tests verdes.
+| File | Owner |
+|------|--------|
+| `context-map.md` | forge-discovery |
+| `spec.md` | forge-arch (includes PM-* manual tests) |
+| `plan.md` | forge-plan (checklist; dev marks `[x]`) |
+| `verify-report.md` | forge-verify (not `cert-report.md`) |
+| `rework_ticket.md` | verify → dev (if needed) |
+| `summary.md` | forge-memory (after PM-* complete) |
 
 ---
 
-## Qué NO cuenta como demo replicable (anti-criterios)
-- “Funciona en mi máquina” sin instrucciones.\n+- Requiere servicios externos sin alternativa (por ejemplo Postgres + Redis) en la primera demo.\n+- No hay tests automatizados.\n+- `spec.md`/`plan.md` están incompletos o contradictorios con el código.
+## Definition of Done (replicable)
 
+1. **Clean clone**: third party can run project tests successfully (`npm test` or equivalent).
+2. **No hidden steps**: prerequisites documented.
+3. **Traceable FlowForge**: `spec.md` and `plan.md` complete and consistent with code.
+4. **Auditable verify**: `verify-report.md` with PASS (or documented reworks).
+5. **IDE runbook**: steps below executed on at least one IDE (Cursor recommended first).
+
+---
+
+## Minimum runbook (any IDE)
+
+On a clean machine:
+
+1. Install FlowForge (`bash ide/install.sh` or `.\ide\install.ps1`; use `-ProjectPath` for project bundle).
+2. Open an empty or minimal app repo in your IDE.
+3. `/flow-start Task CRUD — …` (describe the feature).
+4. Approve **CKP-1** (`spec.md`).
+5. `/flow-plan` → approve **CKP-2** (`plan.md`).
+6. `/flow-dev` → tests green; dev marks plan checklist.
+7. `/flow-verify` → **PASS** in `verify-report.md`.
+8. Run **PM-*** from `spec.md`; mark `[x]`.
+9. `/flow-close` → **CKP-4** deploy decision.
+
+**Bug during testing:** report in chat → orchestrator creates `rework_ticket.md` → `/flow-dev` (or “reporté un error”) — orchestrator must **not** patch code inline.
+
+**Expected outcome:** artifacts under `.ai-work/{slug}/`, verify PASS, tests green, PM-* done before close.
+
+---
+
+## Anti-criteria (does not count)
+
+- “Works on my machine” with no instructions
+- Requires external services without documented alternatives in v1
+- No automated tests
+- `spec.md` / `plan.md` contradict the code
+- Orchestrator fixes bugs inline instead of delegating to forge-dev
+
+---
+
+## Related docs
+
+- [`QUICKSTART.md`](../QUICKSTART.md) — 5-minute start (English)
+- [`README.es.md`](../README.es.md) — Spanish overview
+- [`ide/shared/workflow-orchestrator-parity.md`](../ide/shared/workflow-orchestrator-parity.md) — cross-IDE contract

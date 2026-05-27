@@ -71,27 +71,27 @@
 
 ### Item 3: Crear artefactos de ejemplo de un ciclo completo
 
-**Objetivo**: Tener spec.md, plan.md y cert-report.md reales producidos por FlowForge para mostrar a otros miembros del equipo.
+**Objetivo**: Tener spec.md, plan.md y verify-report.md reales producidos por FlowForge para mostrar a otros miembros del equipo.
 
 **Criterios de éxito**:
 - [ ] spec.md con RF-001 a RF-N, escenarios GWT, Capability Matrix, RNFs
 - [ ] plan.md con análisis de impacto, contratos, checklist topológico
-- [ ] cert-report.md con veredicto, cobertura de tests, observaciones
-- [ ] Los artefactos están en un lugar accesible (`.ai-work/FLOW-demo/`)
+- [ ] verify-report.md con veredicto, cobertura de tests, observaciones
+- [ ] Los artefactos están en un lugar accesible (`.ai-work/{feature-slug}/` o runbook en docs/18)
 
 **Enfoque**:
 1. Del Item 2, extraer los artefactos generados
 2. Limpiarlos para que sirvan como plantilla/referencia
-3. Dejarlos en el repo FlowForge como ejemplo canónico
+3. Documentar el runbook en docs/18 (repo demo público opcional)
 
 **Dependencias**: Item 2 (para tener artefactos reales)
 
 **Esfuerzo**: 30 min (limpiar y documentar lo generado en Item 2)
 
 **Deliverables**:
-- `.ai-work/FLOW-demo/spec.md`
-- `.ai-work/FLOW-demo/plan.md`
-- `.ai-work/FLOW-demo/cert-report.md`
+- `.ai-work/{feature-slug}/spec.md`
+- `.ai-work/{feature-slug}/plan.md`
+- `.ai-work/{feature-slug}/verify-report.md`
 
 ---
 

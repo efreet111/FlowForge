@@ -1,93 +1,123 @@
 # FlowForge — Quickstart
 
-> **Empezá a usar FlowForge en 5 minutos.**
+> **Get started with FlowForge in about 5 minutes.**
+
+🇪🇸 Guía en español: [`README.es.md`](README.es.md)
 
 ---
 
-## 1. Instalación
+## 1. Install
 
-**Linux / macOS:**
+**Linux / macOS** (when the repo is **public**):
+
 ```bash
-# Nota: este comando solo funciona cuando el repo FlowForge es PÚBLICO.
 curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.sh | bash
 ```
 
-**Windows (PowerShell):**
+**Windows (PowerShell)** (public repo):
+
 ```powershell
-# Nota: este comando solo funciona cuando el repo FlowForge es PÚBLICO.
 iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
 ```
 
-### Modo privado (recomendado mientras lo estás preparando)
-Si el repo está privado, instalá en modo local:
+### Private repo (recommended while preparing release)
+
+Remote install via `raw.githubusercontent.com` returns **404** if the repo is private. Use a local clone:
 
 ```bash
 git clone https://github.com/efreet111/FlowForge.git
 cd FlowForge
 ```
 
-Luego ejecutá el instalador según tu OS:
-
 ```bash
 # Linux/macOS
 bash ide/install.sh
+
+# Optional: install FlowForge into your app repo
+bash ide/install.sh /path/to/your-app
 ```
 
 ```powershell
-# Windows (PowerShell)
+# Windows
 .\ide\install.ps1
+.\ide\install.ps1 -ProjectPath "C:\path\to\your-app"
 ```
-
-## 2. Primer comando
-
-Reiniciá tu IDE, seleccioná el agente **`flowforge`** y escribí:
-
-```
-/flow-start CRUD de tareas — endpoints para crear, listar, actualizar y eliminar tareas. Cada tarea tiene título, descripción, estado (pendiente/en-progreso/completada) y fecha de creación.
-```
-
-## 3. ¿Qué va a pasar?
-
-El agente va a seguir este flujo automático:
-
-```
-/flow-start
-  ├── forge-discovery  → investiga contexto, CVEs, compliance
-  ├── CKP-0 🔴         → si falta contexto o el requerimiento es vago: PARAR y pedir clarificación
-  ├── forge-arch       → escribe spec.md con RF/RNF + escenarios
-  ├── CKP-1 🟡         → humano aprueba spec
-  ├── forge-plan       → descompone en tareas con contratos
-  ├── CKP-2 🟡         → humano da luz verde
-  ├── forge-dev        → implementa código + tests
-  ├── CKP-3 🔴         → 3 reworks máx, luego escala a humano
-  └── humano decide ✅ → forge-memory cierra y persiste
-```
-
-## 4. Comandos disponibles
-
-| Comando | Qué hace |
-|---------|----------|
-| `/flow-start <feature>` | Discovery + Spec (CKP-0, CKP-1) |
-| `/flow-dev` | Plan + Dev + Verify (CKP-2, CKP-3) |
-| `/flow-verify` | Solo auditoría (CKP-3) |
-| `/flow-close` | Memoria + deploy (CKP-4) |
-
-## 5. Siguientes pasos
-
-- 📖 [`docs/14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md) — 7 casos de prueba prácticos
-- 🔧 [`docs/17-improvement-plan-specs.md`](docs/17-improvement-plan-specs.md) — backlog de mejora
-- 🧠 [`docs/15-agent-skills-technical-spec.md`](docs/15-agent-skills-technical-spec.md) — especificación técnica de los 7 agentes
 
 ---
 
-## Troubleshooting rápido
+## 2. First command
 
-- **Veo 404 al instalar con `raw.githubusercontent.com`**: el repo está privado (o la ruta/branch no coincide). Usá “Modo privado” (arriba) o hacé el repo público.
-- **`git` no está instalado**: instalalo desde Git for Windows o tu package manager en Linux/macOS.
-- **`fatal: detected dubious ownership` en Windows**: marcá el repo como seguro con:
+Reload your IDE, open **Agent mode**, select the **flowforge** orchestrator (or ensure FlowForge rules are active), and send:
 
-```powershell
-git config --global --add safe.directory E:/Proyectos/FlowForge
+```
+/flow-start Task CRUD — REST endpoints to create, list, update, and delete tasks. Each task has title, description, status (pending/in-progress/completed), and created-at timestamp.
 ```
 
-> **¿Problemas?** Abrí un issue en `https://github.com/efreet111/FlowForge`
+Artifacts land in `.ai-work/{feature-slug}/` (e.g. `task-crud/`).
+
+---
+
+## 3. What happens next
+
+```
+/flow-start
+  ├── forge-discovery  → context map, risks, prior art
+  ├── CKP-0 🔴         → vague requirement? STOP and ask the human
+  ├── forge-arch       → writes spec.md (RF/RNF, GWT, PM-* manual tests)
+  ├── CKP-1 🟡         → you approve spec.md
+/flow-plan
+  ├── forge-plan       → writes plan.md (ordered checklist)
+  ├── CKP-2 🟡         → you green-light implementation
+/flow-dev
+  ├── forge-dev        → code + tests (Ralph Wiggum loop until green)
+/flow-verify
+  ├── forge-verify     → verify-report.md (PASS or rework_ticket.md)
+  ├── CKP-3 🔴         → max 3 rework cycles, then escalate
+/flow-close
+  └── forge-memory     → summary.md if PM-* are done (CKP-4 deploy gate)
+```
+
+**Rules that stay the same in every IDE:**
+
+- The **orchestrator does not implement product code** — it delegates.
+- **Bug report?** Orchestrator creates `rework_ticket.md` → **forge-dev** fixes it.
+- **Dev done** ≠ tests green only: plan checklist `[x]` + manual PM-* in spec + verify PASS before close.
+
+---
+
+## 4. Commands
+
+| Command | Phase |
+|---------|--------|
+| `/flow-start <feature>` | Discovery → Spec (CKP-0, CKP-1) |
+| `/flow-plan` | Plan (CKP-2) |
+| `/flow-dev` | Implementation |
+| `/flow-verify` | Audit (CKP-3) |
+| `/flow-rework` | Bug report → ticket → dev (no orchestrator hotfix) |
+| `/flow-close` | Memory + deploy gate (CKP-4) |
+| `/flow-status` | Read `.ai-work/` only |
+
+Natural language works too (e.g. “report a bug”, “keep coding”, “close the feature”).
+
+---
+
+## 5. Next steps
+
+- [`docs/14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md) — 7 hands-on test cases
+- [`ide/README.md`](ide/README.md) — per-IDE install and parity v0.4
+- [`docs/18-replicable-demo-definition.md`](docs/18-replicable-demo-definition.md) — reproducible runbook
+- [`docs/04-roadmap.md`](docs/04-roadmap.md) — roadmap and release checklist
+
+---
+
+## Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| **404 on `raw.githubusercontent.com` install** | Repo is private or wrong branch — use local install above |
+| **`git` not found** | Install Git for Windows or your OS package manager |
+| **`dubious ownership` on Windows** | `git config --global --add safe.directory E:/Proyectos/FlowForge` |
+| **Orchestrator codes instead of delegating** | Reload IDE; say: “Delegate to forge-dev per workflow — do not patch inline” |
+| **No `@skills` manual load** | Use compiled agents (Cursor) or IDE packs from `ide/install` |
+
+> **Problems?** Open an issue: https://github.com/efreet111/FlowForge
