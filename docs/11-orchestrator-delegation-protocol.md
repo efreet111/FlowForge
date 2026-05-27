@@ -1,58 +1,54 @@
-# Protocolo de Delegación y Configuración (FlowForge)
+# Orchestrator Delegation and Configuration Protocol
 
-> **Versión**: 1.0 (Refinamiento Arquitectónico)
-> **Tema**: Delegación Multi-Agente, Configuración CLI y Persona del Orquestador
+> **Version**: 1.1
+> **Topics**: Multi-agent delegation, CLI config, orchestrator persona
 
-Para que FlowForge funcione fluidamente en cualquier ecosistema de IA, el **Agente Orquestador (`@forge-orchestrator`)** requiere de reglas claras de cómo pasarle el control a las otras 6 skills y cómo adaptar su comportamiento según las preferencias del equipo.
-
----
-
-## 1. El Dilema de la Delegación (El Pase de Testigo)
-
-Las plataformas de inteligencia artificial tienen distintas capacidades:
-- Algunas solo chatean con el humano (VS Code Copilot, web chat).
-- Otras tienen herramientas complejas y pueden lanzar "sub-agentes" de forma autónoma (Antigravity, OpenCode, Cursor Composer, Cline).
-
-Para no dejar "mocho" a los sistemas avanzados, pero seguir soportando los monolíticos, el Orquestador maestro de FlowForge utiliza el **Patrón de Delegación Adaptativa (Inspirado en Gentle-AI)**.
-
-### Reglas de Delegación del Orquestador
-1. **Verificar Capacidad Autónoma**: El Orquestador analiza sus propias herramientas disponibles. Si el entorno le permite ejecutar comandos nativos o lanzar sub-agentes (ej. tiene una tool `call_agent`), **el Orquestador lo hace por su cuenta**. Pasa a la siguiente fase sin pedirle ayuda al desarrollador.
-2. **Caída a Modo Asistido (Human-in-the-Loop)**: Si el Orquestador no tiene cómo ejecutar comandos (o la plataforma no lo soporta), preparará el comando exacto y le dirá al humano:
-   > *"Por favor, invocá a `@forge-dev` para comenzar la ejecución."*
-3. **Inyección de Contexto Constante**: No basta con llamar a `@forge-dev`. El Orquestador le indica explícitamente al sub-agente las rutas de los archivos que necesita leer (ej. `"Leé el plan en openspec/changes/plan.md y ejecutá..."`).
+FlowForge must work across IDE ecosystems. The **orchestrator (`forge-orchestrator`)** needs clear rules for handing off to the other six agents and for reading team preferences from config files.
 
 ---
 
-## 2. Configuración y CLI Wizard
+## 1. Delegation dilemma (handoff pattern)
 
-Toda la configuración del comportamiento del Orquestador y de las Skills se maneja de forma eficiente **por consola (terminal)**. No se requieren interfaces web para instalar FlowForge.
+Platforms differ:
 
-### El Comando de Instalación (`forge-wizard` / `npx flowforge init`)
-En un futuro cercano, el script de inicialización guiará al usuario paso a paso en la terminal para configurar:
-1. **Agentes y Modelos**: Seleccionar qué LLM (ej. Haiku, Sonnet, GPT-4o) utilizará cada fase del ciclo.
-2. **API Keys**: Almacenar las credenciales de forma segura.
-3. **Persona del Agente**: Definir el tono de comunicación.
-4. **Endpoint de Engram**: Decidir a qué base de datos se conectará `engram-dotnet` (Local SQLite, Nube SQLite o PostgreSQL Remoto).
+- Chat-only (some Copilot modes).
+- Subagent-capable (Cursor, OpenCode, Antigravity, Cline).
 
-### Archivo de Estado `.flowforge.json`
-El resultado de ese wizard se almacena en un archivo JSON en la raíz de tu proyecto (o se inyecta en el existente `.engram.json` bajo la llave `"forge"`). 
+The orchestrator uses **adaptive delegation**:
 
-Ejemplo de estructura documentada:
+### Rules
+
+1. **Autonomous when possible**: If the environment supports `Task` / subagents / `call_agent`, the orchestrator **invokes the next agent itself** without asking the human to copy prompts.
+2. **Assisted fallback**: If not, provide an exact instruction: *“Please invoke `forge-dev` to start implementation.”*
+3. **Context injection**: Always pass file paths — e.g. *“Read `.ai-work/{slug}/plan.md` and implement…”* — not vague “continue coding.”
+
+### Bug reports
+
+Orchestrator creates `.ai-work/{slug}/rework_ticket.md` and delegates to **forge-dev**. It does **not** patch `src/`, tests, or dashboards inline.
+
+---
+
+## 2. Configuration and CLI wizard (future)
+
+Configuration is intended to live in the repo root as **`.flowforge.json`** (or under `"forge"` in `.engram.json`).
+
+Planned `forge init` / wizard topics:
+
+1. Models per phase.
+2. API keys (secure storage).
+3. Orchestrator persona / tone.
+4. Engram endpoint (local SQLite, cloud, Postgres).
+
+Example shape:
 
 ```json
 {
   "forge": {
     "orchestrator_mode": "adaptive",
-    "persona": "Arquitecto de software Senior, tono formal y directo. Corrige si el usuario se equivoca.",
+    "persona": "Senior software architect, formal and direct.",
     "agents": {
-      "forge-discovery": {
-        "model": "claude-3-haiku-20240307",
-        "provider": "anthropic"
-      },
-      "forge-arch": {
-        "model": "claude-3-5-sonnet-20241022",
-        "provider": "anthropic"
-      }
+      "forge-discovery": { "model": "gpt-5-mini", "provider": "openai" },
+      "forge-arch": { "model": "kimi-k2.5", "provider": "moonshot" }
     },
     "database_engine": {
       "type": "postgres",
@@ -62,4 +58,29 @@ Ejemplo de estructura documentada:
 }
 ```
 
-El **Orquestador** lee este archivo JSON al arrancar, asume su "Persona", y ajusta la lógica de qué agente rutear según los proveedores configurados. Si querés modificar el comportamiento de tus agentes, podés editar este archivo a mano o volver a correr el Wizard CLI.
+The orchestrator reads this at session start when present. Until the wizard ships, use [`ide/cursor/rules/model-assignments.mdc`](../ide/cursor/rules/model-assignments.mdc) and per-IDE packs.
+
+---
+
+## 3. Artifact paths (canonical)
+
+```
+.ai-work/{feature-slug}/
+├── context-map.md
+├── spec.md          # includes PM-* manual tests
+├── plan.md          # checklist — marked by forge-dev
+├── verify-report.md
+├── rework_ticket.md
+├── revision_cycle.md
+└── summary.md
+```
+
+Use **kebab-case** slugs. Do not use `FLOW-` prefix or `cert-report.md`.
+
+---
+
+## 4. Related documents
+
+- [`06-ai-orchestrator.md`](06-ai-orchestrator.md) — traffic light semantics
+- [`14-flowforge-complete-reference.md`](14-flowforge-complete-reference.md) — full reference + test cases
+- [`16-ide-integration-plan.md`](16-ide-integration-plan.md) — per-IDE file layout

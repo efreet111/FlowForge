@@ -1,56 +1,54 @@
-# EngramFlow — Estrategia de Memoria (2 Niveles)
+# FlowForge — Memory Strategy (Two Levels)
 
-> **Versión**: 0.2
-> **Última actualización**: 2026-05-13
-> **Depende de**: engram-dotnet (motor de persistencia)
-
----
-
-## 1. El Problema
-
-Las memorias de agentes de IA tienen un problema fundamental: **todo parece importante en el momento**.
-
-Un agente que debuggea un error raro durante 2 horas va a guardar 20 observaciones sobre ese error. A la semana siguiente, el error está resuelto y esas 20 observaciones son ruido. Pero siguen ocupando espacio y contaminando búsquedas.
-
-Si no hay un mecanismo de limpieza, después de 3 meses de desarrollo tienes:
-
-- 2000+ observaciones
-- 40% es ruido (debugging temporal, experimentos fallidos, comandos efímeros)
-- El FTS5 empieza a devolver resultados irrelevantes
-- El agente pierde tiempo leyendo contexto basura
+> **Version**: 0.2
+> **Last updated**: 2026-05-27
+> **Depends on**: engram-dotnet (persistence engine)
 
 ---
 
-## 2. La Solución: Dos Niveles de Memoria
+## 1. The problem
+
+Agent memory has a fundamental issue: **everything feels important in the moment**.
+
+An agent debugging a rare error for two hours may save 20 observations about it. A week later the bug is fixed and those 20 observations are noise — but they still consume space and pollute search.
+
+Without cleanup, after three months of development you typically have:
+
+- 2000+ observations
+- ~40% noise (temporary debugging, failed experiments, ephemeral commands)
+- FTS5 returning irrelevant hits
+- Agents wasting tokens on junk context
+
+---
+
+## 2. The solution: two memory levels
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                   ESTRATIFICACIÓN DE MEMORIA                   │
+│                   MEMORY STRATIFICATION                      │
 ├──────────────────────────────────────────────────────────────┤
 │                                                              │
-│  NIVEL 1: OPERATIVA (automática, efímera)                    │
+│  LEVEL 1: OPERATIONAL (automatic, ephemeral)                 │
 │  ┌────────────────────────────────────────────────────────┐  │
-│  │ • Qué contiene: sesiones, prompts, outputs intermedios, │  │
-│  │   debugging, tool_use, file_change, command              │  │
-│  │ • Dónde: engram-dotnet DB (SQLite/Postgres)             │  │
-│  │ • TTL: 30-90 días según tipo (auto-prune)               │  │
-│  │ • Quién escribe: automático (el agente llama mem_save)  │  │
-│  │ • Quién lee: el agente para contexto inmediato           │  │
-│  │ • Propósito: "¿qué estábamos haciendo ayer?"             │  │
+│  │ • Contents: sessions, prompts, intermediate outputs,   │  │
+│  │   debugging, tool_use, file_change, command            │  │
+│  │ • Where: engram-dotnet DB (SQLite/Postgres)            │  │
+│  │ • TTL: 30–90 days by type (auto-prune)                 │  │
+│  │ • Writer: automatic (agent calls mem_save)             │  │
+│  │ • Reader: agent for immediate context                 │  │
+│  │ • Purpose: "what were we doing yesterday?"             │  │
 │  └────────────────────────────────────────────────────────┘  │
 │                                                              │
-│  NIVEL 2: ESTRUCTURADA (deliberada, permanente)              │
+│  LEVEL 2: STRUCTURED (deliberate, permanent)                 │
 │  ┌────────────────────────────────────────────────────────┐  │
-│  │ • Qué contiene: decisiones arquitectónicas, RFCs,      │  │
-│  │   specs, lecciones aprendidas, patrones, convenciones   │  │
-│  │ • Dónde: .md versionados en el repo + metadatos         │  │
-│  │   en engram-dotnet (para FTS5 + link bidireccional)     │  │
-│  │ • TTL: permanente (se borra con PR, como cualquier      │  │
-│  │   código)                                               │  │
-│  │ • Quién escribe: Memory Agent (Fase 4) + humano         │  │
-│  │ • Quién lee: el agente y el humano como "constitución"  │  │
-│  │   del proyecto                                           │  │
-│  │ • Propósito: "¿por qué tomamos esta decisión?"          │  │
+│  │ • Contents: architecture decisions, RFCs, specs,       │  │
+│  │   lessons learned, patterns, conventions               │  │
+│  │ • Where: versioned .md in repo + DB metadata           │  │
+│  │   (FTS5 + bidirectional link)                          │  │
+│  │ • TTL: permanent (removed via PR like any code)        │  │
+│  │ • Writer: Memory Agent (Phase 4) + human              │  │
+│  │ • Reader: agent and human as project "constitution"    │  │
+│  │ • Purpose: "why did we decide this?"                   │  │
 │  └────────────────────────────────────────────────────────┘  │
 │                                                              │
 └──────────────────────────────────────────────────────────────┘
@@ -58,139 +56,144 @@ Si no hay un mecanismo de limpieza, después de 3 meses de desarrollo tienes:
 
 ---
 
-## 3. Flujo entre Niveles
+## 3. Flow between levels
 
 ```
-AGENTE TRABAJANDO
+AGENT WORKING
        │
        ▼
 ┌──────────────────┐
-│  mem_save()      │  ← El agente guarda automáticamente
-│  → Nivel 1 (DB)  │    (tool_use, discoveries, etc.)
+│  mem_save()      │  ← Agent saves automatically
+│  → Level 1 (DB)  │    (tool_use, discoveries, etc.)
 └──────┬───────────┘
        │
        ▼
 ┌──────────────────────────────────────────────────────┐
-│                  MEMORY AGENT (Fase 4)                 │
+│                  MEMORY AGENT (Phase 4)               │
 │                                                       │
-│  1. Toma observaciones del ciclo actual               │
-│  2. Decide cuáles merecen Nivel 2:                    │
-│     - ¿Es una decisión arquitectónica? → .md          │
-│     - ¿Es un patrón reusable? → .md                  │
-│     - ¿Es debugging transitorio? → queda en N1        │
-│     - ¿Es un error conocido con fix? → N1 + maybe N2 │
-│  3. Para las que suben a N2:                          │
-│     a. Genera .md estructurado en docs/decisions/     │
-│     b. Guarda metadatos en DB con link al .md         │
-│     c. Actualiza CLAUDE.md / AGENTS.md si aplica      │
+│  1. Take observations from the current cycle          │
+│  2. Decide which deserve Level 2:                     │
+│     - Architecture decision? → .md                    │
+│     - Reusable pattern? → .md                         │
+│     - Transient debugging? → stays L1                 │
+│     - Known error with fix? → L1 + maybe L2           │
+│  3. For promotions to L2:                             │
+│     a. Generate structured .md under docs/decisions/  │
+│     b. Store metadata in DB with link to .md          │
+│     c. Update CLAUDE.md / AGENTS.md when relevant     │
 │                                                       │
 └──────────────────────────────────────────────────────┘
        │
        ▼
 ┌──────────────────────────────────────────────────────┐
-│                  MEMORY JANITOR (background)           │
+│                  MEMORY JANITOR (background)          │
 │                                                       │
-│  Diario (cron determinístico, $0 de LLM):             │
-│  - Borra observaciones N1 con TTL vencido             │
+│  Daily (deterministic cron, $0 LLM):                   │
+│  - Delete L1 observations past TTL                    │
 │  - Soft-delete: SET deleted_at = NOW()                │
 │  - Log: "Pruned 42 observations"                      │
 │                                                       │
-│  Semanal (Haiku batch, barato):                       │
-│  - Escanea observaciones próximas a vencer             │
-│  - Pregunta: "¿alguna merece N2 antes de borrarse?"   │
-│  - Si sí: genera .md y actualiza la observación       │
-│  - Si no: deja que expire                             │
+│  Weekly (Haiku batch, cheap):                         │
+│  - Scan observations nearing expiry                   │
+│  - Ask: "any worth L2 before delete?"                 │
+│  - If yes: generate .md and update observation        │
+│  - If no: let expire                                  │
 │                                                       │
 └──────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 4. TTL por Tipo de Observación
+## 4. TTL by observation type
 
-| Tipo | TTL sugerido | Comportamiento |
-|------|-------------|----------------|
-| `tool_use` | 30 días | Expira automáticamente |
-| `file_change` | 30 días | Expira automáticamente |
-| `command` | 30 días | Expira automáticamente |
-| `bugfix` | 90 días | Expira (a menos que se promueva a N2) |
-| `pattern` | 90 días | Expira (a menos que se promueva a N2) |
-| `learning` | 60 días | Expira (a menos que se promueva a N2) |
-| `discovery` | 60 días | Expira (a menos que se promueva a N2) |
-| `decision` | Nunca | No expira (es N2 nativo) |
-| `architecture` | Nunca | No expira (es N2 nativo) |
-| `session_summary` | Nunca | No expira |
+| Type | Suggested TTL | Behavior |
+|------|---------------|----------|
+| `tool_use` | 30 days | Auto-expire |
+| `file_change` | 30 days | Auto-expire |
+| `command` | 30 days | Auto-expire |
+| `bugfix` | 90 days | Expires unless promoted to L2 |
+| `pattern` | 90 days | Expires unless promoted to L2 |
+| `learning` | 60 days | Expires unless promoted to L2 |
+| `discovery` | 60 days | Expires unless promoted to L2 |
+| `decision` | Never | Native L2 |
+| `architecture` | Never | Native L2 |
+| `session_summary` | Never | Never expires |
 
-**Reglas**:
-- Observaciones con `topic_key` NO expiran (son conocimiento estructurado deliberadamente)
-- Si una observación se promueve a Nivel 2, su TTL se renueva o se elimina
-- El TTL es configurable via `ENGRAM_TTL_{TYPE}` env vars
+**Rules**:
+
+- Observations with `topic_key` do not expire (deliberately structured knowledge)
+- When promoted to Level 2, TTL is renewed or the L1 row is removed
+- TTL is configurable via `ENGRAM_TTL_{TYPE}` environment variables
 
 ---
 
-## 5. Esquema de Promoción a Nivel 2
+## 5. Promotion schema to Level 2
 
-Cuando una observación sube a Nivel 2, se crea un archivo .md en el repo con estructura canónica:
+When an observation is promoted, a canonical `.md` file is created in the repo:
 
 ```
 docs/decisions/
-├── YYYY-MM-DD-short-title.md     ← Una decisión por archivo
-├── index.md                        ← Índice de todas las decisiones
+├── YYYY-MM-DD-short-title.md
+├── index.md
 └── templates/
-    └── decision.md                 ← Template para nuevas decisiones
+    └── decision.md
 ```
 
-### Ejemplo de .md de Nivel 2
+### Example Level 2 document
 
 ```markdown
-# ADR-001: Reemplazar sesiones con JWT
+# ADR-001: Replace sessions with JWT
 
-**Fecha**: 2026-05-13
-**Tipo**: Architecture Decision Record
-**Estado**: Aceptada
+**Date**: 2026-05-13
+**Type**: Architecture Decision Record
+**Status**: Accepted
 
-## Contexto
-Necesitábamos escalar la autenticación a múltiples instancias.
-Las sesiones en memoria no funcionaban con round-robin.
+## Context
+We needed to scale auth across multiple instances.
+In-memory sessions did not work with round-robin.
 
-## Decisión
-Usar JWT con refresh tokens. El token de acceso expira en 15 min,
-el refresh token en 7 días.
+## Decision
+Use JWT with refresh tokens. Access token 15 min,
+refresh token 7 days.
 
-## Consecuencias
-- +: Stateless, escala horizontalmente
-- +: No requiere Redis compartido
-- -: Revocación de tokens es más compleja
-- -: Payload de JWT no debe contener datos sensibles
+## Consequences
+- +: Stateless, horizontal scale
+- +: No shared Redis required
+- -: Token revocation is harder
+- -: JWT payload must not hold sensitive data
 
-## Referencias
-- Observación engram-dotnet: #42
-- spec.md relacionado: /specs/auth-service.md
+## References
+- engram-dotnet observation: #42
+- Related spec.md: /specs/auth-service.md
 ```
 
-### Link bidireccional
+### Bidirectional link
 
-La observación en la DB guarda:
+The DB observation stores:
+
 ```
-md_path: "docs/decisions/2026-05-13-reemplazar-sesiones-con-jwt.md"
+md_path: "docs/decisions/2026-05-13-replace-sessions-with-jwt.md"
 ```
-Y el .md guarda:
+
+The `.md` stores:
+
 ```
 observation_id: 42
 ```
 
-Esto permite:
-- Desde la DB: saber qué archivo .md corresponde
-- Desde el .md: saber qué observación engram lo generó
-- Buscar por FTS5 (DB) y encontrar el .md relacionado
+This enables:
+
+- From DB → find the `.md`
+- From `.md` → find the source observation
+- FTS5 in DB surfaces related structured docs
 
 ---
 
 ## 6. Memory Janitor
 
-**No es un agente. Es dos procesos background:**
+**Not an agent. Two background processes:**
 
-### 6.1 Pruning diario (determinístico, $0)
+### 6.1 Daily prune (deterministic, $0)
 
 ```bash
 #!/bin/bash
@@ -204,34 +207,34 @@ engram retention prune --type learning --older-than 60d --apply
 engram retention prune --type discovery --older-than 60d --apply
 ```
 
-### 6.2 Promoción semanal (Haiku batch, barato)
+### 6.2 Weekly promotion (Haiku batch, cheap)
 
 ```bash
 #!/bin/bash
 # Memory Janitor — weekly promotion scan
 engram retention scan --for-promotion
-# Escanea observaciones próximas a vencer (>75% TTL)
-# Para cada una, pregunta (via Haiku):
-#   "¿Es una decisión arquitectónica, patrón reusable o lección aprendida?"
-# Si sí: genera .md y actualiza observation.md_path
+# Scan observations past ~75% TTL
+# For each, ask (via Haiku):
+#   "Architecture decision, reusable pattern, or lesson learned?"
+# If yes: generate .md and set observation.md_path
 ```
 
 ---
 
-## 7. Integración con engram-dotnet
+## 7. engram-dotnet integration
 
-La estrategia de 2 niveles requiere cambios en engram-dotnet:
+The two-level strategy requires engram-dotnet features:
 
-| Feature | Estado | Prioridad |
-|---------|--------|-----------|
-| TTL configurable por tipo (env vars) | ✅ Proposal escrita, no implementada | Alta — Fase 1 |
-| `PruneOldObservationsAsync()` | ❌ No existe | Alta — Fase 1 |
-| `mem_retention_prune` (MCP tool) | ❌ No existe | Alta — Fase 1 |
-| `mem_retention_stats` (MCP tool) | ❌ No existe | Alta — Fase 1 |
-| Campo `md_path` en observation | ❌ No existe | Alta — Fase 2 |
-| `mem_promote_to_md` (MCP tool) | ❌ No existe | Alta — Fase 2 |
-| Template engine para .md | ❌ No existe | Media — Fase 2 |
-| `mem_verify_artifact` (MCP tool) | ❌ No existe | Alta — Fase 3 |
-| `mem_traceability` (MCP tool) | ❌ No existe | Alta — Fase 3 |
+| Feature | Status | Priority |
+|---------|--------|----------|
+| TTL per type (env vars) | ✅ Proposal written, not implemented | High — Phase 1 |
+| `PruneOldObservationsAsync()` | ❌ Missing | High — Phase 1 |
+| `mem_retention_prune` (MCP) | ❌ Missing | High — Phase 1 |
+| `mem_retention_stats` (MCP) | ❌ Missing | High — Phase 1 |
+| `md_path` on observation | ❌ Missing | High — Phase 2 |
+| `mem_promote_to_md` (MCP) | ❌ Missing | High — Phase 2 |
+| `.md` template engine | ❌ Missing | Medium — Phase 2 |
+| `mem_verify_artifact` (MCP) | ❌ Missing | High — Phase 3 |
+| `mem_traceability` (MCP) | ❌ Missing | High — Phase 3 |
 
-Ver [03-engram-dotnet-gaps.md](03-engram-dotnet-gaps.md) para el detalle técnico.
+See [03-engram-dotnet-gaps.md](03-engram-dotnet-gaps.md) for technical detail.

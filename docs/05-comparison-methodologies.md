@@ -193,12 +193,12 @@
 
 | Dimensión | Agentsway | TACO | MCP Agentic SDLC | Twelve-Factor | ADLC (Arthur) | THV Playbook | **EngramFlow** |
 |-----------|-----------|------|-----------------|---------------|---------------|--------------|----------------|
-| **Agentes** | 5 roles | 4 tipos (taxonomía) | 1 (colaboración H-AI) | No define | No define | 7 roles | **5 agentes** |
-| **Checkpoints humanos** | Human orchestration | Human-on-the-loop | Quality gates | The Great Filter (1) | No define | 7 gates | **3 checkpoints** |
-| **Fases** | Lifecycle continuo | N/A | 6 fases | 12 factores | 6 fases | 7 pasos secuenciales | **4 fases** |
-| **Artefactos** | No define | No define | Recipes (MVP/POC/Pro) | spec.md, plan.md | Evals, behavioral tests | User story, UI spec, blueprint | **spec.md, plan.md, rework_ticket.md** |
+| **Agentes** | 5 roles | 4 tipos (taxonomía) | 1 (colaboración H-AI) | No define | No define | 7 roles | **7 agentes** |
+| **Checkpoints humanos** | Human orchestration | Human-on-the-loop | Quality gates | The Great Filter (1) | No define | 7 gates | **5 (CKP-0→4)** |
+| **Fases** | Lifecycle continuo | N/A | 6 fases | 12 factores | 6 fases | 7 pasos secuenciales | **5 fases** |
+| **Artefactos** | No define | No define | Recipes (MVP/POC/Pro) | spec.md, plan.md | Evals, behavioral tests | User story, UI spec, blueprint | **spec.md, plan.md, verify-report.md, rework_ticket.md** |
 | **Memoria** | Fine-tuning LLMs | No define | No define | Context scaffolding | Eval suites | No define | **engram-dotnet (2 niveles)** |
-| **Orquestador** | Humano (central) | Orchestrator (AI) | Humano + AI | Dual loops | Flywheel (AI) | Humano (gate keeper) | **Opcional (config JSON)** |
+| **Orquestador** | Humano (central) | Orchestrator (AI) | Humano + AI | Dual loops | Flywheel (AI) | Humano (gate keeper) | **AI coordinator (IDE rules; no inline dev)** |
 | **Complejidad** | Alta | Media | Media | Baja | Alta | Alta | **Baja** |
 | **Target** | Enterprise | Enterprise | Cualquiera | Cualquiera | Enterprise | SMB + Enterprise | **SMB (2-20 personas)** |
 
@@ -241,7 +241,7 @@ THV Playbook
 
 | Decisión | Por qué |
 |----------|---------|
-| **3 checkpoints, no 7** | Basado en investigación de Agentic SDLC (Augment Code 2026): reducir de ~8 interrupciones humanas a 3 es el punto óptimo. Más = micro-management, menos = peligroso. |
+| **5 checkpoints (CKP-0→4), not 7** | CKP-0/3 are hard stops; CKP-1/2/4 are human gates. Fewer arbitrary gates than 7-step playbooks, but more precise than “3 checkpoints” legacy wording. |
 | **Model routing > especialización por agente** | La investigación de Jishu Labs (2026) y BCG muestra que el tiered approach (modelo diferente según tarea) da mejor relación costo/beneficio que tener agentes especializados |
 | **engram-dotnet > fine-tuning** | Fine-tuning (QLoRA) requiere GPUs, datasets curados, MLOps. RAG vectorial + FTS5 + .md da 90% del valor con una fracción del costo y la complejidad. |
 | **Orquestador opcional** | La evidencia de Twelve-Factor (Factor V) y THV muestra que artefactos versionados + automation determinística (Makefile, bash) reemplazan al orquestador AI para la mayoría de los casos. |

@@ -2,7 +2,7 @@
 
 > **Get started with FlowForge in about 5 minutes.**
 
-🇪🇸 Guía en español: [`README.es.md`](README.es.md)
+🇪🇸 Guía en español: [`QUICKSTART.es.md`](QUICKSTART.es.md) · [`README.es.md`](README.es.md)
 
 ---
 

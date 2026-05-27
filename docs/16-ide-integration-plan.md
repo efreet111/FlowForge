@@ -1,111 +1,117 @@
-# FlowForge para IDEs: Integración Cursor, Antigravity y VS Code
+# FlowForge for IDEs: Cursor, Antigravity, VS Code, and OpenCode
 
-> **Versión**: 1.0 — Análisis de Cursor Enterprise Agents + plan de integración
-> **Fecha**: 2026-05-25
-> **Estado**: IDE files creados en `ide/`
+> **Version**: 1.1 — Cursor Enterprise Agents analysis + integration plan
+> **Date**: 2026-05-27
+> **Status**: IDE assets live under `ide/`; parity doc in `ide/shared/`
 
 ---
 
-## PARTE 1: ¿Qué aprendimos de Cursor Enterprise Agents?
+## Part 1: What we learned from Cursor Enterprise Agents
 
-Revisamos el proyecto `cursor-enterprise-agents_ver 0.0.5` y encontramos patrones directamente aplicables a FlowForge:
+We reviewed `cursor-enterprise-agents` v0.0.5 and mapped patterns directly to FlowForge:
 
-### Lo que ya tenemos (coincidencias)
+### What we already have (matches)
 
-| FlowForge | Cursor EA | Estado |
+| FlowForge | Cursor EA | Status |
 |-----------|-----------|--------|
-| `forge-orchestrator` (tabla CKP, delegación) | `workflow.mdc` (orquestador + comandos) | ✅ Paralelo directo |
-| `forge-discovery` + `forge-arch` | `spec-writer` + `project-explorer` | ✅ Conceptualmente igual |
-| `forge-plan` (patterns, security, rollback) | `solution-architect` (propuestas) | ✅ FlowForge es más completo |
-| `forge-dev` (6 skills) | `dev-agent` (1 skill monolítica) | ✅ FlowForge es más granular |
-| `forge-verify` (5 skills) | `verifier-agent` (1 skill) | ✅ FlowForge audita más dimensiones |
-| `forge-memory` (4 skills) | `hu-closer` (documental) | ✅ FlowForge persiste + métricas |
-| `forge-teacher` | `user-liaison` (`/explain-more`) | ✅ Ambos son toggleable |
-| `.flowforge.json` (planeado) | `model-assignments.mdc` | 📝 Por implementar |
-| `docs/14` (casos de prueba) | `GUIA-USO.md` + `BEST-PRACTICES.md` | ✅ Ambos documentados |
+| `forge-orchestrator` (CKP table, delegation) | `workflow.mdc` (orchestrator + commands) | ✅ Direct parallel |
+| `forge-discovery` + `forge-arch` | `spec-writer` + `project-explorer` | ✅ Same idea |
+| `forge-plan` (patterns, security, rollback) | `solution-architect` | ✅ FlowForge is richer |
+| `forge-dev` (6 skills) | `dev-agent` (monolithic skill) | ✅ More granular |
+| `forge-verify` (5 skills) | `verifier-agent` | ✅ More audit dimensions |
+| `forge-memory` (4 skills) | `hu-closer` | ✅ Persist + metrics |
+| `forge-teacher` | `user-liaison` (`/explain-more`) | ✅ Toggleable |
+| Model table | `model-assignments.mdc` | ✅ In `ide/cursor/rules/` |
+| `docs/14` (test cases) | `GUIA-USO.md` + `BEST-PRACTICES.md` | ✅ Documented |
 
-### Lo que NO tenemos (gaps detectados en Cursor EA)
+### Gaps we closed in v0.4
 
-| Gap | Cursor EA lo tiene como | Prioridad |
-|-----|------------------------|-----------|
-| Git safety rule (no push sin pedir) | `git-sin-push.mdc` | 🔴 Crítico |
-| Skills con referencias por stack | `verifier-security-gaps/references/stack-*.md` | 🟡 Importante |
-| Auto-bootstrap de reglas | Sección en `workflow.mdc` | 🟡 Importante |
-| Instalación IDE (copiar archivos) | `INSTALACION.md` + `install_workspace.ps1` | 🟡 Importante |
-| Checkpoint de "danger zones" | `human-in-the-loop-checkpoints.md` §2 | 🟢 Mejora |
-| Intenciones en lenguaje natural | Tabla de "señales" en workflow | 🟢 Mejora |
+| Gap | FlowForge solution | Status |
+|-----|-------------------|--------|
+| Git safety (no push unless asked) | `git-sin-push.mdc` / parity doc | ✅ |
+| IDE install automation | `ide/install.ps1`, `ide/install.sh` | ✅ |
+| Orchestrator parity across IDEs | `ide/shared/workflow-orchestrator-parity.md` | ✅ |
+| `/flow-plan`, `/flow-rework` commands | Cursor + Antigravity workflows | ✅ |
+| OpenCode bundle | `opencode.flowforge.json` + `~/.config/opencode/flowforge/` | ✅ |
+
+### Remaining improvements
+
+| Gap | Cursor EA pattern | Priority |
+|-----|-------------------|----------|
+| Stack-specific skill references | `verifier-security-gaps/references/stack-*.md` | 🟡 Important |
+| Auto-bootstrap of rules | Section in `workflow.mdc` | 🟡 Important |
+| Danger-zone checkpoint doc | `human-in-the-loop-checkpoints.md` §2 | 🟢 Nice to have |
+| Natural-language intent signals | Signal table in workflow | 🟢 Nice to have |
 
 ---
 
-## PARTE 2: Modelo de Integración con IDEs
+## Part 2: IDE integration model
 
-### Principio: FlowForge es IDE-agnóstico
+### Principle: FlowForge is IDE-agnostic
 
-Las skills son archivos Markdown. Cada IDE tiene su propio formato de reglas y agentes. Nuestra tarea es **traducir** las skills al formato de cada IDE, no reescribirlas.
+Skills are Markdown files. Each IDE has its own rules and agent format. We **translate** skills into each IDE — we do not fork the methodology per IDE.
 
 ```
-skills/ (fuente canónica — 31 archivos SKILL.md)
+skills/ (canonical — 31 SKILL.md files)
   │
-  ├──→ ide/cursor/     ← Traducción a formato Cursor (.mdc + agents/*.md)
-  ├──→ ide/antigravity/← Traducción a formato Antigravity (.agents/rules/ + workflows/)
-  └──→ ide/vscode/     ← Traducción a formato VS Code/Copilot (.vscode/)
+  ├──→ ide/cursor/      ← .mdc rules + agents/*.md + commands/flow-*.md
+  ├──→ ide/antigravity/ ← .agents/rules/ + workflows/
+  ├──→ ide/vscode/      ← copilot-instructions.md + .github/agents/
+  └──→ ide/opencode/    ← opencode.flowforge.json + bundle paths
 ```
 
-### Formato por IDE
+Canonical orchestrator behavior: [`ide/shared/workflow-orchestrator-parity.md`](../ide/shared/workflow-orchestrator-parity.md).
 
-| IDE | Rules | Agents | Workflows | Instalación |
-|-----|-------|--------|-----------|-------------|
-| **Cursor** | `.cursor/rules/*.mdc` (frontmatter `alwaysApply: true`) | `.cursor/agents/*.md` | Slash commands via rules | Copiar a `%USERPROFILE%\.cursor\` |
-| **Antigravity** | `.agents/rules/*.md` | `.agents/skills/*/SKILL.md` | `.agents/workflows/*.md` | Copiar al workspace del repo |
-| **VS Code / Copilot** | `.vscode/copilot-instructions.md` | N/A (instrucciones inline) | N/A (prompts en chat) | Copiar al repo o config |
+### Format per IDE
 
-### Qué archivos creamos para cada IDE
+| IDE | Rules | Agents | Workflows / commands | Install |
+|-----|-------|--------|----------------------|---------|
+| **Cursor** | `.cursor/rules/*.mdc` | `.cursor/agents/*.md` | `ide/cursor/commands/flow-*.md` | `ide/install.ps1` / `install.sh` |
+| **Antigravity** | `.agents/rules/*.md` | skills under `.agents/skills/` | `.agents/workflows/flow-*.md` | install script → project |
+| **VS Code / Copilot** | `.github/copilot-instructions.md` or `.vscode/` | `.github/agents/*.md` | Chat + agent files | copy or install script |
+| **OpenCode** | bundle `flowforge/rules/` | bundle `flowforge/agents/` | config JSON `{file:...}` | install script → `~/.config/opencode/flowforge/` |
+
+### Files per IDE (current layout)
 
 **Cursor** (`ide/cursor/`):
+
 ```
 ide/cursor/
 ├── rules/
-│   ├── workflow.mdc           ← forge-orchestrator compilado (checkpoints + delegación)
-│   ├── model-assignments.mdc  ← Tabla agente→modelo (adaptable por proyecto)
-│   └── git-sin-push.mdc       ← "Never push without explicit request"
-└── agents/
-    ├── forge-discovery.md     ← Instrucciones del discovery agent
-    ├── forge-arch.md          ← Instrucciones del arch agent
-    ├── forge-plan.md          ← Instrucciones del plan agent
-    ├── forge-dev.md           ← Instrucciones del dev agent
-    ├── forge-verify.md        ← Instrucciones del verify agent
-    └── forge-memory.md        ← Instrucciones del memory agent
+│   ├── workflow.mdc
+│   ├── model-assignments.mdc
+│   └── git-sin-push.mdc
+├── agents/
+│   └── forge-*.md
+├── commands/
+│   └── flow-start.md, flow-plan.md, flow-dev.md, flow-verify.md, flow-rework.md, flow-close.md, ...
+└── compile-agents-from-skills.py
 ```
 
 **Antigravity** (`ide/antigravity/`):
+
 ```
 ide/antigravity/
 ├── rules/
-│   ├── workflow.md            ← forge-orchestrator para Antigravity
-│   ├── model-assignments.md   ← Tabla de modelos
-│   ├── project-context.md     ← Plantilla de contexto del proyecto
-│   └── git-sin-push.md        ← No push sin pedir
-├── workflows/
-│   ├── flow-start.md          ← Gatillo /flow-start (≡ /hu-start)
-│   ├── flow-dev.md            ← Gatillo /flow-dev
-│   ├── flow-verify.md         ← Gatillo /flow-verify
-│   └── flow-close.md          ← Gatillo /flow-close
-└── AGENTS.md                  ← Índice de agentes (raíz del repo)
+├── workflows/   ← flow-start, flow-plan, flow-dev, flow-verify, flow-rework, flow-close
+└── AGENTS.md
 ```
 
 **VS Code** (`ide/vscode/`):
+
 ```
 ide/vscode/
-└── copilot-instructions.md    ← Instrucciones compiladas para GitHub Copilot
+├── copilot-instructions.md
+└── (see also .github/agents/ templates in docs)
 ```
 
 ---
 
-## PARTE 3: Arquitectura de los Archivos IDE
+## Part 3: IDE file architecture
 
 ### 3.1 Cursor: `workflow.mdc`
 
-El archivo `workflow.mdc` es el más importante. Compila la esencia de `forge-orchestrator` en formato Cursor:
+The most important file. Compiles `forge-orchestrator` for Cursor:
 
 ```markdown
 ---
@@ -115,114 +121,116 @@ description: FlowForge Workflow Orchestrator (CKP-0 → CKP-4)
 
 # FlowForge — Workflow Orchestrator
 
-You are the FlowForge orchestrator. Your job is to COORDINATE, not to implement.
+You COORDINATE; you do NOT implement product code in src/ or tests.
 
-## Checkpoints (the traffic light)
+## Checkpoints (traffic light)
 
 | ID | Color | Meaning |
 |----|-------|---------|
-| CKP-0 | 🔴 HARD STOP | Vague requirement → STOP. Ask what they really need. |
+| CKP-0 | 🔴 HARD STOP | Vague requirement → STOP |
 | CKP-1 | 🟡 YELLOW | spec.md ready → "Approve or adjust?" |
 | CKP-2 | 🟡 YELLOW | plan.md ready → "Green light to code?" |
-| CKP-3 | 🔴 EMERGENCY | 3 rework cycles → ESCALATE to human |
+| CKP-3 | 🔴 EMERGENCY | 3 rework cycles → ESCALATE |
 | CKP-4 | 🟢 DEPLOY GATE | Feature done → "Deploy?" |
 
-## Delegation Rules
+## Delegation
 
-Always delegate complex work to sub-agents:
-
-| Phase | Sub-agent | When |
-|-------|-----------|------|
-| Discovery | `@forge-discovery` | New feature request |
-| Spec | `@forge-arch` | Write spec.md |
-| Plan | `@forge-plan` | Write plan.md |
-| Code | `@forge-dev` | Implement plan |
-| Verify | `@forge-verify` | Audit code |
-| Memory | `@forge-memory` | Close session |
-
-## Commands
-
-| Command | What triggers it |
-|---------|-----------------|
-| `/flow-start <name>` | Start new feature → discovery + spec |
-| `/flow-dev` | Implement active feature |
-| `/flow-verify` | Verify implementation |
-| `/flow-close` | Close feature + persist memory |
+| Phase | Sub-agent |
+|-------|-----------|
+| Discovery | forge-discovery |
+| Spec | forge-arch |
+| Plan | forge-plan |
+| Code | forge-dev |
+| Verify | forge-verify |
+| Memory | forge-memory |
 ```
 
-### 3.2 Mapeo de Skills a Archivos IDE
+### 3.2 Mapping skills to IDE files
 
-No copiamos las 31 skills completas a cada IDE — sería demasiado contexto. En su lugar:
+We do not copy all 31 skills into every IDE (too much context):
 
-1. **workflow.mdc** tiene las reglas de orquestación + delegación
-2. **agents/*.md** tienen las instrucciones esenciales de cada rol
-3. **skills/*.md** se cargan on-demand cuando el contexto lo requiere
+1. **workflow** — orchestration + delegation + git safety
+2. **agents/*.md** — essential role instructions (compiled from skills when possible)
+3. **skills/** — loaded on demand via `AGENTS.md` index
 
-### 3.3 Skill de Referencias por Stack (NUEVO)
+Recompile Cursor agents after skill changes:
 
-El Cursor EA tiene `skills/verifier-security-gaps/references/stack-*.md` — referencias específicas por lenguaje. FlowForge debería adoptar este patrón. En lugar de tener una skill monolítica que intenta cubrir todos los lenguajes, cada skill debería tener:
+```bash
+python ide/cursor/compile-agents-from-skills.py
+```
+
+### 3.3 Stack reference pattern (planned)
 
 ```
 skills/forge-dev/security/
-├── SKILL.md                  ← Instrucciones generales (lenguaje-agnóstico)
+├── SKILL.md
 └── references/
-    ├── stack-dotnet.md       ← Patrones OWASP específicos para .NET
-    ├── stack-python.md       ← Patrones OWASP específicos para Python
-    ├── stack-javascript.md   ← Patrones OWASP específicos para JS/TS
-    └── stack-sql.md          ← Patrones de sanitización SQL
+    ├── stack-dotnet.md
+    ├── stack-python.md
+    ├── stack-javascript.md
+    └── stack-sql.md
 ```
 
-Esto se documenta en [referencias-stack.md](referencias-stack.md) pero la implementación queda para una próxima iteración.
+Documented in [referencias-stack.md](referencias-stack.md); implementation is a follow-up iteration.
 
 ---
 
-## PARTE 4: Instalación y Uso
+## Part 4: Installation and usage
 
-### Cursor
+Prefer the installers (global profile + optional project copy):
+
+```powershell
+# Windows — global Cursor profile
+.\ide\install.ps1
+
+# Project-only overlay
+.\ide\install.ps1 -ProjectPath E:\path\to\your-repo
+```
 
 ```bash
-# Desde el repo FlowForge, copiar a perfil Cursor:
+# Linux/macOS
+bash ide/install.sh
+bash ide/install.sh /path/to/your-repo
+```
+
+Manual copy (if needed):
+
+```bash
 cp ide/cursor/rules/*.mdc ~/.cursor/rules/
 cp ide/cursor/agents/*.md  ~/.cursor/agents/
 ```
 
-### Antigravity
-
-```bash
-# En el repo del proyecto:
-mkdir -p .agents/rules .agents/workflows .agents/skills
-cp ide/antigravity/rules/*.md .agents/rules/
-cp ide/antigravity/workflows/*.md .agents/workflows/
-cp ide/antigravity/AGENTS.md .
-```
-
-### VS Code
-
-```bash
-mkdir -p .vscode
-cp ide/vscode/copilot-instructions.md .vscode/
-```
+See [`ide/README.md`](../ide/README.md) for Antigravity, VS Code, and OpenCode.
 
 ---
 
-## PARTE 5: Próximos Pasos
+## Part 5: Next steps
 
-### Inmediato (esta sesión)
-- [ ] Crear archivos IDE en `ide/cursor/`, `ide/antigravity/`, `ide/vscode/`
-- [ ] Agregar `git-sin-push` rule a skills/forge-orchestrator
+### Done (v0.4)
 
-### Corto plazo (próxima sesión)
-- [ ] Probar flujo con proyecto real (Task Manager API)
-- [ ] Implementar Generador de Reglas para compilar skills automáticamente
+- [x] IDE folders: `ide/cursor/`, `ide/antigravity/`, `ide/vscode/`, OpenCode bundle
+- [x] `git-sin-push` rule
+- [x] `install.ps1` / `install.sh`
+- [x] Shared parity doc + rework intake
+- [x] Seven `flow-*` commands (including `/flow-plan`, `/flow-rework`)
 
-### Mediano plazo
-- [ ] Agregar `references/` stack-specific a skills de seguridad
-- [ ] Crear script `install.sh` / `install.ps1` para automatizar instalación IDE
+### Short term
+
+- [ ] End-to-end smoke on a real project (task manager or greenfield)
+- [ ] English pass on `ide/README.md` and parity doc
+- [ ] Translate remaining `skills/*/SKILL.md` → recompile agents
+
+### Medium term
+
+- [ ] `references/` stack files under security skills
+- [ ] Optional rule generator from skills only (no hand-edited drift)
 
 ---
 
-## Referencias
+## References
 
-- [Cursor Enterprise Agents v0.0.5](file:///home/gantz/Documentos/proyectos/cursor-enterprise-agents_ver%200.0.5/)
-- [FlowForge Complete Reference](14-flowforge-complete-reference.md)
-- [FlowForge Technical Spec](15-agent-skills-technical-spec.md)
+- [14-flowforge-complete-reference.md](14-flowforge-complete-reference.md)
+- [15-agent-skills-technical-spec.md](15-agent-skills-technical-spec.md)
+- [18-replicable-demo-definition.md](18-replicable-demo-definition.md)
+- [ide/README.md](../ide/README.md)
+- [ide/shared/workflow-orchestrator-parity.md](../ide/shared/workflow-orchestrator-parity.md)

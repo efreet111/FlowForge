@@ -1,172 +1,165 @@
-# FlowForge — Referencia Completa y Casos de Prueba
+# FlowForge — Complete Reference and Test Cases
 
-> **Versión**: 1.0 (post-OLA 1-4)
-> **Skills totales**: 30 (7 core + 23 especializadas)
-> **Checkpoints**: 5 (CKP-0 a CKP-4)
-> **Agentes**: 7 roles
-> **Artefactos**: spec.md → plan.md → rework_ticket.md → deploy
+> **Version**: 1.1 (post-OLA 1–4, parity v0.4)
+> **Skills**: 31 total (7 core + 23 specialized + 1 teacher)
+> **Checkpoints**: 5 (CKP-0 → CKP-4)
+> **Agents**: 7 roles
+> **Artifacts**: `spec.md` → `plan.md` → code/tests → `verify-report.md` → `summary.md`
+
+🇪🇸 Spanish overview: [`README.es.md`](../README.es.md)
 
 ---
 
-## PARTE 1: ARQUITECTURA DEL FLUJO
+## PART 1: Flow architecture
 
-### 🔴🟡🟢 Sistema de Checkpoints
+### Checkpoint system
 
-| CKP | Fase | Color | Tipo | Qué pasa | Quién decide |
-|-----|------|-------|------|----------|-------------|
-| **CKP-0** | Discovery | 🔴 HARD STOP | Binario, inapelable | Requerimiento vago → PARAR y pedir clarificación | El agente (no avanza si no hay claridad) |
-| **CKP-1** | Arch (spec.md) | 🟡 SEMÁFORO AMARILLO | Flexible | spec.md listo → "¿Aprobás o querés ajustar?" | El humano |
-| **CKP-2** | Plan (plan.md) | 🟡 SEMÁFORO AMARILLO | Flexible | plan.md listo → "¿Luz verde para codificar?" | El humano |
-| **CKP-3** | Verify (Inner Loop) | 🔴 FRENO EMERGENCIA | Mecánico (3 ciclos) | 3 reworks fallidos → ESCALAR al humano | Nadie — es mecánico |
-| **CKP-4** | Memory (Cierre) | 🟢 DEPLOY GATE | Flexible | Feature completa → "¿Deployeamos?" | El humano |
+| CKP | Phase | Color | Type | What happens | Who decides |
+|-----|-------|-------|------|--------------|-------------|
+| **CKP-0** | Discovery | 🔴 HARD STOP | Binary | Vague requirement → stop and clarify | Agent (no advance without clarity) |
+| **CKP-1** | Arch (`spec.md`) | 🟡 YELLOW | Flexible | spec ready → “Approve or adjust?” | Human |
+| **CKP-2** | Plan (`plan.md`) | 🟡 YELLOW | Flexible | plan ready → “Green light to code?” | Human |
+| **CKP-3** | Verify (inner loop) | 🔴 EMERGENCY | Mechanical (3 cycles) | 3 failed reworks → escalate | Mechanical |
+| **CKP-4** | Memory (close) | 🟢 DEPLOY | Flexible | Feature complete → “Deploy?” | Human |
 
-### 🔄 Las 5 Fases
+### Five phases
 
 ```
-FASE 0 ─── DISCOVERY ───── CKP-0 🔴
-  Agente:  forge-discovery
+PHASE 0 — DISCOVERY ——— CKP-0 🔴
+  Agent:   forge-discovery
   Skills:  core | security | compliance | cost
-  Output:  Context Map (asociaciones de memoria)
+  Output:  context-map.md
 
-FASE 1 ─── INTENCIÓN ───── CKP-1 🟡
-  Agente:  forge-arch
+PHASE 1 — INTENT ————— CKP-1 🟡
+  Agent:   forge-arch
   Skills:  core | security | performance | a11y | domain
-  Output:  spec.md + Capability Matrix
+  Output:  spec.md + Capability Matrix + PM-*
 
-FASE 2 ─── ARQUITECTURA ── CKP-2 🟡
-  Agente:  forge-plan
+PHASE 2 — PLAN ——————— CKP-2 🟡
+  Agent:   forge-plan
   Skills:  core | security | patterns | migrations | rollback
-  Output:  plan.md
+  Output:  plan.md (ordered checklist)
 
-FASE 3 ─── EJECUCIÓN ───── Inner Loop (CKP-3 🔴 si falla)
-  Agentes: forge-dev ↔ forge-verify (loop)
-  Skills DEV:  core | security | solid | testing | performance | refactor
-  Skills VERIFY: core | security | complexity | performance | a11y
-  Output:  Código + tests + PASS o rework_ticket.md
+PHASE 3 — EXECUTION ——— Inner loop (CKP-3 🔴 on failure)
+  Agents:  forge-dev ↔ forge-verify
+  Output:  code + tests + PASS or rework_ticket.md
 
-FASE 4 ─── CIERRE ──────── CKP-4 🟢
-  Agente:  forge-memory
+PHASE 4 — CLOSE ——————— CKP-4 🟢
+  Agent:   forge-memory
   Skills:  core | metrics | changelog | knowledge
-  Output:  Session summary + ADRs + memoria persistida
+  Output:  summary.md (if PM-* complete)
 ```
 
-### 📜 Protocolo de Artefactos
+### Artifact protocol
 
 ```
-[Context Map] ──→ [spec.md + Capability Matrix] ──→ [plan.md] ──→ [código + tests] ──→ [deploy]
-      ↑                    ↑                            ↑                ↑
-  discovery              arch                         plan            dev ↔ verify
-  (Fase 0)              (Fase 1)                     (Fase 2)         (Fase 3)
+[context-map] → [spec.md] → [plan.md] → [code + tests] → [deploy decision]
+     ↑               ↑            ↑              ↑
+  discovery        arch          plan      dev ↔ verify
 
-Si verify falla:
-  [rework_ticket.md] ──→ dev corrige ──→ verify re-audita (máx 3 ciclos)
+On verify failure:
+  rework_ticket.md → dev fixes → verify re-audits (max 3 cycles)
 ```
 
----
+**Paths:** `.ai-work/{feature-slug}/` (kebab-case). Use `verify-report.md`, not `cert-report.md`.
 
-## PARTE 2: CATÁLOGO COMPLETO DE AGENTES Y SKILLS
+### Commands (IDE conventions)
 
-### 🎯 forge-orchestrator (El Semáforo)
-**Skills**: 1 core
-**Fase**: Transversal (todas)
-**Rol**: Director de estado — no escribe código, no diseña specs, no verifica. Solo delega y aplica checkpoints.
-**Para qué se carga**: Siempre — es el entry point del flujo.
-
----
-
-### 🔍 forge-discovery (Fase 0)
-**Skills**: 4 (1 core + 3 especializadas)
-
-| Skill | Trigger | Qué hace |
-|-------|---------|----------|
-| **core** | Siempre | Busca memorias pasadas, extrae keywords, mapea épicas |
-| **security** | Feature toca auth/datos/APIs | Busca CVEs pasados, evalúa riesgos de dependencias |
-| **compliance** | Feature toca datos personales | Identifica GDPR/SOC2/HIPAA/PCI-DSS aplicables |
-| **cost** | Feature nueva con impacto infraestructura | Estima costos de compute, storage, bandwidth, APIs |
-
-**Output**: Context Map (prefacio obligatorio para Fase 1)
+| Command | Phase |
+|---------|--------|
+| `/flow-start <feature>` | Discovery → Spec |
+| `/flow-plan` | Plan |
+| `/flow-dev` | Implementation |
+| `/flow-verify` | Audit |
+| `/flow-rework` | Bug → ticket → dev |
+| `/flow-close` | Memory + CKP-4 |
+| `/flow-status` | Read `.ai-work/` only |
 
 ---
 
-### 🏗️ forge-arch (Fase 1)
-**Skills**: 5 (1 core + 4 especializadas)
+## PART 2: Agents and skills catalog
 
-| Skill | Trigger | Qué hace |
-|-------|---------|----------|
-| **core** | Siempre | Escribe spec.md con RF/RNF en formato Given-When-Then |
-| **security** | Feature toca auth/datos/APIs | STRIDE threat modeling + RNF de seguridad obligatorios |
-| **performance** | Feature crítica o de cara al usuario | SLAs/SLOs medibles, identificación de hot paths |
-| **a11y** | Feature con UI | WCAG 2.1 AA requirements por tipo de componente |
-| **domain** | Múltiples bounded contexts | DDD: contextos, lenguaje ubicuo, aggregates, eventos |
+### forge-orchestrator (traffic light)
 
-**Output**: spec.md + Capability Matrix (ai_reasoning vs deterministic)
+- **Skills**: 1 core
+- **Phase**: All (coordinates only)
+- **Does not**: write spec, plan, product code, or verify reports inline
 
----
+### forge-discovery (phase 0)
 
-### 📐 forge-plan (Fase 2)
-**Skills**: 5 (1 core + 4 especializadas)
+| Skill | Trigger | Role |
+|-------|---------|------|
+| core | Always | Past memories, keywords, epic mapping |
+| security | Auth/data/APIs | CVEs, dependency risk |
+| compliance | Personal data | GDPR/SOC2/HIPAA/PCI-DSS |
+| cost | New infra impact | Cost estimate |
 
-| Skill | Trigger | Qué hace |
-|-------|---------|----------|
-| **core** | Siempre | Descompone spec.md en tareas atómicas con orden topológico |
-| **security** | Siempre que haya input de usuario | OWASP ASVS checklist, secure-by-design patterns |
-| **patterns** | Decisiones estructurales | Catálogo GoF + enterprise + cloud-native, árbol de decisión |
-| **migrations** | Schemas de DB nuevos/modificados | Estrategias zero-downtime (additive/modifying/destructive) |
-| **rollback** | Features que modifican contratos | Blue-green/canary/feature flags, plan de rollback |
+**Output:** `context-map.md`
 
-**Output**: plan.md con checklist de implementación
+### forge-arch (phase 1)
 
----
+| Skill | Trigger | Role |
+|-------|---------|------|
+| core | Always | `spec.md`, RF/RNF, Given-When-Then, PM-* |
+| security | Auth/data/APIs | STRIDE, security RNFs |
+| performance | Critical paths | SLAs/SLOs |
+| a11y | UI | WCAG 2.1 AA |
+| domain | Multiple contexts | DDD boundaries |
 
-### 💻 forge-dev (Fase 3a)
-**Skills**: 6 (1 core + 5 especializadas)
+**Output:** `spec.md` + Capability Matrix
 
-| Skill | Trigger | Qué hace |
-|-------|---------|----------|
-| **core** | Siempre | Codifica + Ralph Wiggum Loop (test → fail → fix) |
-| **security** | Código con input/DB/auth | OWASP Top 10 prevention + 7 red flags auto-fail |
-| **solid** | Todo código de producción | Self-audit SOLID (5/5 scoring), anti-patrones por principio |
-| **testing** | Lógica de negocio compleja | Property-based testing, fuzzing (14 inputs), mutation testing |
-| **performance** | Código con DB o APIs | N+1 detection (3 lenguajes), caching (5 estrategias) |
-| **refactor** | Code smells detectados en loop | Catálogo Fowler (7 transformaciones), 10 smells |
+### forge-plan (phase 2)
 
-**Output**: Código + tests unitarios (con trazabilidad RF-XXX)
+| Skill | Trigger | Role |
+|-------|---------|------|
+| core | Always | Topological task breakdown |
+| security | User input | OWASP ASVS, secure-by-design |
+| patterns | Structure | GoF / enterprise patterns |
+| migrations | DB schema | Zero-downtime strategies |
+| rollback | Contract changes | Rollback plan |
 
----
+**Output:** `plan.md`
 
-### ⚖️ forge-verify (Fase 3b)
-**Skills**: 5 (1 core + 4 especializadas)
+### forge-dev (phase 3a)
 
-| Skill | Trigger | Qué hace |
-|-------|---------|----------|
-| **core** | Siempre | Verifica spec compliance, ejecuta tests, emite PASS/rework |
-| **security** | Siempre | SAST mental, OWASP Top 10 verification, dependency audit |
-| **complexity** | Código con lógica condicional | MCC, nesting depth, cognitive load, 8 smells |
-| **performance** | RNF de performance en spec | N+1 query audit, memory leaks, Big-O, benchmarks |
-| **a11y** | Feature con UI | WCAG AA audit (6 áreas), auto-fail triggers |
+| Skill | Trigger | Role |
+|-------|---------|------|
+| core | Always | Code + Ralph Wiggum loop; marks plan checklist `[x]` |
+| security | Input/DB/auth | OWASP prevention |
+| solid | Production code | SOLID self-audit |
+| testing | Complex logic | Property-based / fuzzing |
+| performance | DB/APIs | N+1, caching |
+| refactor | Smells in loop | Fowler transforms |
 
-**Output**: PASS + manual test steps, o rework_ticket.md
+**Output:** code + tests (`[RF-XXX]` traceability)
 
----
+### forge-verify (phase 3b)
 
-### 🧠 forge-memory (Fase 4)
-**Skills**: 4 (1 core + 3 especializadas)
+| Skill | Trigger | Role |
+|-------|---------|------|
+| core | Always | Spec compliance, tests, PASS/rework |
+| security | Always | SAST-style review, OWASP |
+| complexity | Dense logic | MCC, nesting, cognitive load |
+| performance | Perf RNFs | N+1, memory, Big-O |
+| a11y | UI | WCAG audit |
 
-| Skill | Trigger | Qué hace |
-|-------|---------|----------|
-| **core** | Siempre | Sintetiza aprendizajes, persiste engramas, promueve ADRs |
-| **metrics** | Cierre de feature | Trackea coverage, cycle time, tech debt, tendencias |
-| **changelog** | Pre-release | Changelog automático desde commits, release notes |
-| **knowledge** | Multi-repo | Knowledge graph cross-project, ADR cross-referencing |
+**Output:** `verify-report.md` or `rework_ticket.md` (does not grade PM-*)
 
-**Output**: Session summary, ADRs, changelog, memoria persistida
+### forge-memory (phase 4)
 
----
+| Skill | Trigger | Role |
+|-------|---------|------|
+| core | Always | Synthesis, engrams, ADRs |
+| metrics | Feature close | Coverage, cycle time |
+| changelog | Pre-release | Release notes |
+| knowledge | Multi-repo | Cross-project links |
 
-### 📊 Resumen de Skills por Rol
+**Output:** `summary.md` (blocked if PM-* pending)
 
-| Rol | Core | OLA 1 | OLA 2 | OLA 3 | OLA 4 | Total |
-|-----|------|-------|-------|-------|-------|-------|
+### Skills summary by role
+
+| Role | Core | OLA 1 | OLA 2 | OLA 3 | OLA 4 | Total |
+|------|------|-------|-------|-------|-------|-------|
 | Orchestrator | 1 | — | — | — | — | **1** |
 | Discovery | 1 | — | — | 2 | 1 | **4** |
 | Arch | 1 | 1 | — | 3 | — | **5** |
@@ -174,216 +167,125 @@ Si verify falla:
 | Dev | 1 | 2 | 2 | 1 | — | **6** |
 | Verify | 1 | 1 | 2 | — | 1 | **5** |
 | Memory | 1 | — | — | — | 3 | **4** |
-| **TOTAL** | **7** | **5** | **5** | **8** | **5** | **30** |
+| **TOTAL** | **7** | **5** | **5** | **8** | **5** | **31** |
 
 ---
 
-## PARTE 3: CASOS DE PRUEBA PRÁCTICOS
+## PART 3: Hands-on test cases
 
-### 🎯 Proyecto de Prueba Sugerido
+### Suggested test project
 
-Para testear el flujo completo, propongo un **proyecto real pero acotado** que toque todos los skills:
+**Task Manager API** — REST CRUD for tasks.  
+**Minimal stack for first run:** Node.js + TypeScript + SQLite (see [`docs/18-replicable-demo-definition.md`](18-replicable-demo-definition.md)).  
+**Team:** one person playing all human gates.
 
-**Proyecto**: *"Task Manager API"* — una API REST para gestión de tareas
-**Stack**: Node.js/TypeScript + PostgreSQL + Redis
-**Equipo**: 1 persona (vos) simulando todos los checkpoints humanos
+### Case 1: Simple feature — “Task CRUD”
 
----
+| Phase | Expected | Skills |
+|-------|----------|--------|
+| Discovery | Prior art / context map | discovery/core |
+| CKP-0 | Clear requirement → proceed | — |
+| Arch | RF-001… + GWT + PM-* | arch/core |
+| CKP-1 | Human approves spec | — |
+| Plan | Ordered checklist | plan/core |
+| CKP-2 | Human green-lights | — |
+| Dev | Code + tests; marks plan | dev/core, dev/solid |
+| Verify | PASS | verify/core |
+| Memory | summary if PM-* done | memory/core |
 
-### Caso 1: Feature Simple — "CRUD de Tareas"
+**Success:** fewer than 3 rework cycles, plan checklist marked, tests green.
 
-**Objetivo**: Validar el flujo base (sin skills especializadas)
+### Case 2: Security — “JWT authentication”
 
-| Fase | Qué debería pasar | Skills que se activan |
-|------|------------------|----------------------|
-| Discovery | Buscar épicas previas de tareas/todos | discovery/core |
-| CKP-0 | Contexto suficiente → avanzar | — |
-| Arch | spec.md con RF-001 a RF-005 + escenarios GWT | arch/core |
-| CKP-1 | Humano aprueba spec | — |
-| Plan | plan.md con 6-8 tareas orden topológico | plan/core |
-| CKP-2 | Humano da luz verde | — |
-| Dev | Código + tests unitarios | dev/core, dev/solid |
-| Verify | Tests pasan, spec compliance | verify/core, verify/complexity |
-| CKP-3 | PASS (o rework si hay errores) | — |
-| Memory | Session summary, mem_save | memory/core |
+Extra skills: discovery/security, arch/security (STRIDE), plan/security (OWASP ASVS), dev/security, verify/security.
 
-**Criterio de éxito**: Feature implementada en < 3 ciclos de rework, todas las tareas del plan.md completadas, tests en verde.
+**Success:** RNF-SEC-* in spec, `[SEC]` tasks in plan, verify PASS with security notes.
 
----
+### Case 3: Performance — “Real-time dashboard”
 
-### Caso 2: Feature con Seguridad — "Autenticación JWT"
+Extra: discovery/cost, arch/performance (SLOs), plan/patterns, dev/performance, verify/performance.
 
-**Objetivo**: Validar skills de seguridad en todas las fases
+**Success:** Measurable SLOs, no N+1, caching documented.
 
-| Fase | Skills extras | Qué verificar |
-|------|--------------|---------------|
-| Discovery | **discovery/security** | Buscar CVEs de la librería JWT, vulnerabilidades pasadas de auth |
-| CKP-0 | **discovery/compliance** | OK si no hay PHI ni datos personales |
-| Arch | **arch/security** | STRIDE aplicado: Spoofing (¿JWT firmado?), Tampering (¿HMAC?), Repudiation (¿logs?), Disclosure (¿PII en tokens?), DoS (¿rate limiting?), Elevation (¿roles?) |
-| Plan | **plan/security** | OWASP ASVS V2-V4: password policy, session timeout, RBAC |
-| Dev | **dev/security** | OWASP Top 10: A01 (access control), A02 (bcrypt), A03 (parameterized queries), A05 (cors headers), A07 (brute force lockout) |
-| Verify | **verify/security** | SAST audit: secretos en código, SQL injection, auth bypass |
+### Case 4: UI — “Admin panel”
 
-**Criterio de éxito**: spec.md tiene RNF-SEC-001 a RNF-SEC-006. plan.md tiene tareas [SEC]. Código sin red flags de seguridad. Verify emite PASS con auditoría de seguridad.
+Extra: arch/a11y, verify/a11y.
 
----
+**Success:** RNF-A11Y-* in spec; a11y issues found and fixed before PASS.
 
-### Caso 3: Feature con Performance — "Dashboard en Tiempo Real"
+### Case 5: Migration — “Add user field”
 
-**Objetivo**: Validar skills de performance + patrones
+Extra: plan/migrations, plan/rollback, dev/testing (fuzzing).
 
-| Fase | Skills extras | Qué verificar |
-|------|--------------|---------------|
-| Discovery | **discovery/cost** | Estimar costos: WebSocket connections, consultas a DB, frecuencia de refresco |
-| Arch | **arch/performance** | SLOs: TTFB < 100ms, FCP < 1.5s, throughput de WebSocket |
-| Plan | **plan/patterns** | ¿CQRS para separar lecturas de escrituras? ¿Cache? ¿Observer para WebSocket? |
-| Dev | **dev/performance** | N+1 detection en queries del dashboard, caching con Redis, batching |
-| Verify | **verify/performance** | N+1 audit, memory leaks en conexiones WebSocket, Big-O de agregaciones |
+**Success:** Phased migration + rollback script + edge-case tests.
 
-**Criterio de éxito**: SLOs definidos y verificables. Código sin N+1. Caché implementada con TTL. Plan de rollback documentado.
+### Case 6: Refactor — “Repository pattern”
 
----
+Extra: arch/domain, plan/patterns, dev/refactor, verify/complexity.
 
-### Caso 4: Feature con UI — "Panel de Administración"
+**Success:** Behavior unchanged, tests still pass, complexity reduced.
 
-**Objetivo**: Validar skills de accesibilidad
+### Case 7: Multi-repo — “Notification service”
 
-| Fase | Skills extras | Qué verificar |
-|------|--------------|---------------|
-| Arch | **arch/a11y** | WCAG AA: contraste 4.5:1, navegación por teclado, aria attributes, formularios con labels |
-| Verify | **verify/a11y** | Auditoría de 6 áreas: HTML semántico, ARIA, teclado, contraste, formularios, contenido dinámico |
+Extra: discovery/compliance, memory/knowledge, memory/changelog.
 
-**Criterio de éxito**: spec.md tiene RNF-A11Y-001 a RNF-A11Y-030. Verify detecta al menos 3 violaciones a11y (y son corregidas antes del PASS).
+**Success:** Compliance noted, ADRs cross-linked, changelog updated.
 
----
-
-### Caso 5: Feature con Migración — "Agregar Campo a Users"
-
-**Objetivo**: Validar skills de migraciones y rollback
-
-| Fase | Skills extras | Qué verificar |
-|------|--------------|---------------|
-| Plan | **plan/migrations**, **plan/rollback** | Estrategia additive (agregar columna nullable), fases pre-deploy/post-deploy, rollback script |
-| Dev | **dev/testing** | Fuzzing del nuevo campo (caracteres especiales, Unicode, SQL injection) |
-
-**Criterio de éxito**: plan.md tiene migración en 2 fases (pre-deploy + post-deploy). Rollback script existe. Tests de borde para el nuevo campo.
-
----
-
-### Caso 6: Feature con Refactor — "Migrar a Patrón Repositorio"
-
-**Objetivo**: Validar skills de refactor y domain
-
-| Fase | Skills extras | Qué verificar |
-|------|--------------|---------------|
-| Arch | **arch/domain** | DDD: bounded contexts, aggregates, lenguaje ubicuo |
-| Plan | **plan/patterns** | Repository pattern seleccionado, interfaces definidas |
-| Dev | **dev/refactor** | Extract Method, Introduce Parameter Object, test-preserving workflow |
-| Verify | **verify/complexity** | MCC antes/después: debería Bajar después del refactor |
-
-**Criterio de éxito**: Código refactorizado sin cambiar comportamiento. Tests existentes pasan SIN modificaciones. MCC baja en las funciones refactorizadas.
-
----
-
-### Caso 7: Feature Multi-Repo — "Servicio de Notificaciones"
-
-**Objetivo**: Validar skills de conocimiento cross-project
-
-| Fase | Skills extras | Qué verificar |
-|------|--------------|---------------|
-| Discovery | **discovery/security**, **discovery/compliance** | Notificaciones → datos personales → GDPR aplica |
-| Memory | **memory/knowledge** | ADR cross-referenciado con otros servicios, knowledge graph actualizado |
-| Memory | **memory/metrics** | Project health snapshot del feature |
-| Memory | **memory/changelog** | Release notes generadas |
-
-**Criterio de éxito**: Compliance identificado (GDPR por datos de usuario). ADR linkeado a servicios dependientes. Changelog generado con feat/sec/fix.
-
----
-
-### 🧪 Checklist de Validación del Flujo
-
-Para CADA feature, verificar:
+### Flow validation checklist
 
 ```
-Antes de empezar:
-  [ ] Feature tiene un nombre claro y un objetivo medible
+Before start:
+  [ ] Clear feature name and measurable goal
 
-CKP-0 (Discovery):
-  [ ] Context Map generado (o declaración de "sin contexto previo")
-  [ ] Si toca seguridad: discovery/security se cargó
-  [ ] Si toca datos personales: discovery/compliance se cargó
-  [ ] Si toca infraestructura: discovery/cost se cargó
+CKP-0:
+  [ ] context-map.md (or explicit “no prior context”)
+  [ ] security/compliance/cost skills if applicable
 
 CKP-1 (spec.md):
-  [ ] RFs con IDs claros (RF-001, RF-002...)
-  [ ] RNFs con IDs claros (RNF-SEC-XXX, RNF-PERF-XXX, RNF-A11Y-XXX)
-  [ ] Escenarios Given-When-Then para cada RF
-  [ ] Capability Matrix con ai_reasoning vs deterministic
-  [ ] RNFs de seguridad presentes si aplica
-  [ ] SLOs definidos si aplica
-  [ ] WCAG requirements si hay UI
+  [ ] RF-* and RNF-* IDs
+  [ ] Given-When-Then per RF
+  [ ] Capability Matrix (ai_reasoning vs deterministic)
+  [ ] PM-* manual tests section
 
 CKP-2 (plan.md):
-  [ ] Tareas en orden topológico (dependencias primero)
-  [ ] Contratos y estructuras definidas (no ambigüedad para dev)
-  [ ] Tareas de seguridad con prefijo [SEC] si aplica
-  [ ] Patrones seleccionados con [PATTERN: X] si aplica
-  [ ] Migración documentada en fases (pre/code/post)
-  [ ] Plan de rollback documentado
+  [ ] Topological task order
+  [ ] Contracts / file list for dev
+  [ ] [SEC] / [PATTERN] tags if applicable
+  [ ] Migration / rollback sections if applicable
 
-Fase 3 (Ejecución):
-  [ ] Cada tarea del plan.md se completó
-  [ ] Tests unitarios: 1 por escenario GWT
-  [ ] Tests con nombre que incluye RF-XXX para trazabilidad
-  [ ] Ralph Wiggum Loop: compila + tests verdes
-  [ ] SOLID self-audit pasado (≥ 4/5)
-  [ ] Red flags de seguridad verificados (0 encontrados)
-  [ ] N+1 audit: ≤ 3 queries por request
-  [ ] Complejidad: MCC ≤ 20 por función
+Phase 3:
+  [ ] forge-dev marked completed plan items [x]
+  [ ] Tests named with RF-XXX traceability
+  [ ] Tests green (Ralph Wiggum)
+  [ ] rework_ticket resolved if any
 
-CKP-3 (Verify):
-  [ ] verify/core: spec compliance check
-  [ ] verify/security: SAST audit + OWASP verification
-  [ ] verify/complexity: MCC, nesting, cognitive load
-  [ ] verify/performance: N+1, memory, Big-O (si aplica)
-  [ ] verify/a11y: WCAG AA compliance (si hay UI)
-  [ ] Test suite 100% verde
-  [ ] cycle_count < 3 (si no, escalar)
+CKP-3:
+  [ ] verify-report.md PASS
+  [ ] cycle_count < 3 on rework_ticket
 
-CKP-4 (Memory):
-  [ ] Session summary escrito
-  [ ] Decisiones importantes promovidas a ADRs
-  [ ] Métricas de proyecto actualizadas
-  [ ] Changelog actualizado (pre-release)
-  [ ] Cross-project knowledge links (si multi-repo)
+CKP-4:
+  [ ] All PM-* [x] in spec.md
+  [ ] summary.md (not preview) if closing
 ```
 
 ---
 
-## PARTE 4: PRÓXIMOS PASOS
+## PART 4: Next steps
 
-### 🔧 Herramientas Pendientes (Después de validar el flujo)
+### Planned tooling
 
-| Herramienta | Por qué es necesaria |
-|-------------|---------------------|
-| **Generador de Reglas** | Compila las 30 skills en `.cursorrules` / `.clinerules` para inyectar en el IDE |
-| **CLI Wizard (forge init)** | Setup interactivo de `.flowforge.json`: modelos, persona, base de datos |
-| **Dashboard web** | Visualización de engram-dotnet, métricas de proyecto en tiempo real |
-| **Backend Config File** | Configuración por archivo para engram-dotnet (reemplaza variables de entorno) |
+| Tool | Purpose |
+|------|---------|
+| Rules generator | Compile skills into IDE rule bundles |
+| `forge init` CLI | Interactive `.flowforge.json` |
+| Metrics dashboard | Optional project health UI |
+| Engram config file | File-based engram-dotnet config |
 
-### 🧠 Ideas Futuras (Incubadora)
+### Incubator ideas
 
-| Idea | Fuente |
-|------|--------|
-| Context Poisoning Guardrail | docs/13-edge-cases-and-risks.md |
-| Conflict Resolution Agent | docs/13-edge-cases-and-risks.md |
-| Cost Observability Dashboard | docs/13-edge-cases-and-risks.md |
-| Drift Health Check | docs/13-edge-cases-and-risks.md |
-| Message Queue para Escrituras .md | docs/13-edge-cases-and-risks.md |
-| Lineage Enforcement en CKP-3 | docs/13-edge-cases-and-risks.md |
+See [`13-edge-cases-and-risks.md`](13-edge-cases-and-risks.md) — context poisoning guardrail, conflict resolution, drift health check, lineage at CKP-3, etc.
 
 ---
 
-> **Última actualización**: 2026-05-25
-> **Commits en esta sesión**: 2 (e7fcab6, 3798f22)
-> **Skills totales**: 30 | **Checkpoints**: 5 | **Fases**: 5 | **Agentes**: 7
+> **Last updated**: 2026-05-27  
+> **Checkpoints**: 5 | **Phases**: 5 | **Agents**: 7 | **Skills**: 31

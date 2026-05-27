@@ -2,7 +2,7 @@
 
 > **Forge your AI-agent software development workflow.**
 >
-> 🇪🇸 [README en español](README.es.md) · 🔥 [`QUICKSTART.md`](QUICKSTART.md) — Get started in 5 minutes
+> 🇪🇸 [README en español](README.es.md) · 🔥 [`QUICKSTART.md`](QUICKSTART.md) ([español](QUICKSTART.es.md)) — Get started in 5 minutes
 
 FlowForge is an **Agentic SDLC methodology** for small and mid-size teams (2–20 people). It defines how to integrate AI agents into the software lifecycle with **5 formal checkpoints**, **7 agents**, **31 specialized skills**, and a versioned artifact protocol under `.ai-work/{feature-slug}/`.
 
@@ -95,8 +95,10 @@ Shared orchestrator contract: [`ide/shared/workflow-orchestrator-parity.md`](ide
 
 | Doc | Purpose |
 |-----|---------|
-| [`QUICKSTART.md`](QUICKSTART.md) | 5-minute start |
-| [`docs/14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md) | Full reference + 7 test cases |
+| [`QUICKSTART.md`](QUICKSTART.md) / [`QUICKSTART.es.md`](QUICKSTART.es.md) | 5-minute start (EN / ES) |
+| [`docs/14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md) | Full reference + 7 hands-on test cases |
+| [`docs/06-ai-orchestrator.md`](docs/06-ai-orchestrator.md) | Orchestrator / traffic light |
+| [`docs/11-orchestrator-delegation-protocol.md`](docs/11-orchestrator-delegation-protocol.md) | Delegation protocol |
 | [`docs/16-ide-integration-plan.md`](docs/16-ide-integration-plan.md) | IDE integration design |
 | [`docs/18-replicable-demo-definition.md`](docs/18-replicable-demo-definition.md) | Replicable runbook (no public demo repo required) |
 | [`docs/04-roadmap.md`](docs/04-roadmap.md) | Roadmap + release gate |

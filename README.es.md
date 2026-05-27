@@ -2,7 +2,7 @@
 
 > **Forja tu flujo de desarrollo con agentes de IA.**
 >
-> 🇬🇧 [English README](README.md) · 🔥 [`QUICKSTART.md`](QUICKSTART.md) — Empezá en 5 minutos (inglés)
+> 🇬🇧 [English README](README.md) · 🔥 [`QUICKSTART.es.md`](QUICKSTART.es.md) ([inglés](QUICKSTART.md)) — Empezá en 5 minutos
 
 FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños y medianos (SMB, 2–20 personas). Define cómo integrar agentes de IA en el ciclo de desarrollo con 5 checkpoints formales, 7 agentes, 31 skills especializadas y un protocolo de artefactos versionados.
 
@@ -75,7 +75,8 @@ Detalle: [`ide/README.md`](ide/README.md)
 
 | Documento | Descripción |
 |-----------|-------------|
-| [`QUICKSTART.md`](QUICKSTART.md) | Inicio en 5 minutos |
+| [`QUICKSTART.es.md`](QUICKSTART.es.md) | Inicio en 5 minutos |
+| [`QUICKSTART.md`](QUICKSTART.md) | Quickstart (English) |
 | [`docs/14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md) | Referencia + casos de prueba |
 | [`docs/18-replicable-demo-definition.md`](docs/18-replicable-demo-definition.md) | Runbook replicable (sin repo demo obligatorio) |
 | [`docs/04-roadmap.md`](docs/04-roadmap.md) | Roadmap y release gate |

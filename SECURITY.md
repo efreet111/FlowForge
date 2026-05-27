@@ -1,22 +1,27 @@
 # Security Policy
 
-## Supported Versions
+## Supported versions
 
-FlowForge está en evolución. Recomendamos usar siempre la última versión disponible.
+FlowForge is evolving. Use the latest version on `main` when possible.
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
-Si encontrás una vulnerabilidad de seguridad, por favor **no abras un issue público** con detalles explotables.
+Do **not** open a public issue with exploitable details.
 
-Incluí en tu reporte:
-- Descripción del problema y el impacto.
-- Pasos para reproducir.
-- Archivos/rutas afectadas (por ejemplo `ide/install.ps1`, `ide/install.sh`, `skills/**/SKILL.md`).
-- Tu entorno (OS/IDE).
+Include:
 
-## Qué consideramos “vulnerabilidad”
+- Description and impact.
+- Steps to reproduce.
+- Affected files (e.g. `ide/install.ps1`, `ide/install.sh`, `skills/**/SKILL.md`).
+- Environment (OS, IDE).
 
-- Instaladores que puedan **sobrescribir archivos fuera de los directorios esperados** sin advertencia.
-- Exposición accidental de secretos en docs/scripts.
-- Instrucciones que incentiven prácticas inseguras (por ejemplo, deshabilitar protecciones sin explicación).
+## In scope
 
+- Installers that **overwrite files outside expected directories** without warning.
+- Accidental secret exposure in docs or scripts.
+- Instructions that encourage unsafe practices without explanation.
+
+## Out of scope
+
+- General methodology disagreements (use regular issues).
+- Third-party IDE or model provider vulnerabilities (report to the vendor).

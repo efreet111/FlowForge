@@ -1,72 +1,52 @@
-# El Orquestador: Semáforo y Director de FlowForge
+# The Orchestrator: Traffic Light and Director of FlowForge
 
-> **Versión**: 1.1 (Checkpoints Normalizados CKP-0 → CKP-4)
-> **Rol**: Semáforo Principal y Director de Estado
+> **Version**: 1.2 (CKP-0 → CKP-4 normalized)
+> **Role**: Primary traffic light and state director
 
-Anteriormente concebido solo como un manejador de escaladas opcional, el **Orquestador** es en realidad el **Motor Core** de la metodología EngramFlow. Su rol es actuar como el **Semáforo Principal**: lee el estado del proyecto, decide qué agente debe ejecutarse, maneja las transiciones de fase y, lo más importante, se detiene para pedir clarificación al humano cuando detecta ambigüedad.
+The **Orchestrator** is the **core engine** of FlowForge (formerly framed only as an optional escalation handler). It reads project state, decides which agent runs, handles phase transitions, and **stops to ask the human** when requirements are ambiguous.
 
-## 1. El Orquestador SIEMPRE es una Inteligencia (El Semáforo Inteligente)
+## 1. The orchestrator is always an AI agent
 
-Una confusión común es pensar que el "Orquestador" puede ser simplemente un script rígido (`.sh`) o un programa de terminal que llama a APIs. **Esto es incorrecto en EngramFlow.**
+The orchestrator is **not** a rigid shell script. It is an **AI agent** loaded with `@forge-orchestrator` (or compiled IDE rules) because it must judge **business viability** before burning tokens on implementation.
 
-El Orquestador es obligatoriamente un **Agente de IA (Inteligencia Artificial)** cargado con la skill maestra `@forge-orchestrator`. ¿Por qué? Porque su rol crítico es **entender y verificar que lo que el usuario pide tiene lógica de negocio y viabilidad** antes de gastar recursos.
+- **Intelligent traffic light**: If you ask for “add telemetry” without a provider, a blind runner would proceed. The orchestrator stops on **red** and asks which provider to use.
+- **IDE-native, not script-heavy**: FlowForge installs via rules/agents in your IDE (`.cursor/`, `.agents/`, `.github/agents/`, OpenCode config). No external runner is required for the methodology itself.
 
-- **El Semáforo Inteligente**: Si vos pedís *"agregá telemetría al proyecto"*, un Runner ciego intentaría avanzar. Pero nuestro **Agente Orquestador** (inyectado vía reglas) usa su inteligencia para encender el Semáforo en **ROJO**, detenerse y preguntarte: *"No me dijiste qué proveedor de telemetría vamos a usar. Definilo antes de avanzar."*
-- **Agnóstico por Reglas, NO por Scripts**: A diferencia de flujos pesados que requieren instalar runners `.sh` o CLI tools en tu máquina, FlowForge es **100% nativo de tu IDE**. La "instalación" consiste simplemente en copiar las reglas maestras (`@forge-orchestrator` y las skills) a la carpeta de configuración de tu entorno (`.cursorrules`, `.clinerules`, `.agent`, `.windsurf`). El motor de tu IDE (su Master Agent nativo) lee estas reglas y se comporta como nuestro Orquestador, sin necesidad de ejecutar ningún script externo de terminal.
+## 2. State machine (CKP-0 → CKP-4)
 
-## 2. Máquina de Estados (El Semáforo — CKP Normalizados)
+| Phase | Agent | CKP | Color | Type | Action |
+|-------|--------|-----|-------|------|--------|
+| 0 Discovery | `forge-discovery` | **CKP-0** | 🔴 | HARD STOP | Vague requirement → stop and clarify |
+| 1 Intent | `forge-arch` | **CKP-1** | 🟡 | YELLOW | “spec.md ready. Approve or adjust?” |
+| 2 Plan | `forge-plan` | **CKP-2** | 🟡 | YELLOW | “plan.md ready. Green light to code?” |
+| 3 Execution | `forge-dev` ↔ `forge-verify` | **CKP-3** | 🔴 | EMERGENCY | 3 rework cycles → escalate |
+| 4 Close | `forge-memory` | **CKP-4** | 🟢 | DEPLOY | “Deploy / merge?” |
 
-El Agente Orquestador ejecuta rígidamente esta máquina de estados con 5 puntos de control:
+### Per phase
 
-| Fase | Agente | Checkpoint | Color | Tipo | Acción |
-|------|--------|-----------|-------|------|--------|
-| 0: Discovery | `@forge-discovery` | **CKP-0** | 🔴 HARD STOP | Binario, inapelable | Requerimiento vago → PARAR y pedir clarificación |
-| 1: Intención | `@forge-arch` | **CKP-1** | 🟡 SEMÁFORO AMARILLO | Flexible, decide humano | *"spec.md listo. ¿Aprobás?"* |
-| 2: Arquitectura | `@forge-plan` | **CKP-2** | 🟡 SEMÁFORO AMARILLO | Flexible, decide humano | *"plan.md listo. ¿Luz verde?"* |
-| 3: Ejecución | `@forge-dev` ↔ `@forge-verify` | **CKP-3** | 🔴 FRENO EMERGENCIA | Mecánico (3 ciclos) | Reworks > 3 → ESCALAR al humano |
-| 4: Cierre | `@forge-memory` | **CKP-4** | 🟢 DEPLOY GATE | Flexible, decide humano | *"¿Deployeamos?"* |
+1. **Discovery (CKP-0)** — Search memory / context. **Hard stop** if vague or missing context.
+2. **Intent (CKP-1)** — Write `spec.md`. Pause for human approval.
+3. **Plan (CKP-2)** — Write `plan.md`. Pause for human approval.
+4. **Execution** — Dev ↔ verify inner loop. **CKP-3** if `rework_ticket.md` `cycle_count >= 3`.
+5. **Close (CKP-4)** — Memory after verify PASS; human deploy decision. **PM-*** in `spec.md` must be `[x]` before real close.
 
-### Detalle por Fase
+## 3. Human-in-the-loop: stop types
 
-1. **Fase 0: Discovery — CKP-0 🔴 HARD STOP**
-   - **Trigger**: Se crea una nueva HU (Historia de Usuario).
-   - **Acción**: Lee la memoria local o consulta a `engram-dotnet` para buscar Épicas relacionadas o HUs anteriores.
-   - **Hard Stop**: Si el requerimiento es vago (*"mejorar el login"*) o no hay contexto previo, DETENER TODO. Es binario, no admite "más o menos".
+### 🔴 Hard stops (CKP-0, CKP-3)
 
-2. **Fase 1: Intención — CKP-1 🟡 SEMÁFORO AMARILLO**
-   - **Acción**: Escribe `spec.md`.
-   - **Gate**: El flujo se PAUSA. El humano decide si aprueba o pide ajustes.
+- **CKP-0**: business ambiguity or infeasibility — do not advance.
+- **CKP-3**: three failed rework cycles — escalate immediately; no fourth automatic attempt.
 
-3. **Fase 2: Arquitectura — CKP-2 🟡 SEMÁFORO AMARILLO**
-   - **Acción**: Escribe `plan.md`.
-   - **Gate**: El flujo se PAUSA. El humano decide si da luz verde.
+### 🟡 Yellow gates (CKP-1, CKP-2)
 
-4. **Fase 3: Ejecución y Validación — Inner Loop Autónomo**
-   - **Acción**: Inner Loop de TDD (Dev ↔ Verify iterando).
-   - **Semáforo**: `VERDE` (Flujo autónomo). El Orquestador permite que el Dev y el Verify iteren.
-   - **CKP-3 🔴 Freno de Emergencia**: Si el contador de reworks excede 3 intentos, el Semáforo se pone en `ROJO`. Escala al humano (o el Orquestador AI modifica el plan y resetea).
+Human may approve with open items; **verify** enforces `deterministic` items from the Capability Matrix in CKP-3.
 
-5. **Fase 4: Cierre — CKP-4 🟢 DEPLOY GATE**
-   - **Acción**: Tras un PASS del revisor, se extrae el conocimiento y se guarda en memoria.
-   - **Gate**: El humano decide si deployear. No es un freno — es una decisión de release.
+### 🟢 Deploy gate (CKP-4)
 
-## 3. Human-in-the-Loop: Tipos de Parada
+Not a brake — a release decision after memory synthesis.
 
-El Orquestador distingue dos tipos de parada con severidad y consecuencias muy diferentes:
+## 4. Orchestrator must not implement product code
 
-### 🔴 Hard Stops (CKP-0, CKP-3) — Binarios e Inapelables
-
-No admiten grises. El agente NO puede decidir avanzar por su cuenta:
-
-- **CKP-0 — Ambigüedad de Negocio**: El usuario pide *"mejorar el login"* sin especificar cómo. El Orquestador frena en la Fase 0 y exige: *"¿Mejorar en velocidad, en UI, o agregar OAuth?"*
-- **CKP-0 — Falta de Viabilidad**: El `Arch Agent` nota que la API requerida por el usuario no existe. El Orquestador detiene el flujo antes de generar el `spec.md`.
-- **CKP-3 — Límite de Ciclos**: 3 reworks fallidos → escalación inmediata. El humano DEBE intervenir.
-
-### 🟡 Semáforo Amarillo (CKP-1, CKP-2) — Flexibles con Autoridad Humana
-
-El agente se detiene y CONSULTA. El humano tiene la última palabra y puede aprobar specs/planes con partes abiertas:
-
-- **CKP-1**: *"spec.md generado. ¿Aprobás o querés ajustar algo?"*
-- **CKP-2**: *"plan.md generado. ¿Luz verde para codificar?"*
-
-La defensa contra specs/planes débiles aprobados en CKP-1/2 es la **Capability Matrix**: los items marcados como `deterministic` son auditados rigurosamente por el Verify Agent en CKP-3.
+- Delegate `spec.md`, `plan.md`, code, and `verify-report.md` to subagents.
+- On bug reports: create `rework_ticket.md` → delegate **forge-dev**.
+- See [`ide/shared/workflow-orchestrator-parity.md`](../ide/shared/workflow-orchestrator-parity.md) and [`11-orchestrator-delegation-protocol.md`](11-orchestrator-delegation-protocol.md).

@@ -1,41 +1,44 @@
-# Contribuir a FlowForge
+# Contributing to FlowForge
 
-Gracias por querer mejorar FlowForge. Este repo contiene **metodología**, **skills**, y **archivos de integración** para IDEs (Cursor, OpenCode, Antigravity, VS Code).
+Thank you for improving FlowForge. This repository contains **methodology**, **skills**, and **IDE integration** packs (Cursor, OpenCode, Antigravity, VS Code).
 
-## Cómo empezar
+## Getting started
 
-- Leé primero [`QUICKSTART.md`](QUICKSTART.md).
-- Para entender el sistema completo (checkpoints, fases, casos de prueba), usá [`docs/14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md).
-- Para archivos de IDE, ver [`ide/README.md`](ide/README.md).
+- Read [`QUICKSTART.md`](QUICKSTART.md) first.
+- Full system reference (checkpoints, phases, test cases): [`docs/14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md).
+- IDE files: [`ide/README.md`](ide/README.md).
+- Spanish overview: [`README.es.md`](README.es.md).
 
-## Qué tipos de contribuciones aceptamos
+## What we accept
 
-- **Docs**: correcciones, clarificaciones, ejemplos, troubleshooting.
-- **Instaladores**: mejoras en `ide/install.ps1` y `ide/install.sh` (robustez, detección, backups).
-- **Integraciones IDE**: mejoras en `ide/cursor/`, `ide/opencode/`, `ide/antigravity/`, `ide/vscode/`.
-- **Skills**: mejoras a `skills/**/SKILL.md` (manteniendo consistencia con checkpoints y semáforo).
+- **Docs**: fixes, clarifications, examples, troubleshooting.
+- **Installers**: robustness for `ide/install.ps1` and `ide/install.sh` (detection, backups, `-ProjectPath`).
+- **IDE integrations**: `ide/cursor/`, `ide/opencode/`, `ide/antigravity/`, `ide/vscode/`.
+- **Skills**: improvements to `skills/**/SKILL.md` (keep CKP semantics and orchestrator parity consistent).
 
 ## Issues
 
-Al abrir un issue, por favor incluir:
+Please include:
 
-- **SO**: Windows/macOS/Linux (y si es WSL).
-- **IDE**: Cursor/OpenCode/Antigravity/VS Code.
-- **Modo de instalación**: remoto (raw) vs local.
-- **Logs**: output completo del instalador y pasos exactos para reproducir.
+- **OS**: Windows / macOS / Linux (WSL if applicable).
+- **IDE**: Cursor / OpenCode / Antigravity / VS Code.
+- **Install mode**: remote (`raw.githubusercontent.com`) vs local clone.
+- **Logs**: full installer output and exact reproduction steps.
 
-## Pull Requests (PRs)
+## Pull requests
 
-### Principios
-- **Cambios chicos y revisables**: una cosa por PR.
-- **Sin contradicciones**: si tocás checkpoints/semáforo en un doc, revisá que `README.md`, `QUICKSTART.md` y `docs/14-*` no queden inconsistentes.
-- **No rompas el onboarding**: lo primero que ve un usuario es `README.md`/`QUICKSTART.md`.
+### Principles
 
-### Convenciones
-- **Idioma**: el repo es principalmente en español. Si agregás docs en inglés, indicá explícitamente que son “tech notes” o traducí.
-- **Rutas**: para Antigravity el estándar es `.agents/` (no `.agent/`).
+- **Small, reviewable PRs** — one concern per PR.
+- **No contradictions**: if you change checkpoints, align `README.md`, `QUICKSTART.md`, and `docs/14-*`.
+- **Do not break onboarding** — entry points are `README.md` and `QUICKSTART.md`.
 
-## Reportar problemas de seguridad
+### Conventions
 
-Si encontrás un issue de seguridad (por ejemplo, un instalador que pueda sobrescribir algo crítico o filtrar datos), seguí la política en [`SECURITY.md`](SECURITY.md).
+- **Language**: public docs are **English**; Spanish entry is [`README.es.md`](README.es.md). Track progress in [`docs/I18N.md`](docs/I18N.md).
+- **Paths**: Antigravity standard is `.agents/` (not `.agent/`).
+- **Artifacts**: `.ai-work/{feature-slug}/`, `verify-report.md` (not `cert-report.md`).
 
+## Security
+
+See [`SECURITY.md`](SECURITY.md) for reporting vulnerabilities.

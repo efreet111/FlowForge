@@ -98,6 +98,6 @@ On a clean machine:
 
 ## Related docs
 
-- [`QUICKSTART.md`](../QUICKSTART.md) — 5-minute start (English)
+- [`QUICKSTART.md`](../QUICKSTART.md) — 5-minute start (English) · [`QUICKSTART.es.md`](../QUICKSTART.es.md) (Spanish)
 - [`README.es.md`](../README.es.md) — Spanish overview
 - [`ide/shared/workflow-orchestrator-parity.md`](../ide/shared/workflow-orchestrator-parity.md) — cross-IDE contract
