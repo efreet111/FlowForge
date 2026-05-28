@@ -17,14 +17,12 @@
       }
     },
 
-    "_comment_subagents": "7 FlowForge subagentes especializados (hidden: true). Ajustá las rutas {file:...} según tu instalación de FlowForge.",
-
     "forge-discovery": {
       "description": "FlowForge Discovery — Mapeo de contexto [DeepSeek V4 Flash]",
       "hidden": true,
       "mode": "subagent",
       "model": "opencode-go/deepseek-v4-flash",
-      "prompt": "{file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-discovery/SKILL.md}\n\nTambién cargá on-demand:\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-discovery/security/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-discovery/compliance/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-discovery/cost/SKILL.md}",
+      "prompt": "{file:__FLOWFORGE_REPO__/skills/forge-discovery/SKILL.md}\n\nTambién cargá on-demand:\n- {file:__FLOWFORGE_REPO__/skills/forge-discovery/security/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-discovery/compliance/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-discovery/cost/SKILL.md}",
       "tools": {
         "bash": true,
         "read": true
@@ -36,7 +34,7 @@
       "hidden": true,
       "mode": "subagent",
       "model": "opencode-go/deepseek-v4-pro",
-      "prompt": "{file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-arch/SKILL.md}\n\nTambién cargá on-demand:\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-arch/security/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-arch/performance/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-arch/a11y/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-arch/domain/SKILL.md}",
+      "prompt": "{file:__FLOWFORGE_REPO__/skills/forge-arch/SKILL.md}\n\nTambién cargá on-demand:\n- {file:__FLOWFORGE_REPO__/skills/forge-arch/security/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-arch/performance/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-arch/a11y/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-arch/domain/SKILL.md}",
       "tools": {
         "edit": true,
         "write": true,
@@ -50,7 +48,7 @@
       "hidden": true,
       "mode": "subagent",
       "model": "opencode-go/qwen3.5-plus",
-      "prompt": "{file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-plan/SKILL.md}\n\nTambién cargá on-demand:\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-plan/security/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-plan/patterns/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-plan/migrations/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-plan/rollback/SKILL.md}",
+      "prompt": "{file:__FLOWFORGE_REPO__/skills/forge-plan/SKILL.md}\n\nTambién cargá on-demand:\n- {file:__FLOWFORGE_REPO__/skills/forge-plan/security/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-plan/patterns/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-plan/migrations/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-plan/rollback/SKILL.md}",
       "tools": {
         "edit": true,
         "write": true,
@@ -64,7 +62,7 @@
       "hidden": true,
       "mode": "subagent",
       "model": "opencode-go/qwen3.5-plus",
-      "prompt": "{file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-dev/SKILL.md}\n\nTambién cargá on-demand:\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-dev/security/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-dev/solid/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-dev/testing/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-dev/performance/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-dev/refactor/SKILL.md}",
+      "prompt": "{file:__FLOWFORGE_REPO__/skills/forge-dev/SKILL.md}\n\nTambién cargá on-demand:\n- {file:__FLOWFORGE_REPO__/skills/forge-dev/security/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-dev/solid/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-dev/testing/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-dev/performance/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-dev/refactor/SKILL.md}",
       "tools": {
         "edit": true,
         "write": true,
@@ -78,7 +76,7 @@
       "hidden": true,
       "mode": "subagent",
       "model": "opencode-go/deepseek-v4-pro",
-      "prompt": "{file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-verify/SKILL.md}\n\nTambién cargá on-demand:\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-verify/security/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-verify/complexity/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-verify/performance/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-verify/a11y/SKILL.md}",
+      "prompt": "{file:__FLOWFORGE_REPO__/skills/forge-verify/SKILL.md}\n\nTambién cargá on-demand:\n- {file:__FLOWFORGE_REPO__/skills/forge-verify/security/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-verify/complexity/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-verify/performance/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-verify/a11y/SKILL.md}",
       "tools": {
         "edit": true,
         "write": true,
@@ -92,7 +90,7 @@
       "hidden": true,
       "mode": "subagent",
       "model": "opencode-go/deepseek-v4-flash",
-      "prompt": "{file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-memory/SKILL.md}\n\nTambién cargá on-demand:\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-memory/metrics/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-memory/changelog/SKILL.md}\n- {file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-memory/knowledge/SKILL.md}",
+      "prompt": "{file:__FLOWFORGE_REPO__/skills/forge-memory/SKILL.md}\n\nTambién cargá on-demand:\n- {file:__FLOWFORGE_REPO__/skills/forge-memory/metrics/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-memory/changelog/SKILL.md}\n- {file:__FLOWFORGE_REPO__/skills/forge-memory/knowledge/SKILL.md}",
       "tools": {
         "edit": true,
         "write": true,
@@ -106,12 +104,12 @@
       "hidden": true,
       "mode": "subagent",
       "model": "opencode-go/deepseek-v4-flash",
-      "prompt": "{file:/media/gantz/300extra/Proyectos/FlowForge/skills/forge-teacher/SKILL.md}",
+      "prompt": "{file:__FLOWFORGE_REPO__/skills/forge-teacher/SKILL.md}",
       "tools": {
         "read": true
       }
     }
   },
 
-  "_merge_instructions": "To merge with your existing opencode.json: copy the 'agent' entries above into your existing 'agent' object. Your engram MCP and permissions should already be configured."
+  "_merge_instructions": "Merge: copy agent{} into opencode.json or opencode.jsonc. Keep your mcp and permission blocks. Set default_agent to flowforge if desired. Models use opencode-go/* — configure that provider and API keys in OpenCode. Do not use placeholder file-reference syntax with ellipsis inside JSON strings (OpenCode treats every file: reference as a real path)."
 }

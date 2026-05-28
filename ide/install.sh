@@ -43,6 +43,28 @@ install_shared() {
   cp -r "$IDE_DIR/shared/"* "$dest/" 2>/dev/null || true
 }
 
+patch_opencode_flowforge_json() {
+  local dest="$1"
+  local repo="$2"
+  if [ ! -f "$dest" ]; then return 0; fi
+  if ! command -v python3 >/dev/null 2>&1 && ! command -v python >/dev/null 2>&1; then
+    echo -e "  ${YELLOW}! Python no encontrado; rutas skills sin parchear en opencode.flowforge.json${NC}"
+    echo -e "  ${YELLOW}  Reemplaza __FLOWFORGE_REPO__ manualmente por: $repo${NC}"
+    return 0
+  fi
+  local py=python3
+  command -v python3 >/dev/null 2>&1 || py=python
+  FF_REPO="$repo" $py -c "
+import os
+from pathlib import Path
+dest = Path(os.environ['DEST'])
+repo = os.environ['FF_REPO']
+text = dest.read_text(encoding='utf-8')
+if '__FLOWFORGE_REPO__' in text:
+    dest.write_text(text.replace('__FLOWFORGE_REPO__', repo), encoding='utf-8')
+" DEST="$dest" && echo -e "  ${GREEN}OK${NC} Rutas skills → $repo"
+}
+
 compile_cursor_agents() {
   local compile="$IDE_DIR/cursor/compile-agents-from-skills.py"
   if [ ! -f "$compile" ]; then return 0; fi
@@ -102,9 +124,11 @@ if [ -d "${HOME}/.config/opencode" ]; then
   cp "$IDE_DIR/opencode/AGENTS.md" "${HOME}/.config/opencode/flowforge/"
   install_shared "${HOME}/.config/opencode/flowforge/shared"
   cp "$IDE_DIR/opencode/opencode.flowforge.json" "${HOME}/.config/opencode/"
+  patch_opencode_flowforge_json "${HOME}/.config/opencode/opencode.flowforge.json" "$FLOWFORGE_REPO"
   echo -e "  ${GREEN}OK${NC} ~/.config/opencode/flowforge/"
-  echo -e "  ${YELLOW}! Mergea agent{} de opencode.flowforge.json en opencode.json${NC}"
-  echo -e "  ${YELLOW}! Ajusta rutas {file:...} de skills a tu clone${NC}"
+  echo -e "  ${YELLOW}! Merge manual: agent{} de opencode.flowforge.json → opencode.json o opencode.jsonc${NC}"
+  echo -e "  ${YELLOW}! Conserva tus bloques mcp/permission al mergear (no reemplaces todo el archivo)${NC}"
+  echo -e "  ${YELLOW}! Modelos opencode-go/*: configura proveedor + API keys en OpenCode${NC}"
   INSTALLED=1
 fi
 

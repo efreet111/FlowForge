@@ -22,7 +22,7 @@
 
 **Enfoque**:
 1. Mergear las entradas de `agent` del `opencode.flowforge.json` en el `~/.config/opencode/opencode.json` activo
-2. Verificar que los paths `{file:/media/gantz/300extra/Proyectos/FlowForge/skills/...}` existen
+2. Verificar que los paths `{file:.../skills/...}` existen (no deben estar hardcodeados a una máquina específica)
 3. Invocar a cada subagente manualmente y verificar que cargue la skill correcta
 4. Probar un ciclo completo: discovery → arch → plan → dev → verify → memory
 

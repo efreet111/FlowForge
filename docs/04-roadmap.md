@@ -55,7 +55,7 @@ While the repo is **private**, remote install via `raw.githubusercontent.com` re
 |------|-------------|
 | **4** QUICKSTART | EN + ES |
 | **7** Installers | `install.ps1` / `install.sh` |
-| **2** CRUD case | Local demo PASS |
+| **2** CRUD case | ✅ [`CASE-1-VALIDATION.md`](../examples/crud-tareas/CASE-1-VALIDATION.md) |
 | **3** Example artifacts | `examples/crud-tareas/` |
 | **14** (partial) | `VERSION.md`, `CHANGELOG.md`, tag `v0.4.0` |
 
@@ -101,7 +101,7 @@ Principles: CKP-0/3 are binary; CKP-1/2/4 are human decisions. `cycle_count` in 
 | # | Item | Priority | Status |
 |---|------|----------|--------|
 | 1 | OpenCode smoke | P0 | 📋 Linux + bundle |
-| 2 | CRUD case (docs/14) | P0 | ✅ |
+| 2 | CRUD case (docs/14) | P0 | ✅ | Validation doc + 20/20 tests |
 | 3 | Example artifacts | P0 | ✅ |
 
 ### Week 2 — Onboarding
@@ -121,6 +121,10 @@ Principles: CKP-0/3 are binary; CKP-1/2/4 are human decisions. `cycle_count` in 
 | 8 | All IDE smoke | P1 | 📋 |
 | 9 | engram-dotnet diagnostic | P0 | 📋 |
 | 10 | Concurrent features | P2 | 📋 |
+
+**Backlog note (OpenCode installs)**:
+- OpenCode config parsing is strict: do not include placeholder `file:` references (e.g. `file:...`) inside JSON string values.
+- `ide/opencode/opencode.flowforge.json` must not hardcode a developer-specific clone path; installer should patch a repo-path placeholder into the copied file.
 
 ### Week 4 — Maturity
 

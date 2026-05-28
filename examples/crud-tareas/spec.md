@@ -198,7 +198,7 @@ CREATE TABLE tasks (
 
 | ID | Caso / Flujo | Pasos resumidos | Resultado esperado | [x] |
 |----|-------------|-----------------|-------------------|-----|
-| PM-1 | Happy path CRUD completo | 1. POST /tasks con tarea válida<br>2. GET /tasks verificar aparece<br>3. PUT /tasks/:id modificar título<br>4. DELETE /tasks/:id eliminar | Cada operación responde con código HTTP correcto y datos esperados | [ ] |
-| PM-2 | Validaciones de error | 1. POST /tasks sin title<br>2. GET /tasks/999 (inexistente)<br>3. PUT /tasks/999 (inexistente) | Respuestas 400/404 con mensajes en español | [ ] |
-| PM-3 | Persistencia SQLite | 1. Crear 2 tareas via API<br>2. Reiniciar servidor<br>3. GET /tasks verificar datos | Las tareas persisten después del reinicio | [ ] |
-| PM-4 | Tests automatizados | 1. npm test<br>2. Verificar coverage reports | Todos los tests pasan, coverage > 80% en endpoints CRUD | [ ] |
+| PM-1 | Happy path CRUD completo | 1. POST /tasks con tarea válida<br>2. GET /tasks verificar aparece<br>3. PUT /tasks/:id modificar título<br>4. DELETE /tasks/:id eliminar | Cada operación responde con código HTTP correcto y datos esperados | [x] |
+| PM-2 | Validaciones de error | 1. POST /tasks sin title<br>2. GET /tasks/999 (inexistente)<br>3. PUT /tasks/999 (inexistente) | Respuestas 400/404 con mensajes en español | [x] |
+| PM-3 | Persistencia SQLite | 1. Crear 2 tareas via API<br>2. Reiniciar servidor<br>3. GET /tasks verificar datos | Las tareas persisten después del reinicio | [x] |
+| PM-4 | Tests automatizados | 1. npm test<br>2. Verificar coverage reports | Todos los tests pasan, coverage > 80% en endpoints CRUD | [x] |

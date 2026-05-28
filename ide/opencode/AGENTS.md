@@ -18,4 +18,4 @@ Cargá siempre el bloque de paridad compartido (mismo contrato que Cursor/Antigr
 
 ## Skills
 
-Los subagentes cargan `skills/forge-*/SKILL.md` vía `{file:...}` en `opencode.json`. Ajustá rutas absolutas a tu clone de FlowForge.
+Los subagentes cargan `skills/forge-*/SKILL.md` vía referencias `{file:ruta}` en `opencode.json`. Ajustá rutas absolutas a tu clone de FlowForge. **No uses el texto literal `{file:...}` en valores JSON** — OpenCode lo interpreta como ruta de archivo.

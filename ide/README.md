@@ -58,7 +58,7 @@ The installer:
 
 ### Manual install
 
-**OpenCode:** merge `agent{}` from `opencode.flowforge.json` into `~/.config/opencode/opencode.json`. The bundle uses `{file:./flowforge/shared/workflow-orchestrator-parity.md}`.
+**OpenCode:** run `install.sh` — it copies the bundle and patches `__FLOWFORGE_REPO__` in `opencode.flowforge.json` to your clone path. Then **merge** `agent{}` into `opencode.json` or `opencode.jsonc` (keep your `mcp` / `permission` blocks). Models default to `opencode-go/*` (configure provider + API keys). Do not put placeholder `file:` references with ellipsis inside JSON strings — OpenCode treats every `file:` reference as a real path.
 
 **Cursor:**
 

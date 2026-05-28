@@ -10,6 +10,10 @@ They illustrate what you should see under `.ai-work/{feature-slug}/` after disco
 | [`spec.md`](spec.md) | 1 — Intent | forge-arch |
 | [`plan.md`](plan.md) | 2 — Plan | forge-plan |
 | [`verify-report.md`](verify-report.md) | 3 — Verify | forge-verify |
+| [`summary.md`](summary.md) | 4 — Close | forge-memory |
+| [`CASE-1-VALIDATION.md`](CASE-1-VALIDATION.md) | Item 2 checklist | Human / release gate |
+
+**Status:** Case 1 **validated** (2026-05-27) — 20/20 tests, verify PASS, PM-* complete. See validation doc.
 
 **How to use**
 

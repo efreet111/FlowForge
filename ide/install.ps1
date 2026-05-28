@@ -44,6 +44,19 @@ function Install-FlowForgeShared {
     Copy-Item -Path (Join-Path $src "*") -Destination $DestinationDir -Recurse -Force
 }
 
+function Patch-OpenCodeFlowforgeJson {
+    param(
+        [string]$Dest,
+        [string]$Repo
+    )
+    if (-not (Test-Path $Dest)) { return }
+    $content = Get-Content -Path $Dest -Raw -Encoding UTF8
+    if ($content -notmatch '__FLOWFORGE_REPO__') { return }
+    $content = $content.Replace('__FLOWFORGE_REPO__', $Repo.Replace('\', '/'))
+    Set-Content -Path $Dest -Value $content -Encoding UTF8 -NoNewline
+    Write-Host "  OK Rutas skills -> $Repo" -ForegroundColor Green
+}
+
 function Compile-CursorAgents {
     $compile = Join-Path $IdeDir "cursor\compile-agents-from-skills.py"
     if (-not (Test-Path $compile)) { return $false }
@@ -160,10 +173,13 @@ if (Test-Path $OpenCodeDir) {
     New-Item -ItemType Directory -Force -Path "$ffBundle\shared" | Out-Null
     Copy-Item (Join-Path $IdeDir "opencode\AGENTS.md") $ffBundle -Force
     Install-FlowForgeShared -DestinationDir (Join-Path $ffBundle "shared")
-    Copy-Item (Join-Path $IdeDir "opencode\opencode.flowforge.json") $OpenCodeDir -Force
+    $ffJson = Join-Path $OpenCodeDir "opencode.flowforge.json"
+    Copy-Item (Join-Path $IdeDir "opencode\opencode.flowforge.json") $ffJson -Force
+    Patch-OpenCodeFlowforgeJson -Dest $ffJson -Repo $FlowForgeRepo
     Write-Host "  OK ~/.config/opencode/flowforge/ + opencode.flowforge.json" -ForegroundColor Green
-    Write-Host "  ! Mergea agent{} de opencode.flowforge.json en tu opencode.json" -ForegroundColor Yellow
-    Write-Host "  ! Ajusta rutas {file:...} de skills a tu clone de FlowForge" -ForegroundColor Yellow
+    Write-Host "  ! Merge manual: agent{} de opencode.flowforge.json -> opencode.json o opencode.jsonc" -ForegroundColor Yellow
+    Write-Host "  ! Conserva mcp/permission al mergear (no reemplaces todo el archivo)" -ForegroundColor Yellow
+    Write-Host "  ! Modelos opencode-go/*: configura proveedor + API keys en OpenCode" -ForegroundColor Yellow
     $Installed = $true
 }
 

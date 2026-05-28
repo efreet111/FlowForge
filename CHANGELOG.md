@@ -4,6 +4,14 @@ All notable changes to the FlowForge methodology and IDE packs are documented he
 
 Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning follows [SemVer](https://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- OpenCode bundle: avoid invalid `{file:...}` placeholder text inside JSON string values (can crash OpenCode config loader).
+- OpenCode bundle: remove hardcoded local skill paths by introducing a repo-path placeholder and patching it during install.
+- Install docs: clarify OpenCode merge guidance (merge `agent{}` only; keep existing `mcp`/`permission`; configure provider/API keys for `opencode-go/*` models).
+
 ## [0.4.1] - 2026-05-27
 
 ### Changed

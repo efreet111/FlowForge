@@ -147,13 +147,13 @@ interface ErrorResponse {
 ### Fase 5: Testing e Integración
 - [x] 5.1 Tests de integración con supertest (todos los endpoints)
 - [x] 5.2 Tests casos de error (404, 400, validaciones)
-- [ ] 5.3 Verificar persistencia SQLite entre reinicios
+- [x] 5.3 Verificar persistencia SQLite entre reinicios
 - [x] 5.4 Ejecutar suite completa de tests
 
 ### Fase 6: Documentación
 - [x] 6.1 Escribir README.md con ejemplos de API
 - [x] 6.2 Documentar scripts npm (dev, test, build)
-- [ ] 6.3 Verificar cumplimiento de casos PM-* del spec
+- [x] 6.3 Verificar cumplimiento de casos PM-* del spec
 
 ## 5. Definición de Completitud por Tarea
 
