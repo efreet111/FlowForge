@@ -96,7 +96,7 @@ PHASE 4: CLOSE ─────────────── CKP-4 🟢 DEPLOY G
 | Proyecto | Relación |
 |----------|----------|
 | **[engram-dotnet](https://github.com/efreet111/engram-dotnet)** | Backend de memoria persistente (.NET 10). FlowForge usa engram para memoria cross-session y sync multi-usuario. |
-| **Gentle AI / Agentsway** | Inspiración para Agentic SDLC. FlowForge extiende con checkpoints normalizados y model routing. |
+| **FlowForge** (este repo) | **Proyecto principal** — metodología Agentic SDLC + IDE packs + 31 skills. Lo que estamos construyendo. |
 | **Cursor / OpenCode / Antigravity** | IDEs donde se instalan los agents de FlowForge vía `install.sh` / `install.ps1`. |
 
 ---
