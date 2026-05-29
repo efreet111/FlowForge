@@ -72,7 +72,7 @@ Soluciona el problema de que los miembros del equipo no compartan contexto. Comb
 
 ## 3. LLM-as-Judge Verification (Fase de Verificación)
 
-¡Esto es oro puro para el flujo SDD! Permite verificar de forma autónoma si el código escrito realmente cumple con lo que exige la especificación.
+¡Esto es oro puro para el flujo **Agentic SDLC** de FlowForge! Permite verificar de forma autónoma si el código escrito realmente cumple con lo que exige la especificación.
 
 ### Características Clave:
 *   **LLM-as-Judge**: Toma un archivo `spec.md` escrito en formato canónico (requisitos funcionales como `- RF-001` y no funcionales como `- RNF-001`) y el diff de git. Envía el contexto al modelo evaluador (Claude) para dictaminar si el código cumple la spec.

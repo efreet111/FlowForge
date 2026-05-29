@@ -1,6 +1,6 @@
 # Plan de Pruebas: Validación de EngramFlow en VS Code (Aislamiento OpenSpec)
 
-> **Objetivo**: Validar de manera empírica, objetiva y no subjetiva el comportamiento de las 5 Skills Core de EngramFlow en Visual Studio Code utilizando la estructura de aislamiento por cambios de **OpenSpec / SDD**. Esto asegura que las reglas de fase, la Capability Matrix, el Ralph Wiggum Loop y el Sentinel Judge funcionen de forma prolija antes de aplicarlos en producción.
+> **Objetivo**: Validar de manera empírica, objetiva y no subjetiva el comportamiento de las 5 Skills Core de EngramFlow en Visual Studio Code utilizando la estructura de aislamiento por cambios de **FlowForge (Agentic SDLC)**. Esto asegura que las reglas de fase, la Capability Matrix, el Ralph Wiggum Loop y el Sentinel Judge funcionen de forma prolija antes de aplicarlos en producción.
 
 ---
 

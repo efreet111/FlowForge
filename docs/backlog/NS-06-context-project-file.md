@@ -125,5 +125,5 @@ Crear un archivo **`ia-work/context-project.md`** que:
 ## 🔗 Referencias
 
 - EngramFlow Level 2: Structured Memory (docs/02-memory-strategy.md)
-- SDD Discovery phase (skills/forge-discovery/SKILL.md)
+- Discovery phase (skills/forge-discovery/SKILL.md)
 - Feedback de usuario: sesión 2026-05-29
