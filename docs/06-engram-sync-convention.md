@@ -129,7 +129,7 @@ Cada developer necesita en su `.env` o `opencode.json`:
 {
   "env": {
     "ENGRAM_SERVER_URL": "http://192.168.0.178:7437",
-    "ENGRAM_USER": "victor.silgado",        // ← SU identidad
+    "ENGRAM_USER": "victor.silgado",        // ← OPCIONAL pero RECOMENDADO
     "ENGRAM_SYNC_ENABLED": "true",
     "ENGRAM_SYNC_TARGET_KEY": "cloud",
     "ENGRAM_SYNC_POLL_INTERVAL": "30s",
@@ -137,6 +137,40 @@ Cada developer necesita en su `.env` o `opencode.json`:
   }
 }
 ```
+
+### ¿Es obligatorio `ENGRAM_USER`?
+
+**No, es opcional.** Pero tiene ventajas importantes en modo equipo:
+
+| Variable | ¿Obligatoria? | ¿Qué pasa si no la ponés? |
+|----------|---------------|--------------------------|
+| `ENGRAM_SERVER_URL` | ✅ Sí (para sync) | Sin servidor, no hay sync |
+| `ENGRAM_SYNC_ENABLED` | ✅ Sí (para sync) | El cliente no sincroniza |
+| **`ENGRAM_USER`** | ❌ **Opcional** | **Funciona igual**, pero perdés las ventajas de abajo |
+
+### Ventajas de configurar `ENGRAM_USER`
+
+| Ventaja | Con `ENGRAM_USER` | Sin `ENGRAM_USER` |
+|---------|-------------------|-------------------|
+| **Memorias personales** | Se guardan como `personal:{user}/project` | Van a un namespace genérico |
+| **Auditoría** | El servidor registra quién hizo cada save | No hay trazabilidad de autor |
+| **Aislamiento** | Cada user tiene su propio espacio personal | Todos comparten el mismo espacio "anon" |
+| **Scope personal** | `scope: "personal"` → `personal:victor.silgado/...` | Puede ir a `null/...` o fallar |
+| **Scope team** | `scope: "team"` → `team/...` (igual) | `team/...` (igual, funciona) |
+
+### ¿Cuándo podés omitirlo?
+
+- **Desarrollo individual**: Si sos el único usuario, no hace falta.
+- **Pruebas locales**: Para validar que el sync funciona, podés probar sin user.
+- **Memorias 100% team**: Si todo lo que guardás es `scope: "team"`, no hay diferencia.
+
+### ¿Cuándo deberías ponerlo?
+
+- **Equipos de 2+ personas**: Para que cada uno tenga su namespace personal.
+- **Múltiples máquinas**: Si usás `ENGRAM_USER` consistente, tus memorias personales te siguen.
+- **Auditoría**: Si querés saber "quién guardó qué" en el equipo.
+
+**Recomendación**: Usá tu email o username de GitHub. Ej: `victor.silgado`, `juan@empresa.com`, `gantz`.
 
 ---
 
@@ -149,6 +183,7 @@ Cada developer necesita en su `.env` o `opencode.json`:
 | Pull no trae data | Proyecto no enrolled | `POST /sync/enroll` |
 | 500 sin body | Error no logueado | Ver logs del servidor |
 | Memorias no aparecen | Filtro por `X-Engram-User` | Verificar header coincide |
+| `scope: personal` va a namespace raro | `ENGRAM_USER` no seteado | Setear `ENGRAM_USER` (opcional pero recomendado) |
 
 ---
 
