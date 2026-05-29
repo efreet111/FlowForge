@@ -127,16 +127,19 @@ Cada developer necesita en su `.env` o `opencode.json`:
 
 ```json
 {
+  "command": "engram",
+  "args": ["mcp"],
   "env": {
-    "ENGRAM_SERVER_URL": "http://192.168.0.178:7437",
-    "ENGRAM_USER": "victor.silgado",        // ← OPCIONAL pero RECOMENDADO
+    "ENGRAM_DATA_DIR": "~/.engram",
+    "ENGRAM_USER": "tu.email@ejemplo.com",   // ← OPCIONAL pero RECOMENDADO
     "ENGRAM_SYNC_ENABLED": "true",
-    "ENGRAM_SYNC_TARGET_KEY": "cloud",
-    "ENGRAM_SYNC_POLL_INTERVAL": "30s",
-    "ENGRAM_DATA_DIR": "~/.engram"
+    "ENGRAM_SERVER_URL": "http://192.168.0.178:7437"
   }
 }
 ```
+
+> **Importante**: Para sync offline-first usá `ENGRAM_SERVER_URL`, **no** `ENGRAM_URL`.  
+> `ENGRAM_URL` activa modo remoto puro (HttpStore) y desactiva el journal local de sync.
 
 ### ¿Es obligatorio `ENGRAM_USER`?
 
@@ -146,6 +149,7 @@ Cada developer necesita en su `.env` o `opencode.json`:
 |----------|---------------|--------------------------|
 | `ENGRAM_SERVER_URL` | ✅ Sí (para sync) | Sin servidor, no hay sync |
 | `ENGRAM_SYNC_ENABLED` | ✅ Sí (para sync) | El cliente no sincroniza |
+| `ENGRAM_DATA_DIR` | ❌ No (usa `~/.engram` por defecto) | SQLite en otro lado |
 | **`ENGRAM_USER`** | ❌ **Opcional** | **Funciona igual**, pero perdés las ventajas de abajo |
 
 ### Ventajas de configurar `ENGRAM_USER`
