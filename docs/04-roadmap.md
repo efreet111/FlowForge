@@ -71,7 +71,8 @@ While the repo is **private**, remote install via `raw.githubusercontent.com` re
 
 | Items | Topic |
 |-------|--------|
-| **5–6** | Project template + `.flowforge.json` schema |
+| **19** | Project memory association on first save ([`19-project-memory-association-backlog.md`](19-project-memory-association-backlog.md)) — engram has passive similar-project warning only |
+| **5–6** | Project template + `.flowforge.json` schema (feeds item 19: `engram.project`, `engram.scope`) |
 | **9** | engram-dotnet MCP diagnostics |
 | **10–13** | Concurrency, KPIs, migration guides |
 | **14** | Ongoing semver + GitHub releases |
@@ -133,6 +134,7 @@ Principles: CKP-0/3 are binary; CKP-1/2/4 are human decisions. `cycle_count` in 
 | 11–12 | KPIs + A/B runs | P2 | 📋 |
 | 13 | Migration guides | P2 | 📋 |
 | 14 | Semver releases | P3 | 🟡 started |
+| 19 | Project memory association (first save) | P2 | 📋 spec — [`19-project-memory-association-backlog.md`](19-project-memory-association-backlog.md) |
 
 ---
 
@@ -150,6 +152,7 @@ From [`13-edge-cases-and-risks.md`](13-edge-cases-and-risks.md):
 
 | Idea | Notes |
 |------|--------|
+| **Project memory association gate** | On first save for a new project: ask human to link to similar project, create new, or **personal-only** scope — see [`19-project-memory-association-backlog.md`](19-project-memory-association-backlog.md) |
 | Context poisoning guardrail | Validate stale engrams before Phase 2 |
 | Conflict resolution agent | Cross-agent namespace collisions |
 | Cost dashboard | USD per phase/epic |
