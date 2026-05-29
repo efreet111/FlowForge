@@ -128,7 +128,7 @@ Cada developer necesita en su `.env` o `opencode.json`:
 ```json
 {
   "command": "engram",
-  "args": ["mcp"],
+  "args": ["mcp", "--tools=agent"],
   "env": {
     "ENGRAM_DATA_DIR": "~/.engram",
     "ENGRAM_USER": "tu.email@ejemplo.com",   // ← OPCIONAL pero RECOMENDADO
