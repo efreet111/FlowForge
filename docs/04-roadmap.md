@@ -1,6 +1,6 @@
 # FlowForge + engram-dotnet — Combined roadmap
 
-> **Last updated**: 2026-05-27  
+> **Last updated**: 2026-05-30  
 > **FlowForge version**: [`0.4.1`](../VERSION.md) — see [`CHANGELOG.md`](../CHANGELOG.md)  
 > **engram-dotnet**: `main` (archived SDD features)
 
@@ -58,6 +58,7 @@ While the repo is **private**, remote install via `raw.githubusercontent.com` re
 | **2** CRUD case | ✅ [`CASE-1-VALIDATION.md`](../examples/crud-tareas/CASE-1-VALIDATION.md) |
 | **3** Example artifacts | `examples/crud-tareas/` |
 | **14** (partial) | `VERSION.md`, `CHANGELOG.md`, tag `v0.4.0` |
+| **20** Memory Curation Protocol | ✅ ADR-001, skills + 4 IDEs, [`.ai-work/agent-proactive-memory/`](../.ai-work/agent-proactive-memory/summary.md) |
 
 ### 🔴 Before broad public adoption
 
@@ -72,7 +73,6 @@ While the repo is **private**, remote install via `raw.githubusercontent.com` re
 | Items | Topic |
 |-------|--------|
 | **19** | Project memory association on first save ([`19-project-memory-association-backlog.md`](19-project-memory-association-backlog.md)) — engram has passive similar-project warning only |
-| **20** | Orchestrator Memory Curation Protocol — IDE-agnostic proactive memory saves via Memory Signal + 3-step orchestrator curation. Origin: offline-first failure report 2026-05-30. ADR: [`docs/decisions/ADR-001-memory-curation-protocol.md`](decisions/ADR-001-memory-curation-protocol.md) |
 | **5–6** | Project template + `.flowforge.json` schema (feeds item 19: `engram.project`, `engram.scope`) |
 | **9** | engram-dotnet MCP diagnostics |
 | **10–13** | Concurrency, KPIs, migration guides |
@@ -96,7 +96,7 @@ Principles: CKP-0/3 are binary; CKP-1/2/4 are human decisions. `cycle_count` in 
 
 ## Improvement plan — 14 items
 
-> Original analysis: 2026-05-26. Status updated 2026-05-27.
+> Original analysis: 2026-05-26. Status updated 2026-05-30.
 
 ### Week 1 — MVP
 
@@ -136,6 +136,7 @@ Principles: CKP-0/3 are binary; CKP-1/2/4 are human decisions. `cycle_count` in 
 | 13 | Migration guides | P2 | 📋 |
 | 14 | Semver releases | P3 | 🟡 started |
 | 19 | Project memory association (first save) | P2 | 📋 spec — [`19-project-memory-association-backlog.md`](19-project-memory-association-backlog.md) |
+| 20 | Memory Curation Protocol | P1 | ✅ — [`ADR-001`](decisions/ADR-001-memory-curation-protocol.md) |
 
 ---
 
@@ -171,6 +172,7 @@ From [`13-edge-cases-and-risks.md`](13-edge-cases-and-risks.md):
 | Doctor diagnostic | engram-dotnet | ✅ Archived |
 | Traceability / TTL / verification | engram-dotnet | ✅ Archived |
 | IDE delegation protocol | FlowForge | ✅ |
+| Memory Curation Protocol (item 20) | FlowForge | ✅ [`ADR-001`](decisions/ADR-001-memory-curation-protocol.md) |
 | Model Router MCP server | FlowForge | ❌ Discarded — host IDE routing |
 
 ---
