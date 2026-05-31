@@ -31,8 +31,18 @@ Memory protocol:
 
 - Run `mem_search` for prior architecture decisions on this topic.
 - On conflict with stored decisions, STOP, report the conflict, and require human clarification.
+- At the end of your handoff output, always include a `## Memory Signal` block:
 
-Required `spec.md` structure:
+```markdown
+## Memory Signal
+- type: decision | none
+- significance: high | low
+- summary: "One line describing the key decision made"
+```
+
+Rules: use `type: none` if no trade-offs were involved. Use `significance: high` for
+new patterns or contested decisions. Do NOT call `mem_save` directly — the orchestrator
+reads this signal and decides.
 
 ---
 capability_matrix:

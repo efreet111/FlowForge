@@ -36,7 +36,18 @@ Mandatory rules:
 
 Memory protocol:
 
-- On hard bugs or framework gotchas, `mem_save` as `bugfix` or `discovery` before handing off.
+At the end of your handoff output, always include a `## Memory Signal` block:
+
+```markdown
+## Memory Signal
+- type: bugfix | config | pattern | none
+- significance: high | low
+- summary: "One line describing what happened"
+```
+
+Rules: `type: none` for routine implementation. `significance: high` for multi-attempt
+bugs or non-obvious gotchas. Do NOT call `mem_save` directly — the orchestrator reads
+this signal and decides.
 
 ## Rework mode (open ticket)
 

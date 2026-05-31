@@ -72,6 +72,7 @@ While the repo is **private**, remote install via `raw.githubusercontent.com` re
 | Items | Topic |
 |-------|--------|
 | **19** | Project memory association on first save ([`19-project-memory-association-backlog.md`](19-project-memory-association-backlog.md)) — engram has passive similar-project warning only |
+| **20** | Orchestrator Memory Curation Protocol — IDE-agnostic proactive memory saves via Memory Signal + 3-step orchestrator curation. Origin: offline-first failure report 2026-05-30. ADR: [`docs/decisions/ADR-001-memory-curation-protocol.md`](decisions/ADR-001-memory-curation-protocol.md) |
 | **5–6** | Project template + `.flowforge.json` schema (feeds item 19: `engram.project`, `engram.scope`) |
 | **9** | engram-dotnet MCP diagnostics |
 | **10–13** | Concurrency, KPIs, migration guides |

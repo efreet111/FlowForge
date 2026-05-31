@@ -7,7 +7,9 @@ The **Orchestrator** is the **core engine** of FlowForge (formerly framed only a
 
 ## 1. The orchestrator is always an AI agent
 
-The orchestrator is **not** a rigid shell script. It is an **AI agent** loaded with `@forge-orchestrator` (or compiled IDE rules) because it must judge **business viability** before burning tokens on implementation.
+The orchestrator is **not** a rigid shell script. It is an **AI agent** driven by compiled IDE rules (`workflow.mdc`, `workflow-orchestrator-parity.md`) because it must judge **business viability** before burning tokens on implementation.
+
+> **Commands vs agents:** You type **`/flow-*`** (phase commands). The orchestrator delegates to **`forge-*`** agents internally. There is no official `/forge-memory` or `/forge-dev` slash command — use `/flow-close`, `/flow-dev`, etc. See [`14-flowforge-complete-reference.md`](14-flowforge-complete-reference.md#commands-vs-agents).
 
 - **Intelligent traffic light**: If you ask for “add telemetry” without a provider, a blind runner would proceed. The orchestrator stops on **red** and asks which provider to use.
 - **IDE-native, not script-heavy**: FlowForge installs via rules/agents in your IDE (`.cursor/`, `.agents/`, `.github/agents/`, OpenCode config). No external runner is required for the methodology itself.

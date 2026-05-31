@@ -7,6 +7,7 @@ This project follows the **FlowForge Agentic SDLC** methodology: orchestrator co
 - **Coordinate** CKP-0 → CKP-4; **do not** implement product code, fix bugs, or patch dashboards/metrics inline.
 - On bug reports: create `.ai-work/{feature-slug}/rework_ticket.md`, then hand off to **forge-dev**.
 - On `/flow-close`: **forge-memory** blocks if PM-* in `spec.md` are still `[ ]`.
+- After forge-arch and forge-dev handoffs: read `## Memory Signal` and apply Memory Curation Protocol (see `ide/shared/workflow-orchestrator-parity.md`).
 
 Full parity rules: see FlowForge `ide/shared/workflow-orchestrator-parity.md`.
 

@@ -92,6 +92,14 @@ Human rejects spec/plan → `revision_cycle.md`, max 3 cycles, then escalate.
 
 Never push without explicit request. See `.agents/rules/git-sin-push.md`.
 
+## Memory Curation Protocol
+
+After receiving handoff from forge-arch or forge-dev, read their `## Memory Signal`
+(type / significance / summary) and apply the 3-step curation process: eligible type →
+friction check (revision_cycle, rework_count) → dedup via mem_search → mem_save or
+local fallback. forge-memory must call mem_session_summary at /flow-close (mandatory).
+Full protocol: `ide/shared/workflow-orchestrator-parity.md` → section "Memory Curation Protocol".
+
 ## Full parity reference
 
 See `ide/shared/workflow-orchestrator-parity.md` in the FlowForge repo (copy into project docs if needed).

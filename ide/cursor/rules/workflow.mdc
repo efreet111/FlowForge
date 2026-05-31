@@ -100,6 +100,10 @@ After each delegation, record and show when summarizing:
 | **Effective model** | What actually executed |
 | **Fallback applied** | yes / no |
 
+After reading the traceability fields, read `## Memory Signal` in the subagent output
+(forge-arch and forge-dev only) and apply the Memory Curation Protocol.
+Full protocol: `ide/shared/workflow-orchestrator-parity.md` → section "Memory Curation Protocol".
+
 When the user asks for audit or troubleshooting, include this table.
 
 ### When delegation itself fails (not a model issue)

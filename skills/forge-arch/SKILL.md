@@ -19,8 +19,22 @@ Strict phase rules:
 
 Memory protocol:
 
-- Run `mem_search` for prior architecture decisions on this topic.
+- Run `mem_search` for prior architecture decisions on this topic before writing spec.
 - On conflict with stored decisions, STOP, report the conflict, and require human clarification.
+- At the end of your handoff output, always include a `## Memory Signal` block:
+
+```markdown
+## Memory Signal
+- type: decision | none
+- significance: high | low
+- summary: "One line describing the key decision made"
+```
+
+Rules for the signal:
+- Use `type: none` if no architecture decision was made (routine spec with no trade-offs).
+- Use `significance: high` for decisions that establish new patterns or were contested
+  (e.g. revision_cycle >= 1). Use `significance: low` for everything else.
+- **Do NOT call `mem_save` directly** — emit the signal and let the orchestrator decide.
 
 Required `spec.md` structure:
 

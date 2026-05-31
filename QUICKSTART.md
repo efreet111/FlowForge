@@ -99,6 +99,22 @@ Artifacts land in `.ai-work/{feature-slug}/` (e.g. `task-crud/`).
 
 Natural language works too (e.g. “report a bug”, “keep coding”, “close the feature”).
 
+### Commands vs agents (do not mix them up)
+
+| You type | Orchestrator delegates to | Notes |
+|----------|---------------------------|--------|
+| `/flow-start` | `forge-discovery` → `forge-arch` | Not `@forge-arch` alone (skips CKP-0/1) |
+| `/flow-plan` | `forge-plan` | Requires approved `spec.md` |
+| `/flow-dev` | `forge-dev` | Requires approved `plan.md` |
+| `/flow-verify` | `forge-verify` | Outputs `verify-report.md` |
+| `/flow-close` | `forge-memory` | **Not** `/forge-memory` — that name is the agent, not a command |
+| `/flow-rework` | creates ticket → `forge-dev` | Bug intake |
+| `/flow-status` | orchestrator only | No subagent |
+
+Slash commands are **text conventions** in Agent mode. They appear in autocomplete only after `ide/install.ps1` copies `ide/cursor/commands/` to `.cursor/commands/`. Typing `/flow-close` as a message always works if FlowForge rules are active.
+
+Direct `@forge-*` invocation (legacy) bypasses checkpoints and Memory Curation — prefer `/flow-*` through the orchestrator.
+
 ---
 
 ## 5. Next steps
@@ -118,6 +134,8 @@ Natural language works too (e.g. “report a bug”, “keep coding”, “close
 | **`git` not found** | Install Git for Windows or your OS package manager |
 | **`dubious ownership` on Windows** | `git config --global --add safe.directory E:/Proyectos/FlowForge` |
 | **Orchestrator codes instead of delegating** | Reload IDE; say: “Delegate to forge-dev per workflow — do not patch inline” |
+| **`/flow-close` not in autocomplete** | Run `ide/install.ps1 -ProjectPath <repo>`; or type `/flow-close` as plain text — it is not a Cursor built-in |
+| **Used `/forge-memory` by mistake** | Use `/flow-close` (command) — `forge-memory` is the agent name, not a slash command |
 | **No `@skills` manual load** | Use compiled agents (Cursor) or IDE packs from `ide/install` |
 
 > **Problems?** Open an issue: https://github.com/efreet111/FlowForge

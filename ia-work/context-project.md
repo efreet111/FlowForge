@@ -125,10 +125,10 @@ cd engram-dotnet
 {
   "mcpServers": {
     "engram": {
-      "command": "engram",
-      "args": ["mcp", "--tools=agent"],
+      "command": "E:\\Proyectos\\engram-dotnet\\dist\\win-x64-fixed\\engram.exe",
+      "args": ["mcp"],
       "env": {
-        "ENGRAM_DATA_DIR": "~/.engram",
+        "ENGRAM_DATA_DIR": "C:\\Users\\<usuario>\\.engram",
         "ENGRAM_USER": "tu@email.com",
         "ENGRAM_SYNC_ENABLED": "true",
         "ENGRAM_SERVER_URL": "http://192.168.0.178:7437"
@@ -137,6 +137,14 @@ cd engram-dotnet
   }
 }
 ```
+
+> **Nota — binario fijo vs `dotnet run`:** Usar el binario compilado
+> (`dist/win-x64-fixed/engram.exe`) en lugar de `dotnet run --no-build`.
+> `dotnet run --no-build` puede colgarse si el binario está desactualizado
+> o el proceso de build fue interrumpido, dejando el MCP inestable durante
+> toda la sesión. Sin ENGRAM_URL → modo local-first (escribe a SQLite antes
+> de sync). Con ENGRAM_SYNC_ENABLED + ENGRAM_SERVER_URL → push al servidor
+> cuando esté sano.
 
 ### 4. Recargar IDE
 - OpenCode: cerrar y abrir

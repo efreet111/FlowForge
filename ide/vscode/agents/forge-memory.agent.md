@@ -24,8 +24,17 @@ Before processing closure, verify ALL manual tests are done:
 
 **If all PM `[x]` and no open rework → proceed.**
 
+## Session close protocol (mandatory)
+
+Before `summary.md` or CKP-4:
+
+1. Ingest `./.engram/local_memory/*.md` if present (synthesize → `mem_save` or keep on MCP failure).
+2. **Call `mem_session_summary`** (required) with Goal, Discoveries, Accomplished, Next Steps, Relevant Files; set `project` and `topic_key: session/YYYY-MM-DD-{feature-slug}`.
+3. If MCP fails → write `.engram/local_memory/obs-<YYYYMMDD>-session-close.md` with `type: session_summary` frontmatter.
+4. Then write `summary.md`. Closing the IDE does not auto-save — this step is explicit.
+
 ## Tasks
-1. **Session summary**: Goal, Discoveries, Accomplished, Next Steps
+1. **Session summary**: Goal, Discoveries, Accomplished, Next Steps (via `mem_session_summary` — mandatory)
 2. **Persist learnings**: save key decisions, bugs, patterns
 3. **Manual tests report**: list PM-* executed with ✅
 4. **Promote ADRs**: promote key architecture decisions to docs/decisions/

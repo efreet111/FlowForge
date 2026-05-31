@@ -6,6 +6,23 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 
 ## [Unreleased]
 
+### Added
+
+- **Orchestrator Memory Curation Protocol** (item 20): IDE-agnostic protocol for
+  proactive knowledge persistence during FlowForge sessions. `forge-arch` and
+  `forge-dev` emit a lightweight `## Memory Signal` (3 fields) in their handoff;
+  the orchestrator applies a 3-step curation process (type → friction → dedup via
+  `mem_search`) using cross-phase context (`revision_cycle`, `rework_count`) that
+  subagents lack. `mem_session_summary` is now mandatory (not optional) at
+  `/flow-close`. Fallback to `.engram/local_memory/` when MCP is unavailable.
+  See [`docs/decisions/ADR-001-memory-curation-protocol.md`](docs/decisions/ADR-001-memory-curation-protocol.md).
+- `docs/decisions/` directory and ADR format established for architectural decisions.
+
+### Changed
+
+- Docs: clarify `/flow-*` (human commands) vs `forge-*` (agent names) in QUICKSTART, `docs/06`, `docs/14`, `docs/08` (partial modernize), and `docs/10`.
+- `docs/08-test-plan.md`: phase guide uses `/flow-start` … `/flow-close` and `.ai-work/` paths instead of legacy `@forge-*` + `openspec/changes/`.
+
 ### Fixed
 
 - OpenCode bundle: avoid invalid `{file:...}` placeholder text inside JSON string values (can crash OpenCode config loader).

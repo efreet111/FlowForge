@@ -94,64 +94,81 @@ def test_add_task_empty_title():
 
 ## 3. Guía de Ejecución de Pruebas Fase por Fase
 
-Ejecuta las siguientes instrucciones en el chat de **Visual Studio Code** utilizando los modelos de OpenRouter para evaluar cada skill:
+> **Comandos vs agentes (v0.4):** Escribís **`/flow-*`** al orquestador; él delega a **`forge-*`**.
+> No uses `/forge-memory` ni `@forge-dev` como comando principal — no son oficiales.
+> Ver [`QUICKSTART.md`](../QUICKSTART.md) y [`14-flowforge-complete-reference.md`](14-flowforge-complete-reference.md).
+>
+> **Rutas:** artefactos en `.ai-work/{feature-slug}/` (kebab-case), no `openspec/changes/`.
 
-### 3.1 Fase 1: Intención (`@forge-arch`)
-* **Prompt de Entrada**:
+Ejecuta las siguientes instrucciones en el chat del IDE en **modo Agent**, con reglas FlowForge activas:
+
+### 3.0 Fase 0: Discovery + Spec (`/flow-start`)
+
+* **Prompt de entrada**:
   ```text
-  @forge-arch Quiero implementar el requerimiento de prioridades en el proyecto practice-todo-cli. La prioridad por defecto al crear debe ser MEDIA. Guarda la especificación spec.md en el directorio de aislamiento: openspec/changes/001-prioridades-tareas/spec.md.
+  /flow-start Prioridades en tareas — agregar prioridades ALTA, MEDIA, BAJA al crear tareas y filtrar por prioridad. Default MEDIA.
   ```
-* **Criterios de Aceptación (Qué verificar en `spec.md`)**:
-  - [ ] ¿Creó el archivo `spec.md` estrictamente en `openspec/changes/001-prioridades-tareas/spec.md`?
-  - [ ] ¿La `capability_matrix` clasifica las prioridades exactas (ALTA, MEDIA, BAJA) como `deterministic` y los mensajes del CLI como `ai_reasoning`?
-  - [ ] ¿Definió al menos 2 escenarios Given-When-Then para la creación y el filtrado por prioridad?
-  - [ ] **Restricción**: ¿El agente se abstuvo de escribir o proponer código en Python? (Si propuso código, la skill falló la regla de no-touch).
+* **Qué delega el orquestador:** `forge-discovery` → `forge-arch` → `spec.md` en `.ai-work/prioridades-tareas/`
+* **Criterios (CKP-1):** spec con capability_matrix, GWT, PM-*; humano aprueba antes de `/flow-plan`
 
-### 3.2 Fase 2: Arquitectura (`@forge-plan`)
-* **Prompt de Entrada**:
+### 3.1 Fase 1: Spec (`forge-arch` vía `/flow-start`)
+
+* **Alternativa legacy (no recomendada):** invocar `@forge-arch` directo — salta CKP-0 y discovery.
+* **Criterios de aceptación (qué verificar en `spec.md`)**:
+  - [ ] ¿Creó `spec.md` en `.ai-work/prioridades-tareas/spec.md`?
+  - [ ] ¿La `capability_matrix` clasifica ALTA/MEDIA/BAJA como `deterministic`?
+  - [ ] ¿Al menos 2 escenarios Given-When-Then?
+  - [ ] ¿Sin código Python propuesto?
+
+### 3.2 Fase 2: Plan (`/flow-plan` → `forge-plan`)
+
+* **Prompt de entrada**:
   ```text
-  @forge-plan Diseña el plan técnico para implementar el spec.md generated en openspec/changes/001-prioridades-tareas/spec.md. Guarda el resultado en openspec/changes/001-prioridades-tareas/plan.md.
+  /flow-plan
   ```
-* **Criterios de Aceptación (Qué verificar en `plan.md`)**:
-  - [ ] ¿Creó el archivo `plan.md` estrictamente en `openspec/changes/001-prioridades-tareas/plan.md`?
-  - [ ] ¿Las modificaciones de archivos en "Proposed Changes" listan únicamente `todo.py` y `test_todo.py`?
-  - [ ] ¿El esquema de datos JSON resultante está explícitamente detallado (ej: `{"id": int, "title": str, "completed": bool, "priority": str}`)?
-  - [ ] ¿El checklist tiene orden topológico estricto (primero persistencia y constantes en `todo.py`, al final tests en `test_todo.py`)?
-  - [ ] **Restricción**: ¿El plan es lo suficientemente cerrado para que el programador no tenga que tomar decisiones de diseño?
+* **Criterios de aceptación (qué verificar en `plan.md`)**:
+  - [ ] ¿`plan.md` en `.ai-work/prioridades-tareas/plan.md`?
+  - [ ] ¿Proposed Changes solo `todo.py` y `test_todo.py`?
+  - [ ] ¿Esquema JSON explícito con `priority`?
+  - [ ] ¿Checklist topológico (persistencia antes de tests)?
 
-### 3.3 Fase 3: Ejecución (`@forge-dev`)
-* **Prompt de Entrada**:
+### 3.3 Fase 3: Ejecución (`/flow-dev` → `forge-dev`)
+
+* **Prompt de entrada**:
   ```text
-  @forge-dev Implementa el plan.md ubicado en openspec/changes/001-prioridades-tareas/plan.md. Recuerda correr los tests usando pytest en la terminal de forma autónoma.
+  /flow-dev
   ```
-* **Criterios de Aceptación (Qué verificar en el código)**:
-  - [ ] ¿El Dev Agent modificó `todo.py` y `test_todo.py` respetando estrictamente el alcance del plan?
-  - [ ] ¿Corrió de forma autónoma `pytest` en la terminal (Ralph Wiggum Loop) para autocorregirse si algo falló?
-  - [ ] ¿Creó tests unitarios específicos para cada escenario del spec con el prefijo `[RF-XXX]`?
+* **Criterios de aceptación**:
+  - [ ] ¿Respeta el plan sin freelancing?
+  - [ ] ¿Ralph Wiggum: pytest verde?
+  - [ ] ¿Tests con prefijo `[RF-XXX]`?
 
-### 3.4 Fase 4: Juicio (`@forge-verify` - Test de Inyección de Falla)
-Para probar realmente al Sentinel Judge, inyectaremos una falla de manera intencionada antes de invocarlo.
+### 3.4 Fase 4: Juicio (`/flow-verify` → `forge-verify`)
 
-* **Inyección de Falla (Hacer manualmente)**: Modifica `todo.py` agregando un print inútil (ej. `print("debug")`) o rompe la validación de prioridad (ej. permite guardar una prioridad "SUPER_ALTA" o cambia el default a "baja").
-* **Prompt de Entrada**:
+Inyectá una falla manual en `todo.py` antes de verificar.
+
+* **Prompt de entrada**:
   ```text
-  @forge-verify Audita el código entregado contra openspec/changes/001-prioridades-tareas/spec.md y openspec/changes/001-prioridades-tareas/plan.md. Copia y pega aquí el output de pytest si los tests fallan para darme evidencia.
+  /flow-verify
   ```
-* **Criterios de Aceptación (Qué verificar en el veredicto)**:
-  - [ ] ¿El agente rechazó la entrega y generó un veredicto de REJECTED?
-  - [ ] ¿Creó un archivo `rework_ticket.md` con `cycle_count: 1` estrictamente bajo `openspec/changes/001-prioridades-tareas/rework_ticket.md`?
-  - [ ] ¿Identificó el motivo exacto del fallo de forma objetiva (detectando el print de debug, la falta de retorno, o la prioridad default alterada)?
-  - [ ] **Segunda vuelta**: Corrige el error manual, corre `@forge-verify` pasándole el output de pytest en verde. ¿Emitió un "PASS" limpio?
+* **Criterios de aceptación**:
+  - [ ] ¿REJECTED o `rework_ticket.md` con `cycle_count: 1`?
+  - [ ] ¿Motivo objetivo documentado?
+  - [ ] Tras corregir: segundo `/flow-verify` → PASS en `verify-report.md`
 
-### 3.5 Fase 5: Cierre (`@forge-memory`)
-* **Prompt de Entrada**:
+### 3.5 Fase 5: Cierre (`/flow-close` → `forge-memory`)
+
+* **Prompt de entrada**:
   ```text
-  @forge-memory Cierra la sesión de desarrollo basándote en la carpeta de aislamiento openspec/changes/001-prioridades-tareas/ y extrae el conocimiento del ciclo.
+  /flow-close
   ```
-* **Criterios de Aceptación (Qué verificar en los logs/Engram)**:
-  - [ ] ¿Llamó a `mem_save` con una estructura formal *What/Why/Where/Learned*?
-  - [ ] ¿Categorizó el cambio como `architecture` o `pattern`?
-  - [ ] Si hubo rework en la fase 4, ¿quedó registrado el bugfix en la base de datos neuronal?
+  (No uses `/forge-memory` — el comando canónico es **`/flow-close`**.)
+
+* **Criterios de aceptación**:
+  - [ ] ¿PM-* marcados `[x]` en `spec.md`?
+  - [ ] ¿`summary.md` en `.ai-work/prioridades-tareas/`?
+  - [ ] ¿`mem_session_summary` llamado (o fallback en `.engram/local_memory/` si MCP cae)?
+  - [ ] ¿Decisiones clave persistidas vía Memory Curation Protocol (orquestador + Engram)?
 
 ---
 

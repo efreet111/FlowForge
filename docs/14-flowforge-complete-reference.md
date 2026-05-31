@@ -75,6 +75,22 @@ On verify failure:
 | `/flow-close` | Memory + CKP-4 |
 | `/flow-status` | Read `.ai-work/` only |
 
+### Commands vs agents
+
+**`/flow-*`** = what **you** type to advance a phase. **`forge-*`** = agent names the orchestrator delegates to. They map 1:1 but are not interchangeable:
+
+| Command (human) | Agent (internal) |
+|-----------------|------------------|
+| `/flow-start` | `forge-discovery` → `forge-arch` |
+| `/flow-plan` | `forge-plan` |
+| `/flow-dev` | `forge-dev` |
+| `/flow-verify` | `forge-verify` |
+| `/flow-close` | `forge-memory` |
+
+There is **no** official `/forge-memory`, `/forge-dev`, etc. Legacy docs and IDEs may expose `@forge-arch` for direct invocation — that skips CKP gates and orchestrator Memory Curation. Prefer `/flow-*` unless you are debugging a single agent in isolation.
+
+Install Cursor command files: `ide/install.ps1 -ProjectPath <repo>` then Reload Window. Commands work as plain chat text even without autocomplete.
+
 ---
 
 ## PART 2: Agents and skills catalog

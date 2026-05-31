@@ -12,6 +12,9 @@ Cargá siempre el bloque de paridad compartido (mismo contrato que Cursor/Antigr
 
 `{file:./flowforge/shared/workflow-orchestrator-parity.md}` (tras `install.ps1` / `install.sh`)
 
+Tras recibir handoff de forge-arch o forge-dev: leer `## Memory Signal` y aplicar
+el Memory Curation Protocol (sección en el bloque de paridad compartido).
+
 ## Comandos de flujo
 
 `/flow-start`, `/flow-plan`, `/flow-dev`, `/flow-verify`, `/flow-close`, `/flow-status` — el orquestador delega; no implementa producto inline.

@@ -54,6 +54,46 @@ If the issue is spec↔code misalignment without a runtime bug: `forge-verify` w
 
 **CKP-3:** if `cycle_count >= 3` in `rework_ticket.md`, escalate to the human. Do not attempt a 4th cycle.
 
+## Memory Curation Protocol
+
+The orchestrator applies this protocol after receiving a handoff from `forge-arch`
+or `forge-dev`. No other agents emit Memory Signal.
+
+### Memory Signal format (emitted by forge-arch and forge-dev)
+
+```markdown
+## Memory Signal
+- type: decision | bugfix | config | pattern | none
+- significance: high | low
+- summary: "One line describing what occurred"
+```
+
+### Orchestrator 3-step process
+
+```
+STEP 1 — Eligible type?
+  type == none → SKIP
+  type in {decision, bugfix, config, pattern} → continue
+
+STEP 2 — Was there friction?
+  significance == high → continue
+  revision_cycle >= 1 → continue
+  rework_count >= 2 → continue
+  none → SKIP
+
+STEP 3 — Already in Engram?
+  mem_search(query=summary, limit=1) → recent match → SKIP
+  no match → mem_save(title, type, content, topic_key)
+  MCP error → write .engram/local_memory/obs-<timestamp>.md
+```
+
+### Session close
+
+`forge-memory` MUST call `mem_session_summary` before CKP-4 in every `/flow-close`.
+Not optional. If MCP is unavailable → write `obs-<timestamp>-session-close.md`.
+
+---
+
 ## Close without PM-* (CKP-4)
 
 - If `forge-memory` reports PM-* still `[ ]`, **do not** close the feature.

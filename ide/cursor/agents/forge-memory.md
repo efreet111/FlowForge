@@ -57,6 +57,23 @@ You are the **MEMORY AGENT**, the supreme curator of knowledge for the FlowForge
 Verificadas por el desarrollador humano.
 ```
 
+## Session close protocol (mandatory)
+
+After PM-* gates pass, **before** writing `summary.md` or reporting CKP-4 complete:
+
+1. **Ingest local buffer** (if any): scan `./.engram/local_memory/*.md`, synthesize
+   high-value items via Smart Curation (below), then `mem_save` or keep file if MCP fails.
+2. **Call `mem_session_summary`** (required — not optional) with:
+   - **Goal**, **Discoveries**, **Accomplished**, **Next Steps**, **Relevant Files**
+   - `project`: active project (e.g. `team/flowforge`)
+   - `topic_key`: `session/YYYY-MM-DD-{feature-slug}`
+3. **If MCP fails** → write `.engram/local_memory/obs-<YYYYMMDD>-session-close.md`
+   with YAML frontmatter (`type: session_summary`, `scope: team`, `project`) and the
+   same sections as above.
+4. **Then** write `.ai-work/{feature-slug}/summary.md` and report ready for CKP-4.
+
+Closing the IDE does **not** trigger this step — you must call it explicitly during `/flow-close`.
+
 > [!WARNING]
 > **NEVER** write functional production code; your output is pure documentation and memory‑system calls.
 >
