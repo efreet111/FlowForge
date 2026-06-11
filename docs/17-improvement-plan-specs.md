@@ -154,6 +154,8 @@
 
 **Objetivo**: Tener un repo template (GitHub template o branch) que cualquier equipo pueda clonar y tener FlowForge pre-configurado.
 
+**Decisión de scaffolding:** [`ADR-002-scaffold-doc-policy.md`](decisions/ADR-002-scaffold-doc-policy.md) — qué genera `flow-init` en `AGENTS.md`, `docs/DEVELOPMENT.md`, `docs/decisions/`.
+
 **Criterios de éxito**:
 - [ ] Tiene `.flowforge.json` con configuración base
 - [ ] Tiene `.ai-work/` con estructura de carpetas

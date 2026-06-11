@@ -1,6 +1,6 @@
 # FlowForge + engram-dotnet — Combined roadmap
 
-> **Last updated**: 2026-05-30  
+> **Last updated**: 2026-06-09  
 > **FlowForge version**: [`0.4.1`](../VERSION.md) — see [`CHANGELOG.md`](../CHANGELOG.md)  
 > **engram-dotnet**: `main` (archived SDD features)
 
@@ -27,9 +27,9 @@ While the repo is **private**, remote install via `raw.githubusercontent.com` re
 | IDE parity v0.4 | ✅ | `workflow-orchestrator-parity.md` + 4 IDEs |
 | Installers | ✅ | Global + `-ProjectPath` |
 | Real flow proof | ✅ | CRUD done; [`examples/crud-tareas/`](../examples/crud-tareas/) |
-| CKP-coherent docs | 🟡 | Item **15** — core + ide EN; Part 1 tables in `15` legacy ES cells |
+| CKP-coherent docs | ✅ | Item **15** — core + ide EN fully translated |
 | OSS files | ✅ | LICENSE, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT |
-| Public language | 🟡 | README/QUICKSTART EN+ES; most core `docs/` EN — see [`I18N.md`](I18N.md) |
+| Public language | ✅ | Core docs EN complete — see [`I18N.md`](I18N.md) |
 
 ### Optional (non-blocking)
 
@@ -60,11 +60,11 @@ While the repo is **private**, remote install via `raw.githubusercontent.com` re
 | **14** (partial) | `VERSION.md`, `CHANGELOG.md`, tag `v0.4.0` |
 | **20** Memory Curation Protocol | ✅ ADR-001, skills + 4 IDEs, [`.ai-work/agent-proactive-memory/`](../.ai-work/agent-proactive-memory/summary.md) |
 
-### 🔴 Before broad public adoption
+### 🟡 Before broad public adoption (resolved)
 
 | Item | Action |
 |------|--------|
-| **15** Doc audit | Finish `docs/08`, `03`; optional full EN Part 1 tables in `15` |
+| **15** Doc audit | ✅ Completed — `docs/08`, `03` EN; optional Part 1 tables in `15` deferred |
 | **8** IDE smoke | OpenCode on Linux (primary), then VS Code / Antigravity |
 | **1** OpenCode | Bundle smoke after OS migration |
 
@@ -73,7 +73,7 @@ While the repo is **private**, remote install via `raw.githubusercontent.com` re
 | Items | Topic |
 |-------|--------|
 | **19** | Project memory association on first save ([`19-project-memory-association-backlog.md`](19-project-memory-association-backlog.md)) — engram has passive similar-project warning only |
-| **5–6** | Project template + `.flowforge.json` schema (feeds item 19: `engram.project`, `engram.scope`) |
+| **5–6** | Project template + `.flowforge.json` schema + **`flow-init`** ([`ADR-002`](decisions/ADR-002-scaffold-doc-policy.md): `AGENTS.md`, `docs/DEVELOPMENT.md`, `docs/decisions/`) | feeds item 19 |
 | **9** | engram-dotnet MCP diagnostics |
 | **10–13** | Concurrency, KPIs, migration guides |
 | **14** | Ongoing semver + GitHub releases |
@@ -111,8 +111,8 @@ Principles: CKP-0/3 are binary; CKP-1/2/4 are human decisions. `cycle_count` in 
 | # | Item | Priority | Status |
 |---|------|----------|--------|
 | 4 | QUICKSTART | P0 | ✅ |
-| 15 | Doc audit / i18n | P0 | 🟡 |
-| 5 | Project template | P1 | 📋 |
+| 15 | Doc audit / i18n | P0 | ✅ |
+| 5 | Project template + `flow-init` scaffold | P1 | 📋 — [`ADR-002`](decisions/ADR-002-scaffold-doc-policy.md) ✅ decisión |
 | 6 | `.flowforge.json` schema | P1 | 📋 |
 
 ### Week 3 — Install & test
@@ -137,6 +137,7 @@ Principles: CKP-0/3 are binary; CKP-1/2/4 are human decisions. `cycle_count` in 
 | 14 | Semver releases | P3 | 🟡 started |
 | 19 | Project memory association (first save) | P2 | 📋 spec — [`19-project-memory-association-backlog.md`](19-project-memory-association-backlog.md) |
 | 20 | Memory Curation Protocol | P1 | ✅ — [`ADR-001`](decisions/ADR-001-memory-curation-protocol.md) |
+| 21 | Scaffold doc policy (`AGENTS.md`, `DEVELOPMENT.md`, XML `///`) | P1 | ✅ ADR — [`ADR-002`](decisions/ADR-002-scaffold-doc-policy.md) · 📋 `flow-init` templates |
 
 ---
 
@@ -173,6 +174,7 @@ From [`13-edge-cases-and-risks.md`](13-edge-cases-and-risks.md):
 | Traceability / TTL / verification | engram-dotnet | ✅ Archived |
 | IDE delegation protocol | FlowForge | ✅ |
 | Memory Curation Protocol (item 20) | FlowForge | ✅ [`ADR-001`](decisions/ADR-001-memory-curation-protocol.md) |
+| Scaffold doc policy (item 21) | FlowForge | ✅ [`ADR-002`](decisions/ADR-002-scaffold-doc-policy.md) · 📋 templates/`flow-init` pending |
 | Model Router MCP server | FlowForge | ❌ Discarded — host IDE routing |
 
 ---

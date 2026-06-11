@@ -179,7 +179,9 @@ interfaces if relevant.
 
 ## Example: reading an existing ADR
 
-Open [`ADR-001-memory-curation-protocol.md`](ADR-001-memory-curation-protocol.md).
+Open [`ADR-001-memory-curation-protocol.md`](ADR-001-memory-curation-protocol.md) for a **methodology** ADR (memory curation).
+
+Open [`ADR-002-scaffold-doc-policy.md`](ADR-002-scaffold-doc-policy.md) for a **scaffolding** ADR (`flow-init` / project template: what goes in `AGENTS.md`, `docs/DEVELOPMENT.md`, XML `///` policy).
 
 Notice the structure:
 1. **Context** explains the problem (offline-first failure report; agents not saving)
