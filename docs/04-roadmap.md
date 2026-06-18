@@ -102,7 +102,7 @@ Principles: CKP-0/3 are binary; CKP-1/2/4 are human decisions. `cycle_count` in 
 
 | # | Item | Priority | Status |
 |---|------|----------|--------|
-| 1 | OpenCode smoke | P0 | 📋 Linux + bundle |
+| 1 | OpenCode smoke | P0 | 📋 Linux + bundle + **CI validates config structure** |
 | 2 | CRUD case (docs/14) | P0 | ✅ | Validation doc + 20/20 tests |
 | 3 | Example artifacts | P0 | ✅ |
 

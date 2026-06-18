@@ -39,6 +39,39 @@ Please include:
 - **Paths**: Antigravity standard is `.agents/` (not `.agent/`).
 - **Artifacts**: `.ai-work/{feature-slug}/`, `verify-report.md` (not `cert-report.md`).
 
+## Issue Templates
+
+When reporting issues, **please use our templates**:
+
+- **Bug Report** — for bugs: include OS, IDE, install mode, reproduction steps, expected vs actual behavior
+- **Feature Request** — for enhancements: describe the problem, proposed solution, alternatives
+
+Blank issues are disabled. Use a template to ensure maintainers get the context they need.
+
+## PR Template
+
+All pull requests should use our [PR template](.github/PULL_REQUEST_TEMPLATE.md):
+
+- Description (2-5 sentences)
+- Related issue (if any)
+- **Checklist** — all items must be checked before merge:
+  - Principles respected (small PRs, no contradictions)
+  - Conventions followed (English for docs, `.agents/` for Antigravity)
+  - Tests included (npm test / dotnet test passes)
+  - PM manual tests (PM-* from spec.md marked if applicable)
+- Breaking changes (yes/no)
+
+## CI Smoke Test
+
+Every PR runs the **OpenCode Smoke** workflow (`.github/workflows/opencode-smoke.yml`):
+
+- Validates `opencode.flowforge.json` is valid JSON
+- Checks all 7 subagents exist
+- Verifies each skill path resolves to a real file
+- Ensures no unresolved placeholders remain
+
+The CI completes in < 2 minutes.
+
 ## Security
 
 See [`SECURITY.md`](SECURITY.md) for reporting vulnerabilities.

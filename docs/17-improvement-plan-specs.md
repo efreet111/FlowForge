@@ -19,6 +19,8 @@
 - [ ] Cada agente carga su core skill correctamente (`{file:...}` apunta al SKILL.md correcto)
 - [ ] El orchestrator (agente primario) puede delegar a cada subagente
 - [ ] forge-verify puede ejecutar `npm test` / `dotnet test` según el proyecto
+- [ ] **CI validates structure**: `.github/workflows/opencode-smoke.yml` runs on every PR and validates JSON syntax, 7 agents present, skill paths exist
+- [ ] **Manual test validates runtime**: human invokes OpenCode and verifies agents load correctly (CI cannot test runtime agent loading)
 
 **Enfoque**:
 1. Mergear las entradas de `agent` del `opencode.flowforge.json` en el `~/.config/opencode/opencode.json` activo
