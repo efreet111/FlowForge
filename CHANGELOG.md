@@ -8,6 +8,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 
 ### Added
 
+- **Pattern Search step in `forge-discovery`** (item 21): mandatory codebase cloning check before any non-trivial design. Agents must search for existing implementations of the same architectural shape (BFS + MaxHops, topic_key persistence, validation sets, lineage, cycle detection) and document findings in a `## Reusable Patterns Found` section of the Context Map. Provenance: ENG-404 spike in engram-dotnet (2026-06-18) reduced an XL estimate to M by cloning the `Engram.Verification` trace pattern. Anti-pattern: proposing greenfield design when an existing module solves 80%+ of the problem is a CKP-0 violation.
 - **Orchestrator Memory Curation Protocol** (item 20): IDE-agnostic protocol for
   proactive knowledge persistence during FlowForge sessions. `forge-arch` and
   `forge-dev` emit a lightweight `## Memory Signal` (3 fields) in their handoff;
