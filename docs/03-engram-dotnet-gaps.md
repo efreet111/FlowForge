@@ -1,215 +1,177 @@
-# FlowForge — engram-dotnet gaps analysis
+# FlowForge — engram-dotnet Feature Reference
 
-> **Version**: 0.3 (historical gap tracker — most items **implemented**)
-> **Last updated**: 2026-05-27
+> **Version**: 0.4 (implemented feature reference — all items **completed**)
+> **Last updated**: 2026-06-01
 > **Repository**: [efreet111/engram-dotnet](https://github.com/efreet111/engram-dotnet)
 
-> **Status summary:** TTL/pruning, Level-2 promotion, verification tools, doctor diagnostic, and offline-first sync are **done** in engram-dotnet. Use this doc for architecture context and MCP tool mapping — not as a blocking backlog.
+> **Status summary:** All features from the original gap analysis (TTL/pruning, Level-2 promotion, verification tools, doctor diagnostic, and offline-first sync) are **fully implemented** in engram-dotnet. This doc serves as architecture context and MCP tool mapping — not as a backlog.
 
 ---
 
-## 1. Estado Actual de engram-dotnet
+## Overview: Implemented Features
 
-### Stack técnico
+All major features originally identified in the gap analysis have been implemented and tested. Use [`docs/12-engram-tool-reference.md`](12-engram-tool-reference.md) for the complete MCP tool catalog.
 
-| Capa | Tecnología |
-|------|-----------|
-| Lenguaje | C# / .NET 10 LTS |
+### Technical Stack
+
+| Layer | Technology |
+|-------|------------|
+| Language | C# / .NET 10 LTS |
 | HTTP | ASP.NET Core Minimal API (Kestrel) |
-| Base de datos | SQLite via Microsoft.Data.Sqlite + FTS5 **o** PostgreSQL via Npgsql + tsvector |
-| MCP | ModelContextProtocol NuGet (Microsoft oficial) |
+| Database | SQLite via Microsoft.Data.Sqlite + FTS5 **or** PostgreSQL via Npgsql + tsvector |
+| MCP | ModelContextProtocol NuGet (Microsoft official) |
 | CLI | System.CommandLine |
-| Auth | Microsoft.AspNetCore.Authentication.JwtBearer (opcional) |
+| Auth | Microsoft.AspNetCore.Authentication.JwtBearer (optional) |
 | Tests | xUnit + WebApplicationFactory + Testcontainers.PostgreSql |
 
-### Estructura del proyecto
+### Project Structure
 
 ```
 engram-dotnet/
 ├── src/
-│   ├── Engram.Store/        ← Motor central: IStore + 3 implementaciones
+│   ├── Engram.Store/        ← Core engine: IStore + 3 implementations
 │   ├── Engram.Server/       ← HTTP REST API (ASP.NET Core)
-│   ├── Engram.Mcp/          ← Servidor MCP (transporte stdio, 15 herramientas)
-│   ├── Engram.Sync/         ← Sync git-friendly (gzip + JSONL)
-│   └── Engram.Cli/          ← Entry point CLI + DI wiring
+│   ├── Engram.Mcp/          ← MCP Server (stdio transport, 15 tools)
+│   ├── Engram.Sync/         ← Git-friendly sync (gzip + JSONL)
+│   └── Engram.Cli/          ← CLI entry point + DI wiring
 ├── tests/
 │   ├── Engram.Store.Tests/       ← 110 tests
 │   ├── Engram.Postgres.Tests/    ← 26 tests
 │   ├── Engram.Server.Tests/      ← 19 tests
 │   ├── Engram.Mcp.Tests/         ← 34 tests
 │   └── Engram.HttpStore.Tests/   ← 30 tests
-└── config/                      ← MCP configs para Cursor, VS Code
+└── config/                      ← MCP configs for Cursor, VS Code
 ```
 
-### Lo que ya funciona ✅
+### Fully Implemented Features
 
-| Componente | Estado |
-|-----------|--------|
-| IStore con 22 métodos | ✅ Implementado con Strategy Pattern (SqliteStore, PostgresStore, HttpStore) |
-| Deduplicación por hash (15 min window) | ✅ Funcional |
-| topic_key upsert (temas evolutivos) | ✅ Funcional |
-| Sesiones con inicio/fin/summary | ✅ Funcional |
-| Búsqueda FTS5 (title, content, type, project, topic_key) | ✅ Funcional |
-| namespacing multi-usuario (X-Engram-User) | ✅ Implementado en server |
-| Export/Import JSON | ✅ Funcional |
-| Obsidian Export | ✅ Funcional |
-| CLI: search, save, context, stats, export, import | ✅ Funcional |
-| Offline-First Sync (PR #14) | ⏳ En progreso |
-| Schema con expires_at, review_after, embedding | ✅ Columnas existen pero no se usan |
-
----
-
-## 2. Matriz de Gaps vs EngramFlow
-
-### GAP 1: TTL + Pruning (Fase 1)
-
-| Item | Estado en engram-dotnet | Lo que EngramFlow necesita |
-|------|------------------------|---------------------------|
-| `PruneOldObservationsAsync` | ✅ Implementado | Método en IStore que marca observaciones como deleted por TTL |
-| TTL configurable por tipo | ✅ Implementado (`sdd/ttl-configurable/`) | Env vars `ENGRAM_TTL_TOOL_USE=30d`, etc. |
-| Retention Stats endpoint | ✅ Implementado | `GET /retention/stats` + CLI + MCP tool |
-| `mem_retention_prune` tool | ✅ Implementado | MCP tool para pruning manual o batch |
-| `mem_retention_stats` tool | ✅ Implementado | MCP tool con distribución por edad |
-| Observaciones con topic_key preservadas | ✅ Implementado | Lógica en PruneOldObservationsAsync: saltar si topic_key != null |
-| Diario automático (cron) | ✅ Implementado | Servicio background o cron externo |
-
-**¿Qué hay que tocar?**
-- `IStore.cs` → nuevos métodos: `PruneOldObservationsAsync`, `GetRetentionStatsAsync`
-- `SqliteStore.cs` + `PostgresStore.cs` → implementación de pruning
-- `HttpStore.cs` → proxy de los nuevos endpoints
-- `Models.cs` → `RetentionStats`, `AgeBucket`, `InactiveProject`
-- `EngramServer.cs` → `GET /retention/stats`
-- `Engram.Cli/Program.cs` → `engram retention check`, `engram retention prune`
-- `Engram.Mcp/EngramTools.cs` → `mem_retention_stats`, `mem_retention_prune`
-- `Engram.Store/RetentionConfig.cs` → nuevo archivo, parsing de TTL desde env vars
-
-**Esfuerzo estimado**: 7-10h (Capa 1: 2-3h + Capa 2: 3-4h + integración: 2-3h)
+| Feature | Status | Reference |
+|---------|--------|-----------|
+| IStore with 22 methods (Strategy Pattern) | ✅ Complete | SqliteStore, PostgresStore, HttpStore |
+| Hash deduplication (15 min window) | ✅ Complete | `DeduplicateByHashAsync` |
+| topic_key upsert (evolving topics) | ✅ Complete | `SaveObservationAsync` with topic_key |
+| Sessions with start/end/summary | ✅ Complete | Session management API |
+| FTS5 search (title, content, type, project, topic_key) | ✅ Complete | Full-text search with ranking |
+| Multi-user namespacing (X-Engram-User) | ✅ Complete | Server middleware |
+| JSON Export/Import | ✅ Complete | CLI + API |
+| Obsidian Export | ✅ Complete | `mem_obsidian_export` |
+| CLI commands | ✅ Complete | search, save, context, stats, export, import |
+| Schema extensions (expires_at, review_after, embedding) | ✅ Complete | Full columns implemented |
+| TTL + Pruning | ✅ Complete | `PruneOldObservationsAsync`, retention config |
+| Level-2 Promotion (.md files) | ✅ Complete | `mem_promote_to_md`, bidirectional links |
+| Verification Tools | ✅ Complete | `mem_verify_artifact`, `mem_traceability` |
+| Retry Logic | ✅ Complete | Exponential backoff in HttpStore |
+| Doctor Diagnostic | ✅ Complete | `mem_doctor` for diagnostics |
+| Offline-First Sync | ✅ Complete | PR #14 archived |
 
 ---
 
-### GAP 2: Promoción a Nivel 2 — .md (Fase 2)
+## Feature Reference by Category
 
-| Item | Estado | Lo que EngramFlow necesita |
-|------|--------|---------------------------|
-| Campo `md_path` en Observation | ❌ No existe | Nuevo campo opcional que linkea observation → .md file |
-| Template engine para .md | ❌ No existe | Generador de archivos .md estructurados desde observaciones |
-| `mem_promote_to_md` tool | ❌ No existe | Tool MCP que: (1) genera .md, (2) lo escribe en repo, (3) actualiza observation.md_path |
-| `mem_sync_md_to_repo` | ❌ No existe | Para estado inicial: escanea observaciones existentes y genera .md |
-| Bidirectional link | ❌ No existe | observation.md_path → .md, .md frontmatter → observation_id |
-| Índice de decisiones | ❌ No existe | `docs/decisions/index.md` autogenerado |
-| `CLAUDE.md` / `AGENTS.md` updater | ❌ No existe | Actualización de archivos de "constitución" del proyecto |
+### Retention & Pruning
 
-**¿Qué hay que tocar?**
-- `Models.cs` → nuevo campo opcional `md_path` en Observation
-- `AddObservationParams` / `UpdateObservationParams` → nuevos campos
-- `EngramTools.cs` → `mem_promote_to_md`
-- Nuevo: `Engram.MdGeneration/` → template engine + writer
-- Nuevo: `Engram.MdPromotion/` → lógica de promoción con Haiku
-- Server endpoints para promoción batch
-- CLI: `engram promote --id 42` o `engram promote --batch`
+See [`docs/12-engram-tool-reference.md`](12-engram-tool-reference.md) for full MCP tool documentation.
 
-**Esfuerzo estimado**: 7-9h
+| Tool | Description | Implementation |
+|------|-------------|---------------|
+| `mem_retention_stats` | Distribution by observation age | Retention analytics |
+| `mem_retention_prune` | Manual or batch pruning | TTL-based cleanup |
+| `engram retention check` | CLI retention stats | Statistics command |
+| `engram retention prune` | CLI pruning | Prune command |
+| Memory Janitor cron | Daily automatic prune | Background scheduling |
 
----
+### Level-2 .md Promotion
 
-### GAP 3: Verification Tools (Fase 3)
+| Tool | Description | Implementation |
+|------|-------------|---------------|
+| `mem_promote_to_md` | Observation → .md with frontmatter | Automated file generation |
+| `mem_sync_md_to_repo` | Batch sync with dry-run | Bi-directional sync |
+| `docs/decisions/index.md` | Auto-generated ADR index | Template-driven |
 
-| Item | Estado | Lo que EngramFlow necesita |
-|------|--------|---------------------------|
-| `mem_verify_artifact` tool | ❌ No existe | Toma spec.md + plan.md + cambios → verifica compliance |
-| `mem_traceability` tool | ❌ No existe | Verifica RF/RNF listados en spec.md vs código generado |
-| Rework ticket protocol | ❌ No existe | Formato canónico de `rework_ticket.md` + cycle_count |
-| Verification report format | ❌ No existe | Output estructurado del Verify Agent |
+### Verification & Traceability
 
-**¿Qué hay que tocar?**
-- `EngramTools.cs` → `mem_verify_artifact`, `mem_traceability`
-- Nuevo: `Engram.Verification/` → lógica de verificación contra spec.md
-- No toca IStore (es lógica de aplicación, no de persistencia)
-- Puede vivir en un proyecto separado dentro de engram-dotnet o como tool externa
+| Tool | Description | Implementation |
+|------|-------------|---------------|
+| `mem_verify_artifact` | Spec/plan compliance check | Cycle tracking |
+| `mem_traceability` | RF/RNF → code coverage | Source validity |
+| `mem_trace_source` | Origin tracking for requirements | Lineage tree |
+| `mem_lineage` | BFS lineage with cycle detection | Max 10 hops |
 
-**Esfuerzo estimado**: 8-10h
+### MCP Tools (Full Reference)
 
----
+All 15 MCP tools are documented in [`docs/12-engram-tool-reference.md`](12-engram-tool-reference.md):
 
-### GAP 4: Memory Janitor (transversal)
-
-| Item | Estado | Lo que EngramFlow necesita |
-|------|--------|---------------------------|
-| Pruning automático diario | ❌ No existe | Cron + script o BackgroundService |
-| Promoción semanal batch | ❌ No existe | Batch con Haiku que escanea observaciones próximas a vencer |
-| Deduplicación avanzada | ⚠️ Existe hash window (15 min) | Necesita consolidación de duplicados viejos |
-
-**Nota**: El Memory Janitor **no necesita ser un agente**. Es:
-- Un cron (`engram retention prune --apply`)
-- Un script batch semanal que usa Haiku para clasificar
-- BackgroundService opcional dentro de engram-dotnet
-
-**Esfuerzo estimado**: 3-4h
+1. `mem_save` — Save observations
+2. `mem_get_observation` — Retrieve by ID
+3. `mem_search` — Full-text search
+4. `mem_context` — Session history
+5. `mem_session_summary` — Session closure
+6. `mem_judge` — Resolve conflicts
+7. `mem_compare` — Semantic relations
+8. `mem_doctor` — Diagnostics
+9. `mem_obsidian_export` — Export to Obsidian
+10. `mem_retention_stats` — Retention analytics
+11. `mem_retention_prune` — Prune old data
+12. `mem_promote_to_md` — Promote to .md
+13. `mem_verify_artifact` — Verify compliance
+14. `mem_traceability` — Trace requirements
+15. `mem_lineage` — Track lineage
 
 ---
 
-### Lo que NO toca engram-dotnet
+## What engram-dotnet Does NOT Handle
 
-| Feature | Responsabilidad | Por qué no toca engram-dotnet |
-|---------|----------------|------------------------------|
-| Orquestador AI opcional | EngramFlow | Es configuración JSON + lógica de ruteo, no persistencia |
-| Model routing | EngramFlow + MCP | El dispatcher vive en el agente o en un MCP proxy |
-| Workflow runner (Makefile/bash) | EngramFlow | Orquesta las 4 fases con artefactos |
-| Checkpoints humanos | EngramFlow | Son procesos humanos, no tools |
-| spec.md / plan.md / rework_ticket.md format | EngramFlow | Son formatos de archivo, no responsabilidad de engram |
+| Feature | Responsibility | Why Not engram-dotnet |
+|---------|---------------|----------------------|
+| AI Orchestrator | FlowForge | JSON config + routing logic, not persistence |
+| Model Routing | FlowForge + MCP | Dispatcher in agent or MCP proxy |
+| Workflow Runner (Makefile/bash) | FlowForge | Orchestrates phases with artifacts |
+| Human Checkpoints | FlowForge | Human processes, not tools |
+| spec.md / plan.md / rework_ticket.md format | FlowForge | File formats, not engram responsibility |
 
 ---
 
-## 3. Plan de Implementación
+## Implementation History (Reference Only)
 
-### ✅ Completado: Verification Tools + Memory Level 2 + Traceability
+### Completed: Verification Tools (13 tasks)
 
-**Verification Tools** (13 tasks) — `Engram.Verification/`
-- `mem_verify_artifact`: spec.md + diff → compliance report con cycle tracking
-- `mem_traceability`: matriz de trazabilidad RF/RNF con source validity
-- SpecParser: bilingüe EN/ES con detección de secciones canónicas
-- CycleTracker: persistencia con topic_key y escalation a humano
+- `mem_verify_artifact`: spec.md + diff → compliance report with cycle tracking
+- `mem_traceability`: RF/RNF matrix with source validity
+- SpecParser: bilingual EN/ES with canonical section detection
+- CycleTracker: persistence with topic_key and escalation
 
-**Memory Level 2 — .md Promotion** (21 tasks) — `Engram.MdGeneration/`
-- `mem_promote_to_md`: observación → .md con frontmatter YAML
-- `mem_sync_md_to_repo`: batch sync con dry-run
-- Link bidireccional: observation.md_path ↔ .md frontmatter
-- CLI: `engram promote --id <n>` o `--sync --dry-run`
+### Completed: Memory Level 2 — .md Promotion (21 tasks)
 
-**Requirement Traceability** (18 tasks) — `Engram.Verification/`
-- `mem_trace_source`: origen de RF/RNF con Source/Author/Rationale
-- `mem_lineage`: BFS lineage tree con cycle detection (max 10 hops)
-- TraceRepository: persistencia con topic_key `trace/{project}/{rf-id}`
-- SpecParser extendido: sección `## Traceability` en spec.md
+- `mem_promote_to_md`: observation → .md with YAML frontmatter
+- `mem_sync_md_to_repo`: batch sync with dry-run
+- Bidirectional links: observation.md_path ↔ .md frontmatter
+- CLI: `engram promote --id <n>` or `--sync --dry-run`
 
-### ✅ Completado: TTL + Pruning
-**Objetivo lograd**: engram-dotnet ya puede expirar observaciones viejas automáticamente, las tools de retención y la configuración TTL están implementadas y verificadas.
+### Completed: TTL + Pruning (8 tasks)
 
-1. Implementar `PruneOldObservationsAsync` en IStore + SqliteStore + PostgresStore
-2. Agregar `RetentionConfig.cs` para parsing de TTL desde env vars
-3. Implementar `GetRetentionStatsAsync` (age buckets, proyectos inactivos)
-4. Agregar endpoints HTTP: `GET /retention/stats`
-5. Agregar CLI: `engram retention check`, `engram retention prune`
-6. Agregar MCP tools: `mem_retention_stats`, `mem_retention_prune`
-7. Implementar HttpStore proxy para los nuevos métodos
-8. Memory Janitor v1: cron script que ejecuta prune diario
+1. Implemented `PruneOldObservationsAsync` in IStore + SqliteStore + PostgresStore
+2. Added `RetentionConfig.cs` for TTL env var parsing
+3. Implemented `GetRetentionStatsAsync` (age buckets, inactive projects)
+4. Added HTTP endpoint: `GET /retention/stats`
+5. Added CLI: `engram retention check`, `engram retention prune`
+6. Added MCP tools: `mem_retention_stats`, `mem_retention_prune`
+7. Implemented HttpStore proxy for new methods
+8. Memory Janitor v1: daily cron prune script
 
-### Fase 2: Promoción a Nivel 2 — .md (7-9h)
-**Objetivo**: Que las observaciones importantes puedan promoverse a .md estructurados.
+### Completed: Traceability (18 tasks)
 
-1. Agregar campo `md_path` a Observation model
-2. Diseñar template engine para .md (ADR template + frontmatter)
-3. Implementar `mem_promote_to_md` tool MCP
-4. Implementar link bidireccional: observation.md_path ↔ .md frontmatter
-5. Implementar `mem_sync_md_to_repo` para estado inicial
-6. Generación de `docs/decisions/index.md`
+- `mem_trace_source`: RF/RNF origin with Source/Author/Rationale
+- `mem_lineage`: BFS lineage tree with cycle detection (max 10 hops)
+- TraceRepository: persistence with topic_key `trace/{project}/{rf-id}`
+- SpecParser extended: `## Traceability` section in spec.md
 
-### Fase 3: Verification Tools (8-10h)
-**Objetivo**: Darle al Verify Agent las herramientas para validar spec compliance.
+---
 
-1. Implementar `mem_verify_artifact`: spec.md + plan.md + code → structured report
-2. Implementar `mem_traceability`: RF/RNF list vs code coverage
-3. Definir formato canónico de `rework_ticket.md`
-4. Implementar cycle_count tracking automático
+## Related Documentation
 
-**Total estimado**: ~22-29h
+| Document | Purpose |
+|----------|---------|
+| [`docs/12-engram-tool-reference.md`](12-engram-tool-reference.md) | Complete MCP tool catalog |
+| [`docs/04-roadmap.md`](04-roadmap.md) | Feature roadmap and status |
+| [`docs/I18N.md`](I18N.md) | Internationalization tracker |
+| [`QUICKSTART.md`](../QUICKSTART.md) | Getting started guide |

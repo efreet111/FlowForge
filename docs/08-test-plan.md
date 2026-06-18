@@ -1,27 +1,26 @@
-# Plan de Pruebas: Validación de EngramFlow en VS Code (Aislamiento OpenSpec)
+# Test Plan: EngramFlow Validation in VS Code (OpenSpec Isolation)
 
-> **Objetivo**: Validar de manera empírica, objetiva y no subjetiva el comportamiento de las 5 Skills Core de EngramFlow en Visual Studio Code utilizando la estructura de aislamiento por cambios de **FlowForge (Agentic SDLC)**. Esto asegura que las reglas de fase, la Capability Matrix, el Ralph Wiggum Loop y el Sentinel Judge funcionen de forma prolija antes de aplicarlos en producción.
+> **Objective**: Empirically, objectively, and non-subjectively validate the behavior of the 5 Core EngramFlow Skills in Visual Studio Code using the change-isolation structure of **FlowForge (Agentic SDLC)**. This ensures phase rules, the Capability Matrix, the Ralph Wiggum Loop, and the Sentinel Judge work cleanly before applying them in production.
 
 ---
 
-## 1. El Proyecto de Práctica: `practice-todo-cli`
+## 1. Practice Project: `practice-todo-cli`
 
-Para evitar ruido de dependencias, utilizaremos una pequeña aplicación CLI en **Python** para gestionar tareas con persistencia en un archivo JSON.
+To avoid dependency noise, we'll use a small CLI **Python** application for task management with JSON file persistence.
 
-### 1.1 Estructura del Proyecto de Práctica
-Crea un directorio `practice-todo-cli` en la raíz de tu workspace con la siguiente estructura:
+### 1.1 Practice Project Structure
+Create a `practice-todo-cli` directory in your workspace root with this structure:
 
 ```text
 practice-todo-cli/
-├── todo.py          # Lógica de la aplicación CLI y persistencia JSON
-├── test_todo.py     # Suite de tests unitarios (usando pytest o unittest)
-├── tasks.json       # Base de datos simulada en JSON
-└── openspec/
-    └── changes/
-        └── 001-prioridades-tareas/   <-- CARPETA DE AISLAMIENTO DEL CAMBIO
+├── todo.py          # CLI application logic and JSON persistence
+├── test_todo.py     # Unit test suite (using pytest or unittest)
+├── tasks.json       # Simulated JSON database
+└── .ai-work/
+    └── prioridades-tareas/   <-- CHANGE ISOLATION FOLDER
 ```
 
-### 1.2 Código Base de Partida
+### 1.2 Starter Code
 #### `todo.py`
 ```python
 import json
@@ -44,7 +43,7 @@ def save_tasks(tasks):
 
 def add_task(title):
     if not title.strip():
-        raise ValueError("El título no puede estar vacío")
+        raise ValueError("Title cannot be empty")
     tasks = load_tasks()
     new_task = {
         "id": len(tasks) + 1,
@@ -71,117 +70,117 @@ def cleanup():
         os.remove(DB_FILE)
 
 def test_add_task_success():
-    task = add_task("Comprar leche")
-    assert task["title"] == "Comprar leche"
+    task = add_task("Buy milk")
+    assert task["title"] == "Buy milk"
     assert task["completed"] is False
     
     tasks = load_tasks()
     assert len(tasks) == 1
 
 def test_add_task_empty_title():
-    with pytest.raises(ValueError, match="El título no puede estar vacío"):
+    with pytest.raises(ValueError, match="Title cannot be empty"):
         add_task("")
 ```
 
 ---
 
-## 2. La Tarea del Experimento (El Cambio)
+## 2. Experiment Task (The Change)
 
-**Requerimiento del Usuario**: 
-> "Quiero poder agregar prioridades (ALTA, MEDIA, BAJA) a las tareas cuando las creo, y poder listar las tareas filtradas por una prioridad específica."
+**User Requirement**:
+> "I want to add priorities (HIGH, MEDIUM, LOW) to tasks when I create them, and be able to filter tasks by a specific priority."
 
 ---
 
-## 3. Guía de Ejecución de Pruebas Fase por Fase
+## 3. Test Execution Guide Phase by Phase
 
-> **Comandos vs agentes (v0.4):** Escribís **`/flow-*`** al orquestador; él delega a **`forge-*`**.
-> No uses `/forge-memory` ni `@forge-dev` como comando principal — no son oficiales.
-> Ver [`QUICKSTART.md`](../QUICKSTART.md) y [`14-flowforge-complete-reference.md`](14-flowforge-complete-reference.md).
+> **Commands vs agents (v0.4):** You type **`/flow-*`** to the orchestrator; it delegates to **`forge-*`**.
+> Don't use `/forge-memory` or `@forge-dev` as main commands — they're not official.
+> See [`QUICKSTART.md`](../QUICKSTART.md) and [`14-flowforge-complete-reference.md`](14-flowforge-complete-reference.md).
 >
-> **Rutas:** artefactos en `.ai-work/{feature-slug}/` (kebab-case), no `openspec/changes/`.
+> **Paths**: artifacts in `.ai-work/{feature-slug}/` (kebab-case), not `openspec/changes/`.
 
-Ejecuta las siguientes instrucciones en el chat del IDE en **modo Agent**, con reglas FlowForge activas:
+Execute the following instructions in the IDE chat in **Agent** mode, with FlowForge rules active.
 
-### 3.0 Fase 0: Discovery + Spec (`/flow-start`)
+### 3.0 Phase 0: Discovery + Spec (`/flow-start`)
 
-* **Prompt de entrada**:
-  ```text
-  /flow-start Prioridades en tareas — agregar prioridades ALTA, MEDIA, BAJA al crear tareas y filtrar por prioridad. Default MEDIA.
+* **Input prompt**:
   ```
-* **Qué delega el orquestador:** `forge-discovery` → `forge-arch` → `spec.md` en `.ai-work/prioridades-tareas/`
-* **Criterios (CKP-1):** spec con capability_matrix, GWT, PM-*; humano aprueba antes de `/flow-plan`
+  /flow-start Task Priorities — add HIGH, MEDIUM, LOW priorities when creating tasks and filter by priority. Default MEDIUM.
+  ```
+* **Orchestrator delegates**: `forge-discovery` → `forge-arch` → `spec.md` in `.ai-work/prioridades-tareas/`
+* **CKP criteria (CKP-1)**: spec with capability_matrix, GWT, PM-*; human approves before `/flow-plan`
 
-### 3.1 Fase 1: Spec (`forge-arch` vía `/flow-start`)
+### 3.1 Phase 1: Spec (`forge-arch` via `/flow-start`)
 
-* **Alternativa legacy (no recomendada):** invocar `@forge-arch` directo — salta CKP-0 y discovery.
-* **Criterios de aceptación (qué verificar en `spec.md`)**:
-  - [ ] ¿Creó `spec.md` en `.ai-work/prioridades-tareas/spec.md`?
-  - [ ] ¿La `capability_matrix` clasifica ALTA/MEDIA/BAJA como `deterministic`?
-  - [ ] ¿Al menos 2 escenarios Given-When-Then?
-  - [ ] ¿Sin código Python propuesto?
+* **Legacy alternative (not recommended)**: invoke `@forge-arch` directly — skips CKP-0 and discovery.
+* **Acceptance criteria (what to verify in `spec.md`)**:
+  - [ ] Did it create `spec.md` in `.ai-work/prioridades-tareas/spec.md`?
+  - [ ] Does the `capability_matrix` classify HIGH/MEDIUM/LOW as `deterministic`?
+  - [ ] At least 2 Given-When-Then scenarios?
+  - [ ] No Python code proposed?
 
-### 3.2 Fase 2: Plan (`/flow-plan` → `forge-plan`)
+### 3.2 Phase 2: Plan (`/flow-plan` → `forge-plan`)
 
-* **Prompt de entrada**:
-  ```text
+* **Input prompt**:
+  ```
   /flow-plan
   ```
-* **Criterios de aceptación (qué verificar en `plan.md`)**:
-  - [ ] ¿`plan.md` en `.ai-work/prioridades-tareas/plan.md`?
-  - [ ] ¿Proposed Changes solo `todo.py` y `test_todo.py`?
-  - [ ] ¿Esquema JSON explícito con `priority`?
-  - [ ] ¿Checklist topológico (persistencia antes de tests)?
+* **Acceptance criteria (what to verify in `plan.md`)**:
+  - [ ] Is `plan.md` in `.ai-work/prioridades-tareas/plan.md`?
+  - [ ] Proposed Changes only `todo.py` and `test_todo.py`?
+  - [ ] Explicit JSON schema with `priority`?
+  - [ ] Topological checklist (persistence before tests)?
 
-### 3.3 Fase 3: Ejecución (`/flow-dev` → `forge-dev`)
+### 3.3 Phase 3: Execution (`/flow-dev` → `forge-dev`)
 
-* **Prompt de entrada**:
-  ```text
+* **Input prompt**:
+  ```
   /flow-dev
   ```
-* **Criterios de aceptación**:
-  - [ ] ¿Respeta el plan sin freelancing?
-  - [ ] ¿Ralph Wiggum: pytest verde?
-  - [ ] ¿Tests con prefijo `[RF-XXX]`?
+* **Acceptance criteria**:
+  - [ ] Respects plan without freelancing?
+  - [ ] Ralph Wiggum: pytest green?
+  - [ ] Tests with `[FR-XXX]` prefix?
 
-### 3.4 Fase 4: Juicio (`/flow-verify` → `forge-verify`)
+### 3.4 Phase 4: Judgment (`/flow-verify` → `forge-verify`)
 
-Inyectá una falla manual en `todo.py` antes de verificar.
+Inject a manual failure in `todo.py` before verifying.
 
-* **Prompt de entrada**:
-  ```text
+* **Input prompt**:
+  ```
   /flow-verify
   ```
-* **Criterios de aceptación**:
-  - [ ] ¿REJECTED o `rework_ticket.md` con `cycle_count: 1`?
-  - [ ] ¿Motivo objetivo documentado?
-  - [ ] Tras corregir: segundo `/flow-verify` → PASS en `verify-report.md`
+* **Acceptance criteria**:
+  - [ ] REJECTED or `rework_ticket.md` with `cycle_count: 1`?
+  - [ ] Objective reason documented?
+  - [ ] After fixing: second `/flow-verify` → PASS in `verify-report.md`
 
-### 3.5 Fase 5: Cierre (`/flow-close` → `forge-memory`)
+### 3.5 Phase 5: Closure (`/flow-close` → `forge-memory`)
 
-* **Prompt de entrada**:
-  ```text
+* **Input prompt**:
+  ```
   /flow-close
   ```
-  (No uses `/forge-memory` — el comando canónico es **`/flow-close`**.)
+  (Don't use `/forge-memory` — the canonical command is **`/flow-close`**.)
 
-* **Criterios de aceptación**:
-  - [ ] ¿PM-* marcados `[x]` en `spec.md`?
-  - [ ] ¿`summary.md` en `.ai-work/prioridades-tareas/`?
-  - [ ] ¿`mem_session_summary` llamado (o fallback en `.engram/local_memory/` si MCP cae)?
-  - [ ] ¿Decisiones clave persistidas vía Memory Curation Protocol (orquestador + Engram)?
+* **Acceptance criteria**:
+  - [ ] PM-* marked `[x]` in `spec.md`?
+  - [ ] `summary.md` in `.ai-work/prioridades-tareas/`?
+  - [ ] `mem_session_summary` called (or fallback in `.engram/local_memory/` if MCP falls)?
+  - [ ] Key decisions persisted via Memory Curation Protocol (orchestrator + Engram)?
 
 ---
 
-## 4. Matriz de Evaluación del Experimento
+## 4. Experiment Evaluation Matrix
 
-Usa esta tabla para calificar el desempeño de tus modelos de OpenRouter en VS Code:
+Use this table to grade the performance of your OpenRouter models in VS Code:
 
-| Skill | Modelo Utilizado | ¿Cumplió Reglas Duras? (S/N) | Tiempo de Ejecución | Calidad del Output (1-10) |
-|---|---|---|---|---|
+| Skill | Model Used | Hard Rules Met? (Y/N) | Execution Time | Output Quality (1-10) |
+|-------|------------|----------------------|----------------|--------------------------|
 | **forge-arch** | | | | |
 | **forge-plan** | | | | |
-| **forge-dev** | | | | |
+| **forge-dev** | | | |
 | **forge-verify** | | | | |
-| **forge-memory** | | | | |
+| **forge-memory** | | | |
 
-Si todas las fases obtienen una calificación mayor o igual a **8/10** y las restricciones de fase (no-touch, no-coding en Arch, no-freelancing en Dev) se respetan estrictamente, la metodología se considerará **Apta para Producción** en FlowForge.
+If all phases receive a grade of **8/10** or higher and phase constraints (no-touch, no-coding in Arch, no-freelancing in Dev) are strictly respected, the methodology will be considered **Production Ready** for FlowForge.

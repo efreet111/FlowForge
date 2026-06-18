@@ -3,11 +3,27 @@
 ## Trigger / Context
 When the orchestrator launches you to explore a new epic, investigate prior memories (both DB and local grep fallback), or map requirements.
 
+---
+
+## Why This Skill Exists (Provenance)
+
+**Added**: 2026-06-18
+**Author context**: while running a FlowForge-managed feature in `engram-dotnet` (the very backend FlowForge orchestrates against), the human asked: _"¿ese spike entra dentro del flow?"_ — referring to a 2h validation spike for ENG-404 (memory relations). The orchestrator ran the spike _outside_ the full FlowForge cycle (no `spec.md`, no `plan.md`, no PM-*) because the spike's deliverable is a learning, not a production feature.
+
+During that spike, the discovery agent realized that `src/Engram.Verification/` already contains a complete **pattern library** (TraceRepository, LineageBuilder, RelationValidator) for requirement traceability. The spike cloned this pattern for general observations in **M effort (not XL)**. The realization that ENGRAM-DOTNET ITSELF was a pattern library the agent could have searched earlier is what motivated **step 5** below.
+
+**This is why this step is non-negotiable**: we are not theorizing. We are documenting a method that, in production on 2026-06-18, reduced a real XL estimate to M in a 2h spike. Ignoring it means re-paying the discovery cost on every future greenfield-shaped request.
+
+**Scope reminder**: FlowForge orchestrates _projects_ (engram-dotnet, FlowDocs, FlowForge itself, others). Step 5 must be run **inside the project under change** — not against the orchestrator codebase. The example grep commands below target the active project, not `FlowForge/`.
+
+---
+
 ## Overview
+
 1. **Receive User Request** – a new user story or change request arrives.
 2. **Keyword Extraction** – parse the prompt and extract 3‑5 highly specific technical/business terms (e.g., `auth`, `login`, `jwt`, `performance`, `sqlite`).
 3. **Memory Search (Dual‑Level)**
-   - **Attempt A: engram‑dotnet Engine (Preferred)**
+   - **Attempt A: engram-dotnet Engine (Preferred)**
      - Invoke `mem_search` with the extracted keywords filtered by the current project to get candidate observations.
      - **CRITICAL**: Results are truncated. For each relevant observation, call `mem_get_observation(id)` to retrieve the full, uncut content.
    - **Attempt B: Local Fallback**
@@ -15,11 +31,45 @@ When the orchestrator launches you to explore a new epic, investigate prior memo
      - For each matching file, read it fully with `view_file` to extract its YAML FrontMatter and structured content.
 4. **Association Mapping & Narrative Thread**
    - Determine if the new user story belongs to an existing Epic in memory, or inherits architectural constraints from an ongoing topic (check if observations share the same `topic_key`).
-5. **Hard Stop — CKP-0 🔴**
-    - If the user request is too vague (e.g., "improve performance") and no prior context clarifies it, **STOP IMMEDIATELY**. Ask clarification questions before proceeding.
-    - This checkpoint is **BINARY** — there is no "maybe". If context is insufficient, the entire flow halts here. The orchestrator MUST NOT proceed to Phase 1.
+5. **Pattern Search (Codebase Cloning) — MANDATORY**
+   - **Purpose**: discover _existing implementations of the same architectural shape_ inside the project under change. If a module solves 80%+ of the problem, the right move is to **clone / extend / re-use**, not to design from scratch.
+   - **Concrete trigger evidence** (why this step exists):
+     - ENG-404 (memory relations) was estimated XL because no one searched `Engram.Verification/`. After a 2h spike that cloned TraceRepository + LineageBuilder, the estimate was revised to **M**.
+     - The original XL estimate was a **false estimate**: it priced a greenfield design that should never have been proposed. The pattern was sitting in the repo.
+   - **How to execute** (in the _active project_, not in FlowForge/):
+     - Extract 1-2 **architectural shape keywords** from the request (e.g., "graph", "BFS", "topic_key persistence", "validation set", "lineage", "cycle detection", "upsert by key", "diff-and-patch", "background job", "retry with backoff").
+     - Run grep/code_search against the **active project**: e.g. `grep -r "BFS\|MaxHops\|HashSet<long>" src/`, `grep -rn "topic_key:" src/`, `grep -rn "CycleDetected\|MaxHops" src/`.
+     - For each candidate, read the file fully and judge: _does it solve a structurally similar problem?_ Example: `LineageBuilder` on `string` RF-* IDs vs. `MemoryLineageBuilder` on `long` observation IDs is structurally identical — only the ID type changes. That is a clone, not a redesign.
+     - Capture each finding in the Context Map under a mandatory section: `## Reusable Patterns Found`. If the search returned nothing, write the search terms and the (negative) result explicitly — _the absence of a finding is itself a finding, and is auditable_.
+   - **Required Context Map additions** (effective for all Context Maps produced after 2026-06-18):
+
+     ```markdown
+     ## Reusable Patterns Found
+     - `src/.../X.cs` (line N): <what it does> → can be cloned / extended / re-used for <this request>
+     - Or: no patterns found. Search terms: ["BFS", "topic_key", "cycle detection"]. Result: negative.
+     ```
+
+   - **Anti-pattern (CKP-0 violation)**: proposing a greenfield design when an existing module solves 80%+ of the problem. The human reviewer (or `forge-verify`) MUST reject the design and send the agent back to step 5. This is a hard, mechanical check — not a stylistic preference.
+   - **Why this step was added to the SKILL (not just the CHANGELOG)**: skills are loaded at agent runtime. CHANGELOG is read by humans months later. If the why lives only in the CHANGELOG, the next agent to run discovery will not see it. The provenance section at the top of this file is the _only_ place where the why is guaranteed to load with the skill.
+6. **Hard Stop — CKP-0 🔴**
+   - If the user request is too vague (e.g., "improve performance") and no prior context clarifies it, **STOP IMMEDIATELY**. Ask clarification questions before proceeding.
+   - This checkpoint is **BINARY** — there is no "maybe". If context is insufficient, the entire flow halts here. The orchestrator MUST NOT proceed to Phase 1.
 
 ---
 
 ## Your Output (Context Map)
-If valid context exists, produce a concise **Context Map (Discovery)** that serves as the mandatory preface for the Architecture Agent (Phase 1). The map should list relevant prior observations, associated epics, and any constraints that must be respected.
+
+If valid context exists, produce a concise **Context Map (Discovery)** that serves as the mandatory preface for the Architecture Agent (Phase 1). The map must list:
+
+- Relevant prior observations (from step 3)
+- Associated epics and topic_keys (from step 4)
+- **Reusable Patterns Found** (from step 5) — _mandatory; missing this section is a CKP-0 violation_
+- Any constraints that must be respected
+
+---
+
+## Cross-References
+
+- Spike that motivated this change: `engram-dotnet/.ai-work/eng-404-spike/{spike.md, learnings.md}`
+- Changelog entry: `CHANGELOG.md` → [Unreleased] → item 21
+- Related skills to load alongside: `forge-arch` (will read the Context Map), `forge-verify` (will reject designs that skipped step 5)
