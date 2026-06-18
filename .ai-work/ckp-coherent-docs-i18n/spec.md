@@ -72,10 +72,10 @@ Reduce Spanish surface in `docs/15` without breaking the legacy catalog note.
 
 | ID | Case / flow | Steps (summary) | Expected result | [x] |
 |----|-------------|-----------------|-----------------|-----|
-| PM-1 | I18N tracker accuracy | 1. Open `docs/I18N.md`<br>2. Compare Partial/Next vs actual file language | `08` and `03` reflect completed work; no stale “translate next” for done files | [ ] |
-| PM-2 | docs/08 path sanity | 1. Read translated `docs/08`<br>2. Search for `openspec/changes` | No primary artifact instructions using legacy openspec paths only; `.ai-work/` documented | [ ] |
-| PM-3 | Release gate read-through | 1. Open `docs/04-roadmap.md` release gate<br>2. Confirm item 15 + public language | Status matches reality (✅ or explicit debt note for optional 15 Part 1) | [ ] |
-| PM-4 | Cross-link smoke | 1. From README or QUICKSTART, follow links to `08`, `03`, `15`<br>2. Skim first screen | No jarring Spanish blocks in priority docs (08, 03); 15 optional debt documented if deferred | [ ] |
+| PM-1 | I18N tracker accuracy | 1. Open `docs/I18N.md`<br>2. Compare Partial/Next vs actual file language | `08` and `03` reflect completed work; no stale "translate next" for done files | [x] |
+| PM-2 | docs/08 path sanity | 1. Read translated `docs/08`<br>2. Search for `openspec/changes` | No primary artifact instructions using legacy openspec paths only; `.ai-work/` documented | [x] |
+| PM-3 | Release gate read-through | 1. Open `docs/04-roadmap.md` release gate<br>2. Confirm item 15 + public language | Status matches reality (✅ or explicit debt note for optional 15 Part 1) | [x] |
+| PM-4 | Cross-link smoke | 1. From README or QUICKSTART, follow links to `08`, `03`, `15`<br>2. Skim first screen | No jarring Spanish blocks in priority docs (08, 03); 15 optional debt documented if deferred | [x] |
 
 ## 5. Acceptance summary (for CKP-1)
 
