@@ -35,7 +35,26 @@ Invoke `@forge-discovery` (fast model). You receive the Context Map.
 
 If the human clarified or Discovery succeeded, pass the Context Map to `@forge-arch` to create `spec.md`.
 
-**🟡 CKP-1:** When `spec.md` exists, STOP. Tell the human: *"spec.md is ready. Approve or adjust?"* No explicit confirmation → do not advance.
+**🟡 CKP-1:** When `spec.md` exists, STOP and present it to the human. Before asking for approval, **scan section 5 (Open Questions)**:
+
+**Case A — No section 5 (or section 5 is absent):**
+> *"spec.md is ready. Approve or adjust?"*
+> Explicit confirmation → advance to Phase 2.
+
+**Case B — Section 5 exists with one or more `[BLOCKER]` questions:**
+> *"spec.md is ready, but there are N BLOCKER question(s) that must be answered before planning:*
+> - *OQ-1 [BLOCKER]: [question]*
+> - *OQ-N [BLOCKER]: [question]*
+>
+> *Please answer each one. I will update the spec and then ask for final approval."*
+
+- Any response that does not explicitly answer all `[BLOCKER]` questions — including "adelante", "ok", "me parece bien", "go ahead" — **does NOT clear CKP-1**.
+- When the human answers, instruct `@forge-arch` to update the spec in-place (replace blocker rows with answers).
+- Only after all `[BLOCKER]` rows are resolved → re-present spec → ask for approval → advance.
+
+**Case C — Section 5 exists with only `[OPTIONAL]` / `[FOLLOW-UP]` (no BLOCKERs):**
+> *"spec.md is ready. Note: OQ-2 assumes [default]. Approve or adjust?"*
+> Explicit confirmation → advance. `[OPTIONAL]` assumptions carry forward into plan.md.
 
 **Spec revision cycle:** On rejection:
 1. Create/update `revision_cycle.md` with YAML frontmatter (`phase: spec`, `cycle_count`, `max_cycles: 3`, `rejection_reason`).

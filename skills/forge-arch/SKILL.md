@@ -91,3 +91,33 @@ Rules:
 - UI features: include visual interaction PM.
 - API-only: include curl/Postman PM with expected responses.
 - forge-verify does NOT grade PM-*. forge-memory blocks CKP-4 if any PM lack `[x]`.
+
+## 5. Open questions for human (OQ-*) — required if any uncertainty exists
+
+If any aspect of the spec requires a human decision before planning can begin, list it here with a mandatory tag. **Never leave questions untagged.**
+
+Tag definitions:
+
+| Tag | Meaning | Effect on CKP-1 |
+|-----|---------|----------------|
+| `[BLOCKER]` | Cannot write a correct plan without this answer. The design forks on the decision. | CKP-1 is NOT cleared until answered. |
+| `[OPTIONAL]` | Has a sensible default. Planning can proceed; human can override later. State the assumed default explicitly. | CKP-1 can be cleared; note the assumption in plan.md. |
+| `[FOLLOW-UP]` | Relevant for a future iteration, not for v1 scope. Does not affect current plan. | Does not block CKP-1. |
+
+```markdown
+## 5. Open questions for human (OQ-*)
+
+| ID | Tag | Question | Default / assumption |
+|----|-----|---------|---------------------|
+| OQ-1 | [BLOCKER] | [Question the human must answer] | — |
+| OQ-2 | [OPTIONAL] | [Question with a sensible default] | Assumed: [value] |
+| OQ-3 | [FOLLOW-UP] | [Question for a later iteration] | — |
+```
+
+Rules:
+
+- If there are NO open questions, omit section 5 entirely. Do not write "no questions".
+- Every `[BLOCKER]` must explain why planning cannot proceed without the answer.
+- Every `[OPTIONAL]` must state the assumed default so the plan is not ambiguous.
+- `[FOLLOW-UP]` items must be out of v1 scope — if the answer changes v1 design, it is a `[BLOCKER]`.
+- When the human answers a `[BLOCKER]`, update the spec in-place: replace the question row with the answer and remove the `[BLOCKER]` tag. Re-present the updated spec before proceeding.
