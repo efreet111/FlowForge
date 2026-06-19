@@ -73,10 +73,11 @@ While the repo is **private**, remote install via `raw.githubusercontent.com` re
 | Items | Topic |
 |-------|--------|
 | **19** | Project memory association on first save ([`19-project-memory-association-backlog.md`](19-project-memory-association-backlog.md)) — engram has passive similar-project warning only |
-| **5–6** | Project template + `.flowforge.json` schema + **`flow-init`** ([`ADR-002`](decisions/ADR-002-scaffold-doc-policy.md): `AGENTS.md`, `docs/DEVELOPMENT.md`, `docs/decisions/`) | feeds item 19 |
+| **5–6** | Project template + `.flowforge.json` schema + **`flow-init`** ([`ADR-002`](decisions/ADR-002-scaffold-doc-policy.md)) — scripts drafted, need stack-detection + git-init logic |
 | **9** | engram-dotnet MCP diagnostics |
 | **10–13** | Concurrency, KPIs, migration guides |
 | **14** | Ongoing semver + GitHub releases |
+| **22** | Regression / eval suite — see *Testing backlog* below |
 
 ---
 
@@ -164,6 +165,51 @@ From [`13-edge-cases-and-risks.md`](13-edge-cases-and-risks.md):
 | Lineage enforcement at CKP-3 | Optional orchestrator rule |
 
 ---
+
+---
+
+## Testing backlog (item 22)
+
+Regression and eval strategy for FlowForge. See analysis: [can FlowForge be regression-tested?](project-context.md)
+
+Three layers, ordered by effort/value:
+
+### Layer 1 — Structural linting (P1, low effort)
+
+Deterministic checks that run on every PR. No LLM required.
+
+| Test | What it checks | Where to add |
+|------|---------------|-------------|
+| SKILL.md completeness | Required sections present in all 7 core skills | CI script |
+| `spec.md` schema | Sections 1–4 present; OQ-* rows have valid tag if section 5 exists | CI script |
+| `plan.md` schema | Sections 1–4 present | CI script |
+| `.flowforge.json` validity | Valid JSON + required `paths.*` fields | CI script |
+| `flow-init` smoke | Script runs without error on a temp dir, produces expected files | `opencode-smoke.yml` |
+| Cross-references | SKILL.md files referenced in AGENTS.md actually exist | CI script |
+
+### Layer 2 — LLM-as-Judge evals (P2, medium effort)
+
+Use a judge LLM to evaluate agent output against golden examples. Inherits the `forge-verify` LLM-as-Judge pattern.
+
+| Eval | Input | Assert |
+|------|-------|--------|
+| CKP-1 BLOCKER gate | spec.md with `[BLOCKER]` row + "adelante" | Response does NOT invoke forge-plan; lists the blocker |
+| CKP-0 vague req | "improve performance" (no context) | Response asks for clarification, does NOT produce spec |
+| forge-arch output | Context Map from CRUD example | Output has sections 1–4, PM-* with ≥2 items, Capability Matrix |
+| forge-verify pass/fail | Known passing spec+code pair | Verdict is PASS |
+| forge-verify fail | Known failing pair (missing FR) | Verdict is FAIL, rework ticket produced |
+
+### Layer 3 — Golden example re-run (P3, manual)
+
+`examples/crud-tareas/` is the golden baseline. When a skill changes significantly, re-run the CRUD flow manually and verify `CASE-1-VALIDATION.md` still passes 20/20.
+
+This is the "integration test" for the methodology.
+
+### Priority for implementation
+
+1. Layer 1 CI script (low effort, high value) — can be added to `opencode-smoke.yml`
+2. Layer 2 evals for CKP-1 BLOCKER gate (validates the fix we just shipped)
+3. Layer 3 is already done manually; formalize trigger in CONTRIBUTING.md
 
 ## Completed / discarded
 
