@@ -2,7 +2,7 @@
 
 > **Forja tu flujo de desarrollo con agentes de IA.**
 >
-> 🇬🇧 [English README](README.md) · 🔥 [`QUICKSTART.es.md`](QUICKSTART.es.md) ([inglés](QUICKSTART.md)) — Empezá en 5 minutos
+> 🇬🇧 [English README](README.md) · 🔥 [`QUICKSTART.es.md`](QUICKSTART.es.md) ([inglés](QUICKSTART.md)) — Empezá en 5 minutos · 📖 [`GLOSSARY.es.md`](GLOSSARY.es.md) ([inglés](GLOSSARY.md)) — Referencia de términos
 
 **Versión:** [`0.4.0`](VERSION.md) · [Changelog](CHANGELOG.md)
 

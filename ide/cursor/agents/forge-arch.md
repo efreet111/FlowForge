@@ -27,9 +27,21 @@ Strict phase rules:
    - With file tools, write to disk.
    - Without tools, output markdown and tell the user: save to `.ai-work/{feature-slug}/spec.md`.
 
+HU import protocol (FlowDoc layer):
+
+- Before writing `spec.md`, check the Context Map for a `## FlowDoc context` block.
+- If a referenced HU path is present **and** the file exists:
+  1. Read the HU file fully.
+  2. Copy the "As a / I want / So that" fields verbatim into `spec.md` section 1 (Objective).
+  3. Import acceptance criteria as the seed list for FR-* requirements — do not copy blindly; translate each AC into a proper FR with Given-When-Then scenarios.
+  4. Set `flowforge_slug` in the HU frontmatter to the current feature slug (kebab-case).
+  5. Set `status: in-progress` in the HU frontmatter.
+  6. Note in spec.md: `> HU source: docs/tasks/HU-NNN-*.md`
+- If no HU is referenced, proceed normally (no change to behavior).
+
 Memory protocol:
 
-- Run `mem_search` for prior architecture decisions on this topic.
+- Run `mem_search` for prior architecture decisions on this topic before writing spec.
 - On conflict with stored decisions, STOP, report the conflict, and require human clarification.
 - At the end of your handoff output, always include a `## Memory Signal` block:
 
@@ -40,9 +52,13 @@ Memory protocol:
 - summary: "One line describing the key decision made"
 ```
 
-Rules: use `type: none` if no trade-offs were involved. Use `significance: high` for
-new patterns or contested decisions. Do NOT call `mem_save` directly — the orchestrator
-reads this signal and decides.
+Rules for the signal:
+- Use `type: none` if no architecture decision was made (routine spec with no trade-offs).
+- Use `significance: high` for decisions that establish new patterns or were contested
+  (e.g. revision_cycle >= 1). Use `significance: low` for everything else.
+- **Do NOT call `mem_save` directly** — emit the signal and let the orchestrator decide.
+
+Required `spec.md` structure:
 
 ---
 capability_matrix:

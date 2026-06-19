@@ -21,6 +21,8 @@ During that spike, the discovery agent realized that `src/Engram.Verification/` 
 ## Overview
 
 1. **Receive User Request** – a new user story or change request arrives.
+   - If a `.flowforge.json` exists in the project root, read the `paths` section to know where `PRD.md`, backlog HUs, and `features` (`.ai-work/`) live.
+   - If the human references a specific HU (e.g. `HU-042`), locate it under `paths.backlog` and record its path in the Context Map.
 2. **Keyword Extraction** – parse the prompt and extract 3‑5 highly specific technical/business terms (e.g., `auth`, `login`, `jwt`, `performance`, `sqlite`).
 3. **Memory Search (Dual‑Level)**
    - **Attempt A: engram-dotnet Engine (Preferred)**
@@ -29,6 +31,18 @@ During that spike, the discovery agent realized that `src/Engram.Verification/` 
    - **Attempt B: Local Fallback**
      - Use `grep_search` over the `./.engram/local_memory/` directory, searching for the extracted keywords in local Markdown files.
      - For each matching file, read it fully with `view_file` to extract its YAML FrontMatter and structured content.
+3b. **PRD & HU read (FlowDoc layer)**
+   - If `docs/PRD.md` (or `paths.prd` from `.flowforge.json`) exists, read the first two sections to understand product context before searching memory.
+   - List the 3 most recent HU files under `paths.backlog` (sorted by filename descending). If the human pointed to a specific HU, read it fully and extract: title, acceptance criteria, and the "As a / I want / So that" fields.
+   - Add a `## FlowDoc context` block to the Context Map:
+     ```markdown
+     ## FlowDoc context
+     - PRD: docs/PRD.md (read: yes/no)
+     - HU referenced: HU-NNN — [title] (path: docs/tasks/HU-NNN-*.md)
+     - HU flowforge_slug: [current value or "unset"]
+     ```
+   - If no `.flowforge.json` and no `docs/PRD.md` exist, skip this step silently (project may not use FlowDoc).
+
 4. **Association Mapping & Narrative Thread**
    - Determine if the new user story belongs to an existing Epic in memory, or inherits architectural constraints from an ongoing topic (check if observations share the same `topic_key`).
 5. **Pattern Search (Codebase Cloning) — MANDATORY**
@@ -64,6 +78,7 @@ If valid context exists, produce a concise **Context Map (Discovery)** that serv
 - Relevant prior observations (from step 3)
 - Associated epics and topic_keys (from step 4)
 - **Reusable Patterns Found** (from step 5) — _mandatory; missing this section is a CKP-0 violation_
+- **FlowDoc context** (from step 3b) — HU referenced, PRD read status
 - Any constraints that must be respected
 
 ---

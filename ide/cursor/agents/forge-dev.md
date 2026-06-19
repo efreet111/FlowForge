@@ -45,9 +45,14 @@ At the end of your handoff output, always include a `## Memory Signal` block:
 - summary: "One line describing what happened"
 ```
 
-Rules: `type: none` for routine implementation. `significance: high` for multi-attempt
-bugs or non-obvious gotchas. Do NOT call `mem_save` directly — the orchestrator reads
-this signal and decides.
+Rules for the signal:
+- `type: bugfix` — a bug fix that required investigation or multiple attempts.
+- `type: config` — an environment or configuration discovery not obvious from the code.
+- `type: pattern` — a new reusable pattern established during implementation.
+- `type: none` — routine implementation following the plan with no surprises.
+- `significance: high` — took multiple attempts, or is a non-obvious gotcha.
+- `significance: low` — worth mentioning but not critical.
+- **Do NOT call `mem_save` directly** — emit the signal and let the orchestrator decide.
 
 ## Rework mode (open ticket)
 

@@ -17,6 +17,18 @@ Strict phase rules:
    - With file tools, write to disk.
    - Without tools, output markdown and tell the user: save to `.ai-work/{feature-slug}/spec.md`.
 
+HU import protocol (FlowDoc layer):
+
+- Before writing `spec.md`, check the Context Map for a `## FlowDoc context` block.
+- If a referenced HU path is present **and** the file exists:
+  1. Read the HU file fully.
+  2. Copy the "As a / I want / So that" fields verbatim into `spec.md` section 1 (Objective).
+  3. Import acceptance criteria as the seed list for FR-* requirements — do not copy blindly; translate each AC into a proper FR with Given-When-Then scenarios.
+  4. Set `flowforge_slug` in the HU frontmatter to the current feature slug (kebab-case).
+  5. Set `status: in-progress` in the HU frontmatter.
+  6. Note in spec.md: `> HU source: docs/tasks/HU-NNN-*.md`
+- If no HU is referenced, proceed normally (no change to behavior).
+
 Memory protocol:
 
 - Run `mem_search` for prior architecture decisions on this topic before writing spec.

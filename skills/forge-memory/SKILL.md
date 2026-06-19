@@ -39,7 +39,21 @@ You are the **MEMORY AGENT**, the supreme curator of knowledge for the FlowForge
   1) Run PM-* now (guide steps), then retry `/flow-close`.
   2) **Close preview** only if the human explicitly asks → write `summary.preview.md` with first line: `⚠️ PREVIEW — Feature NOT closed (PM-* pending)`.
 
-**If all gates pass**, continue normal close. Add to session summary:
+**If all gates pass**, run the FlowDoc sync step before writing `summary.md`:
+
+### FlowDoc sync (on close)
+
+1. **Update HU status** — read `spec.md` for the `HU source:` line. If present:
+   - Open the referenced HU file.
+   - Set `status: done` in the frontmatter.
+   - Check off all acceptance criteria that map to a passing PM-* (mark `- [x] AC-N`).
+   - Write the updated HU to disk.
+2. **Update project CHANGELOG** — if `CHANGELOG.md` exists at the project root:
+   - Add an entry under `[Unreleased]` (or today's date) with a one-line summary of the feature.
+   - Format: `- feat: [feature slug] — [one-line description from spec.md §1]`
+3. If neither a HU nor a CHANGELOG exists, skip this step silently.
+
+Then continue normal close. Add to session summary:
 ```markdown
 ## ✅ Pruebas Manuales del Desarrollador
 - PM-1: [nombre] — ✅ ejecutada

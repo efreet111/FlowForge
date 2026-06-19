@@ -1,0 +1,22 @@
+{
+  "version": "1",
+  "workflow": "flowforge",
+  "flowforge_version": "__FLOWFORGE_VERSION__",
+  "docs_framework": "flowdoc@1.1",
+  "adoption_level": 1,
+  "project": "__PROJECT_NAME__",
+  "created": "__DATE__",
+  "engram": {
+    "enabled": true,
+    "project": "__PROJECT_NAME__"
+  },
+  "paths": {
+    "prd": "docs/PRD.md",
+    "backlog": "docs/tasks",
+    "decisions": "docs/architecture/adr",
+    "rfcs": "docs/architecture/rfc",
+    "development": "docs/DEVELOPMENT.md",
+    "features": ".ai-work",
+    "templates": "docs/templates"
+  }
+}

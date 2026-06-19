@@ -2,7 +2,7 @@
 
 > **Forge your AI-agent software development workflow.**
 >
-> 🇪🇸 [README en español](README.es.md) · 🔥 [`QUICKSTART.md`](QUICKSTART.md) ([español](QUICKSTART.es.md)) — Get started in 5 minutes
+> 🇪🇸 [README en español](README.es.md) · 🔥 [`QUICKSTART.md`](QUICKSTART.md) ([español](QUICKSTART.es.md)) — Get started in 5 minutes · 📖 [`GLOSSARY.md`](GLOSSARY.md) ([español](GLOSSARY.es.md)) — Terminology reference
 
 **Version:** [`0.4.0`](VERSION.md) · [Changelog](CHANGELOG.md)
 
