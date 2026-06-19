@@ -1,6 +1,6 @@
 # FlowForge + engram-dotnet — Combined roadmap
 
-> **Last updated**: 2026-06-09  
+> **Last updated**: 2026-06-18  
 > **FlowForge version**: [`0.4.1`](../VERSION.md) — see [`CHANGELOG.md`](../CHANGELOG.md)  
 > **engram-dotnet**: `main` (archived SDD features)
 
@@ -122,7 +122,7 @@ Principles: CKP-0/3 are binary; CKP-1/2/4 are human decisions. `cycle_count` in 
 |---|------|----------|--------|
 | 7 | Install scripts | P0 | ✅ |
 | 8 | All IDE smoke | P1 | 📋 |
-| 9 | engram-dotnet diagnostic | P0 | 📋 |
+| 9 | engram-dotnet diagnostic | P0 | ✅ 2026-06-18 — server healthy (postgres v1.1.0), binary in PATH, write/read OK, buffer synced (obs 592–595) |
 | 10 | Concurrent features | P2 | 📋 |
 
 **Backlog note (OpenCode installs)**:
