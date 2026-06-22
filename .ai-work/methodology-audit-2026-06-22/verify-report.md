@@ -1,11 +1,16 @@
 # Verify Report — Methodology Audit (Judgment Day)
 
-> **Verdict**: ❌ FAIL — 6 CRITICALs confirmed, fixes required before Round 2
+> **Verdict Round 1**: ❌ FAIL — 6 CRITICALs + 14 WARNINGs confirmed
+> **Verdict Round 2**: ⏳ PENDING — re-judgment in progress (2 judges running)
 > **Date**: 2026-06-22
 > **Method**: Judgment Day (adversarial dual/triple review)
-> **Judges**: Sonnet 4.6 (A) · Opus 4 (C) · GPT-5.5 (B) — three independent model families
+> **Judges Round 1**: Sonnet 4.6 (A) · Opus 4 (C) · GPT-5.5 (B) — three independent model families
 > **Scope**: 20 files — 8 core skills, 6 Cursor agents, workflow.mdc, parity, 3 commands
-> **CKP-3**: Cycle 1/3
+> **CKP-3**: Cycle 2/3
+>
+> **Fixes applied**:
+> - Batch 1 (F1-F6): commit `677f562` — 5 files, 48 insertions
+> - Batch 2+3 (W1-W14): commit `5ac0f5c` — 10 files, 105 insertions (+1 new file)
 
 ---
 
