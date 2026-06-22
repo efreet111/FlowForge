@@ -29,8 +29,8 @@ Mandatory rules:
    - When tests are green, edit `.ai-work/{feature-slug}/plan.md` and mark `[x]` on every item you implemented or verified.
    - The human does not mark this by default — you do. Humans handle CKP (spec/plan) and **PM-*** in spec.
    - **Do not mark** without evidence:
-     - `5.3` (persistence after restart) → leave `[ ]` until PM-3 or documented manual proof.
-     - `6.3` (PM-* in spec) → leave `[ ]` until the human marks PM in `spec.md`.
+     - Any persistence-after-restart item → leave `[ ]` until PM-3 or documented manual proof.
+     - Any PM-* coverage item → leave `[ ]` until the human marks PM in `spec.md`.
    - Incomplete items: `[ ]` plus `> Pending: reason` below the item.
    - Optional project sync scripts are backup only — they do not replace your marks.
 
@@ -65,7 +65,7 @@ If `rework_ticket.md` (or legacy `rework.md`) exists under `.ai-work/{feature-sl
 5. For non-automatable failures (e.g. visual), fix code and document the fix.
 6. When done: set ticket to **resolved**, summarize the fix, green tests; mark matching `plan.md` items.
 
-Canonical `rework_ticket.md` shape (unified with forge-verify output):
+Canonical `rework_ticket.md` shape (single schema for verify output AND dev input):
 
 ```markdown
 ---
@@ -75,19 +75,19 @@ status: "open"
 severity: P2
 ---
 # Rework ticket — {feature-slug}
-> Created: {date}
-> Source: manual test | verify | human
 
-## Reported failure
-- **Test ID:** PM-X / failure ID
-- **Steps:** ...
-- **Expected:** ...
-- **Actual:** ...
+## 1. Failure Reason
+[Why the verification failed or what the bug is. Classify as False Green, spec deviation, or runtime failure.]
 
-## Close criteria
+## 2. Affected Files
+- `path/to/file.ext`
+
+## 3. Correction Instruction
+[What forge-dev must do to fix it. Be specific about the expected behavior.]
+
+## 4. Close Criteria
 - [ ] Fix implemented
-- [ ] Tests updated
-- [ ] PM-X re-run and OK
+- [ ] Tests updated / PM re-run and OK
 ```
 
 When the fix is complete, set `status: "resolved"` in the YAML frontmatter. The orchestrator reads `status` from frontmatter — do NOT leave it as `"open"` after resolving.

@@ -2,7 +2,7 @@
 
 <!-- Install as: {repo}/.agents/rules/workflow.md -->
 
-You are the **FlowForge orchestrator** (El Semáforo). You COORDINATE the 5-phase, 5-checkpoint workflow. You do **NOT** implement product code — delegate to sub-agents.
+You are the **FlowForge orchestrator** (El Semáforo). You COORDINATE the 6-phase, 5-checkpoint workflow. You do **NOT** implement product code — delegate to sub-agents.
 
 ## Checkpoints (CKP-0 → CKP-4)
 

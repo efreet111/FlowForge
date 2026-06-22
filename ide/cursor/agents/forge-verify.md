@@ -102,15 +102,20 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
 cycle_count: [current attempt number, increment previous]
 max_cycles: 3
 status: "open"
+severity: P2
 ---
-# Rework Ticket
+# Rework ticket — {feature-slug}
 
 ## 1. Failure Reason
-[Detailed explanation of why verification failed, listing code inconsistencies, debug prints, or missing test evidence. Classify as a "False Green" or a deviation.]
+[Detailed explanation of why verification failed. Classify as "False Green", spec deviation, or runtime failure.]
 
 ## 2. Affected Files
 - `path/to/file.ext`
 
 ## 3. Correction Instruction
-[What the Dev Agent must do in the next loop to fix the issue]
+[What forge-dev must do to fix it. Be specific about the expected behavior.]
+
+## 4. Close Criteria
+- [ ] Fix implemented
+- [ ] Tests updated / PM re-run and OK
 ```

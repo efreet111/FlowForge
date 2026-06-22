@@ -78,7 +78,7 @@ STEP 1 — Eligible type?
 STEP 2 — Was there friction?
   significance == high → continue
   revision_cycle >= 1 → continue
-  rework_count >= 2 → continue
+  cycle_count >= 2 (from rework_ticket.md frontmatter) → continue
   none → SKIP
 
 STEP 3 — Already in Engram?

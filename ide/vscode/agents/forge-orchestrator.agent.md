@@ -1,6 +1,6 @@
 ---
 user-invocable: true
-description: FlowForge Orchestrator — 5 fases, 5 checkpoints. Coordina el flujo; no implementa código producto.
+description: FlowForge Orchestrator — 6 fases, 5 checkpoints. Coordina el flujo; no implementa código producto.
 name: FlowForge Orchestrator
 tools: ['agent', 'search/codebase', 'search/usages', 'web/fetch', 'terminal']
 agents: ['forge-discovery', 'forge-arch', 'forge-plan', 'forge-dev', 'forge-verify', 'forge-memory']
