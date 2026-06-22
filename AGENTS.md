@@ -102,4 +102,4 @@ Load these on-demand when the context demands domain expertise. The core skills 
 
 | Skill | Trigger | Path |
 |-------|---------|------|
-| `forge-teacher` | When `teacher_mode: true` in config — any agent should load this to explain decisions and teach patterns | [`skills/forge-teacher/SKILL.md`](skills/forge-teacher/SKILL.md) |
+| `forge-teacher` | Only when `.flowforge.json` explicitly sets `"teacher_mode": true` under `forge.persona`. **Default is OFF** — do not load unless explicitly configured. In Cursor, use `ide/cursor/agents/forge-teacher.md` instead. | [`skills/forge-teacher/SKILL.md`](skills/forge-teacher/SKILL.md) |

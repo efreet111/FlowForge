@@ -47,6 +47,7 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
 2. **Constant & Test Case Matching**:
    * Cross‑check code values against the `spec.md`. If the spec says "Default priority: MEDIUM", ensure the code reflects exactly that. Any deviation (e.g., "LOW" or a different case) is an immediate failure.
    * Verify that each Given‑When‑Then scenario in `spec.md` is covered by a unit test in the test suite.
+   * **Context Map check**: Read `.ai-work/{feature-slug}/context-map.md`. If the section `## Reusable Patterns Found` is missing or empty (no entry and no negative-result line), issue **REWORK** immediately — discovery was incomplete. This is a mechanical CKP-0 violation reported at verify time.
 3. **Test Execution Check (No Green Output = No PASS)**:
     * Run the test suite yourself (`npm run test`, `dotnet test`, etc.) and read the result.
     * **DO NOT** award a PASS unless you have a 100% green test output.

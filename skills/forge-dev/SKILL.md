@@ -19,8 +19,8 @@ Mandatory rules:
    - When tests are green, edit `.ai-work/{feature-slug}/plan.md` and mark `[x]` on every item you implemented or verified.
    - The human does not mark this by default — you do. Humans handle CKP (spec/plan) and **PM-*** in spec.
    - **Do not mark** without evidence:
-     - `5.3` (persistence after restart) → leave `[ ]` until PM-3 or documented manual proof.
-     - `6.3` (PM-* in spec) → leave `[ ]` until the human marks PM in `spec.md`.
+     - Any persistence-after-restart item → leave `[ ]` until PM-3 or documented manual proof.
+     - Any PM-* coverage item → leave `[ ]` until the human marks PM in `spec.md`.
    - Incomplete items: `[ ]` plus `> Pending: reason` below the item.
    - Optional project sync scripts are backup only — they do not replace your marks.
 

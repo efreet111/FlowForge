@@ -12,8 +12,8 @@ Folder: `.ai-work/{feature-slug}/` (kebab-case, no `FLOW-` prefix).
 | `context-map.md` | forge-discovery | Phase 0 output |
 | `spec.md` | forge-arch | Includes PM-* (manual tests) |
 | `plan.md` | forge-plan | Checklist `[ ]` / `[x]` — marked by **forge-dev** |
-| `verify-report.md` | forge-verify | PASS or findings (do not use `cert-report.md`) |
-| `rework_ticket.md` | verify → dev | Takes priority over plan when open |
+| `verify-report.md` | forge-verify | Always written — verdicts: PASS · PASS_DEGRADADO · PENDING · REWORK |
+| `rework_ticket.md` | verify → dev | `status: "open"` takes priority over plan; `status: "resolved"` does NOT block close |
 | `revision_cycle.md` | orchestrator | CKP-1/CKP-2 rejections (max 3) |
 | `summary.md` | forge-memory | Only when PM-* are complete |
 
@@ -42,7 +42,7 @@ On bug, regression, or failed manual test:
    - Evidence (logs, screenshots, request/response)
    - Environment
    - Severity (P0–P3)
-   - `cycle_count` in YAML frontmatter (0 on create; +1 after each failed attempt)
+   - YAML frontmatter: `cycle_count` (0 on create; +1 after each failed attempt), `status: "open"` (set to `"resolved"` when fixed)
 3. **Delegate** to `forge-dev` with the report and ticket path.
 
 **Forbidden inline:**
@@ -104,7 +104,7 @@ Not optional. If MCP is unavailable → write `obs-<timestamp>-session-close.md`
 
 `dev` is not "done" with green tests alone. Requires:
 
-- `plan.md` checklist marked by **forge-dev** (items 5.3 / 6.3 per dev skill rules).
+- `plan.md` checklist marked by **forge-dev** (persistence and PM-* items deferred — see dev skill rules).
 - PM-* marked in `spec.md` before `/flow-close`.
 - `verify-report.md` with PASS when applicable.
 
@@ -119,6 +119,10 @@ Optional projects may expose a sync script (e.g. `npm run flow-metrics`); it is 
 - Brief clarifications to the human
 
 Everything else → **delegate** to the phase subagent.
+
+## Skill↔Agent parity (W13)
+
+Each core skill in `skills/forge-*/SKILL.md` has a compiled Cursor adapter in `ide/cursor/agents/forge-*.md`. These must stay in sync. Currently there is **no automated CI check** for this parity — drift caused the F1/F2/F3 CRITICALs. Until a CI parity check is implemented (tracked in `docs/04-roadmap.md`), any change to a skill MUST also update its corresponding adapter in the same commit.
 
 ## Mandatory delegation
 

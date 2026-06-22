@@ -81,6 +81,12 @@ If valid context exists, produce a concise **Context Map (Discovery)** that serv
 - **FlowDoc context** (from step 3b) — HU referenced, PRD read status
 - Any constraints that must be respected
 
+**Mandatory**: write the Context Map to disk at `.ai-work/{feature-slug}/context-map.md`. Do not only output it inline — the file must exist on disk for the orchestrator and subsequent agents to reference.
+
+**Final line of your response must be one of these exact tokens** (used by the orchestrator to route the flow):
+- `**CLEAR**` — context is sufficient, advance to Phase 1 (forge-arch).
+- `**BLOCKED: [reason]**` — context is insufficient (CKP-0); include a 1-line reason. Orchestrator halts until human clarifies.
+
 ---
 
 ## Cross-References

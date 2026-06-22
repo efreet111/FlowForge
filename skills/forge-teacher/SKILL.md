@@ -36,7 +36,7 @@ Respects `.flowforge.json`:
 - `detailed` — almost everything (what, why, alternatives)
 - `expert` — includes references, papers, historical context
 
-Default if unset: `teacher_mode = true`, `depth = basic`.
+Default if unset: `teacher_mode = false` (inactive). Only activate when explicitly set to `true` in `.flowforge.json`.
 
 ---
 
