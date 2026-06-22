@@ -59,3 +59,52 @@ jobs:
             exit 1
           fi
           echo "No unresolved placeholders found"
+
+      - name: Lint SKILL.md completeness (Layer 1 — item 22)
+        run: |
+          FAIL=0
+          for skill in forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher forge-orchestrator; do
+            f="skills/$skill/SKILL.md"
+            if [ ! -f "$f" ]; then
+              echo "ERROR: Missing $f"
+              FAIL=1
+              continue
+            fi
+            count=$(grep -c "^## " "$f" || true)
+            if [ "$count" -lt 3 ]; then
+              echo "ERROR: $f has only $count top-level sections (minimum 3)"
+              FAIL=1
+            else
+              echo "OK: $f ($count sections)"
+            fi
+          done
+          [ "$FAIL" -eq 0 ] || exit 1
+
+      - name: Lint AGENTS.md skill cross-references (Layer 1 — item 22)
+        run: |
+          FAIL=0
+          while IFS= read -r path; do
+            if [ ! -f "$path" ]; then
+              echo "ERROR: AGENTS.md references missing file: $path"
+              FAIL=1
+            fi
+          done < <(grep -oE 'skills/[a-z/-]+/SKILL\.md' AGENTS.md | sort -u)
+          [ "$FAIL" -eq 0 ] && echo "All AGENTS.md skill references resolve" || exit 1
+
+      - name: Smoke flow-init.sh (Layer 1 — item 22)
+        run: |
+          SMOKE_DIR=$(mktemp -d)
+          # flow-init.sh takes positional args: <project-path> [ProjectName]
+          # ide/install.sh may warn in CI (no IDE present) but is non-fatal
+          bash flow-init.sh "$SMOKE_DIR" "smoke-test" 2>&1 || true
+          FAIL=0
+          for expected in AGENTS.md .flowforge.json docs/DEVELOPMENT.md docs/architecture/adr docs/architecture/rfc; do
+            if [ ! -e "$SMOKE_DIR/$expected" ]; then
+              echo "ERROR: flow-init did not create $expected"
+              FAIL=1
+            else
+              echo "OK: $expected"
+            fi
+          done
+          rm -rf "$SMOKE_DIR"
+          [ "$FAIL" -eq 0 ] || exit 1
