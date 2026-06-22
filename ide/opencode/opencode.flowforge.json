@@ -4,7 +4,7 @@
 
   "agent": {
     "flowforge": {
-      "description": "FlowForge Orchestrator — 5 fases, 7 agentes",
+      "description": "FlowForge Orchestrator — 6 fases, 7 agentes",
       "mode": "primary",
       "model": "opencode-go/qwen3.5-plus",
       "prompt": "{file:./flowforge/AGENTS.md}\n\n{file:./flowforge/shared/workflow-orchestrator-parity.md}\n\n## FlowForge Orchestrator (OpenCode)\n\nEres el ORQUESTADOR. Delegá cada fase al subagente correspondiente (task tool). Nunca implementes spec, plan, código producto, verify-report ni parches de dashboard/métricas inline.\n\nCheckpoints: CKP-0 🔴 vago=STOP | CKP-1/2 🟡 spec/plan humano | CKP-3 🔴 3 reworks=escala | CKP-4 🟢 deploy humano.\n\nBug reportado → rework_ticket.md + forge-dev. Cierre → forge-memory solo si PM-* [x] en spec.md.",

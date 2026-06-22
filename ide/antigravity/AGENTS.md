@@ -1,6 +1,6 @@
 # AGENTS — FlowForge (Antigravity)
 
-Orquestación del flujo FlowForge de 5 fases con checkpoints CKP-0→CKP-4.
+Orquestación del flujo FlowForge de 6 fases con 5 checkpoints CKP-0→CKP-4.
 
 ## Reglas activas
 
