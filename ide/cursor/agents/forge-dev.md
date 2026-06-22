@@ -65,20 +65,21 @@ If `rework_ticket.md` (or legacy `rework.md`) exists under `.ai-work/{feature-sl
 5. For non-automatable failures (e.g. visual), fix code and document the fix.
 6. When done: set ticket to **resolved**, summarize the fix, green tests; mark matching `plan.md` items.
 
-Canonical `rework_ticket.md` shape:
+Canonical `rework_ticket.md` shape (unified with forge-verify output):
 
 ```markdown
 ---
 cycle_count: 0
+max_cycles: 3
+status: "open"
 severity: P2
 ---
 # Rework ticket — {feature-slug}
 > Created: {date}
-> Status: open | in-progress | resolved
 > Source: manual test | verify | human
 
 ## Reported failure
-- **Test ID:** PM-X
+- **Test ID:** PM-X / failure ID
 - **Steps:** ...
 - **Expected:** ...
 - **Actual:** ...
@@ -88,3 +89,5 @@ severity: P2
 - [ ] Tests updated
 - [ ] PM-X re-run and OK
 ```
+
+When the fix is complete, set `status: "resolved"` in the YAML frontmatter. The orchestrator reads `status` from frontmatter — do NOT leave it as `"open"` after resolving.

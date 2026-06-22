@@ -231,7 +231,14 @@ Do **not** implement inline unless Task delegation failed **twice** — then rep
 
 **Orchestrator**: Delegate to `forge-verify`. Outputs under `.ai-work/{feature-slug}/`.
 
-**CKP-3 🔴**: If `cycle_count >= 3`, escalate to human.
+After `forge-verify` completes, read `.ai-work/{feature-slug}/verify-report.md` and branch on verdict:
+
+- **PASS** → inner loop done, proceed to `/flow-close`.
+- **PASS_DEGRADADO** → do NOT proceed to `/flow-close`. Tell human: *"Verify pasó análisis estático pero los tests no se ejecutaron. Por favor corré la suite y confirmá todo verde antes de cerrar."* Wait for confirmation.
+- **PENDING** → pause. Tell human: *"Verify no puede completarse sin runtime. Indicá cómo proceder."* Wait for instruction.
+- **REWORK** → read `rework_ticket.md`. If `status: "open"`, return to `/flow-dev`. If `status: "resolved"`, treat as PASS.
+
+**CKP-3 🔴**: If `cycle_count >= 3` in `rework_ticket.md`, escalate to human. No 4th attempt.
 
 ---
 

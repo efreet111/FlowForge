@@ -437,7 +437,7 @@ Each agent has:
 | `verificar_cobertura_gwt()` | Tests vs escenarios del spec | Cantidad de escenarios cubiertos vs totales | Cada Given-When-Then debe tener 1 test. Si falta → FAIL | Tests implementados |
 | `ejecutar_tests()` | Test suite | Output verde o rojo | Corre `npm test`, `dotnet test`, `pytest` (según stack) y parsea el resultado | Código listo |
 | `emitir_pass()` | Todo verde + spec compliance | PASS + manual verification steps block | Solo si tests 100% verdes y spec 100% compliance | Todas las verificaciones pasan |
-| `emitir_rework_ticket()` | Fallas detectadas | rework_ticket.md con cycle_count + failure reason + affected files + correction instruction | Crea el ticket con frontmatter YAML: cycle_count, max_cycles:3, status:rejected | Alguna verificación falla |
+| `emitir_rework_ticket()` | Fallas detectadas | rework_ticket.md con cycle_count + failure reason + affected files + correction instruction | Crea el ticket con frontmatter YAML: cycle_count, max_cycles:3, status:"open" | Alguna verificación falla |
 | `incrementar_cycle_count()` | rework_ticket.md existente | cycle_count + 1 | Si ya hay un ticket, incrementa el contador. Si llega a 3, no crea nuevo — escala | Rework anterior |
 
 #### Specialized: Security `forge-verify/security/SKILL.md`
