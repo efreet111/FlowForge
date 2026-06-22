@@ -6,31 +6,33 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-06-21
+
 ### Added
 
-- **CKP-1 Open Questions gate** — `forge-arch` now requires all open questions in `spec.md` to be tagged `[BLOCKER]`, `[OPTIONAL]`, or `[FOLLOW-UP]` (new section 5). The orchestrator's CKP-1 handling now distinguishes three cases: no questions (approve freely), BLOCKERs present (halt, present questions explicitly, reject "adelante" without answers), or only OPTIONAL/FOLLOW-UP (note assumptions, approve). `forge-plan` adds a mechanical pre-flight guard: if any `[BLOCKER]` row remains in spec.md, it stops and refuses to write `plan.md`. This closes the gap where ambiguous approval ("adelante") could silently skip unresolved design decisions. No new checkpoint added — CKP-1 strengthened in place.
-- **FlowDoc integration** (`flow-init`, `templates/project/`, ADR-004): `flow-init.sh` and `flow-init.ps1` scaffold a new project with FlowDoc v1.1-compatible `docs/` structure (PRD, DEVELOPMENT, HU tasks, ADR/RFC templates, .flowforge.json). `GLOSSARY.md` + `GLOSSARY.es.md` added as terminology reference. See [`docs/decisions/ADR-004-flowdoc-integration.md`](docs/decisions/ADR-004-flowdoc-integration.md) and [`docs/20-flowdoc-ecosystem.md`](docs/20-flowdoc-ecosystem.md).
-- **Pattern Search step in `forge-discovery`** (item 21): mandatory codebase cloning check before any non-trivial design. Agents must search for existing implementations of the same architectural shape (BFS + MaxHops, topic_key persistence, validation sets, lineage, cycle detection) and document findings in a `## Reusable Patterns Found` section of the Context Map. Provenance: ENG-404 spike in engram-dotnet (2026-06-18) reduced an XL estimate to M by cloning the `Engram.Verification` trace pattern. Anti-pattern: proposing greenfield design when an existing module solves 80%+ of the problem is a CKP-0 violation.
-- **Orchestrator Memory Curation Protocol** (item 20): IDE-agnostic protocol for
-  proactive knowledge persistence during FlowForge sessions. `forge-arch` and
-  `forge-dev` emit a lightweight `## Memory Signal` (3 fields) in their handoff;
-  the orchestrator applies a 3-step curation process (type → friction → dedup via
-  `mem_search`) using cross-phase context (`revision_cycle`, `rework_count`) that
-  subagents lack. `mem_session_summary` is now mandatory (not optional) at
-  `/flow-close`. Fallback to `.engram/local_memory/` when MCP is unavailable.
-  See [`docs/decisions/ADR-001-memory-curation-protocol.md`](docs/decisions/ADR-001-memory-curation-protocol.md).
-- `docs/decisions/` directory and ADR format established for architectural decisions.
+- **CKP-1 Open Questions gate** — `forge-arch` now requires all open questions in `spec.md` to be tagged `[BLOCKER]`, `[OPTIONAL]`, or `[FOLLOW-UP]` (new section 5). The orchestrator's CKP-1 handling now distinguishes three cases: no questions (approve freely), BLOCKERs present (halt, present questions explicitly, reject "adelante" without answers), or only OPTIONAL/FOLLOW-UP (note assumptions, approve). `forge-plan` adds a mechanical pre-flight guard: if any `[BLOCKER]` row remains in `spec.md`, it stops and refuses to write `plan.md`. No new checkpoint added — CKP-1 strengthened in place.
+- **FlowDoc integration** (`flow-init`, `templates/project/`, ADR-004): `flow-init.sh` and `flow-init.ps1` scaffold a new project with FlowDoc v1.1-compatible `docs/` structure (PRD, DEVELOPMENT, HU tasks, ADR/RFC templates, `.flowforge.json`). `GLOSSARY.md` + `GLOSSARY.es.md` added as terminology reference. See [`docs/decisions/ADR-004-flowdoc-integration.md`](docs/decisions/ADR-004-flowdoc-integration.md) and [`docs/20-flowdoc-ecosystem.md`](docs/20-flowdoc-ecosystem.md).
+- **Pattern Search step in `forge-discovery`** (item 21): mandatory codebase cloning check before any non-trivial design. Agents must search for existing implementations of the same architectural shape and document findings in a `## Reusable Patterns Found` section of the Context Map. See [`docs/decisions/ADR-003-pattern-search-mandate.md`](docs/decisions/ADR-003-pattern-search-mandate.md).
+- **Orchestrator Memory Curation Protocol** (item 20): IDE-agnostic protocol for proactive knowledge persistence during FlowForge sessions. `forge-arch` and `forge-dev` emit a lightweight `## Memory Signal` (3 fields); the orchestrator applies a 3-step curation process using cross-phase context (`revision_cycle`, `rework_count`). `mem_session_summary` is now mandatory at `/flow-close`. Fallback to `.engram/local_memory/` when MCP is unavailable. See [`docs/decisions/ADR-001-memory-curation-protocol.md`](docs/decisions/ADR-001-memory-curation-protocol.md).
+- **CI — OpenCode Smoke + Layer 1 structural linting** (items 1 + 22): `.github/workflows/opencode-smoke.yml` validates `opencode.flowforge.json` (JSON syntax, 7 subagents, skill paths, no placeholders), SKILL.md completeness (≥3 sections per core skill), AGENTS.md cross-references, and `flow-init.sh` smoke on every push/PR to `main`.
+- **GitHub contributor experience** (item 1): issue templates (bug report, feature request, blank issues disabled), PR template with 4-item quality-gate checklist.
+- `docs/decisions/` directory and ADR workflow established (`ADR-001` through `ADR-004`).
+- `docs/20-flowdoc-ecosystem.md`: adopter guide for the combined FlowForge × FlowDoc stack.
+- `GLOSSARY.md` + `GLOSSARY.es.md`: full terminology reference (EN + ES).
 
 ### Changed
 
-- Docs: clarify `/flow-*` (human commands) vs `forge-*` (agent names) in QUICKSTART, `docs/06`, `docs/14`, `docs/08` (partial modernize), and `docs/10`.
-- `docs/08-test-plan.md`: phase guide uses `/flow-start` … `/flow-close` and `.ai-work/` paths instead of legacy `@forge-*` + `openspec/changes/`.
+- `docs/08-test-plan.md`: full English translation; phase guide uses `/flow-start` … `/flow-close` and `.ai-work/` paths.
+- `docs/03-engram-dotnet-gaps.md`: rewritten as "implemented features / reference only" — removed "open gap" and "blocking" language.
+- `docs/I18N.md`: items 08 and 03 marked Done (EN).
+- Cursor agent files (`forge-arch.md`, `forge-plan.md`): synced with CKP-1 BLOCKER gate logic from skills.
+- `CONTRIBUTING.md`: references issue templates, PR template, and CI smoke workflow.
 
 ### Fixed
 
 - OpenCode bundle: avoid invalid `{file:...}` placeholder text inside JSON string values (can crash OpenCode config loader).
-- OpenCode bundle: remove hardcoded local skill paths by introducing a repo-path placeholder and patching it during install.
-- Install docs: clarify OpenCode merge guidance (merge `agent{}` only; keep existing `mcp`/`permission`; configure provider/API keys for `opencode-go/*` models).
+- OpenCode bundle: remove hardcoded local skill paths via repo-path placeholder patched at install time.
+- CI `opencode-smoke.yml`: fix escaped `\$skill` in grep (was causing silent false-green on skill path validation); fix agent count (filter by `mode == "subagent"`); fix broken relative link in `CONTRIBUTING.md`.
 
 ## [0.4.1] - 2026-05-27
 

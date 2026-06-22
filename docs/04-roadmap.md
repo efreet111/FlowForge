@@ -1,7 +1,7 @@
 # FlowForge + engram-dotnet — Combined roadmap
 
-> **Last updated**: 2026-06-18  
-> **FlowForge version**: [`0.4.1`](../VERSION.md) — see [`CHANGELOG.md`](../CHANGELOG.md)  
+> **Last updated**: 2026-06-21  
+> **FlowForge version**: [`0.5.0`](../VERSION.md) — see [`CHANGELOG.md`](../CHANGELOG.md)  
 > **engram-dotnet**: `main` (archived SDD features)
 
 ---
@@ -103,7 +103,7 @@ Principles: CKP-0/3 are binary; CKP-1/2/4 are human decisions. `cycle_count` in 
 
 | # | Item | Priority | Status |
 |---|------|----------|--------|
-| 1 | OpenCode smoke | P0 | 📋 Linux + bundle + **CI validates config structure** |
+| 1 | OpenCode smoke | P0 | ✅ CI validates JSON, 7 subagents, skill paths, placeholders — passes on GitHub Actions |
 | 2 | CRUD case (docs/14) | P0 | ✅ | Validation doc + 20/20 tests |
 | 3 | Example artifacts | P0 | ✅ |
 
@@ -113,8 +113,8 @@ Principles: CKP-0/3 are binary; CKP-1/2/4 are human decisions. `cycle_count` in 
 |---|------|----------|--------|
 | 4 | QUICKSTART | P0 | ✅ |
 | 15 | Doc audit / i18n | P0 | ✅ |
-| 5 | Project template + `flow-init` scaffold | P1 | 📋 — [`ADR-002`](decisions/ADR-002-scaffold-doc-policy.md) ✅ decisión |
-| 6 | `.flowforge.json` schema | P1 | 📋 |
+| 5 | Project template + `flow-init` scaffold | P1 | ✅ `flow-init.sh` + `flow-init.ps1` + `templates/project/` (11 files) — [`ADR-004`](decisions/ADR-004-flowdoc-integration.md) |
+| 6 | `.flowforge.json` schema | P1 | ✅ `templates/project/.flowforge.json.template` with required `paths.*` fields |
 
 ### Week 3 — Install & test
 
@@ -174,9 +174,9 @@ Regression and eval strategy for FlowForge. See analysis: [can FlowForge be regr
 
 Three layers, ordered by effort/value:
 
-### Layer 1 — Structural linting (P1, low effort)
+### Layer 1 — Structural linting (P1, low effort) ✅ 2026-06-21
 
-Deterministic checks that run on every PR. No LLM required.
+Deterministic checks that run on every PR. No LLM required. **Implemented in `opencode-smoke.yml`.**
 
 | Test | What it checks | Where to add |
 |------|---------------|-------------|
@@ -207,7 +207,7 @@ This is the "integration test" for the methodology.
 
 ### Priority for implementation
 
-1. Layer 1 CI script (low effort, high value) — can be added to `opencode-smoke.yml`
+1. ~~Layer 1 CI script~~ ✅ Done — added to `opencode-smoke.yml` (2026-06-21)
 2. Layer 2 evals for CKP-1 BLOCKER gate (validates the fix we just shipped)
 3. Layer 3 is already done manually; formalize trigger in CONTRIBUTING.md
 
