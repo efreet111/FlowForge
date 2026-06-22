@@ -188,7 +188,22 @@ Shared reference: `ide/shared/workflow-orchestrator-parity.md`.
 2. **Delegate** to subagent `forge-discovery` via Task tool. Pass: user text, `feature-slug`.
 3. If Discovery returns **BLOCKED** (CKP-0 🔴): **STOP**. Ask the human for clarification. Do not invoke `forge-arch`.
 4. If Discovery returns **CLEAR**: **Delegate** to `forge-arch` with the Context Map and `feature-slug`. Arch must create `.ai-work/{feature-slug}/spec.md`.
-5. **CKP-1 🟡**: When `spec.md` exists, stop and ask: *"spec.md generado en `.ai-work/{feature-slug}/`. ¿Apruebas o ajustás algo?"* Do not run `/flow-plan` until explicit approval.
+5. **CKP-1 🟡**: When `spec.md` exists, stop and scan **Section 5 (Open Questions)** before presenting:
+
+   **Case A — No Section 5 (or no open questions):**
+   Present spec and ask: *"spec.md generado en `.ai-work/{feature-slug}/`. ¿Apruebas o ajustás algo?"*
+   Explicit confirmation → advance to `/flow-plan`.
+
+   **Case B — Section 5 has one or more `[BLOCKER]` questions:**
+   Present spec and say: *"spec.md listo, pero hay N pregunta(s) BLOCKER que deben responderse antes de planificar: [list each OQ-N [BLOCKER]]. Por favor respondé cada una."*
+   — Any response that does NOT explicitly answer all `[BLOCKER]` items — including "adelante", "ok", "sí", "go ahead" — **does NOT clear CKP-1**.
+   — When answered, instruct `forge-arch` to update spec in-place, then re-present and ask for explicit approval.
+
+   **Case C — Section 5 has only `[OPTIONAL]` / `[FOLLOW-UP]` (no BLOCKERs):**
+   Present spec and note the assumption: *"spec.md listo. Nota: OQ-2 asume [default]. ¿Apruebas o ajustás?"*
+   Explicit confirmation → advance.
+
+   Do not run `/flow-plan` until CKP-1 is fully cleared.
 
 ---
 

@@ -11,6 +11,8 @@ When working on this project, load the relevant skill(s) BEFORE writing any code
 3. Follow ALL patterns and rules from the loaded skill.
 4. Multiple skills can apply simultaneously.
 
+> **🖥️ Cursor IDE note**: In Cursor, agents are **pre-compiled** — their instructions are already embedded in the agent `.md` files under `ide/cursor/agents/`. You do NOT need to manually load `SKILL.md` files inside a Cursor agent context. Manual skill loading is only needed in IDEs that use `AGENTS.md` as the sole instruction source (OpenCode, Antigravity, VS Code Copilot). If `workflow.mdc` is active, defer to it; it overrides `AGENTS.md` for Cursor runtime behavior.
+
 ---
 
 ## 🔴🟡🟢 Checkpoint System (CKP-0 → CKP-4)

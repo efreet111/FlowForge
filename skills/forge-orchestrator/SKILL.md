@@ -75,9 +75,13 @@ With human OK, call `@forge-plan` to produce `plan.md` from `spec.md`.
 With green light:
 1. Call `@forge-dev`.
 2. When Dev finishes, call `@forge-verify`.
-3. If `rework_ticket.md` exists, return control to `@forge-dev`.
+3. Read `verify-report.md` under `.ai-work/{feature-slug}/` to determine the verdict:
+   - **PASS** → inner loop done, proceed to Step 4.
+   - **PASS DEGRADADO** → do NOT proceed to CKP-4. Tell the human: *"Verify passed static analysis but tests were not executed. Please run the test suite and confirm all green before closing."* Wait for human confirmation.
+   - **PENDING** → pause the loop. Tell the human: *"Verify cannot complete without runtime access. Please provide test output or confirm how to proceed."* Wait for human instruction.
+   - **REWORK** → read `rework_ticket.md`. If `status: open`, return control to `@forge-dev`. If `status: resolved`, treat as PASS.
 4. **🔴 CKP-3:** If `cycle_count` in rework frontmatter is **3**, STOP the loop. Tell the human: *"Dev failed 3 rework cycles. Manual review required."* No 4th attempt.
-5. On Verify **PASS**, inner loop is done.
+5. On Verify **PASS** (full, not degraded), inner loop is done.
 
 ### Step 4: Close — CKP-4 🟢
 

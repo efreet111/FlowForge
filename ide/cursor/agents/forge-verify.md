@@ -79,23 +79,28 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
 4. **Capability Matrix & Manual Validation**:
     * Ensure every element marked as `deterministic` in the Capability Matrix is implemented as immutable hard‑coded logic, not model‑driven.
     * **Mandatory Manual Checklist**: When emitting a PASS, generate a `## 🔍 Manual Verification Steps` section listing practical steps for the user to verify runtime behaviors not captured by automated tests (e.g., network cut simulation, UI interactions).
-5. **Pruebas Manuales PM-* (NO EVALUAR)**: 
-    * La sección `## 4. Pruebas Manuales del Desarrollador (PM-*)` del `spec.md` contiene pruebas que debe ejecutar el HUMANO. NO las evalúes.
-    * Tu veredicto aplica SOLO a los RF/RNF y tests automatizados (Capa A).
-    * En tu reporte, agregá una nota: `## Pruebas Manuales Pendientes: El desarrollador debe ejecutar los PM-* del spec.md antes del cierre (flow-close).`
+5. **Developer Manual Tests PM-* (DO NOT EVALUATE)**:
+    * The section `## 4. Developer manual tests (PM-*)` in `spec.md` contains tests the **HUMAN** must execute. Do NOT evaluate them.
+    * Your verdict applies ONLY to FR/NFR and automated tests (Layer A).
+    * In your report, add a note: `## Pending Manual Tests: The developer must run PM-* from spec.md before /flow-close.`
 
 ---
 
 ## 🚦 Verdict and Output
 
-* **PASS**: If everything is perfect, output the word `PASS` followed by a `## 🔍 Manual Verification Steps` block.
-* **REWORK**: If any failure is detected, create a `rework_ticket.md` in `.ai-work/{feature-name}/` with the following exact structure:
+* **PASS**: Write `.ai-work/{feature-slug}/verify-report.md` with verdict PASS, then output the word `PASS` followed by a `## 🔍 Manual Verification Steps` block.
+
+* **PASS DEGRADADO**: Write `.ai-work/{feature-slug}/verify-report.md` with verdict PASS_DEGRADADO and reason. Do NOT trigger CKP-4 — the orchestrator must ask the human to run tests manually before closing.
+
+* **PENDING**: Write `.ai-work/{feature-slug}/verify-report.md` with verdict PENDING and reason. Escalate to orchestrator — do not proceed or issue a rework ticket.
+
+* **REWORK**: Write `.ai-work/{feature-slug}/verify-report.md` with verdict REWORK, then create `.ai-work/{feature-slug}/rework_ticket.md` with the following exact structure:
 
 ```markdown
 ---
 cycle_count: [current attempt number, increment previous]
 max_cycles: 3
-status: "rejected"
+status: "open"
 ---
 # Rework Ticket
 
