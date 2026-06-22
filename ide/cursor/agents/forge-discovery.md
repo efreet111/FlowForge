@@ -41,6 +41,7 @@ During that spike, the discovery agent realized that `src/Engram.Verification/` 
    - If the human references a specific HU (e.g. `HU-042`), locate it under `paths.backlog` and record its path in the Context Map.
 2. **Keyword Extraction** – parse the prompt and extract 3‑5 highly specific technical/business terms (e.g., `auth`, `login`, `jwt`, `performance`, `sqlite`).
 3. **Memory Search (Dual‑Level)**
+   - **Pre-step**: Call `mem_current_project` (no parameters needed) to auto-detect the active project from CWD. Use the returned `project` value in all subsequent memory calls — do not hardcode project names.
    - **Attempt A: engram-dotnet Engine (Preferred)**
      - Invoke `mem_search` with the extracted keywords filtered by the current project to get candidate observations.
      - **CRITICAL**: Results are truncated. For each relevant observation, call `mem_get_observation(id)` to retrieve the full, uncut content.

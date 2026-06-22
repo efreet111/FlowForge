@@ -69,9 +69,10 @@ After PM-* gates pass, **before** writing `summary.md` or reporting CKP-4 comple
 1. **Ingest local buffer** (if any): scan `./.engram/local_memory/*.md`, synthesize
    high-value items via Smart Curation (below), then `mem_save` or keep file if MCP fails.
 2. **Call `mem_session_summary`** (required — not optional) with:
-   - **Goal**, **Discoveries**, **Accomplished**, **Next Steps**, **Relevant Files**
+   - `content`: structured text with sections **Goal**, **Discoveries**, **Accomplished**, **Next Steps**, **Relevant Files**
    - `project`: active project (e.g. `team/flowforge`)
-   - `topic_key`: `session/YYYY-MM-DD-{feature-slug}`
+   - `session_id`: current session ID (from `mem_session_start` response, or omit if not tracked)
+   - Note: `topic_key` is NOT a parameter of this tool — session summaries are indexed by session_id only.
 3. **If MCP fails** → write `.engram/local_memory/obs-<YYYYMMDD>-session-close.md`
    with YAML frontmatter (`type: session_summary`, `scope: team`, `project`) and the
    same sections as above.
@@ -96,9 +97,10 @@ The `engram-dotnet` engine provides a full toolbox. Use it as follows:
 2. **Level‑2 Promotion (`mem_promote_to_md` & `mem_sync_md_to_repo`)**:
    * When you detect a decision or architectural pattern worth permanent team knowledge, invoke `mem_promote_to_md` to render an ADR markdown file under `docs/decisions/` with a bidirectional link to the observation.
    * Then run `mem_sync_md_to_repo` so the new ADR is indexed in the repository.
-3. **Health & Retention (`mem_doctor` & `mem_retention_prune`)**:
+3. **Health & Retention (`mem_doctor`, `mem_retention_stats` & `mem_retention_prune`)**:
    * At start, run `mem_doctor` in the background to verify engine connectivity.
-   * At session close, invoke `mem_retention_prune` to safely delete temporary observations (`tool_use`, `command`, `file_change`) that have exceeded their TTL, keeping the team database lean.
+   * At session close, **first** invoke `mem_retention_stats` to see what will be pruned (counts by type and age). Review the output before pruning.
+   * Then invoke `mem_retention_prune` to safely delete temporary observations (`tool_use`, `command`, `file_change`) that have exceeded their TTL, keeping the team database lean.
 
 ---
 
