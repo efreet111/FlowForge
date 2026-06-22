@@ -84,6 +84,18 @@ On bug report:
 
 If forge-memory reports PM-* with `[ ]`: stop closure; human runs PM, marks `[x]` in spec.md, retries `/flow-close`. Preview only as `summary.preview.md` if human explicitly requests.
 
+## CKP-1 — Spec approval (3 cases)
+
+After forge-arch writes `spec.md`, **scan Section 5 (Open Questions)** before asking for approval:
+
+**Case A — No Section 5:** Ask: *"spec.md ready. Approve or adjust?"* Explicit confirmation → proceed.
+
+**Case B — Section 5 has `[BLOCKER]` questions:** List each one. Any response that does not explicitly answer ALL BLOCKERs — including "adelante", "ok", "go ahead" — does NOT clear CKP-1. Update spec when answered, then re-ask.
+
+**Case C — Section 5 has only `[OPTIONAL]`/`[FOLLOW-UP]`:** Note the assumption, ask for confirmation. Explicit approval → proceed.
+
+Do not run `/flow-plan` until CKP-1 is fully cleared.
+
 ## Rollback cycles (CKP-1/CKP-2)
 
 Human rejects spec/plan → `revision_cycle.md`, max 3 cycles, then escalate.
@@ -96,7 +108,7 @@ Never push without explicit request. See `.agents/rules/git-sin-push.md`.
 
 After receiving handoff from forge-arch or forge-dev, read their `## Memory Signal`
 (type / significance / summary) and apply the 3-step curation process: eligible type →
-friction check (revision_cycle, rework_count) → dedup via mem_search → mem_save or
+friction check (revision_cycle, cycle_count) → dedup via mem_search → mem_save or
 local fallback. forge-memory must call mem_session_summary at /flow-close (mandatory).
 Full protocol: `ide/shared/workflow-orchestrator-parity.md` → section "Memory Curation Protocol".
 

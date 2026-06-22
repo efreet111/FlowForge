@@ -103,7 +103,7 @@ STEP 1 — Eligible type?
 STEP 2 — Was there friction? (use cross-phase context you already have)
   significance == high → continue
   revision_cycle >= 1 (spec was rejected at least once) → continue
-  rework_count >= 2 (dev failed 2+ cycles on same ticket) → continue
+  cycle_count >= 2 (dev failed 2+ cycles on same ticket — from rework_ticket.md frontmatter) → continue
   none of the above → SKIP (stop here)
 
 STEP 3 — Does it already exist in Engram?

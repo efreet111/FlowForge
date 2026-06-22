@@ -22,7 +22,7 @@ Select **FlowForge Orchestrator** from the agent picker, or use handoffs to phas
 | `forge-arch` | 1 | spec.md + PM-* manual tests |
 | `forge-plan` | 2 | plan.md + checklist |
 | `forge-dev` | 3a | Code + tests; marks plan checklist |
-| `forge-verify` | 3b | verify-report.md or rework_ticket |
+| `forge-verify` | 3b | verify-report.md (always) — verdicts: PASS · PASS_DEGRADADO · PENDING · REWORK; rework_ticket.md on REWORK |
 | `forge-memory` | 4 | summary.md; PM-* gate |
 
 ## Checkpoints
