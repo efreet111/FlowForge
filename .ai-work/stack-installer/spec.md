@@ -100,7 +100,7 @@ ADR-002 establishes a remote `manifest.yaml` fetched at runtime from the `main` 
 
 ### Error Messages
 
-- NFR-ERR-001: All user-facing error messages are in English. Error strings do not include exception type names, stack traces, or internal assembly versions unless `--verbose` is passed. (NFR from ADR-001 consequence: "Error handling tipado, logs estructurados, fácil de testear unitariamente")
+- NFR-ERR-001: User-facing messages follow the UX copy language declared in `capability_matrix` (currently Spanish for v0.1.0-alpha.1; see frontmatter). Error strings do not include exception type names, stack traces, or internal assembly versions unless `--verbose` is passed. (NFR from ADR-001 consequence: "Error handling tipado, logs estructurados, fácil de testear unitariamente")
 
 ---
 
@@ -140,3 +140,6 @@ ADR-002 establishes a remote `manifest.yaml` fetched at runtime from the `main` 
 - **FU-1**: Add cryptographic signing for `manifest.yaml` to prevent MITM.
 - **FU-2**: Add `osx-arm64` matrix entry to `.github/workflows/release.yml` when Mac testing capacity exists (community contribution welcome).
 - **FU-3**: Track `flowforge update --self` if/when re-scoping becomes necessary (currently out of scope by design).
+- **FU-4** (added 2026-06-23): Add pre-install port-availability check for `engram-dotnet` default port (7437) so the installer fails fast with a clear error if another service is bound there.
+- **FU-5** (added 2026-06-23): Add interactive conflict detection for existing `forge-*` agent files in `~/.config/opencode/`, `~/.cursor/agents/`, `~/.vscode/agents/` (current behavior: silent overwrite). For v0.1.0-alpha.1: non-blocking informational warning. For v0.2.0: interactive prompts (overwrite / backup-then-overwrite / skip).
+- **FU-6** (added 2026-06-23): Same as FU-5 but for workflow/skill files.
