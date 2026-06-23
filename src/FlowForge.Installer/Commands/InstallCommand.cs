@@ -27,7 +27,8 @@ public sealed class InstallCommand(InstallerContext ctx)
             var selfError = ManifestClient.CheckInstallerCompatibility(remoteManifest, CurrentVersion);
             if (selfError != null)
             {
-                AnsiConsole.MarkupLine($"[red]⚠️  {selfError}[/]");
+                var formatted = Verbosity.FormatError(selfError);
+                AnsiConsole.MarkupLine($"[red]⚠️  {formatted}[/]");
                 if (!yes && !AnsiConsole.Confirm("¿Continuar de todos modos?", defaultValue: false))
                     return;
             }

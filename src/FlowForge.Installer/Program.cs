@@ -3,6 +3,12 @@ using FlowForge.Installer.Commands;
 using FlowForge.Installer.Infrastructure;
 using Spectre.Console;
 
+// ── Verbosity flag (global --verbose) ─────────────────────────────────────────
+if (args.Contains("--verbose") || args.Contains("-v"))
+{
+    Verbosity.IsVerbose = true;
+}
+
 // ── Bootstrap services ───────────────────────────────────────────────────────
 var log      = InstallerLogger.Default;
 var store    = ConfigStore.Default;
@@ -32,7 +38,17 @@ app.Add<UninstallCommand>("uninstall");
 // flowforge config set <key> <value>
 app.Add<ConfigCommand>("config");
 
-app.Run(args);
+try
+{
+    app.Run(args);
+}
+catch (Exception ex)
+{
+    // Error final: mostrar mensaje formateado según Verbosity
+    var msg = Verbosity.FormatError("Error fatal", ex);
+    AnsiConsole.MarkupLine($"[red]{msg}[/]");
+    Environment.Exit(1);
+}
 
 // ── Shared context passed to all commands ─────────────────────────────────────
 namespace FlowForge.Installer.Commands

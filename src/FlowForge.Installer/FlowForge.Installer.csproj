@@ -13,7 +13,7 @@
     <PublishAot>true</PublishAot>
     <EnableTrimAnalyzer>true</EnableTrimAnalyzer>
     <TrimmerRootDescriptor>TrimmerRoots.xml</TrimmerRootDescriptor>
-    <InvariantGlobalization>false</InvariantGlobalization>
+    <InvariantGlobalization>true</InvariantGlobalization>
 
     <!-- Binary size -->
     <TrimMode>full</TrimMode>

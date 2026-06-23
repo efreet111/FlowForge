@@ -63,7 +63,8 @@ public sealed class UpdateCommand(InstallerContext ctx)
 
         if (compatError != null)
         {
-            AnsiConsole.MarkupLine($"[red]Incompatibilidad de versión:[/] {compatError}");
+            var formatted = Verbosity.FormatError($"Incompatibilidad de versión: {compatError}");
+            AnsiConsole.MarkupLine($"[red]{formatted}[/]");
             return;
         }
 
