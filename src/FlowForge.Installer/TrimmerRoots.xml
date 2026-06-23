@@ -1,0 +1,4 @@
+<linker>
+  <!-- Preserve ConsoleAppFramework source-generated code -->
+  <assembly fullname="FlowForge.Installer" preserve="all" />
+</linker>

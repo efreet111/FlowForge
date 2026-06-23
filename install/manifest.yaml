@@ -1,0 +1,29 @@
+installer_version: 0.1.0-alpha.1
+channels:
+  - stable
+  - beta
+  - nightly
+default_channel: stable
+
+# Rango de versiones de engram-dotnet compatibles con este installer.
+# Cuando engram-dotnet cambia una API que usa el installer (MCP config format,
+# CLI flags, etc.), se actualiza el rango aquí. El installer lee este archivo
+# en runtime desde GitHub, no desde el binario compilado.
+requires:
+  engram-dotnet: ">=0.3.0"
+  installer:     ">=0.1.0-alpha.1"
+
+components:
+  engram-dotnet:
+    description: "Backend de memoria persistente (binario self-contained)"
+    repo: "efreet111/engram-dotnet"
+    default: true
+
+  flowforge:
+    description: "Skills + agents para IDEs (Cursor, OpenCode, VS Code)"
+    repo: "efreet111/FlowForge"
+    default: true
+
+  flowdoc:
+    description: "Estructura docs/ en el proyecto actual"
+    default: true
