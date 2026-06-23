@@ -13,7 +13,7 @@ public static class Verbosity
     public static bool IsVerbose { get; set; }
 
     /// <summary>
-    /// Obtiene el assembly version para显示 en modo verbose.
+    /// Obtiene el assembly version para mostrar en modo verbose.
     /// </summary>
     public static string AssemblyVersion =>
         typeof(Verbosity).Assembly.GetName().Version?.ToString() ?? "unknown";
