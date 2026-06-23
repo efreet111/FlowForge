@@ -20,7 +20,8 @@ Before processing closure, verify ALL manual tests are done:
 **Block closure if:**
 - PM-* section doesn't exist → "Blocked: no manual tests defined. Return to forge-arch."
 - Any PM has `[ ]` → "Blocked: manual tests pending: PM-2, PM-4"
-- `rework_ticket.md` (or legacy `rework.md`) open → "Blocked: open rework. Fix before closing."
+- `rework_ticket.md` exists with `status: "open"` in frontmatter → "Blocked: open rework ticket. Fix via /flow-dev first, then set status: resolved."
+  Note: a ticket with `status: "resolved"` does NOT block close.
 
 **If all PM `[x]` and no open rework → proceed.**
 
@@ -29,9 +30,15 @@ Before processing closure, verify ALL manual tests are done:
 Before `summary.md` or CKP-4:
 
 1. Ingest `./.engram/local_memory/*.md` if present (synthesize → `mem_save` or keep on MCP failure).
-2. **Call `mem_session_summary`** (required) with Goal, Discoveries, Accomplished, Next Steps, Relevant Files; set `project` and `topic_key: session/YYYY-MM-DD-{feature-slug}`.
-3. If MCP fails → write `.engram/local_memory/obs-<YYYYMMDD>-session-close.md` with `type: session_summary` frontmatter.
-4. Then write `summary.md`. Closing the IDE does not auto-save — this step is explicit.
+   - **Buffer cleanup**: only delete a `.md` file after `mem_save` returns a successful response (observation ID present). If `mem_save` fails or returns no ID, **keep the file**.
+2. **Call `mem_session_summary`** (required) with:
+   - `content`: structured text with sections Goal, Discoveries, Accomplished, Next Steps, Relevant Files
+   - `project`: active project (e.g. `team/flowforge`)
+   - `session_id`: current session ID (from `mem_session_start` response, or omit if not tracked)
+   - Note: `topic_key` is NOT a parameter of this tool — do not pass it.
+3. **Health & Retention**: run `mem_retention_stats` first to preview what will be pruned, then `mem_retention_prune` to remove expired temporary observations.
+4. If MCP fails → write `.engram/local_memory/obs-<YYYYMMDD>-session-close.md` with `type: session_summary` frontmatter.
+5. Then write `summary.md`. Closing the IDE does not auto-save — this step is explicit.
 
 ## Tasks
 1. **Session summary**: Goal, Discoveries, Accomplished, Next Steps (via `mem_session_summary` — mandatory)
