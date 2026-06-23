@@ -9,7 +9,7 @@ namespace FlowForge.Installer.Modules;
 /// </summary>
 public sealed class FlowForgeModule(InstallerContext ctx)
 {
-    public const string InstallerVersion = "0.5.0";
+    public const string InstallerVersion = "0.1.0-alpha.1";
 
     public void Install(List<string> selectedIdes)
     {
