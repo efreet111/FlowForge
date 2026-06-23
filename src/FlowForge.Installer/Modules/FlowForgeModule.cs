@@ -18,6 +18,9 @@ public sealed class FlowForgeModule(InstallerContext ctx)
 
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 
+        // ── Advertencia: archivos forge-* existentes ─────────────────────────────
+        WarnIfExistingAgents(selectedIdes, home);
+
         // El repo FlowForge puede estar en varios lugares:
         // 1. Junto al binario (si se clonó)
         // 2. Variable FLOWFORGE_REPO
@@ -28,6 +31,69 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         {
             InstallForIde(ide, home, ffRepo);
         }
+    }
+
+    /// <summary>
+    /// Escanea y warns si existen archivos forge-* pre-existentes en los directorios de IDE.
+    /// No bloquea la instalación — solo emite advertencia informativa.
+    /// </summary>
+    void WarnIfExistingAgents(List<string> selectedIdes, string home)
+    {
+        var filesByIde = new Dictionary<string, List<string>>();
+
+        foreach (var ide in selectedIdes)
+        {
+            var ideLower = ide.ToLowerInvariant();
+            List<string> existingFiles = [];
+
+            switch (ideLower)
+            {
+                case "cursor":
+                    var cursorDir = Path.Combine(home, ".cursor", "agents");
+                    if (Directory.Exists(cursorDir))
+                    {
+                        existingFiles = [.. Directory.EnumerateFiles(cursorDir, "forge-*.md", SearchOption.TopDirectoryOnly)];
+                    }
+                    break;
+                case "opencode":
+                    var opencodeDir = Path.Combine(home, ".config", "opencode");
+                    if (Directory.Exists(opencodeDir))
+                    {
+                        existingFiles = [.. Directory.EnumerateFiles(opencodeDir, "forge-*.md", SearchOption.AllDirectories)];
+                    }
+                    break;
+                case "vs code":
+                    var vscodeDir = Path.Combine(home, ".vscode", "agents");
+                    if (Directory.Exists(vscodeDir))
+                    {
+                        existingFiles = [.. Directory.EnumerateFiles(vscodeDir, "*.agent.md", SearchOption.TopDirectoryOnly)];
+                    }
+                    break;
+                case "claude desktop":
+                    // Claude Desktop no tiene archivos de agente a sobrescribir (solo skills)
+                    continue;
+            }
+
+            if (existingFiles.Count > 0)
+            {
+                filesByIde[ide] = existingFiles;
+            }
+        }
+
+        if (filesByIde.Count == 0) return;
+
+        var totalFiles = filesByIde.Values.Sum(f => f.Count);
+        AnsiConsole.MarkupLine($"[yellow]⚠️  Detecté {totalFiles} archivos forge-* existentes en los siguientes directorios:[/]");
+
+        foreach (var kvp in filesByIde)
+        {
+            foreach (var file in kvp.Value)
+            {
+                AnsiConsole.MarkupLine($"  • {file}");
+            }
+        }
+
+        AnsiConsole.MarkupLine("[yellow]Estos archivos serán sobrescritos. Si los personalizaste, hacé un backup antes de continuar.[/]");
     }
 
     void InstallForIde(string ide, string home, string? ffRepo)

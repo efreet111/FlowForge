@@ -90,6 +90,10 @@
 - [ ] PM-4: Outdated installer triggers warning
 - [ ] PM-5: Pre-release tag creates pre-release
 
+### 3.7 Pre-merge UX (FU-5)
+
+- [x] 1.8 FU-5: pre-install overwrite warning for existing forge-* agent files → commit bfd68ad
+
 ---
 
 ## 4. Identified gaps
