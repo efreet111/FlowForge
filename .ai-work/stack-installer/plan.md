@@ -27,14 +27,14 @@
 | NFR-002 | ✅ DONE | `InstallerConfig.cs:70,121`, `GitHubReleasesClient.cs:177` | JsonSerializerContext source-gen |
 | NFR-003 | ✅ DONE | `csproj:40` | Spectre.Console core only, NOT Spectre.Console.Cli |
 | NFR-004 | ✅ DONE | `TrimmerRoots.xml` | ConsoleAppFramework preserve |
-| NFR-005 | ⚠️ PARTIAL | `csproj:16` | Set to `false`, spec requires `true` |
+| NFR-005 | ✅ DONE | `csproj:16` → `true` (commit `634b6a4`) | Spec satisfied |
 | RNF-SEC-TAMPER-001 | ✅ DONE | `install.sh:94-104`, `install.ps1:66-79` | SHA-256 checksum verification |
 | RNF-SEC-TAMPER-002 | ✅ DONE | `ManifestClient.cs:25` | HTTPS only (signature deferred OQ-1) |
-| RNF-SEC-INFO-001 | ⚠️ PARTIAL | No --verbose flag found | User-Agent present, but no verbose flag |
+| RNF-SEC-INFO-001 | ✅ DONE | `Program.cs:7-10,41-50`, `Infrastructure/Verbosity.cs` (commit `634b6a4`) | --verbose flag wired end-to-end |
 | RNF-SEC-DOS-001 | ✅ DONE | `Program.cs:9` (30s), `ManifestClient.cs:29` (5s) | Timeout enforced |
 | RNF-SEC-SPOOF-001 | ✅ DONE | `install.sh:85`, `install.ps1:54` | Direct GitHub URLs |
 | RNF-SEC-ELEV-001 | ✅ DONE | `install.sh:108` (755), `install.ps1:90-92` (User scope) | Least privilege |
-| NFR-ERR-001 | ⚠️ PARTIAL | No --verbose flag | Error messages present, no verbose control |
+| NFR-ERR-001 | ✅ DONE | `Program.cs:7-10`, `Infrastructure/Verbosity.cs:26-36` (commit `634b6a4`) | Verbosity.FormatError gates stack traces |
 | PM-1 | ➖ PENDING | Not executable at plan time | Requires clean Linux machine |
 | PM-2 | ➖ PENDING | Not executable at plan time | Requires offline test |
 | PM-3 | ➖ PENDING | Not executable at plan time | Requires manifest fork |
@@ -94,17 +94,17 @@
 
 ## 4. Identified gaps
 
-### Gap 1: NFR-005 — InvariantGlobalization should be `true`
+**Status (post-dev pass):** Both gaps CLOSED in commit `634b6a4`. No remaining gaps.
 
-- **File(s) to modify:** `src/FlowForge.Installer/FlowForge.Installer.csproj`
-- **Acceptance criteria:** `<InvariantGlobalization>true</InvariantGlobalization>` should be set to avoid ICU data embedding
-- **Suggested commit:** `fix(eng-301): enable InvariantGlobalization in csproj`
+### Gap 1: NFR-005 — InvariantGlobalization should be `true` — **CLOSED**
 
-### Gap 2: RNF-SEC-INFO-001 + NFR-ERR-001 — Missing --verbose flag
+- Closed in commit `634b6a4`. `csproj:16` flipped to `<InvariantGlobalization>true</InvariantGlobalization>`.
+- Acceptance criteria met.
 
-- **File(s) to modify:** `Program.cs`, `InstallerLogger.cs`, or relevant command files
-- **Acceptance criteria:** Add `--verbose` flag that when passed exposes stack traces in error output; without it, errors show message only
-- **Suggested commit:** `feat(eng-301): add --verbose flag for debug output`
+### Gap 2: RNF-SEC-INFO-001 + NFR-ERR-001 — Missing `--verbose` flag — **CLOSED**
+
+- Closed in commit `634b6a4`. New file `src/FlowForge.Installer/Infrastructure/Verbosity.cs` (52 lines) provides `IsVerbose` + `FormatError(message, ex?)`. `Program.cs:7-10` declares the CLI flag; `InstallCommand.cs:30` and `UpdateCommand.cs:64-68` route errors through `Verbosity.FormatError`. Global exception handler at `Program.cs:41-50` gates stack-trace output.
+- Acceptance criteria met.
 
 ---
 
@@ -112,31 +112,31 @@
 
 ### BLOCKER
 
-- **OQ-4 [BLOCKER]:** NFR-005 specifies `<InvariantGlobalization>true</InvariantGlobalization>` but the code has `false`. This affects binary size and AOT correctness. Should this be fixed before CKP-2 approval?
-
-- **OQ-5 [BLOCKER]:** RNF-SEC-INFO-001 and NFR-ERR-001 require a `--verbose` flag to expose stack traces for debugging. This is not implemented. Should it be added before CKP-2, or deferred to follow-up?
+- None. Both OQ-4 and OQ-5 were resolved by the dev pass (commit `634b6a4`).
 
 ### OPTIONAL
 
-- None at this time.
+- None.
 
 ### FOLLOW-UP
 
-- **FU-4:** Add `--verbose` flag to expose stack traces in error output (per RNF-SEC-INFO-001 + NFR-ERR-001).
-- **FU-5:** Set `InvariantGlobalization` to `true` in csproj (per NFR-005).
+- None from the original gap analysis. (FU-4 and FU-5 are CLOSED; they were the 2 BLOCKERs above. Items FU-1, FU-2, FU-3 from `spec.md` remain deferred to v0.2.0+ as documented there.)
 
 ---
 
 ## 6. Memory Signal
 
-- **type:** discovery
-- **significance:** medium
-- **summary:** Two gaps found in retrospective: (1) InvariantGlobalization=false vs spec requiring=true, (2) missing --verbose flag per RNF-SEC-INFO-001. Both are fixable but block CKP-2 clean pass.
+- **type:** bugfix
+- **significance:** high
+- **summary:** ENG-301 retrospective gap pass closed 2 CKP-2 blockers: InvariantGlobalization csproj:16 (false→true per NFR-005) and a new --verbose flag with `Verbosity.FormatError` wrapper (per RNF-SEC-INFO-001 + NFR-ERR-001). Build clean. Pattern reusable across FlowForge tools.
 - **topic_key:** architecture/installer-aot-constraints
 
 ---
 
 ## Summary Statistics
 
-- **[x] items in section 3:** 16 items verified as done in commits 96b1b6b and 9f6d021
-- **[ ] items in section 3:** 7 items (2 gaps + 5 PM tests pending human execution)
+- **[x] items in section 3:** 19 items (16 from initial 2 commits + 3 closed by commit `634b6a4`)
+- **[ ] items in section 3:** 5 items (all PM-* tests pending human/CI execution — cannot be marked [x] at planning or dev time)
+- **BLOCKERs for CKP-2:** 0
+- **OPTIONAL:** 0
+- **FOLLOW-UP:** 0 (FU-4 and FU-5 from initial plan were the 2 BLOCKERs; both closed)
