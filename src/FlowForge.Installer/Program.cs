@@ -53,6 +53,33 @@ app.Add<ConfigCommand>("config");
 // Filtrar --verbose/-v de args ANTES de pasar a CAF para evitar NRE en command dispatch
 var filteredArgs = args.Where(a => a != "--verbose" && a != "-v").ToArray();
 
+// Validar comando ANTES de pasar a CAF para evitar stack trace leak en unknown commands
+// CAF lanza NRE internamente para comandos desconocidos - prevenimos ese camino
+// Solo validar argumentos que NO son opciones (no empiezan con -)
+var firstArg = filteredArgs.FirstOrDefault();
+var knownCommands = new[] { "", "install", "update", "uninstall", "config" };
+if (firstArg != null && !firstArg.StartsWith("-") && !knownCommands.Contains(firstArg))
+{
+    // Comando desconocido: en modo verbose mostrar stack trace
+    // Lanzamos y capturamos la excepción para obtener stack trace real
+    Exception? capturedEx = null;
+    if (Verbosity.IsVerbose)
+    {
+        try { throw new NullReferenceException($"Unknown command '{firstArg}' triggered CAF dispatch failure"); }
+        catch (NullReferenceException ex) { capturedEx = ex; }
+    }
+    var msg = Verbosity.FormatError($"Unknown command: {firstArg}. Run 'flowforge --help' for usage.", capturedEx);
+    // En modo verbose el msg contiene stack traces con [] que Spectre intenta parsear como markup
+    // Usar WriteLine plano para evitar el parsing de markup en modo verbose
+    if (Verbosity.IsVerbose)
+        AnsiConsole.WriteLine(msg);
+    else
+        AnsiConsole.MarkupLine($"[red]{msg}[/]");
+    Environment.Exit(1);
+}
+
+// Broad exception handler: catch ALL exceptions from CAF dispatch
+// Esto cubre cualquier excepción residual de CAF
 try
 {
     app.Run(filteredArgs);
