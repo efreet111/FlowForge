@@ -8,39 +8,36 @@
 
 ## 1. Instalación
 
-**Linux / macOS** (cuando el repo sea **público**):
+### Instalador de stack (setup completo, v0.1.0-alpha.2+)
+
+Para instalar el stack completo de FlowForge en tu máquina — CLI `flowforge` + backend de memoria `engram-dotnet` + agentes del IDE + estructura FlowDoc.
+
+**Linux/macOS:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.sh | bash
+```
+
+**Windows (PowerShell):**
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.ps1 | iex
+```
+
+### Solo agentes del IDE (liviano)
+
+Para instalar solo los archivos de agentes del IDE (sin CLI `flowforge`, sin `engram-dotnet`):
+
+**Linux/macOS:**
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.sh | bash
 ```
 
-**Windows (PowerShell)** (repo público):
+**Windows (PowerShell):**
 
 ```powershell
 iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
-```
-
-### Repo privado (recomendado mientras preparás el release)
-
-La instalación remota vía `raw.githubusercontent.com` devuelve **404** si el repo es privado. Usá un clon local:
-
-```bash
-git clone https://github.com/efreet111/FlowForge.git
-cd FlowForge
-```
-
-```bash
-# Linux/macOS
-bash ide/install.sh
-
-# Opcional: instalar FlowForge en tu repo de aplicación
-bash ide/install.sh /ruta/a/tu-app
-```
-
-```powershell
-# Windows
-.\ide\install.ps1
-.\ide\install.ps1 -ProjectPath "C:\ruta\a\tu-app"
 ```
 
 ---
@@ -129,7 +126,7 @@ Los `/flow-*` son convenciones de texto en modo Agent. Autocomplete requiere `id
 
 | Problema | Solución |
 |----------|----------|
-| **404 al instalar desde `raw.githubusercontent.com`** | Repo privado o rama incorrecta — usá instalación local arriba |
+| **404 al instalar desde `raw.githubusercontent.com`** | Rama o path incorrecto (verificá que la URL apunte a `main` y que el script exista) |
 | **No encuentra `git`** | Instalá Git for Windows o el gestor de paquetes de tu SO |
 | **`dubious ownership` en Windows** | `git config --global --add safe.directory E:/Proyectos/FlowForge` |
 | **El orquestador codea en lugar de delegar** | Recargá el IDE; decí: “Delegá a forge-dev según workflow — no parchees inline” |

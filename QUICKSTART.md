@@ -8,39 +8,36 @@
 
 ## 1. Install
 
-**Linux / macOS** (when the repo is **public**):
+### Stack installer (full setup, v0.1.0-alpha.2+)
+
+For installing the complete FlowForge stack on your machine — `flowforge` CLI + `engram-dotnet` memory backend + IDE agents + FlowDoc structure.
+
+**Linux/macOS:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.sh | bash
+```
+
+**Windows (PowerShell):**
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.ps1 | iex
+```
+
+### IDE agents only (lightweight)
+
+For installing just the IDE agent files (no `flowforge` CLI, no engram-dotnet):
+
+**Linux/macOS:**
 
 ```bash
 curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.sh | bash
 ```
 
-**Windows (PowerShell)** (public repo):
+**Windows (PowerShell):**
 
 ```powershell
 iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
-```
-
-### Private repo (recommended while preparing release)
-
-Remote install via `raw.githubusercontent.com` returns **404** if the repo is private. Use a local clone:
-
-```bash
-git clone https://github.com/efreet111/FlowForge.git
-cd FlowForge
-```
-
-```bash
-# Linux/macOS
-bash ide/install.sh
-
-# Optional: install FlowForge into your app repo
-bash ide/install.sh /path/to/your-app
-```
-
-```powershell
-# Windows
-.\ide\install.ps1
-.\ide\install.ps1 -ProjectPath "C:\path\to\your-app"
 ```
 
 ---
@@ -130,7 +127,7 @@ Direct `@forge-*` invocation (legacy) bypasses checkpoints and Memory Curation �
 
 | Issue | Fix |
 |-------|-----|
-| **404 on `raw.githubusercontent.com` install** | Repo is private or wrong branch — use local install above |
+| **404 on `raw.githubusercontent.com` install** | Wrong branch or path (verify the URL points to `main` and the script exists) |
 | **`git` not found** | Install Git for Windows or your OS package manager |
 | **`dubious ownership` on Windows** | `git config --global --add safe.directory E:/Proyectos/FlowForge` |
 | **Orchestrator codes instead of delegating** | Reload IDE; say: “Delegate to forge-dev per workflow — do not patch inline” |
