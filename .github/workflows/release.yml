@@ -40,6 +40,7 @@ jobs:
         run: dotnet build src/FlowForge.Installer -c Release --no-restore --nologo
 
       - name: Publish ${{ matrix.target }} (AOT)
+        shell: bash
         run: |
           dotnet publish src/FlowForge.Installer \
             -c Release \
@@ -50,20 +51,12 @@ jobs:
             -o out
 
       - name: Rename binary
-        run: |
-          if [ "${{ runner.os }}" = "Linux" ]; then
-            mv out/${{ matrix.binary }} out/${{ matrix.artifact_name }}
-          else
-            powershell -Command "Move-Item out/${{ matrix.binary }} out/${{ matrix.artifact_name }} -Force"
-          fi
+        shell: bash
+        run: mv "out/${{ matrix.binary }}" "out/${{ matrix.artifact_name }}"
 
       - name: Generate SHA-256
-        run: |
-          if [ "${{ runner.os }}" = "Linux" ]; then
-            sha256sum out/${{ matrix.artifact_name }} > out/${{ matrix.artifact_name }}.sha256
-          else
-            powershell -Command "(Get-FileHash -Algorithm SHA256 out/${{ matrix.artifact_name }}).Hash | Out-File -Encoding utf8 out/${{ matrix.artifact_name }}.sha256"
-          fi
+        shell: bash
+        run: sha256sum "out/${{ matrix.artifact_name }}" > "out/${{ matrix.artifact_name }}.sha256"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
