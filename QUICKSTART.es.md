@@ -32,7 +32,8 @@ curl -fsSL https://raw.githubusercontent.com/efreet111/FlowForge/main/install/in
 **Windows (PowerShell):**
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.ps1 | iex
+iwr -useb "https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.ps1" -OutFile $env:TEMP\flowforge-install.ps1
+& $env:TEMP\flowforge-install.ps1
 ```
 
 ### Solo agentes del IDE (liviano)

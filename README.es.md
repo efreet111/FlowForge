@@ -41,8 +41,11 @@ curl -fsSL https://raw.githubusercontent.com/efreet111/FlowForge/main/install/in
 **Windows (PowerShell):**
 
 ```powershell
-iwr -useb https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.ps1 | iex
+iwr -useb "https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.ps1" -OutFile $env:TEMP\flowforge-install.ps1
+& $env:TEMP\flowforge-install.ps1
 ```
+
+> En Windows, evitá `| iex` — puede ejecutar una copia en caché. Guardar en archivo primero asegura el script actual de `main`.
 
 Instala en `%LOCALAPPDATA%\Programs\FlowForge\` (Windows) o `~/.local/bin/flowforge` (Linux/macOS). Distribuido vía [GitHub Releases](https://github.com/efreet111/FlowForge/releases).
 

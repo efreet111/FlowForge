@@ -1,3 +1,4 @@
+# FlowForge stack bootstrap (Windows) — prerelease-aware version lookup
 #Requires -Version 5.1
 <#
 .SYNOPSIS
@@ -28,22 +29,33 @@ function Get-ReleaseTag {
 
     if ($Channel -eq "stable") {
         # /releases/latest 404s when every release is marked prerelease (alpha-only repos).
+        $latest = Invoke-RestMethod -Uri "$releasesUrl/latest" -Headers $GhHeaders -ErrorAction SilentlyContinue
+        if ($latest -and $latest.tag_name) { return $latest.tag_name }
+
+        $prevEap = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
         try {
-            $latest = Invoke-RestMethod -Uri "$releasesUrl/latest" -Headers $GhHeaders
-            if ($latest.tag_name) { return $latest.tag_name }
-        } catch {
-            # fall through to list
+            $all = @(Invoke-RestMethod -Uri $releasesUrl -Headers $GhHeaders)
+        } finally {
+            $ErrorActionPreference = $prevEap
         }
-        $all = @(Invoke-RestMethod -Uri $releasesUrl -Headers $GhHeaders)
+        if ($all.Count -eq 0) { return $null }
+
         $stable = @($all | Where-Object { -not $_.prerelease } | Select-Object -First 1)
         if ($stable.Count -gt 0) { return $stable[0].tag_name }
-        if ($all.Count -gt 0) {
-            $tag = ($all | Select-Object -First 1).tag_name
-            Write-Host "  Nota: sin release estable; usando pre-release $tag" -ForegroundColor Yellow
-            return $tag
-        }
+
+        $tag = ($all | Select-Object -First 1).tag_name
+        Write-Host "  Nota: sin release estable; usando pre-release $tag" -ForegroundColor Yellow
+        return $tag
     } else {
-        $all = @(Invoke-RestMethod -Uri $releasesUrl -Headers $GhHeaders)
+        $prevEap = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        try {
+            $all = @(Invoke-RestMethod -Uri $releasesUrl -Headers $GhHeaders)
+        } finally {
+            $ErrorActionPreference = $prevEap
+        }
+        if ($all.Count -eq 0) { return $null }
         $pre = @($all | Where-Object { $_.prerelease } | Select-Object -First 1)
         if ($pre.Count -gt 0) { return $pre[0].tag_name }
         if ($all.Count -gt 0) { return ($all | Select-Object -First 1).tag_name }
