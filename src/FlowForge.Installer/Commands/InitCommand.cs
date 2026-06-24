@@ -1,4 +1,5 @@
 using ConsoleAppFramework;
+using FlowForge.Installer.Infrastructure;
 using FlowForge.Installer.Modules;
 using Spectre.Console;
 
@@ -70,9 +71,12 @@ public sealed class InitCommand(InstallerContext ctx)
         ctx.Log.Info($"init: inicio → {projectPath}");
 
         // ── 1. .flowforge.json ────────────────────────────────────────────────
-        CreateFlowForgeJson(projectPath, !noFlowDoc);
+        CreateFlowForgeJson(projectPath, !noFlowDoc, ctx);
 
-        // ── 2. FlowDoc (docs/ + AGENTS.md + .ai-work/) ───────────────────────
+        // ── 2. .ai-work/ (siempre — capa FlowForge, independiente de FlowDoc) ─
+        EnsureAiWorkDir(projectPath);
+
+        // ── 3. FlowDoc (docs/ + AGENTS.md) ───────────────────────────────────
         if (!noFlowDoc)
         {
             var flowDoc = new FlowDocModule(ctx);
@@ -90,10 +94,14 @@ public sealed class InitCommand(InstallerContext ctx)
         AnsiConsole.MarkupLine("[bold]Próximos pasos:[/]");
         AnsiConsole.MarkupLine("  1. Abrí el proyecto en tu IDE");
         AnsiConsole.MarkupLine("  2. Ejecutá [blue]/flow-start <feature>[/] para iniciar una tarea");
+        if (!noFlowDoc)
+            AnsiConsole.MarkupLine("  [grey]FlowDoc activo — los agentes leen docs/ vía .flowforge.json[/]");
+        else
+            AnsiConsole.MarkupLine("  [grey]FlowDoc desactivado — solo metodología FlowForge (.ai-work/)[/]");
         ctx.Log.Info("init: completado");
     }
 
-    static void CreateFlowForgeJson(string projectPath, bool flowDocEnabled)
+    static void CreateFlowForgeJson(string projectPath, bool flowDocEnabled, InstallerContext ctx)
     {
         var configPath = Path.Combine(projectPath, ".flowforge.json");
         if (File.Exists(configPath))
@@ -104,30 +112,91 @@ public sealed class InitCommand(InstallerContext ctx)
 
         var projectName = Path.GetFileName(projectPath);
         var today       = DateTime.Now.ToString("yyyy-MM-dd");
+        var ffVersion   = FlowForgeModule.InstallerVersion;
 
-        var docsFrameworkLine = flowDocEnabled
-            ? $"""
-                  "docs_framework": "flowdoc@1.1",
-              """
-            : "";
+        var locator = new FlowForgeRepoLocator(ctx.Log);
+        var ffRepo    = locator.Locate() ?? (locator.EnsureAvailable(out var cloned) ? cloned : null);
 
-        var json =
-            $$"""
+        string json;
+        if (flowDocEnabled)
+        {
+            var templatePath = ffRepo != null
+                ? Path.Combine(ffRepo, "templates", "project", ".flowforge.json.template")
+                : null;
+
+            if (templatePath != null && File.Exists(templatePath))
             {
-              "project": "{{projectName}}",
-              "created": "{{today}}",
-              "version": "1.0",
-            {{docsFrameworkLine}}
-              "forge": {
-                "persona": {
-                  "teacher_mode": false
-                }
-              }
+                json = File.ReadAllText(templatePath)
+                    .Replace("__PROJECT_NAME__", projectName, StringComparison.Ordinal)
+                    .Replace("__DATE__", today, StringComparison.Ordinal)
+                    .Replace("__FLOWFORGE_VERSION__", ffVersion, StringComparison.Ordinal);
             }
-            """;
+            else
+            {
+                json = BuildFlowDocEnabledJson(projectName, today, ffVersion);
+            }
+        }
+        else
+        {
+            json = BuildFlowDocDisabledJson(projectName, today, ffVersion);
+        }
 
         File.WriteAllText(configPath, json);
         AnsiConsole.MarkupLine("  [green]✓[/] .flowforge.json creado");
+    }
+
+    static string BuildFlowDocEnabledJson(string projectName, string today, string ffVersion) =>
+        $$"""
+        {
+          "version": "1",
+          "workflow": "flowforge",
+          "flowforge_version": "{{ffVersion}}",
+          "docs_framework": "flowdoc@1.1",
+          "adoption_level": 1,
+          "project": "{{projectName}}",
+          "created": "{{today}}",
+          "engram": {
+            "enabled": true,
+            "project": "{{projectName}}"
+          },
+          "paths": {
+            "prd": "docs/PRD.md",
+            "backlog": "docs/tasks",
+            "decisions": "docs/architecture/adr",
+            "rfcs": "docs/architecture/rfc",
+            "development": "docs/DEVELOPMENT.md",
+            "features": ".ai-work",
+            "templates": "docs/templates"
+          }
+        }
+        """;
+
+    static string BuildFlowDocDisabledJson(string projectName, string today, string ffVersion) =>
+        $$"""
+        {
+          "version": "1",
+          "workflow": "flowforge",
+          "flowforge_version": "{{ffVersion}}",
+          "adoption_level": 1,
+          "project": "{{projectName}}",
+          "created": "{{today}}",
+          "engram": {
+            "enabled": true,
+            "project": "{{projectName}}"
+          },
+          "paths": {
+            "features": ".ai-work"
+          }
+        }
+        """;
+
+    static void EnsureAiWorkDir(string projectPath)
+    {
+        var aiWork = Path.Combine(projectPath, ".ai-work");
+        Directory.CreateDirectory(aiWork);
+        var gitkeep = Path.Combine(aiWork, ".gitkeep");
+        if (!File.Exists(gitkeep))
+            File.WriteAllText(gitkeep, "");
     }
 
     static void EnsureAgentsMdMinimal(string projectPath)

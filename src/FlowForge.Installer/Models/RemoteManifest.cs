@@ -10,7 +10,7 @@ namespace FlowForge.Installer.Models;
 public sealed class RemoteManifest
 {
     /// <summary>Versión del manifest (coincide con la última release del installer).</summary>
-    public string InstallerVersion { get; set; } = "0.1.0-alpha.5";
+    public string InstallerVersion { get; set; } = "0.1.0-alpha.6";
 
     /// <summary>
     /// Versión mínima de engram-dotnet compatible con este installer.
@@ -19,7 +19,7 @@ public sealed class RemoteManifest
     public string RequiresEngramDotnet { get; set; } = ">=0.3.0";
 
     /// <summary>Versión mínima del installer para que este manifest sea válido.</summary>
-    public string RequiresInstaller { get; set; } = ">=0.1.0-alpha.5";
+    public string RequiresInstaller { get; set; } = ">=0.1.0-alpha.6";
 
     /// <summary>Indica si el manifest se cargó desde GitHub o son valores por defecto.</summary>
     [JsonIgnore]
@@ -30,9 +30,9 @@ public sealed class RemoteManifest
     /// </summary>
     public static RemoteManifest Default => new()
     {
-        InstallerVersion      = "0.1.0-alpha.5",
+        InstallerVersion      = "0.1.0-alpha.6",
         RequiresEngramDotnet  = ">=0.3.0",
-        RequiresInstaller     = ">=0.1.0-alpha.5",
+        RequiresInstaller     = ">=0.1.0-alpha.6",
         IsRemote              = false,
     };
 }

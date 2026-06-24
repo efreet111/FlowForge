@@ -92,6 +92,95 @@ This creates:
 
 > `flowforge init` is the only command that writes into a project directory. The global `flowforge install` only touches `~/.cursor`, `~/.config`, etc.
 
+### FlowDoc on/off and custom paths
+
+FlowForge (methodology + `.ai-work/`) and FlowDoc (`docs/` product layer) are **independent** but designed to work together. Control is in **`.flowforge.json`** at the project root.
+
+| Goal | What to do |
+|------|------------|
+| **Full setup** (default) | `flowforge init .` — sets `"docs_framework": "flowdoc@1.1"` and default `paths` |
+| **FlowForge only** (no FlowDoc) | `flowforge init . --no-flow-doc` — no `docs/`, no `docs_framework`; agents use only `.ai-work/` |
+| **Disable later** | Edit `.flowforge.json`: remove `"docs_framework"` or set `"docs_framework": null` |
+| **Custom folder layout** | Keep `"docs_framework": "flowdoc@1.1"` and point `paths` to your folders |
+
+Example — custom paths (FlowDoc semantics, your tree):
+
+```json
+{
+  "docs_framework": "flowdoc@1.1",
+  "paths": {
+    "prd": "product/requirements.md",
+    "backlog": "product/stories",
+    "decisions": "product/adr",
+    "rfcs": "product/rfc",
+    "development": "CONTRIBUTING.md",
+    "features": ".ai-work",
+    "templates": "product/templates"
+  }
+}
+```
+
+Example — FlowForge only (no product doc layer):
+
+```json
+{
+  "paths": {
+    "features": ".ai-work"
+  }
+}
+```
+
+At `/flow-start`, `forge-discovery` reads this file: if `docs_framework` is missing or `null`, it **skips** the FlowDoc step and proceeds with the FlowForge workflow only.
+
+### Where files live (global vs project)
+
+| What | Command | Default location (Windows) |
+|------|---------|----------------------------|
+| IDE agents, rules, `/flow-*` commands | `flowforge install` (FlowForge component) | `C:\Users\<you>\.cursor\` |
+| FlowForge installer log + config | `flowforge install` | `C:\Users\<you>\.engram\config.json`, `install.log` |
+| engram-dotnet binary | `flowforge install` (engram component) | `%LOCALAPPDATA%\Programs\FlowForge\engram.exe` |
+| **SQLite memory DB** (engram) | First `mem_save` via MCP | `C:\Users\<you>\.engram\` (see below) |
+| Per-project FlowDoc + config | `flowforge init <path>` | `<project>\docs\`, `<project>\.flowforge.json` |
+| Per-project feature artifacts | `/flow-start` … `/flow-close` | `<project>\.ai-work\{slug}\` |
+| Offline memory fallback (no MCP) | Agent at runtime | `<project>\.engram\local_memory\*.md` |
+
+> **`flowforge init` does not restore `~/.cursor`.** If you deleted `.cursor` to test, run `flowforge install` again (select **FlowForge** + your IDE) or the [IDE installer](README.md#ide-install-agents-only) one-liner.
+
+### engram SQLite — default path and how to change it
+
+When you install **engram-dotnet** via the Stack installer, MCP is configured with:
+
+| Setting | Default | Purpose |
+|---------|---------|---------|
+| `ENGRAM_DATA_DIR` | `C:\Users\<you>\.engram\` (Windows) · `~/.engram/` (Linux/macOS) | Directory where engram creates its **SQLite database** on first save |
+| `ENGRAM_USER` | `<username>@local.dev` | Namespace for personal vs team memories |
+| `ENGRAM_SYNC_ENABLED` | `false` (local) or `true` (sync mode) | Offline-first sync to server |
+
+The DB file is created **inside** `ENGRAM_DATA_DIR` by engram-dotnet (not by FlowForge). FlowForge only sets the env var when wiring MCP.
+
+**To use a different SQLite location**, edit the MCP config for your IDE:
+
+| IDE | File to edit |
+|-----|----------------|
+| **Cursor** | `C:\Users\<you>\.cursor\mcp.json` → `mcpServers.engram.env.ENGRAM_DATA_DIR` |
+| **OpenCode** | `C:\Users\<you>\.config\opencode\opencode.json` → `mcp.engram.environment.ENGRAM_DATA_DIR` |
+
+Example (Cursor):
+
+```json
+"env": {
+  "ENGRAM_DATA_DIR": "D:\\data\\engram",
+  "ENGRAM_USER": "you@example.com",
+  "ENGRAM_SYNC_ENABLED": "false"
+}
+```
+
+Restart the IDE after changing MCP env vars.
+
+**Per-project memory name** (which project observations belong to) is separate — set in `<project>/.flowforge.json` under `engram.project`, not in the SQLite path.
+
+See also: [`docs/10-memory-mapping-fallback.md`](docs/10-memory-mapping-fallback.md) (SQLite vs `local_memory` fallback) · [`docs/06-engram-sync-convention.md`](docs/06-engram-sync-convention.md) (sync + env vars).
+
 ---
 
 ## 3. First command

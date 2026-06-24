@@ -92,6 +92,95 @@ Crea:
 
 > `flowforge init` es el único comando que escribe dentro de un directorio de proyecto. El `flowforge install` global solo toca `~/.cursor`, `~/.config`, etc.
 
+### FlowDoc: activar, desactivar y rutas propias
+
+FlowForge (metodología + `.ai-work/`) y FlowDoc (capa `docs/` de producto) son **independientes** pero diseñados para trabajar juntos. El control está en **`.flowforge.json`** en la raíz del proyecto.
+
+| Objetivo | Qué hacer |
+|----------|-----------|
+| **Setup completo** (default) | `flowforge init .` — define `"docs_framework": "flowdoc@1.1"` y `paths` por defecto |
+| **Solo FlowForge** (sin FlowDoc) | `flowforge init . --no-flow-doc` — sin `docs/`, sin `docs_framework`; los agentes usan solo `.ai-work/` |
+| **Desactivar después** | Editá `.flowforge.json`: quitá `"docs_framework"` o poné `"docs_framework": null` |
+| **Carpetas propias** | Mantené `"docs_framework": "flowdoc@1.1"` y apuntá `paths` a tus rutas |
+
+Ejemplo — rutas personalizadas (semántica FlowDoc, tu árbol):
+
+```json
+{
+  "docs_framework": "flowdoc@1.1",
+  "paths": {
+    "prd": "producto/requisitos.md",
+    "backlog": "producto/historias",
+    "decisions": "producto/adr",
+    "rfcs": "producto/rfc",
+    "development": "CONTRIBUTING.md",
+    "features": ".ai-work",
+    "templates": "producto/plantillas"
+  }
+}
+```
+
+Ejemplo — solo FlowForge (sin capa de documentación de producto):
+
+```json
+{
+  "paths": {
+    "features": ".ai-work"
+  }
+}
+```
+
+En `/flow-start`, `forge-discovery` lee este archivo: si `docs_framework` no está o es `null`, **omite** el paso FlowDoc y sigue solo con la metodología FlowForge.
+
+### Dónde queda cada cosa (global vs proyecto)
+
+| Qué | Comando | Ubicación por defecto (Windows) |
+|-----|---------|----------------------------------|
+| Agentes IDE, reglas, comandos `/flow-*` | `flowforge install` (componente FlowForge) | `C:\Users\<vos>\.cursor\` |
+| Log y config del instalador FlowForge | `flowforge install` | `C:\Users\<vos>\.engram\config.json`, `install.log` |
+| Binario engram-dotnet | `flowforge install` (componente engram) | `%LOCALAPPDATA%\Programs\FlowForge\engram.exe` |
+| **Base SQLite de memoria** (engram) | Primer `mem_save` vía MCP | `C:\Users\<vos>\.engram\` (ver abajo) |
+| FlowDoc + config por proyecto | `flowforge init <ruta>` | `<proyecto>\docs\`, `<proyecto>\.flowforge.json` |
+| Artefactos de feature | `/flow-start` … `/flow-close` | `<proyecto>\.ai-work\{slug}\` |
+| Fallback offline (sin MCP) | Agente en runtime | `<proyecto>\.engram\local_memory\*.md` |
+
+> **`flowforge init` no restaura `~/.cursor`.** Si borraste `.cursor` para probar, volvé a ejecutar `flowforge install` (elegí **FlowForge** + tu IDE) o el one-liner del [instalador IDE](README.es.md#instalacion-ide-solo-agentes).
+
+### SQLite de engram — ruta por defecto y cómo cambiarla
+
+Al instalar **engram-dotnet** con el Stack installer, el MCP queda configurado con:
+
+| Variable | Default | Para qué |
+|----------|---------|----------|
+| `ENGRAM_DATA_DIR` | `C:\Users\<vos>\.engram\` (Windows) · `~/.engram/` (Linux/macOS) | Carpeta donde engram crea la **base SQLite** en el primer save |
+| `ENGRAM_USER` | `<usuario>@local.dev` | Namespace personal vs equipo |
+| `ENGRAM_SYNC_ENABLED` | `false` (local) o `true` (modo sync) | Sync offline-first con servidor |
+
+El archivo `.db` lo crea **engram-dotnet** dentro de `ENGRAM_DATA_DIR`, no FlowForge. FlowForge solo define la variable de entorno al configurar MCP.
+
+**Para usar otra ubicación de SQLite**, editá la config MCP de tu IDE:
+
+| IDE | Archivo |
+|-----|---------|
+| **Cursor** | `C:\Users\<vos>\.cursor\mcp.json` → `mcpServers.engram.env.ENGRAM_DATA_DIR` |
+| **OpenCode** | `C:\Users\<vos>\.config\opencode\opencode.json` → `mcp.engram.environment.ENGRAM_DATA_DIR` |
+
+Ejemplo (Cursor):
+
+```json
+"env": {
+  "ENGRAM_DATA_DIR": "D:\\datos\\engram",
+  "ENGRAM_USER": "vos@ejemplo.com",
+  "ENGRAM_SYNC_ENABLED": "false"
+}
+```
+
+Reiniciá el IDE después de cambiar variables MCP.
+
+**El nombre de proyecto en memoria** (a qué proyecto pertenecen las observaciones) es aparte — se configura en `<proyecto>/.flowforge.json` bajo `engram.project`, no en la ruta del SQLite.
+
+Ver también: [`docs/10-memory-mapping-fallback.md`](docs/10-memory-mapping-fallback.md) · [`docs/06-engram-sync-convention.md`](docs/06-engram-sync-convention.md).
+
 ---
 
 ## 3. Primer comando
