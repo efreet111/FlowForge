@@ -54,7 +54,7 @@ patch_opencode_flowforge_json() {
   fi
   local py=python3
   command -v python3 >/dev/null 2>&1 || py=python
-  FF_REPO="$repo" $py -c "
+  FF_REPO="$repo" DEST="$dest" $py -c "
 import os
 from pathlib import Path
 dest = Path(os.environ['DEST'])
@@ -62,7 +62,7 @@ repo = os.environ['FF_REPO']
 text = dest.read_text(encoding='utf-8')
 if '__FLOWFORGE_REPO__' in text:
     dest.write_text(text.replace('__FLOWFORGE_REPO__', repo), encoding='utf-8')
-" DEST="$dest" && echo -e "  ${GREEN}OK${NC} Rutas skills → $repo"
+" && echo -e "  ${GREEN}OK${NC} Rutas skills → $repo"
 }
 
 compile_cursor_agents() {
