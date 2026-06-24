@@ -62,7 +62,7 @@ The repo is **public** as of ENG-301 release (v0.1.0-alpha.2, 2026-06-23). Remot
 
 | # | ID | Tipo | Item | Estado | Effort | Notas |
 |---|-----|------|------|--------|--------|-------|
-| 3 | FF-OSS-03 | Doc | Agregar tabla de decisión de instalación en README | Ready | S | 3 métodos de install sin guía; Stack installer dice "alpha" pero es el camino recomendado |
+| 3 | FF-OSS-03 | Doc | Agregar tabla de decisión de instalación en README | ✅ Done | S | `90f7acb` — tabla EN+ES + nota alpha aclaratoria + fix "repo privado" stale en README.es.md |
 | 4 | FF-OSS-04 | Doc | Demo GIF o screenshot en README | Ready | L | Sin prueba visual → menos estrellas; `examples/crud-tareas/` existe pero requiere 3 clicks |
 
 ### Detalle de ítems
