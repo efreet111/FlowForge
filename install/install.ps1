@@ -62,14 +62,14 @@ if (-not $Version) {
         $Version = Get-ReleaseTag -Channel $Channel
     } catch {
         Write-Error "No se pudo obtener la version desde GitHub: $_"
-        Write-Host "Intenta guardar el script y ejecutar: .\install.ps1 -Version v0.1.0-alpha.2"
+        Write-Host "Intenta guardar el script y ejecutar: .\install.ps1 -Version v0.1.0-alpha.3"
         exit 1
     }
 }
 
 if (-not $Version) {
     Write-Error "No se encontro version para el canal '$Channel'."
-    Write-Host "Intenta: .\install.ps1 -Version v0.1.0-alpha.2"
+    Write-Host "Intenta: .\install.ps1 -Version v0.1.0-alpha.3"
     exit 1
 }
 

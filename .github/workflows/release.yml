@@ -103,7 +103,8 @@ jobs:
           prerelease: ${{ steps.semver.outputs.prerelease }}
           body: |
             ## FlowForge ${{ github.ref_name }}
-            Stack installer para engram-dotnet + FlowForge + FlowDoc.
+            Stack installer para engram-dotnet + FlowForge IDE agents.
+            Per-project FlowDoc: `flowforge init <ruta-del-proyecto>`.
             ### Instalación rápida
             **Linux / macOS:**
             ```bash

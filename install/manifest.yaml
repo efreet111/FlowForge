@@ -1,4 +1,4 @@
-installer_version: 0.1.0-alpha.1
+installer_version: 0.1.0-alpha.3
 channels:
   - stable
   - beta
@@ -25,5 +25,5 @@ components:
     default: true
 
   flowdoc:
-    description: "Estructura docs/ en el proyecto actual"
-    default: true
+    description: "Estructura docs/ por proyecto (via flowforge init)"
+    default: false
