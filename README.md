@@ -44,10 +44,10 @@ curl -fsSL https://raw.githubusercontent.com/efreet111/FlowForge/main/install/in
 
 ```powershell
 iwr -useb "https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.ps1" -OutFile $env:TEMP\flowforge-install.ps1
-& $env:TEMP\flowforge-install.ps1
+powershell -ExecutionPolicy Bypass -File $env:TEMP\flowforge-install.ps1
 ```
 
-> Avoid `| iex` on Windows — it can run a cached copy of the script. Saving to a file first always fetches the latest `main`.
+> On Windows, `& $env:TEMP\flowforge-install.ps1` often fails with *execution of scripts is disabled*. Always use `-ExecutionPolicy Bypass -File` as above.
 
 Installs to `%LOCALAPPDATA%\Programs\FlowForge\` (Windows) or `~/.local/bin/flowforge` (Linux/macOS). Distributed via [GitHub Releases](https://github.com/efreet111/FlowForge/releases).
 
