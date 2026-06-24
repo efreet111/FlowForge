@@ -84,8 +84,28 @@ public sealed class InstallCommand(InstallerContext ctx)
         bool flowDocEnabled = cfg.FlowDoc.Enabled;
         if (installFlowDoc)
         {
-            flowDocEnabled = AnsiConsole.Confirm(
-                "[bold]¿Crear estructura docs/ en el directorio actual?[/]", defaultValue: true);
+            var cwd = Directory.GetCurrentDirectory();
+            AnsiConsole.MarkupLine($"  [grey]Directorio actual: {cwd}[/]");
+
+            var suspiciousSegments = new[] { "system32", "SysWOW64", "Windows", "Temp", "AppData\\Local\\Temp", "Program Files" };
+            bool isSuspicious = suspiciousSegments.Any(s => cwd.Contains(s, StringComparison.OrdinalIgnoreCase));
+            bool hasGit = Directory.Exists(Path.Combine(cwd, ".git"));
+
+            if (isSuspicious)
+            {
+                AnsiConsole.MarkupLine("  [red]⚠️  El directorio actual parece un directorio del sistema — no es un proyecto.[/]");
+                AnsiConsole.MarkupLine("  [yellow]Consejo:[/] Ejecutá el instalador desde la raíz de tu proyecto:");
+                AnsiConsole.MarkupLine("  [grey]  cd E:\\Proyectos\\mi-app && flowforge install[/]");
+                flowDocEnabled = false;
+            }
+            else
+            {
+                if (!hasGit)
+                    AnsiConsole.MarkupLine("  [yellow]![/] No se detectó repositorio git — FlowDoc se instalará aquí de todos modos.");
+
+                flowDocEnabled = AnsiConsole.Confirm(
+                    $"[bold]¿Crear estructura docs/ en [green]{cwd}[/]?[/]", defaultValue: true);
+            }
         }
 
         // ── 5. Resumen + confirmación ─────────────────────────────────────────
@@ -93,7 +113,13 @@ public sealed class InstallCommand(InstallerContext ctx)
         AnsiConsole.Write(new Rule("[bold]Resumen[/]").LeftJustified());
         if (installEngram)   AnsiConsole.MarkupLine($"  [green]●[/] engram-dotnet  (modo: {engramMode})");
         if (installFlowForge) AnsiConsole.MarkupLine($"  [green]●[/] FlowForge      (IDEs: {string.Join(", ", selectedIdes)})");
-        if (installFlowDoc)  AnsiConsole.MarkupLine($"  [green]●[/] FlowDoc         (habilitado: {flowDocEnabled})");
+        if (installFlowDoc)
+        {
+            if (flowDocEnabled)
+                AnsiConsole.MarkupLine($"  [green]●[/] FlowDoc         → {Directory.GetCurrentDirectory()}");
+            else
+                AnsiConsole.MarkupLine("  [grey]●[/] FlowDoc         → omitido (directorio no válido o cancelado)");
+        }
         AnsiConsole.WriteLine();
 
         if (!yes && !AnsiConsole.Confirm("¿Proceder con la instalación?", defaultValue: true))
