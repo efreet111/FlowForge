@@ -36,7 +36,13 @@ public sealed class FlowDocModule(InstallerContext ctx)
         }
 
         // Buscar templates en el repo FlowForge
-        var ffRepo = LocateFlowForgeRepo();
+        var locator = new FlowForge.Installer.Infrastructure.FlowForgeRepoLocator(ctx.Log);
+        var ffRepo = locator.Locate();
+        if (ffRepo == null && locator.EnsureAvailable(out ffRepo) && ffRepo != null)
+        {
+            // cloned on demand
+        }
+
         if (ffRepo == null)
         {
             ScaffoldMinimal(cwd);
@@ -159,23 +165,5 @@ public sealed class FlowDocModule(InstallerContext ctx)
             .Replace("__PROJECT_NAME__", projectName)
             .Replace("__DATE__", today);
         File.WriteAllText(dest, content);
-    }
-
-    static string? LocateFlowForgeRepo()
-    {
-        var envRepo = Environment.GetEnvironmentVariable("FLOWFORGE_REPO");
-        if (envRepo != null && Directory.Exists(envRepo)) return envRepo;
-
-        var dir = AppContext.BaseDirectory;
-        for (int i = 0; i < 5; i++)
-        {
-            if (File.Exists(Path.Combine(dir, "AGENTS.md"))
-                && File.ReadAllText(Path.Combine(dir, "AGENTS.md")).Contains("FlowForge"))
-                return dir;
-            var parent = Directory.GetParent(dir)?.FullName;
-            if (parent == null) break;
-            dir = parent;
-        }
-        return null;
     }
 }

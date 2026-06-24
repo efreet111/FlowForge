@@ -11,13 +11,13 @@ namespace FlowForge.Installer.Commands;
 /// </summary>
 public sealed class InstallCommand(InstallerContext ctx)
 {
-    const string CurrentVersion = "0.1.0-alpha.4";
+    const string CurrentVersion = "0.1.0-alpha.5";
 
     /// <param name="yes">-y / --yes: omitir confirmaciones (non-interactive)</param>
     [Command("")]
     public async Task RunAsync(bool yes = false)
     {
-        AnsiConsole.Write(new Rule("[bold blue]FlowForge Stack Installer v0.1.0-alpha.4[/]").LeftJustified());
+        AnsiConsole.Write(new Rule("[bold blue]FlowForge Stack Installer v0.1.0-alpha.5[/]").LeftJustified());
         AnsiConsole.WriteLine();
 
         // ── Verificar compatibilidad con manifest remoto ───────────────────────

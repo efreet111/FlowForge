@@ -10,7 +10,7 @@ namespace FlowForge.Installer.Commands;
 /// </summary>
 public sealed class UpdateCommand(InstallerContext ctx)
 {
-    const string InstallerVersion = "0.1.0-alpha.4";
+    const string InstallerVersion = "0.1.0-alpha.5";
 
     /// <param name="check">Solo verificar — no instalar</param>
     /// <param name="yes">-y: confirmar sin prompt</param>
