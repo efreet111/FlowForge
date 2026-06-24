@@ -17,7 +17,7 @@
 
 ## Release gate (public launch)
 
-While the repo is **private**, remote install via `raw.githubusercontent.com` returns 404 — use local `ide/install.ps1` or `install.sh`.
+The repo is **public** as of ENG-301 release (v0.1.0-alpha.2, 2026-06-23). Remote install via `raw.githubusercontent.com` works directly — no local clone required for end users.
 
 ### Required for “ready to publish”
 
@@ -44,6 +44,89 @@ While the repo is **private**, remote install via `raw.githubusercontent.com` re
 | `README.es.md`, `QUICKSTART.es.md` | Spanish entry |
 | `docs/*`, `skills/*`, `ide/*` | English (phased) |
 | `/flow-*` commands | Unchanged |
+
+---
+
+## 🚀 OSS Launch — semana 2026-06-23
+
+Ítems bloqueantes y de alta prioridad identificados en el audit crítico pre-lanzamiento OSS del 2026-06-23. Ver análisis completo en [`.ai-work/oss-launch-audit/context-map.md`](../.ai-work/oss-launch-audit/context-map.md).
+
+### P0 — Antes de publicitar en comunidades
+
+| # | ID | Tipo | Item | Estado | Effort | Notas |
+|---|-----|------|------|--------|--------|-------|
+| 1 | FF-OSS-01 | Doc | Fix README.md: versión `0.4.0` → `0.5.0` | Ready | XS | `VERSION.md` y `CHANGELOG.md` ya dicen `0.5.0`; el README quedó sin actualizar |
+| 2 | FF-OSS-02 | Chore | Commitear cambio no-commiteado de `docs/04-roadmap.md` | Ready | XS | `git diff docs/04-roadmap.md` muestra el aviso de "repo público" sin commitear |
+
+### P1 — Esta semana
+
+| # | ID | Tipo | Item | Estado | Effort | Notas |
+|---|-----|------|------|--------|--------|-------|
+| 3 | FF-OSS-03 | Doc | Agregar tabla de decisión de instalación en README | Ready | S | 3 métodos de install sin guía; Stack installer dice "alpha" pero es el camino recomendado |
+| 4 | FF-OSS-04 | Doc | Demo GIF o screenshot en README | Ready | L | Sin prueba visual → menos estrellas; `examples/crud-tareas/` existe pero requiere 3 clicks |
+
+### Detalle de ítems
+
+#### FF-OSS-01 — Fix versión en README (XS, ~5 minutos)
+
+**Problema:** `README.md` línea 5 dice `**Version:** [\`0.4.0\`](VERSION.md)`. `VERSION.md` dice `0.5.0`. El CHANGELOG tiene `[0.5.0]` con adiciones significativas (CKP-1 BLOCKER gate, FlowDoc, Pattern Search, Stack Installer). Un visitante de GitHub hace clic en el link del changelog y ve `0.5.0` — inconsistencia visible en segundos.
+
+**Criterios:**
+- [ ] `README.md` dice `0.5.0` y el link apunta correctamente a `VERSION.md`
+- [ ] `README.es.md` actualizado también (misma línea)
+
+---
+
+#### FF-OSS-02 — Commitear cambio de roadmap (XS, ~2 minutos)
+
+**Problema:** `docs/04-roadmap.md` tiene un cambio unstaged: la línea que anuncia que el repo es público (ENG-301 release, v0.1.0-alpha.2, 2026-06-23). Está escrito pero no commiteado.
+
+**Criterios:**
+- [ ] `git status` no muestra `docs/04-roadmap.md` como modificado
+- [ ] Commit mensaje: `docs(roadmap): mark repo as public (ENG-301 v0.1.0-alpha.2)`
+
+---
+
+#### FF-OSS-03 — Tabla de decisión de instalación (S, ~30 minutos)
+
+**Problema:** El README presenta tres caminos de instalación sin ningún criterio para elegir:
+1. One-liner public repo (IDE skills)
+2. Stack installer AOT binary (alpha label puede asustar)
+3. Local clone (para contribuidores)
+
+Un nuevo usuario no sabe cuál usar. El Stack installer es la opción recomendada para la mayoría, pero "alpha" en el label genera dudas.
+
+**Propuesta:** Agregar una tabla de 4 filas antes de los bloques de código:
+
+```markdown
+| If you are... | Use |
+|---------------|-----|
+| Trying FlowForge for the first time | Stack installer (one-liner) |
+| Setting up a specific IDE only | `ide/install.sh` / `ide/install.ps1` |
+| Integrating into an existing project | `ide/install.ps1 -ProjectPath <path>` |
+| Contributing to FlowForge | Local clone + manual install |
+```
+
+**Criterios:**
+- [ ] Tabla presente en README.md antes de los bloques de código de instalación
+- [ ] Label "alpha" en Stack installer acompañado de nota breve: "stable for daily use, binary format is alpha"
+- [ ] README.es.md actualizado con tabla equivalente
+
+---
+
+#### FF-OSS-04 — Demo visual en README (L, ~4 horas)
+
+**Problema:** Para OSS discovery, la ausencia de prueba visual es la brecha más costosa. El `flowforge-demo-task-manager` existe y tiene código TypeScript funcional. Los artefactos en `examples/crud-tareas/` son texto, no interactivos.
+
+**Opciones (en orden de esfuerzo):**
+1. **Screenshot** de un spec.md + verify-report.md abiertos en el IDE (1h) — mínimo viable
+2. **GIF animado** mostrando `/flow-start → CKP-1 → /flow-plan → CKP-2 → código generado` (~4h) — máximo impacto
+3. **Video embed** (YouTube/Loom) — mayor esfuerzo pero reutilizable para blog posts
+
+**Criterios mínimos (opción 1):**
+- [ ] Al menos una imagen en README.md que muestre el workflow en acción
+- [ ] Alt text descriptivo para accesibilidad
+- [ ] Imagen alojada en `docs/assets/` o en GitHub Assets (drag-drop en PR)
 
 ---
 
