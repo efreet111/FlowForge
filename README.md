@@ -17,7 +17,18 @@ FlowForge is an **Agentic SDLC methodology** for small and mid-size teams (2–2
 
 ## Install
 
-**Public repo** (one-liner):
+**Not sure which install to use?**
+
+| If you are… | Use |
+|-------------|-----|
+| Trying FlowForge for the first time | [Stack installer](#stack-installer-v010-alpha2) — one command, everything included |
+| Adding FlowForge to a specific IDE only | [IDE install](#install) one-liner below |
+| Integrating into an existing project | [Per-project bundle](#install) (`-ProjectPath`) |
+| Contributing to FlowForge | [Local clone](#install) |
+
+---
+
+**IDE install** (agents + rules + commands into your current IDE):
 
 ```bash
 # Linux/macOS
@@ -51,6 +62,8 @@ Then: reload your IDE, select the **flowforge** orchestrator (or enable FlowForg
 See [`QUICKSTART.md`](QUICKSTART.md) for the full walkthrough.
 
 ## Stack installer (v0.1.0-alpha.2+)
+
+> **Recommended for most users.** The `alpha` label refers to the binary distribution format (AOT compilation), not to the methodology stability — FlowForge v0.5.0 is production-tested. The installer downloads the binary, verifies SHA-256, and launches a setup wizard.
 
 For installing FlowForge as a standalone tool on your machine (CLI + memory backend + IDE agents + FlowDoc structure), distributed via [GitHub Releases](https://github.com/efreet111/FlowForge/releases).
 

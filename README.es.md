@@ -17,7 +17,18 @@ FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños 
 
 ## Instalación
 
-**Cuando el repo sea público** (una línea):
+**¿No sabes qué instalador usar?**
+
+| Si eres… | Usa |
+|----------|-----|
+| Nuevo en FlowForge | [Stack installer](#stack-installer-v010-alpha2) — un comando, todo incluido |
+| Solo quieres agregar FlowForge a tu IDE | Instalación IDE (one-liner abajo) |
+| Integrando en un proyecto existente | Bundle por proyecto (`-ProjectPath`) |
+| Contribuyendo a FlowForge | Clone local |
+
+---
+
+**Instalación IDE** (agentes + reglas + comandos en tu IDE actual):
 
 ```bash
 # Linux/macOS
@@ -27,7 +38,7 @@ curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install
 iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
 ```
 
-**Repo privado** (instalación local):
+**Clone local** (para contribuidores):
 
 ```bash
 git clone https://github.com/efreet111/FlowForge.git
@@ -49,6 +60,8 @@ Después: Reload Window en el IDE, agente **`flowforge`** (o reglas FlowForge), 
 ```
 
 ## Stack installer (v0.1.0-alpha.2+)
+
+> **Recomendado para la mayoría de usuarios.** El label `alpha` se refiere al formato de distribución binaria (compilación AOT), no a la estabilidad de la metodología — FlowForge v0.5.0 está probado en producción. El instalador descarga el binario, verifica SHA-256 y lanza un wizard de configuración.
 
 Para instalar FlowForge como herramienta standalone en tu máquina (CLI + backend de memoria + agentes del IDE + estructura FlowDoc), distribuido vía [GitHub Releases](https://github.com/efreet111/FlowForge/releases).
 
