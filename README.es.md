@@ -4,7 +4,7 @@
 >
 > 🇬🇧 [English README](README.md) · 🔥 [`QUICKSTART.es.md`](QUICKSTART.es.md) ([inglés](QUICKSTART.md)) — Empezá en 5 minutos · 📖 [`GLOSSARY.es.md`](GLOSSARY.es.md) ([inglés](GLOSSARY.md)) — Referencia de términos
 
-**Versión:** [`0.4.0`](VERSION.md) · [Changelog](CHANGELOG.md)
+**Versión:** [`0.5.0`](VERSION.md) · [Changelog](CHANGELOG.md)
 
 FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños y medianos (SMB, 2–20 personas). Define cómo integrar agentes de IA en el ciclo de desarrollo con 5 checkpoints formales, 7 agentes, 31 skills especializadas y un protocolo de artefactos versionados.
 
