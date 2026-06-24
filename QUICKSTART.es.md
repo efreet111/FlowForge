@@ -138,6 +138,7 @@ Los `/flow-*` son convenciones de texto en modo Agent. Autocomplete requiere `id
 | Problema | Solución |
 |----------|----------|
 | **Esperaba wizard pero solo vi salida en consola** | Corriste el [instalador IDE](README.es.md#instalacion-ide-solo-agentes) (`ide/install.ps1`). Para el wizard interactivo, usá el [Stack installer](README.es.md#stack-installer-setup-completo) (`install/install.ps1`). |
+| **Stack installer 404 en `releases/latest`** | El repo puede tener solo pre-releases (alpha). Actualizá `install/install.ps1` desde `main`, o: `iwr ... -OutFile $env:TEMP\ff-install.ps1; & $env:TEMP\ff-install.ps1 -Version v0.1.0-alpha.2` |
 | **404 al instalar desde `raw.githubusercontent.com`** | Rama o path incorrecto (verificá que la URL apunte a `main` y que el script exista) |
 | **No encuentra `git`** | Instalá Git for Windows o el gestor de paquetes de tu SO |
 | **`dubious ownership` en Windows** | `git config --global --add safe.directory E:/Proyectos/FlowForge` |

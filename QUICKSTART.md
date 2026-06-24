@@ -139,6 +139,7 @@ Direct `@forge-*` invocation (legacy) bypasses checkpoints and Memory Curation â
 | Issue | Fix |
 |-------|-----|
 | **Expected a wizard but got console output only** | You ran the [IDE installer](README.md#ide-install-agents-only) (`ide/install.ps1`). For the interactive wizard, use the [Stack installer](README.md#stack-installer-full-setup) (`install/install.ps1`). |
+| **Stack installer 404 on `releases/latest`** | Repo may have only pre-releases (alpha). Update `install/install.ps1` from `main`, or run: `iwr ... -OutFile $env:TEMP\ff-install.ps1; & $env:TEMP\ff-install.ps1 -Version v0.1.0-alpha.2` |
 | **404 on `raw.githubusercontent.com` install** | Wrong branch or path (verify the URL points to `main` and the script exists) |
 | **`git` not found** | Install Git for Windows or your OS package manager |
 | **`dubious ownership` on Windows** | `git config --global --add safe.directory E:/Proyectos/FlowForge` |

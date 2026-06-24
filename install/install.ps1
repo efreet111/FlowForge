@@ -20,31 +20,52 @@ $ErrorActionPreference = "Stop"
 $Repo       = "efreet111/FlowForge"
 $InstallDir = Join-Path $env:LOCALAPPDATA "Programs\FlowForge"
 $BinaryName = "flowforge-win-x64.exe"
+$GhHeaders  = @{ "User-Agent" = "flowforge-installer"; "Accept" = "application/vnd.github+json" }
+
+function Get-ReleaseTag {
+    param([string]$Channel)
+    $releasesUrl = "https://api.github.com/repos/$Repo/releases"
+
+    if ($Channel -eq "stable") {
+        # /releases/latest 404s when every release is marked prerelease (alpha-only repos).
+        try {
+            $latest = Invoke-RestMethod -Uri "$releasesUrl/latest" -Headers $GhHeaders
+            if ($latest.tag_name) { return $latest.tag_name }
+        } catch {
+            # fall through to list
+        }
+        $all = @(Invoke-RestMethod -Uri $releasesUrl -Headers $GhHeaders)
+        $stable = @($all | Where-Object { -not $_.prerelease } | Select-Object -First 1)
+        if ($stable.Count -gt 0) { return $stable[0].tag_name }
+        if ($all.Count -gt 0) {
+            $tag = ($all | Select-Object -First 1).tag_name
+            Write-Host "  Nota: sin release estable; usando pre-release $tag" -ForegroundColor Yellow
+            return $tag
+        }
+    } else {
+        $all = @(Invoke-RestMethod -Uri $releasesUrl -Headers $GhHeaders)
+        $pre = @($all | Where-Object { $_.prerelease } | Select-Object -First 1)
+        if ($pre.Count -gt 0) { return $pre[0].tag_name }
+        if ($all.Count -gt 0) { return ($all | Select-Object -First 1).tag_name }
+    }
+    return $null
+}
 
 # ── Obtener versión desde GitHub ─────────────────────────────────────────────
 if (-not $Version) {
-    Write-Host "Buscando última versión (canal: $Channel)..."
+    Write-Host "Buscando ultima version (canal: $Channel)..."
     try {
-        if ($Channel -eq "stable") {
-            $url     = "https://api.github.com/repos/$Repo/releases/latest"
-            $headers = @{ "User-Agent" = "flowforge-installer"; "Accept" = "application/vnd.github+json" }
-            $resp    = Invoke-RestMethod -Uri $url -Headers $headers
-            $Version = $resp.tag_name
-        } else {
-            $url     = "https://api.github.com/repos/$Repo/releases"
-            $headers = @{ "User-Agent" = "flowforge-installer"; "Accept" = "application/vnd.github+json" }
-            $resp    = Invoke-RestMethod -Uri $url -Headers $headers
-            $Version = ($resp | Where-Object { $_.prerelease } | Select-Object -First 1).tag_name
-        }
+        $Version = Get-ReleaseTag -Channel $Channel
     } catch {
-        Write-Error "No se pudo obtener la versión desde GitHub: $_"
-        Write-Host "Intentá: .\install.ps1 -Version v0.1.0-alpha.1"
+        Write-Error "No se pudo obtener la version desde GitHub: $_"
+        Write-Host "Intenta guardar el script y ejecutar: .\install.ps1 -Version v0.1.0-alpha.2"
         exit 1
     }
 }
 
 if (-not $Version) {
-    Write-Error "No se encontró versión para el canal '$Channel'."
+    Write-Error "No se encontro version para el canal '$Channel'."
+    Write-Host "Intenta: .\install.ps1 -Version v0.1.0-alpha.2"
     exit 1
 }
 
