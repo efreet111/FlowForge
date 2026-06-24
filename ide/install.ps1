@@ -24,7 +24,22 @@ if ($IsRemote) {
         Write-Host "Error: git no esta en PATH. https://git-scm.com/download/win" -ForegroundColor Red
         exit 1
     }
-    git clone --depth 1 "https://github.com/efreet111/FlowForge.git" $TempDir 2>&1 | Out-Null
+    # git writes progress to stderr; with $ErrorActionPreference = "Stop" that aborts the script.
+    $prevErrorAction = $ErrorActionPreference
+    $ErrorActionPreference = "Continue"
+    try {
+        & git clone --depth 1 "https://github.com/efreet111/FlowForge.git" $TempDir 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Error: git clone fallo (exit $LASTEXITCODE). Comprueba red y acceso a GitHub." -ForegroundColor Red
+            exit 1
+        }
+        if (-not (Test-Path (Join-Path $TempDir "AGENTS.md"))) {
+            Write-Host "Error: clone incompleto (falta AGENTS.md en $TempDir)." -ForegroundColor Red
+            exit 1
+        }
+    } finally {
+        $ErrorActionPreference = $prevErrorAction
+    }
     $FlowForgeRepo = $TempDir
 } else {
     $FlowForgeRepo = Split-Path -Parent $PSScriptRoot
