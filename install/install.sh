@@ -51,26 +51,23 @@ if [[ "$ARCH_SLUG" == "x64" && "$PLATFORM" == "linux" ]]; then
   BINARY_NAME="flowforge-linux-x64"
 fi
 
+# ── Detect curl/wget ──────────────────────────────────────────────────────────
+if command -v curl >/dev/null 2>&1; then
+  FETCH="curl -fsSL"
+elif command -v wget >/dev/null 2>&1; then
+  FETCH="wget -qO-"
+else
+  echo "ERROR: Se requiere curl o wget." >&2
+  exit 1
+fi
+
 # ── Obtener versión desde GitHub ─────────────────────────────────────────────
 if [[ -z "$VERSION" ]]; then
   echo "Buscando última versión (canal: ${CHANNEL})..."
 
-  if command -v curl >/dev/null 2>&1; then
-    FETCH="curl -fsSL"
-  elif command -v wget >/dev/null 2>&1; then
-    FETCH="wget -qO-"
-  else
-    echo "ERROR: Se requiere curl o wget." >&2
-    exit 1
-  fi
-
-  if [[ "$CHANNEL" == "stable" ]]; then
-    RELEASES_URL="https://api.github.com/repos/${REPO}/releases/latest"
-    VERSION=$(${FETCH} "$RELEASES_URL" | grep '"tag_name"' | sed 's/.*"tag_name":\s*"\([^"]*\)".*/\1/')
-  else
-    RELEASES_URL="https://api.github.com/repos/${REPO}/releases"
-    VERSION=$(${FETCH} "$RELEASES_URL" | grep '"tag_name"' | head -1 | sed 's/.*"tag_name":\s*"\([^"]*\)".*/\1/')
-  fi
+  # Usa /releases (list) en lugar de /releases/latest para soportar pre-releases
+  RELEASES_URL="https://api.github.com/repos/${REPO}/releases"
+  VERSION=$(${FETCH} "$RELEASES_URL" | grep '"tag_name"' | head -1 | sed 's/.*"tag_name":\s*"\([^"]*\)".*/\1/')
 
   if [[ -z "$VERSION" ]]; then
     echo "ERROR: No se pudo obtener la versión desde GitHub." >&2
