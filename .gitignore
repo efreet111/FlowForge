@@ -83,3 +83,8 @@ bld/
 *.tmp
 *.bak
 scratch/
+
+# .NET
+bin/
+obj/
+out/

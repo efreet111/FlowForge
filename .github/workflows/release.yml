@@ -1,0 +1,104 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Publish FlowForge Installer
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.x"
+
+      - name: Restore
+        run: dotnet restore src/FlowForge.Installer
+
+      - name: Build (verificar que compila)
+        run: dotnet build src/FlowForge.Installer -c Release --no-restore --nologo
+
+      - name: Publish linux-x64 (AOT)
+        run: |
+          dotnet publish src/FlowForge.Installer \
+            -c Release \
+            -r linux-x64 \
+            --self-contained \
+            -p:PublishAot=true \
+            -p:DebugType=none \
+            -o out/linux-x64
+
+      - name: Publish win-x64 (AOT)
+        run: |
+          dotnet publish src/FlowForge.Installer \
+            -c Release \
+            -r win-x64 \
+            --self-contained \
+            -p:PublishAot=true \
+            -p:DebugType=none \
+            -o out/win-x64
+
+      - name: Rename binaries
+        run: |
+          mv out/linux-x64/flowforge   out/flowforge-linux-x64
+          mv out/win-x64/flowforge.exe out/flowforge-win-x64.exe
+
+      - name: Generate SHA-256 checksums
+        run: |
+          sha256sum out/flowforge-linux-x64   > out/flowforge-linux-x64.sha256
+          sha256sum out/flowforge-win-x64.exe > out/flowforge-win-x64.exe.sha256
+
+      - name: Determine if pre-release
+        id: semver
+        run: |
+          TAG="${{ github.ref_name }}"
+          if echo "$TAG" | grep -qE '\-(alpha|beta|rc)'; then
+            echo "prerelease=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "prerelease=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "FlowForge ${{ github.ref_name }}"
+          prerelease: ${{ steps.semver.outputs.prerelease }}
+          body: |
+            ## FlowForge ${{ github.ref_name }}
+
+            Stack installer para engram-dotnet + FlowForge + FlowDoc.
+
+            ### Instalación rápida
+
+            **Linux / macOS:**
+            ```bash
+            curl -fsSL https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.sh | bash
+            ```
+
+            **Windows (PowerShell):**
+            ```powershell
+            iwr -useb https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.ps1 | iex
+            ```
+
+            ### Binarios directos
+
+            | Plataforma  | Archivo                    | SHA-256 |
+            |-------------|----------------------------|---------|
+            | Linux x64   | `flowforge-linux-x64`      | ver `.sha256` adjunto |
+            | Windows x64 | `flowforge-win-x64.exe`    | ver `.sha256` adjunto |
+
+            > Binarios self-contained — no requieren .NET instalado.
+          files: |
+            out/flowforge-linux-x64
+            out/flowforge-win-x64.exe
+            out/flowforge-linux-x64.sha256
+            out/flowforge-win-x64.exe.sha256
