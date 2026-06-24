@@ -6,6 +6,27 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 
 ## [Unreleased]
 
+## [v0.1.0-alpha.2] - 2026-06-23
+
+### Added
+- ENG-301 Stack Installer (C# .NET 10 AOT, linux-x64 + win-x64)
+- Bootstrap scripts (`install/install.sh`, `install/install.ps1`) with SHA-256 verification
+- Remote `manifest.yaml` for runtime version compatibility checks
+- `--verbose` global flag with `Verbosity.FormatError` gating stack traces
+- Pre-install warning for existing `forge-*` agent files (FU-5)
+- `ide/install.sh` for Cursor/OpenCode/VS Code/Antigravity skill installation
+- Installer 5-command CLI: `install`, `update`, `uninstall`, `config`, `status`
+
+### Fixed (5 hotfix cycles during alpha)
+- `release.yml`: use OS-specific runners for AOT publish (matrix ubuntu-latest + windows-latest) — cross-OS AOT compilation not supported
+- `release.yml`: use `shell: bash` on Windows runner to avoid PowerShell parse errors
+- `install.sh`: handle pre-release version lookup (use `/releases` list, not `/releases/latest`)
+- `install.sh`: move `FETCH` variable outside conditional (was unbound with `--version` flag)
+- `Program.cs`: register `InstallerContext` in CAF DI container (was missing, caused NRE in all commands)
+- `Program.cs`: pre-validate commands before CAF dispatch to prevent NRE stack trace leaks on invalid commands
+- `Verbosity.cs`: properly register `--verbose` flag via CAF `ConfigureGlobalOptions` + manual args filter (was causing NRE on `--verbose --help`)
+- `ide/install.sh`: move `DEST` env var before python command (bash ignored it after the command)
+
 ## [0.5.0] - 2026-06-21
 
 ### Added

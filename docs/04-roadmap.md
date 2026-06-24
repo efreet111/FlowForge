@@ -221,6 +221,7 @@ This is the "integration test" for the methodology.
 | IDE delegation protocol | FlowForge | ✅ |
 | Memory Curation Protocol (item 20) | FlowForge | ✅ [`ADR-001`](decisions/ADR-001-memory-curation-protocol.md) |
 | Scaffold doc policy (item 21) | FlowForge | ✅ [`ADR-002`](decisions/ADR-002-scaffold-doc-policy.md) · 📋 templates/`flow-init` pending |
+| ENG-301 Stack Installer (C# AOT binary, bootstrap scripts, remote manifest) | FlowForge | ✅ v0.1.0-alpha.2 — see [CHANGELOG](../CHANGELOG.md) and [summary](../.ai-work/stack-installer/summary.md) |
 | Model Router MCP server | FlowForge | ❌ Discarded — host IDE routing |
 
 ---
