@@ -9,9 +9,21 @@ permissions:
   contents: write
 
 jobs:
-  release:
-    name: Publish FlowForge Installer
-    runs-on: ubuntu-latest
+  publish:
+    name: Publish FlowForge Installer (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: linux-x64
+            os: ubuntu-latest
+            artifact_name: flowforge-linux-x64
+            binary: flowforge
+          - target: win-x64
+            os: windows-latest
+            artifact_name: flowforge-win-x64.exe
+            binary: flowforge.exe
 
     steps:
       - uses: actions/checkout@v4
@@ -24,38 +36,62 @@ jobs:
       - name: Restore
         run: dotnet restore src/FlowForge.Installer
 
-      - name: Build (verificar que compila)
+      - name: Build
         run: dotnet build src/FlowForge.Installer -c Release --no-restore --nologo
 
-      - name: Publish linux-x64 (AOT)
+      - name: Publish ${{ matrix.target }} (AOT)
         run: |
           dotnet publish src/FlowForge.Installer \
             -c Release \
-            -r linux-x64 \
+            -r ${{ matrix.target }} \
             --self-contained \
             -p:PublishAot=true \
             -p:DebugType=none \
-            -o out/linux-x64
+            -o out
 
-      - name: Publish win-x64 (AOT)
+      - name: Rename binary
         run: |
-          dotnet publish src/FlowForge.Installer \
-            -c Release \
-            -r win-x64 \
-            --self-contained \
-            -p:PublishAot=true \
-            -p:DebugType=none \
-            -o out/win-x64
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            mv out/${{ matrix.binary }} out/${{ matrix.artifact_name }}
+          else
+            powershell -Command "Move-Item out/${{ matrix.binary }} out/${{ matrix.artifact_name }} -Force"
+          fi
 
-      - name: Rename binaries
+      - name: Generate SHA-256
         run: |
-          mv out/linux-x64/flowforge   out/flowforge-linux-x64
-          mv out/win-x64/flowforge.exe out/flowforge-win-x64.exe
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            sha256sum out/${{ matrix.artifact_name }} > out/${{ matrix.artifact_name }}.sha256
+          else
+            powershell -Command "(Get-FileHash -Algorithm SHA256 out/${{ matrix.artifact_name }}).Hash | Out-File -Encoding utf8 out/${{ matrix.artifact_name }}.sha256"
+          fi
 
-      - name: Generate SHA-256 checksums
-        run: |
-          sha256sum out/flowforge-linux-x64   > out/flowforge-linux-x64.sha256
-          sha256sum out/flowforge-win-x64.exe > out/flowforge-win-x64.exe.sha256
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            out/${{ matrix.artifact_name }}
+            out/${{ matrix.artifact_name }}.sha256
+
+  release:
+    name: Create GitHub Release
+    needs: publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download linux-x64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: flowforge-linux-x64
+          path: out/flowforge-linux-x64
+
+      - name: Download win-x64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: flowforge-win-x64.exe
+          path: out/flowforge-win-x64.exe
 
       - name: Determine if pre-release
         id: semver
@@ -74,31 +110,24 @@ jobs:
           prerelease: ${{ steps.semver.outputs.prerelease }}
           body: |
             ## FlowForge ${{ github.ref_name }}
-
             Stack installer para engram-dotnet + FlowForge + FlowDoc.
-
             ### Instalación rápida
-
             **Linux / macOS:**
             ```bash
             curl -fsSL https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.sh | bash
             ```
-
             **Windows (PowerShell):**
             ```powershell
             iwr -useb https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.ps1 | iex
             ```
-
             ### Binarios directos
-
             | Plataforma  | Archivo                    | SHA-256 |
             |-------------|----------------------------|---------|
             | Linux x64   | `flowforge-linux-x64`      | ver `.sha256` adjunto |
             | Windows x64 | `flowforge-win-x64.exe`    | ver `.sha256` adjunto |
-
             > Binarios self-contained — no requieren .NET instalado.
           files: |
-            out/flowforge-linux-x64
-            out/flowforge-win-x64.exe
-            out/flowforge-linux-x64.sha256
-            out/flowforge-win-x64.exe.sha256
+            out/flowforge-linux-x64/flowforge-linux-x64
+            out/flowforge-linux-x64/flowforge-linux-x64.sha256
+            out/flowforge-win-x64.exe/flowforge-win-x64.exe
+            out/flowforge-win-x64.exe/flowforge-win-x64.exe.sha256
