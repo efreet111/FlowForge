@@ -8,6 +8,17 @@
 
 ## 1. Instalación
 
+FlowForge tiene **dos instaladores** — elegí uno:
+
+| | Stack installer (`install/install.*`) | Instalador IDE (`ide/install.*`) |
+|---|--------------------------------------|----------------------------------|
+| **Ideal para** | Setup inicial completo | Solo packs del IDE |
+| **UI** | Wizard interactivo (componentes + IDEs) | Solo log en consola (sin wizard) |
+| **Instala** | CLI `flowforge`, engram-dotnet opcional, skills IDE, FlowDoc | Agentes, reglas, comandos `/flow-*` |
+| **Requiere** | Descarga desde GitHub Releases | `git` en PATH (modo remoto clona el repo) |
+
+Mismo contenido que [`README.es.md` § Instalación](README.es.md#instalacion).
+
 ### Instalador de stack (setup completo, v0.1.0-alpha.2+)
 
 Para instalar el stack completo de FlowForge en tu máquina — CLI `flowforge` + backend de memoria `engram-dotnet` + agentes del IDE + estructura FlowDoc.
@@ -126,6 +137,7 @@ Los `/flow-*` son convenciones de texto en modo Agent. Autocomplete requiere `id
 
 | Problema | Solución |
 |----------|----------|
+| **Esperaba wizard pero solo vi salida en consola** | Corriste el [instalador IDE](README.es.md#instalacion-ide-solo-agentes) (`ide/install.ps1`). Para el wizard interactivo, usá el [Stack installer](README.es.md#stack-installer-setup-completo) (`install/install.ps1`). |
 | **404 al instalar desde `raw.githubusercontent.com`** | Rama o path incorrecto (verificá que la URL apunte a `main` y que el script exista) |
 | **No encuentra `git`** | Instalá Git for Windows o el gestor de paquetes de tu SO |
 | **`dubious ownership` en Windows** | `git config --global --add safe.directory E:/Proyectos/FlowForge` |

@@ -15,55 +15,22 @@ FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños 
 | **FlowForge** (este) | Metodología de desarrollo asistida por agentes |
 | **[engram-dotnet](https://github.com/efreet111/engram-dotnet)** | Motor de memoria persistente para agentes (.NET 10) |
 
-## Instalación
+## Instalación {#instalacion}
 
-**¿No sabes qué instalador usar?**
+**¿No sabes qué instalador usar?** Ver también [`QUICKSTART.es.md`](QUICKSTART.es.md) — mismos dos caminos, paso a paso.
 
 | Si eres… | Usa |
 |----------|-----|
-| Nuevo en FlowForge | [Stack installer](#stack-installer-v010-alpha2) — un comando, todo incluido |
-| Solo quieres agregar FlowForge a tu IDE | Instalación IDE (one-liner abajo) |
-| Integrando en un proyecto existente | Bundle por proyecto (`-ProjectPath`) |
-| Contribuyendo a FlowForge | Clone local |
+| Nuevo en FlowForge | [Stack installer](#stack-installer-setup-completo) — wizard interactivo, stack completo |
+| Solo quieres agentes en tu IDE (sin CLI, sin binario engram) | [Instalación IDE](#instalacion-ide-solo-agentes) — one-liner, salida en consola |
+| Integrando en un proyecto existente | [Bundle por proyecto](#bundle-por-proyecto) (`-ProjectPath`) |
+| Contribuyendo a FlowForge | [Clone local](#clone-local) |
 
 ---
 
-**Instalación IDE** (agentes + reglas + comandos en tu IDE actual):
+### Stack installer (setup completo) {#stack-installer-setup-completo}
 
-```bash
-# Linux/macOS
-curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.sh | bash
-
-# Windows (PowerShell)
-iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
-```
-
-**Clone local** (para contribuidores):
-
-```bash
-git clone https://github.com/efreet111/FlowForge.git
-cd FlowForge
-bash ide/install.sh          # Linux/macOS
-# .\ide\install.ps1          # Windows
-```
-
-Por proyecto (Antigravity + `.cursor` en el repo):
-
-```powershell
-.\ide\install.ps1 -ProjectPath "E:\ruta\a\tu-proyecto"
-```
-
-Después: Reload Window en el IDE, agente **`flowforge`** (o reglas FlowForge), y:
-
-```
-/flow-start CRUD de tareas
-```
-
-## Stack installer (v0.1.0-alpha.2+)
-
-> **Recomendado para la mayoría de usuarios.** El label `alpha` se refiere al formato de distribución binaria (compilación AOT), no a la estabilidad de la metodología — FlowForge v0.5.0 está probado en producción. El instalador descarga el binario, verifica SHA-256 y lanza un wizard de configuración.
-
-Para instalar FlowForge como herramienta standalone en tu máquina (CLI + backend de memoria + agentes del IDE + estructura FlowDoc), distribuido vía [GitHub Releases](https://github.com/efreet111/FlowForge/releases).
+> **Recomendado para la mayoría de usuarios.** Descarga el CLI `flowforge` (binario AOT), verifica SHA-256 y lanza un **wizard interactivo**: elegís engram-dotnet, skills FlowForge, FlowDoc, IDEs destino, modo local vs sync, y confirmás. El label `alpha` se refiere al formato binario, no a la estabilidad de la metodología — FlowForge v0.5.0 está probado en producción.
 
 **Linux/macOS:**
 
@@ -77,7 +44,48 @@ curl -fsSL https://raw.githubusercontent.com/efreet111/FlowForge/main/install/in
 iwr -useb https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.ps1 | iex
 ```
 
-El bootstrap descarga el binario compilado AOT, verifica SHA-256, instala en `~/.local/bin/flowforge` y lanza un wizard interactivo para seleccionar componentes.
+Instala en `%LOCALAPPDATA%\Programs\FlowForge\` (Windows) o `~/.local/bin/flowforge` (Linux/macOS). Distribuido vía [GitHub Releases](https://github.com/efreet111/FlowForge/releases).
+
+### Instalación IDE (solo agentes) {#instalacion-ide-solo-agentes}
+
+> **Liviano — sin wizard.** Copia agentes, reglas y comandos `/flow-*` a los IDEs detectados (Cursor, OpenCode, VS Code). Muestra un resumen en consola. **No** instala el CLI `flowforge` ni el binario `engram-dotnet`. Usalo si ya tenés engram configurado o solo necesitás los packs de metodología.
+
+**Linux/macOS:**
+
+```bash
+curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.sh | bash
+```
+
+**Windows (PowerShell):**
+
+```powershell
+iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
+```
+
+### Clone local {#clone-local}
+
+```bash
+git clone https://github.com/efreet111/FlowForge.git
+cd FlowForge
+bash ide/install.sh          # Linux/macOS
+# .\ide\install.ps1          # Windows
+```
+
+### Bundle por proyecto {#bundle-por-proyecto}
+
+Antigravity + `.cursor` del proyecto + `.github/agents`:
+
+```powershell
+.\ide\install.ps1 -ProjectPath "E:\ruta\a\tu-proyecto"
+```
+
+Después: Reload Window en el IDE, agente **`flowforge`** (o reglas FlowForge), y:
+
+```
+/flow-start CRUD de tareas
+```
+
+Guía completa: [`QUICKSTART.es.md`](QUICKSTART.es.md).
 
 ## Metodología
 

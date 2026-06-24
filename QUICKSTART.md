@@ -8,6 +8,17 @@
 
 ## 1. Install
 
+FlowForge has **two installers** — pick one:
+
+| | Stack installer (`install/install.*`) | IDE installer (`ide/install.*`) |
+|---|--------------------------------------|----------------------------------|
+| **Best for** | First-time setup | IDE packs only |
+| **UI** | Interactive wizard (pick components + IDEs) | Console log only (no wizard) |
+| **Installs** | `flowforge` CLI, optional engram-dotnet, IDE skills, FlowDoc | Agents, rules, `/flow-*` commands |
+| **Requires** | GitHub Releases download | `git` in PATH (remote mode clones repo) |
+
+Same content as [`README.md` § Install](README.md#install).
+
 ### Stack installer (full setup, v0.1.0-alpha.2+)
 
 For installing the complete FlowForge stack on your machine — `flowforge` CLI + `engram-dotnet` memory backend + IDE agents + FlowDoc structure.
@@ -127,6 +138,7 @@ Direct `@forge-*` invocation (legacy) bypasses checkpoints and Memory Curation �
 
 | Issue | Fix |
 |-------|-----|
+| **Expected a wizard but got console output only** | You ran the [IDE installer](README.md#ide-install-agents-only) (`ide/install.ps1`). For the interactive wizard, use the [Stack installer](README.md#stack-installer-full-setup) (`install/install.ps1`). |
 | **404 on `raw.githubusercontent.com` install** | Wrong branch or path (verify the URL points to `main` and the script exists) |
 | **`git` not found** | Install Git for Windows or your OS package manager |
 | **`dubious ownership` on Windows** | `git config --global --add safe.directory E:/Proyectos/FlowForge` |

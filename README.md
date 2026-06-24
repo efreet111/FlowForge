@@ -15,57 +15,22 @@ FlowForge is an **Agentic SDLC methodology** for small and mid-size teams (2–2
 | **FlowForge** (this repo) | Agent-assisted development methodology + IDE packs |
 | **[engram-dotnet](https://github.com/efreet111/engram-dotnet)** | Persistent memory engine for AI agents (.NET 10) |
 
-## Install
+## Install {#install}
 
-**Not sure which install to use?**
+**Not sure which install to use?** See also [`QUICKSTART.md`](QUICKSTART.md) — same two paths, step-by-step.
 
 | If you are… | Use |
 |-------------|-----|
-| Trying FlowForge for the first time | [Stack installer](#stack-installer-v010-alpha2) — one command, everything included |
-| Adding FlowForge to a specific IDE only | [IDE install](#install) one-liner below |
-| Integrating into an existing project | [Per-project bundle](#install) (`-ProjectPath`) |
-| Contributing to FlowForge | [Local clone](#install) |
+| Trying FlowForge for the first time | [Stack installer](#stack-installer-full-setup) — interactive wizard, full stack |
+| Adding FlowForge to your IDE only (no CLI, no engram binary) | [IDE install](#ide-install-agents-only) — one-liner, console output |
+| Integrating into an existing project | [Per-project bundle](#per-project-bundle) (`-ProjectPath`) |
+| Contributing to FlowForge | [Local clone](#local-clone) |
 
 ---
 
-**IDE install** (agents + rules + commands into your current IDE):
+### Stack installer (full setup) {#stack-installer-full-setup}
 
-```bash
-# Linux/macOS
-curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.sh | bash
-
-# Windows (PowerShell)
-iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
-```
-
-**Private repo** (local install):
-
-```bash
-git clone https://github.com/efreet111/FlowForge.git
-cd FlowForge
-bash ide/install.sh          # Linux/macOS
-# .\ide\install.ps1          # Windows
-```
-
-**Per-project bundle** (Antigravity + `.cursor` + `.github/agents`):
-
-```powershell
-.\ide\install.ps1 -ProjectPath "C:\path\to\your-app"
-```
-
-Then: reload your IDE, select the **flowforge** orchestrator (or enable FlowForge rules), and run:
-
-```
-/flow-start Task CRUD — create, list, update, delete tasks with title, description, status, timestamps
-```
-
-See [`QUICKSTART.md`](QUICKSTART.md) for the full walkthrough.
-
-## Stack installer (v0.1.0-alpha.2+)
-
-> **Recommended for most users.** The `alpha` label refers to the binary distribution format (AOT compilation), not to the methodology stability — FlowForge v0.5.0 is production-tested. The installer downloads the binary, verifies SHA-256, and launches a setup wizard.
-
-For installing FlowForge as a standalone tool on your machine (CLI + memory backend + IDE agents + FlowDoc structure), distributed via [GitHub Releases](https://github.com/efreet111/FlowForge/releases).
+> **Recommended for most users.** Downloads the `flowforge` CLI (AOT binary), verifies SHA-256, and launches an **interactive wizard**: choose engram-dotnet, FlowForge IDE skills, FlowDoc, target IDEs, local vs sync mode, then confirm. The `alpha` label refers to the binary distribution format, not methodology stability — FlowForge v0.5.0 is production-tested.
 
 **Linux/macOS:**
 
@@ -79,7 +44,48 @@ curl -fsSL https://raw.githubusercontent.com/efreet111/FlowForge/main/install/in
 iwr -useb https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.ps1 | iex
 ```
 
-The bootstrap downloads the AOT-compiled binary, verifies SHA-256, installs to `~/.local/bin/flowforge`, and launches an interactive wizard for component selection.
+Installs to `%LOCALAPPDATA%\Programs\FlowForge\` (Windows) or `~/.local/bin/flowforge` (Linux/macOS). Distributed via [GitHub Releases](https://github.com/efreet111/FlowForge/releases).
+
+### IDE install (agents only) {#ide-install-agents-only}
+
+> **Lightweight — no wizard.** Copies agents, rules, and `/flow-*` commands into detected IDEs (Cursor, OpenCode, VS Code). Prints a console summary. Does **not** install the `flowforge` CLI or `engram-dotnet` binary. Use this if you already have engram configured or only need the methodology packs.
+
+**Linux/macOS:**
+
+```bash
+curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.sh | bash
+```
+
+**Windows (PowerShell):**
+
+```powershell
+iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
+```
+
+### Local clone {#local-clone}
+
+```bash
+git clone https://github.com/efreet111/FlowForge.git
+cd FlowForge
+bash ide/install.sh          # Linux/macOS
+# .\ide\install.ps1          # Windows
+```
+
+### Per-project bundle {#per-project-bundle}
+
+Antigravity + project `.cursor` + `.github/agents`:
+
+```powershell
+.\ide\install.ps1 -ProjectPath "C:\path\to\your-app"
+```
+
+Then: reload your IDE, select the **flowforge** orchestrator (or enable FlowForge rules), and run:
+
+```
+/flow-start Task CRUD — create, list, update, delete tasks with title, description, status, timestamps
+```
+
+Full walkthrough: [`QUICKSTART.md`](QUICKSTART.md).
 
 ## Methodology (5 phases, 5 checkpoints)
 
