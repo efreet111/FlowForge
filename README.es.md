@@ -30,7 +30,9 @@ FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños 
 
 ### Stack installer (setup completo) {#stack-installer-setup-completo}
 
-> **Recomendado para la mayoría de usuarios.** Descarga el CLI `flowforge` (binario AOT), verifica SHA-256 y lanza un **wizard interactivo**: elegís engram-dotnet, skills FlowForge, FlowDoc, IDEs destino, modo local vs sync, y confirmás. El label `alpha` se refiere al formato binario, no a la estabilidad de la metodología — FlowForge v0.5.0 está probado en producción.
+> **Recomendado para la mayoría de usuarios.** Descarga el CLI `flowforge` (binario AOT), verifica SHA-256 y lanza un **wizard interactivo**: elegís engram-dotnet, skills FlowForge, IDEs destino, modo local vs sync, y confirmás. El label `alpha` se refiere al formato binario, no a la estabilidad de la metodología — FlowForge v0.5.0 está probado en producción.
+>
+> Luego de este paso, ejecutá **`flowforge init <ruta-del-proyecto>`** para configurar FlowDoc y archivos por proyecto en cada repositorio.
 
 **Linux/macOS:**
 
@@ -73,6 +75,22 @@ cd FlowForge
 bash ide/install.sh          # Linux/macOS
 # .\ide\install.ps1          # Windows
 ```
+
+### Inicializar un proyecto (FlowDoc + AGENTS.md) {#inicializar-un-proyecto}
+
+Después de `flowforge install`, ejecutá `flowforge init` una vez por repositorio:
+
+```powershell
+# Windows
+flowforge init E:\Proyectos\mi-app
+```
+
+```bash
+# Linux/macOS
+flowforge init ~/projects/mi-app
+```
+
+Crea `.flowforge.json`, `AGENTS.md`, `docs/` (PRD, HUs, ADRs, templates) y `.ai-work/` dentro del proyecto. Usá `--no-flowdoc` para omitir la estructura `docs/` y crear solo la config y los archivos de agentes.
 
 ### Bundle por proyecto {#bundle-por-proyecto}
 

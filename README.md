@@ -30,7 +30,9 @@ FlowForge is an **Agentic SDLC methodology** for small and mid-size teams (2–2
 
 ### Stack installer (full setup) {#stack-installer-full-setup}
 
-> **Recommended for most users.** Downloads the `flowforge` CLI (AOT binary), verifies SHA-256, and launches an **interactive wizard**: choose engram-dotnet, FlowForge IDE skills, FlowDoc, target IDEs, local vs sync mode, then confirm. The `alpha` label refers to the binary distribution format, not methodology stability — FlowForge v0.5.0 is production-tested.
+> **Recommended for most users.** Downloads the `flowforge` CLI (AOT binary), verifies SHA-256, and launches an **interactive wizard**: choose engram-dotnet, FlowForge IDE skills, target IDEs, local vs sync mode, then confirm. The `alpha` label refers to the binary distribution format, not methodology stability — FlowForge v0.5.0 is production-tested.
+>
+> After this step, run **`flowforge init <project-path>`** to set up FlowDoc and per-project files in each repository.
 
 **Linux/macOS:**
 
@@ -73,6 +75,22 @@ cd FlowForge
 bash ide/install.sh          # Linux/macOS
 # .\ide\install.ps1          # Windows
 ```
+
+### Initialize a project (FlowDoc + AGENTS.md) {#initialize-a-project}
+
+After `flowforge install`, run `flowforge init` once per repository:
+
+```powershell
+# Windows
+flowforge init E:\Proyectos\my-app
+```
+
+```bash
+# Linux/macOS
+flowforge init ~/projects/my-app
+```
+
+Creates `.flowforge.json`, `AGENTS.md`, `docs/` (PRD, HUs, ADRs, templates) and `.ai-work/` inside the project. Use `--no-flowdoc` to skip the `docs/` structure and only create the config and agent files.
 
 ### Per-project bundle {#per-project-bundle}
 

@@ -36,8 +36,11 @@ public sealed class InstallCommand(InstallerContext ctx)
 
         var cfg = ctx.Store.Load();
 
-        // ── 1. Selección de componentes ───────────────────────────────────────
+        // ── 1. Selección de componentes (global) ──────────────────────────────
         AnsiConsole.MarkupLine("[bold]¿Qué componentes instalar?[/]");
+        AnsiConsole.MarkupLine("[grey]Este wizard instala componentes globales (binario + IDE agents).[/]");
+        AnsiConsole.MarkupLine("[grey]Para inicializar un proyecto usa: [/][blue]flowforge init <ruta>[/]");
+        AnsiConsole.WriteLine();
         var components = AnsiConsole.Prompt(
             new MultiSelectionPrompt<string>()
                 .Title("")
@@ -45,12 +48,10 @@ public sealed class InstallCommand(InstallerContext ctx)
                 .AddChoices([
                     "engram-dotnet (backend de memoria)",
                     "FlowForge (skills + agents para IDEs)",
-                    "FlowDoc (estructura docs/ en proyecto actual)",
                 ]));
 
-        bool installEngram   = components.Any(c => c.StartsWith("engram-dotnet"));
+        bool installEngram    = components.Any(c => c.StartsWith("engram-dotnet"));
         bool installFlowForge = components.Any(c => c.StartsWith("FlowForge"));
-        bool installFlowDoc  = components.Any(c => c.StartsWith("FlowDoc"));
 
         AnsiConsole.WriteLine();
 
@@ -80,46 +81,11 @@ public sealed class InstallCommand(InstallerContext ctx)
                     .AddChoices(["Cursor", "OpenCode", "VS Code", "Claude Desktop"]));
         }
 
-        // ── 4. FlowDoc opt-in ─────────────────────────────────────────────────
-        bool flowDocEnabled = cfg.FlowDoc.Enabled;
-        if (installFlowDoc)
-        {
-            var cwd = Directory.GetCurrentDirectory();
-            AnsiConsole.MarkupLine($"  [grey]Directorio actual: {cwd}[/]");
-
-            var suspiciousSegments = new[] { "system32", "SysWOW64", "Windows", "Temp", "AppData\\Local\\Temp", "Program Files" };
-            bool isSuspicious = suspiciousSegments.Any(s => cwd.Contains(s, StringComparison.OrdinalIgnoreCase));
-            bool hasGit = Directory.Exists(Path.Combine(cwd, ".git"));
-
-            if (isSuspicious)
-            {
-                AnsiConsole.MarkupLine("  [red]⚠️  El directorio actual parece un directorio del sistema — no es un proyecto.[/]");
-                AnsiConsole.MarkupLine("  [yellow]Consejo:[/] Ejecutá el instalador desde la raíz de tu proyecto:");
-                AnsiConsole.MarkupLine("  [grey]  cd E:\\Proyectos\\mi-app && flowforge install[/]");
-                flowDocEnabled = false;
-            }
-            else
-            {
-                if (!hasGit)
-                    AnsiConsole.MarkupLine("  [yellow]![/] No se detectó repositorio git — FlowDoc se instalará aquí de todos modos.");
-
-                flowDocEnabled = AnsiConsole.Confirm(
-                    $"[bold]¿Crear estructura docs/ en [green]{cwd}[/]?[/]", defaultValue: true);
-            }
-        }
-
-        // ── 5. Resumen + confirmación ─────────────────────────────────────────
+        // ── 4. Resumen + confirmación ─────────────────────────────────────────
         AnsiConsole.WriteLine();
         AnsiConsole.Write(new Rule("[bold]Resumen[/]").LeftJustified());
-        if (installEngram)   AnsiConsole.MarkupLine($"  [green]●[/] engram-dotnet  (modo: {engramMode})");
+        if (installEngram)    AnsiConsole.MarkupLine($"  [green]●[/] engram-dotnet  (modo: {engramMode})");
         if (installFlowForge) AnsiConsole.MarkupLine($"  [green]●[/] FlowForge      (IDEs: {string.Join(", ", selectedIdes)})");
-        if (installFlowDoc)
-        {
-            if (flowDocEnabled)
-                AnsiConsole.MarkupLine($"  [green]●[/] FlowDoc         → {Directory.GetCurrentDirectory()}");
-            else
-                AnsiConsole.MarkupLine("  [grey]●[/] FlowDoc         → omitido (directorio no válido o cancelado)");
-        }
         AnsiConsole.WriteLine();
 
         if (!yes && !AnsiConsole.Confirm("¿Proceder con la instalación?", defaultValue: true))
@@ -128,7 +94,7 @@ public sealed class InstallCommand(InstallerContext ctx)
             return;
         }
 
-        // ── 6. Ejecutar instalación ───────────────────────────────────────────
+        // ── 5. Ejecutar instalación ───────────────────────────────────────────
         ctx.Log.Info("install: inicio");
 
         if (installEngram)
@@ -143,16 +109,9 @@ public sealed class InstallCommand(InstallerContext ctx)
             module.Install(selectedIdes);
         }
 
-        if (installFlowDoc)
-        {
-            var module = new FlowDocModule(ctx);
-            module.Install(flowDocEnabled);
-        }
-
-        // ── 7. Guardar config ─────────────────────────────────────────────────
+        // ── 6. Guardar config ─────────────────────────────────────────────────
         ctx.Store.Update(c =>
         {
-            c.FlowDoc.Enabled = flowDocEnabled;
             if (installFlowForge && selectedIdes.Count > 0)
             {
                 c.Components.FlowForge ??= new FlowForgeComponentEntry();
@@ -165,6 +124,10 @@ public sealed class InstallCommand(InstallerContext ctx)
         AnsiConsole.WriteLine();
         AnsiConsole.Write(new Rule("[bold green]Instalación completada[/]").LeftJustified());
         AnsiConsole.MarkupLine("[grey]Recargá tu IDE para activar los cambios.[/]");
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine("[bold]Próximo paso — inicializar un proyecto:[/]");
+        AnsiConsole.MarkupLine("  [blue]flowforge init[/] [grey]<ruta-del-proyecto>[/]");
+        AnsiConsole.MarkupLine("  [grey]Crea AGENTS.md, .flowforge.json, docs/ y packs IDE para ese repositorio.[/]");
         ctx.Log.Info("install: completado");
     }
 }

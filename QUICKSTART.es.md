@@ -14,10 +14,12 @@ FlowForge tiene **dos instaladores** — elegí uno:
 |---|--------------------------------------|----------------------------------|
 | **Ideal para** | Setup inicial completo | Solo packs del IDE |
 | **UI** | Wizard interactivo (componentes + IDEs) | Solo log en consola (sin wizard) |
-| **Instala** | CLI `flowforge`, engram-dotnet opcional, skills IDE, FlowDoc | Agentes, reglas, comandos `/flow-*` |
+| **Instala** | CLI `flowforge`, engram-dotnet opcional, skills IDE (global) | Agentes, reglas, comandos `/flow-*` |
 | **Requiere** | Descarga desde GitHub Releases | `git` en PATH (modo remoto clona el repo) |
 
 Mismo contenido que [`README.es.md` § Instalación](README.es.md#instalacion).
+
+> **FlowDoc / scaffolding por proyecto** se configura por separado con `flowforge init <ruta>` después de que el Stack installer finalice. Ver [§ Inicializar un proyecto](#inicializar-un-proyecto) más abajo.
 
 ### Instalador de stack (setup completo, v0.1.0-alpha.2+)
 
@@ -54,7 +56,45 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercon
 
 ---
 
-## 2. Primer comando
+## 2. Inicializar un proyecto {#inicializar-un-proyecto}
+
+Luego de instalar el Stack, ejecutá `flowforge init` dentro de cada repositorio donde quieras el setup completo por proyecto:
+
+```powershell
+# Windows
+flowforge init E:\Proyectos\mi-app
+
+# o desde adentro del proyecto
+cd E:\Proyectos\mi-app
+flowforge init .
+```
+
+```bash
+# Linux/macOS
+flowforge init ~/projects/mi-app
+```
+
+Crea:
+
+| Archivo / carpeta | Propósito |
+|---|---|
+| `.flowforge.json` | Config del proyecto (activa FlowDoc, `docs_framework`, teacher mode, etc.) |
+| `AGENTS.md` | Guía para agentes en este repo |
+| `docs/` | PRD, HUs, ADRs, RFCs, templates |
+| `.ai-work/` | Artefactos versionados de cada feature |
+
+**Flags:**
+
+| Flag | Efecto |
+|------|--------|
+| `--no-flowdoc` | Omite la creación de `docs/` — solo `.flowforge.json` + `AGENTS.md` |
+| `--yes` / `-y` | No interactivo (sin confirmaciones) |
+
+> `flowforge init` es el único comando que escribe dentro de un directorio de proyecto. El `flowforge install` global solo toca `~/.cursor`, `~/.config`, etc.
+
+---
+
+## 3. Primer comando
 
 Recargá el IDE, abrí el **modo Agente**, elegí el orquestador **flowforge** (o asegurate de que las reglas FlowForge estén activas) y enviá:
 

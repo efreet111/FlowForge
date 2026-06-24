@@ -9,19 +9,19 @@ namespace FlowForge.Installer.Modules;
 /// </summary>
 public sealed class FlowDocModule(InstallerContext ctx)
 {
-    public void Install(bool enabled)
+    /// <summary>
+    /// Instala la estructura FlowDoc en el directorio de proyecto indicado.
+    /// Si projectPath es null o vacío, usa el directorio de trabajo actual (legacy).
+    /// </summary>
+    public void Install(string? projectPath = null)
     {
-        if (!enabled)
-        {
-            AnsiConsole.MarkupLine("  [grey]FlowDoc deshabilitado en config — omitido[/]");
-            ctx.Log.Info("FlowDocModule.Install: omitido (disabled)");
-            return;
-        }
-
         AnsiConsole.MarkupLine("[bold]Instalando FlowDoc...[/]");
         ctx.Log.Info("FlowDocModule.Install: inicio");
 
-        var cwd = Directory.GetCurrentDirectory();
+        var cwd = string.IsNullOrWhiteSpace(projectPath)
+            ? Directory.GetCurrentDirectory()
+            : Path.GetFullPath(projectPath);
+
         var docsDir = Path.Combine(cwd, "docs");
 
         // Si ya existe docs/, preguntar antes de sobrescribir

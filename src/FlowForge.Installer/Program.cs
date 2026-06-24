@@ -51,6 +51,9 @@ app.Add("", ([FromServices] InstallerContext c) =>
 // flowforge install
 app.Add<InstallCommand>("install");
 
+// flowforge init [path]
+app.Add<InitCommand>("init");
+
 // flowforge update [--check]
 app.Add<UpdateCommand>("update");
 
@@ -67,7 +70,7 @@ var filteredArgs = args.Where(a => a != "--verbose" && a != "-v").ToArray();
 // CAF lanza NRE internamente para comandos desconocidos - prevenimos ese camino
 // Solo validar argumentos que NO son opciones (no empiezan con -)
 var firstArg = filteredArgs.FirstOrDefault();
-var knownCommands = new[] { "", "install", "update", "uninstall", "config" };
+var knownCommands = new[] { "", "install", "init", "update", "uninstall", "config" };
 if (firstArg != null && !firstArg.StartsWith("-") && !knownCommands.Contains(firstArg))
 {
     // Comando desconocido: en modo verbose mostrar stack trace

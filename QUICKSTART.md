@@ -14,10 +14,12 @@ FlowForge has **two installers** — pick one:
 |---|--------------------------------------|----------------------------------|
 | **Best for** | First-time setup | IDE packs only |
 | **UI** | Interactive wizard (pick components + IDEs) | Console log only (no wizard) |
-| **Installs** | `flowforge` CLI, optional engram-dotnet, IDE skills, FlowDoc | Agents, rules, `/flow-*` commands |
+| **Installs** | `flowforge` CLI, optional engram-dotnet, IDE skills (global) | Agents, rules, `/flow-*` commands |
 | **Requires** | GitHub Releases download | `git` in PATH (remote mode clones repo) |
 
 Same content as [`README.md` § Install](README.md#install).
+
+> **FlowDoc / per-project scaffolding** is set up separately with `flowforge init <path>` after the Stack installer finishes. See [§ Initialize a project](#initialize-a-project) below.
 
 ### Stack installer (full setup, v0.1.0-alpha.2+)
 
@@ -54,7 +56,45 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercon
 
 ---
 
-## 2. First command
+## 2. Initialize a project {#initialize-a-project}
+
+After the Stack installer completes, run `flowforge init` inside each repository where you want FlowForge's full per-project setup:
+
+```powershell
+# Windows
+flowforge init E:\Proyectos\my-app
+
+# or from inside the project folder
+cd E:\Proyectos\my-app
+flowforge init .
+```
+
+```bash
+# Linux/macOS
+flowforge init ~/projects/my-app
+```
+
+This creates:
+
+| File / folder | Purpose |
+|---|---|
+| `.flowforge.json` | Project config (activates FlowDoc, sets `docs_framework`, teacher mode, etc.) |
+| `AGENTS.md` | Agent guidance for this repo |
+| `docs/` | PRD, HUs, ADRs, RFCs, templates |
+| `.ai-work/` | Versioned feature artifacts |
+
+**Flags:**
+
+| Flag | Effect |
+|------|--------|
+| `--no-flowdoc` | Skip `docs/` creation — only `.flowforge.json` + `AGENTS.md` |
+| `--yes` / `-y` | Non-interactive (no confirmations) |
+
+> `flowforge init` is the only command that writes into a project directory. The global `flowforge install` only touches `~/.cursor`, `~/.config`, etc.
+
+---
+
+## 3. First command
 
 Reload your IDE, open **Agent mode**, select the **flowforge** orchestrator (or ensure FlowForge rules are active), and send:
 
@@ -66,7 +106,7 @@ Artifacts land in `.ai-work/{feature-slug}/` (e.g. `task-crud/`).
 
 ---
 
-## 3. What happens next
+## 4. What happens next
 
 ```
 /flow-start
@@ -94,7 +134,7 @@ Artifacts land in `.ai-work/{feature-slug}/` (e.g. `task-crud/`).
 
 ---
 
-## 4. Commands
+## 5. Commands
 
 | Command | Phase |
 |---------|--------|
@@ -126,7 +166,7 @@ Direct `@forge-*` invocation (legacy) bypasses checkpoints and Memory Curation �
 
 ---
 
-## 5. Next steps
+## 6. Next steps
 
 - [`docs/14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md) — 7 hands-on test cases
 - [`ide/README.md`](ide/README.md) — per-IDE install and parity v0.4
