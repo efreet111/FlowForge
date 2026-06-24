@@ -1,6 +1,7 @@
 ﻿using ConsoleAppFramework;
 using FlowForge.Installer.Commands;
 using FlowForge.Installer.Infrastructure;
+using Microsoft.Extensions.DependencyInjection;
 using Spectre.Console;
 
 // ── Detectar --verbose/-v ANTES de pasarlo a CAF para sincronizar Verbosity.IsVerbose
@@ -31,6 +32,15 @@ var http     = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
 var gh       = new GitHubReleasesClient(http, log);
 var manifest = new ManifestClient(http, log);
 var ctx      = new InstallerContext(log, store, gh, manifest);
+
+// ── Register services in CAF DI container ─────────────────────────────────────
+// Requerido para que las commands con primary constructor (InstallerContext ctx)
+// puedan resolverse correctamente. Sin esto, CAF pasa null y la command crashea
+// con NullReferenceException en el primer acceso a ctx.
+app.ConfigureServices(services =>
+{
+    services.AddSingleton(ctx);
+});
 
 // flowforge  (sin args) → status
 app.Add("", ([FromServices] InstallerContext c) =>

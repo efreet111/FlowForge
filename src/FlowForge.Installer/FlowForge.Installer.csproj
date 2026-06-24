@@ -36,6 +36,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <!-- Microsoft.Extensions.DependencyInjection: required for CAF ConfigureServices -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+    <!-- Abstractions: provides AddSingleton/AddTransient extension methods -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
     <!-- Spectre.Console core: visual output (NOT Spectre.Console.Cli — not AOT-safe) -->
     <PackageReference Include="Spectre.Console" Version="0.57.0" />
   </ItemGroup>
