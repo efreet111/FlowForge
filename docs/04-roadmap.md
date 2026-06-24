@@ -55,8 +55,8 @@ The repo is **public** as of ENG-301 release (v0.1.0-alpha.2, 2026-06-23). Remot
 
 | # | ID | Tipo | Item | Estado | Effort | Notas |
 |---|-----|------|------|--------|--------|-------|
-| 1 | FF-OSS-01 | Doc | Fix README.md: versión `0.4.0` → `0.5.0` | Ready | XS | `VERSION.md` y `CHANGELOG.md` ya dicen `0.5.0`; el README quedó sin actualizar |
-| 2 | FF-OSS-02 | Chore | Commitear cambio no-commiteado de `docs/04-roadmap.md` | Ready | XS | `git diff docs/04-roadmap.md` muestra el aviso de "repo público" sin commitear |
+| 1 | FF-OSS-01 | Doc | Fix README.md: versión `0.4.0` → `0.5.0` | ✅ Done | XS | `be257c2` — README.md + README.es.md actualizados |
+| 2 | FF-OSS-02 | Chore | Commitear cambio no-commiteado de `docs/04-roadmap.md` | ✅ Done | XS | `6b0f7ce` — incluido en commit de audit OSS |
 
 ### P1 — Esta semana
 
