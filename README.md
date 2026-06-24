@@ -50,6 +50,24 @@ Then: reload your IDE, select the **flowforge** orchestrator (or enable FlowForg
 
 See [`QUICKSTART.md`](QUICKSTART.md) for the full walkthrough.
 
+## Stack installer (v0.1.0-alpha.2+)
+
+For installing FlowForge as a standalone tool on your machine (CLI + memory backend + IDE agents + FlowDoc structure), distributed via [GitHub Releases](https://github.com/efreet111/FlowForge/releases).
+
+**Linux/macOS:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.sh | bash
+```
+
+**Windows (PowerShell):**
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.ps1 | iex
+```
+
+The bootstrap downloads the AOT-compiled binary, verifies SHA-256, installs to `~/.local/bin/flowforge`, and launches an interactive wizard for component selection.
+
 ## Methodology (5 phases, 5 checkpoints)
 
 ```

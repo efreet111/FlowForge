@@ -48,6 +48,24 @@ Después: Reload Window en el IDE, agente **`flowforge`** (o reglas FlowForge), 
 /flow-start CRUD de tareas
 ```
 
+## Stack installer (v0.1.0-alpha.2+)
+
+Para instalar FlowForge como herramienta standalone en tu máquina (CLI + backend de memoria + agentes del IDE + estructura FlowDoc), distribuido vía [GitHub Releases](https://github.com/efreet111/FlowForge/releases).
+
+**Linux/macOS:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.sh | bash
+```
+
+**Windows (PowerShell):**
+
+```powershell
+iwr -useb https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.ps1 | iex
+```
+
+El bootstrap descarga el binario compilado AOT, verifica SHA-256, instala en `~/.local/bin/flowforge` y lanza un wizard interactivo para seleccionar componentes.
+
 ## Metodología
 
 ```
