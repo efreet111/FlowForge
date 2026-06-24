@@ -9,7 +9,7 @@ namespace FlowForge.Installer.Commands;
 /// </summary>
 public static class StatusCommand
 {
-    const string InstallerVersion = "0.1.0-alpha.3";
+    const string InstallerVersion = "0.1.0-alpha.4";
 
     public static void Run(InstallerContext ctx)
     {

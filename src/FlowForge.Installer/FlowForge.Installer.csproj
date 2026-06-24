@@ -20,9 +20,9 @@
     <PublishSingleFile>false</PublishSingleFile><!-- AOT ya produce single file -->
 
     <!-- Version info -->
-    <Version>0.1.0-alpha.3</Version>
+    <Version>0.1.0-alpha.4</Version>
     <AssemblyVersion>0.1.0.0</AssemblyVersion>
-    <InformationalVersion>0.1.0-alpha.3</InformationalVersion>
+    <InformationalVersion>0.1.0-alpha.4</InformationalVersion>
   </PropertyGroup>
 
   <!-- Self-contained publish targets for CI -->

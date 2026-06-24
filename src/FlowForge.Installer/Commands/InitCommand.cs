@@ -19,7 +19,7 @@ public sealed class InitCommand(InstallerContext ctx)
     /// <param name="noFlowDoc">--no-flowdoc: omitir creación de estructura docs/</param>
     /// <param name="yes">-y / --yes: omitir confirmaciones (non-interactive)</param>
     [Command("")]
-    public void Run(string path = ".", bool noFlowDoc = false, bool yes = false)
+    public void Run([Argument] string path = ".", bool noFlowDoc = false, bool yes = false)
     {
         AnsiConsole.Write(new Rule("[bold blue]flowforge init[/]").LeftJustified());
         AnsiConsole.WriteLine();

@@ -87,7 +87,7 @@ Crea:
 
 | Flag | Efecto |
 |------|--------|
-| `--no-flowdoc` | Omite la creación de `docs/` — solo `.flowforge.json` + `AGENTS.md` |
+| `--no-flow-doc` | Omite la creación de `docs/` — solo `.flowforge.json` + `AGENTS.md` |
 | `--yes` / `-y` | No interactivo (sin confirmaciones) |
 
 > `flowforge init` es el único comando que escribe dentro de un directorio de proyecto. El `flowforge install` global solo toca `~/.cursor`, `~/.config`, etc.

@@ -90,7 +90,7 @@ flowforge init E:\Proyectos\my-app
 flowforge init ~/projects/my-app
 ```
 
-Creates `.flowforge.json`, `AGENTS.md`, `docs/` (PRD, HUs, ADRs, templates) and `.ai-work/` inside the project. Use `--no-flowdoc` to skip the `docs/` structure and only create the config and agent files.
+Creates `.flowforge.json`, `AGENTS.md`, `docs/` (PRD, HUs, ADRs, templates) and `.ai-work/` inside the project. Use `--no-flow-doc` to skip the `docs/` structure and only create the config and agent files.
 
 ### Per-project bundle {#per-project-bundle}
 

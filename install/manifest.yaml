@@ -1,4 +1,4 @@
-installer_version: 0.1.0-alpha.3
+installer_version: 0.1.0-alpha.4
 channels:
   - stable
   - beta

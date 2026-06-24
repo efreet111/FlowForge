@@ -90,7 +90,7 @@ flowforge init E:\Proyectos\mi-app
 flowforge init ~/projects/mi-app
 ```
 
-Crea `.flowforge.json`, `AGENTS.md`, `docs/` (PRD, HUs, ADRs, templates) y `.ai-work/` dentro del proyecto. Usá `--no-flowdoc` para omitir la estructura `docs/` y crear solo la config y los archivos de agentes.
+Crea `.flowforge.json`, `AGENTS.md`, `docs/` (PRD, HUs, ADRs, templates) y `.ai-work/` dentro del proyecto. Usá `--no-flow-doc` para omitir la estructura `docs/` y crear solo la config y los archivos de agentes.
 
 ### Bundle por proyecto {#bundle-por-proyecto}
 
