@@ -121,4 +121,4 @@ if ($currentPath -notlike "*$InstallDir*") {
 # ── Lanzar wizard ─────────────────────────────────────────────────────────────
 Write-Host ""
 Write-Host "Iniciando wizard de instalación..."
-& $BinaryDest install
+& $BinaryDest install --yes

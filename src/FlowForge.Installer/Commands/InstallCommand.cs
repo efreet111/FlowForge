@@ -8,6 +8,7 @@ namespace FlowForge.Installer.Commands;
 
 /// <summary>
 /// flowforge install — wizard interactivo multi-componente.
+/// Modo headless (--yes) usa defaults sin requerir TTY interactivo.
 /// </summary>
 public sealed class InstallCommand(InstallerContext ctx)
 {
@@ -17,6 +18,9 @@ public sealed class InstallCommand(InstallerContext ctx)
     [Command("")]
     public async Task RunAsync(bool yes = false)
     {
+        // Detect true headless: --yes flag OR non-interactive console (CI/CD, scripts)
+        var isHeadless = yes || !Environment.UserInteractive;
+
         AnsiConsole.Write(new Rule("[bold blue]FlowForge Stack Installer v0.1.0-alpha.6[/]").LeftJustified());
         AnsiConsole.WriteLine();
 
@@ -36,49 +40,69 @@ public sealed class InstallCommand(InstallerContext ctx)
 
         var cfg = ctx.Store.Load();
 
-        // ── 1. Selección de componentes (global) ──────────────────────────────
-        AnsiConsole.MarkupLine("[bold]¿Qué componentes instalar?[/]");
-        AnsiConsole.MarkupLine("[grey]Este wizard instala componentes globales (binario + IDE agents).[/]");
-        AnsiConsole.MarkupLine("[grey]Para inicializar un proyecto usa: [/][blue]flowforge init <ruta>[/]");
-        AnsiConsole.WriteLine();
-        var components = AnsiConsole.Prompt(
-            new MultiSelectionPrompt<string>()
-                .Title("")
-                .InstructionsText("[grey](Espacio para seleccionar, Enter para confirmar)[/]")
-                .AddChoices([
-                    "engram-dotnet (backend de memoria)",
-                    "FlowForge (skills + agents para IDEs)",
-                ]));
+        bool installEngram;
+        bool installFlowForge;
+        string engramMode;
+        List<string> selectedIdes;
 
-        bool installEngram    = components.Any(c => c.StartsWith("engram-dotnet"));
-        bool installFlowForge = components.Any(c => c.StartsWith("FlowForge"));
-
-        AnsiConsole.WriteLine();
-
-        // ── 2. Modo engram ────────────────────────────────────────────────────
-        string engramMode = "local";
-        if (installEngram)
+        if (isHeadless)
         {
-            engramMode = AnsiConsole.Prompt(
-                new SelectionPrompt<string>()
-                    .Title("[bold]Modo de uso de engram-dotnet:[/]")
-                    .AddChoices([
-                        "Local (SQLite, sin sync)",
-                        "Offline-first sync (SQLite + servidor)",
-                    ]));
-            engramMode = engramMode.StartsWith("Local") ? "local" : "sync";
+            // ── Headless mode: use sensible defaults ───────────────────────────
+            AnsiConsole.MarkupLine("[bold]Modo no-interactivo (--yes)[/]");
+            AnsiConsole.MarkupLine("[grey]Usando defaults — ambos componentes, IDEs auto-detectados[/]");
+            AnsiConsole.WriteLine();
+
+            installEngram    = true;
+            installFlowForge = true;
+            engramMode       = DetectSyncMode();
+            selectedIdes     = DetectInstalledIdes();
         }
-
-        // ── 3. IDEs para FlowForge ────────────────────────────────────────────
-        List<string> selectedIdes = [];
-        if (installFlowForge)
+        else
         {
-            AnsiConsole.MarkupLine("[bold]¿Dónde instalar los skills de FlowForge?[/]");
-            selectedIdes = AnsiConsole.Prompt(
+            // ── 1. Selección de componentes (global) ──────────────────────────
+            AnsiConsole.MarkupLine("[bold]¿Qué componentes instalar?[/]");
+            AnsiConsole.MarkupLine("[grey]Este wizard instala componentes globales (binario + IDE agents).[/]");
+            AnsiConsole.MarkupLine("[grey]Para inicializar un proyecto usa: [/][blue]flowforge init <ruta>[/]");
+            AnsiConsole.WriteLine();
+            var components = AnsiConsole.Prompt(
                 new MultiSelectionPrompt<string>()
                     .Title("")
                     .InstructionsText("[grey](Espacio para seleccionar, Enter para confirmar)[/]")
-                    .AddChoices(["Cursor", "OpenCode", "VS Code", "Claude Desktop"]));
+                    .AddChoices([
+                        "engram-dotnet (backend de memoria)",
+                        "FlowForge (skills + agents para IDEs)",
+                    ]));
+
+            installEngram    = components.Any(c => c.StartsWith("engram-dotnet"));
+            installFlowForge = components.Any(c => c.StartsWith("FlowForge"));
+
+            AnsiConsole.WriteLine();
+
+            // ── 2. Modo engram ────────────────────────────────────────────────
+            engramMode = "local";
+            if (installEngram)
+            {
+                engramMode = AnsiConsole.Prompt(
+                    new SelectionPrompt<string>()
+                        .Title("[bold]Modo de uso de engram-dotnet:[/]")
+                        .AddChoices([
+                            "Local (SQLite, sin sync)",
+                            "Offline-first sync (SQLite + servidor)",
+                        ]));
+                engramMode = engramMode.StartsWith("Local") ? "local" : "sync";
+            }
+
+            // ── 3. IDEs para FlowForge ────────────────────────────────────────
+            selectedIdes = [];
+            if (installFlowForge)
+            {
+                AnsiConsole.MarkupLine("[bold]¿Dónde instalar los skills de FlowForge?[/]");
+                selectedIdes = AnsiConsole.Prompt(
+                    new MultiSelectionPrompt<string>()
+                        .Title("")
+                        .InstructionsText("[grey](Espacio para seleccionar, Enter para confirmar)[/]")
+                        .AddChoices(["Cursor", "OpenCode", "VS Code", "Claude Desktop"]));
+            }
         }
 
         // ── 4. Resumen + confirmación ─────────────────────────────────────────
@@ -129,5 +153,35 @@ public sealed class InstallCommand(InstallerContext ctx)
         AnsiConsole.MarkupLine("  [blue]flowforge init[/] [grey]<ruta-del-proyecto>[/]");
         AnsiConsole.MarkupLine("  [grey]Crea AGENTS.md, .flowforge.json, docs/ y packs IDE para ese repositorio.[/]");
         ctx.Log.Info("install: completado");
+    }
+
+    /// <summary>
+    /// Detecta el modo sync adecuado: si ENGRAM_SERVER_URL está configurado → sync, sino local.
+    /// </summary>
+    static string DetectSyncMode()
+    {
+        var serverUrl = Environment.GetEnvironmentVariable("ENGRAM_SERVER_URL");
+        return string.IsNullOrWhiteSpace(serverUrl) ? "local" : "sync";
+    }
+
+    /// <summary>
+    /// Detecta IDEs instalados en el sistema sin requerir interacción del usuario.
+    /// </summary>
+    static List<string> DetectInstalledIdes()
+    {
+        var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+        var ides = new List<string>();
+
+        if (Directory.Exists(Path.Combine(home, ".cursor")))
+            ides.Add("Cursor");
+        if (Directory.Exists(Path.Combine(home, ".config", "opencode")))
+            ides.Add("OpenCode");
+        if (Directory.Exists(Path.Combine(home, ".vscode")) ||
+            Directory.Exists(Path.Combine(home, ".vscode-server")))
+            ides.Add("VS Code");
+        if (Directory.Exists(Path.Combine(home, ".gemini")))
+            ides.Add("Claude Desktop");
+
+        return ides;
     }
 }

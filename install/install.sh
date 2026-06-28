@@ -116,4 +116,4 @@ fi
 # ── Lanzar wizard ─────────────────────────────────────────────────────────────
 echo ""
 echo "Iniciando wizard de instalación..."
-"${INSTALL_DIR}/flowforge" install
+"${INSTALL_DIR}/flowforge" install --yes

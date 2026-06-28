@@ -22,8 +22,14 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         if (!locator.EnsureAvailable(out var ffRepo) || ffRepo == null)
         {
             AnsiConsole.MarkupLine("[red]✗[/] No se pudo obtener el repo FlowForge.");
-            AnsiConsole.MarkupLine("[yellow]![/] Necesitás [bold]git[/] en PATH, o ejecutá:");
-            AnsiConsole.MarkupLine("[grey]  iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))[/]");
+            AnsiConsole.MarkupLine("[yellow]![/] Necesitás [bold]git[/] en PATH.");
+            if (OperatingSystem.IsWindows())
+                AnsiConsole.MarkupLine("[grey]  winget install Git.Git / scoop install git[/]");
+            else if (OperatingSystem.IsLinux())
+                AnsiConsole.MarkupLine("[grey]  sudo apt install git / sudo pacman -S git[/]");
+            else if (OperatingSystem.IsMacOS())
+                AnsiConsole.MarkupLine("[grey]  brew install git[/]");
+            AnsiConsole.MarkupLine("[grey]  Luego reinstalá: flowforge install --yes[/]");
             return;
         }
 

@@ -54,6 +54,9 @@ public sealed class EngramModule(InstallerContext ctx)
         // Agregar al PATH si no está
         EnsureInPath(PathHelper.EngramBinDir);
 
+        // Verificar/crear symlink para librería nativa SQLite (e_sqlite3.so)
+        EnsureNativeLib(PathHelper.EngramBinDir);
+
         // Registrar en config
         ctx.Store.Update(cfg =>
         {
@@ -141,6 +144,13 @@ public sealed class EngramModule(InstallerContext ctx)
                 ["ENGRAM_SYNC_ENABLED"] = syncEnabled.ToString().ToLower(),
             };
 
+            if (syncEnabled)
+            {
+                var serverUrl = Environment.GetEnvironmentVariable("ENGRAM_SERVER_URL")
+                                ?? "http://192.168.0.178:7437";
+                env["ENGRAM_SERVER_URL"] = serverUrl;
+            }
+
             string json;
             if (format == "opencode")
             {
@@ -200,6 +210,65 @@ public sealed class EngramModule(InstallerContext ctx)
         {
             // En Linux/macOS ~/.local/bin suele ya estar en PATH para la mayoría de distros
             AnsiConsole.MarkupLine($"  [grey]ℹ[/]  Asegurate de tener [bold]~/.local/bin[/] en tu $PATH");
+        }
+    }
+
+    /// <summary>
+    /// Asegura que la librería nativa SQLite (e_sqlite3.so / e_sqlite3.dll)
+    /// esté disponible en el directorio del binario. PublishSingleFile deja
+    /// las dependencias nativas sueltas; si no se copiaron al release, creamos
+    /// un symlink a la librería del sistema como fallback.
+    /// </summary>
+    void EnsureNativeLib(string binDir)
+    {
+        try
+        {
+            if (OperatingSystem.IsLinux())
+            {
+                var nativeLib = Path.Combine(binDir, "e_sqlite3.so");
+                if (File.Exists(nativeLib))
+                {
+                    AnsiConsole.MarkupLine($"  [green]✓[/] e_sqlite3.so encontrado");
+                    return;
+                }
+
+                // Buscar libsqlite3.so en el sistema
+                string? systemLib = null;
+                foreach (var candidate in new[] {
+                    "/usr/lib/libsqlite3.so",
+                    "/usr/lib/libsqlite3.so.0",
+                    "/usr/lib/x86_64-linux-gnu/libsqlite3.so",
+                    "/usr/lib/x86_64-linux-gnu/libsqlite3.so.0",
+                })
+                {
+                    if (File.Exists(candidate)) { systemLib = candidate; break; }
+                }
+
+                if (systemLib != null)
+                {
+                    File.CreateSymbolicLink(nativeLib, systemLib);
+                    AnsiConsole.MarkupLine($"  [green]✓[/] Symlink creado: e_sqlite3.so → {systemLib}");
+                }
+                else
+                {
+                    AnsiConsole.MarkupLine("  [yellow]⚠[/] libsqlite3.so no encontrada en el sistema.");
+                    AnsiConsole.MarkupLine("  [grey]   Instalá sqlite3: sudo apt install libsqlite3-0 / sudo pacman -S sqlite3[/]");
+                }
+            }
+            else if (OperatingSystem.IsWindows())
+            {
+                var nativeLib = Path.Combine(binDir, "e_sqlite3.dll");
+                if (!File.Exists(nativeLib))
+                {
+                    AnsiConsole.MarkupLine("  [yellow]⚠[/] e_sqlite3.dll no encontrado — SQLite puede fallar.");
+                    AnsiConsole.MarkupLine("  [grey]   Asegurate de descargar e_sqlite3.dll del release de engram-dotnet.[/]");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            ctx.Log.Error($"EnsureNativeLib: {ex.Message}");
+            AnsiConsole.MarkupLine($"  [yellow]⚠[/] No se pudo verificar e_sqlite3: {ex.Message}");
         }
     }
 }
