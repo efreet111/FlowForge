@@ -54,7 +54,9 @@ public sealed class EngramModule(InstallerContext ctx)
         // Agregar al PATH si no está
         EnsureInPath(PathHelper.EngramBinDir);
 
-        // Verificar/crear symlink para librería nativa SQLite (e_sqlite3.so)
+        // Descargar librería nativa SQLite desde el release (e_sqlite3.so / .dll)
+        // Si el release no la incluye, EnsureNativeLib crea symlink como fallback en Linux
+        await ctx.GitHub.DownloadNativeSqliteLibAsync(version);
         EnsureNativeLib(PathHelper.EngramBinDir);
 
         // Registrar en config

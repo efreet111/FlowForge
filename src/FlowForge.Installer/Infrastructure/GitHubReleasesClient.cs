@@ -65,6 +65,27 @@ public sealed class GitHubReleasesClient(HttpClient http, InstallerLogger log)
         return await DownloadAndVerifyAsync(url, assetName, EngramRepo, version, destPath, ct);
     }
 
+    /// <summary>
+    /// Descarga la librería nativa SQLite (e_sqlite3.so / e_sqlite3.dll)
+    /// desde GitHub Releases. Retorna true si ya existe o se descargó correctamente.
+    /// </summary>
+    public async Task<bool> DownloadNativeSqliteLibAsync(string version, CancellationToken ct = default)
+    {
+        var assetName = OperatingSystem.IsWindows() ? "e_sqlite3.dll" : "e_sqlite3.so";
+        var destPath = Path.Combine(PathHelper.EngramBinDir, assetName);
+
+        // Si ya existe (release anterior o symlink), no descargar
+        if (File.Exists(destPath))
+        {
+            log.Info($"Native lib ya existe: {destPath}");
+            return true;
+        }
+
+        var url = $"https://github.com/{EngramRepo}/releases/download/{version}/{assetName}";
+        log.Info($"Descargando native lib: {assetName}");
+        return await DownloadAndVerifyAsync(url, assetName, EngramRepo, version, destPath, ct);
+    }
+
     static string GetEngramAssetName() =>
         OperatingSystem.IsWindows() ? "engram-win-x64.exe" : "engram-linux-x64";
 
