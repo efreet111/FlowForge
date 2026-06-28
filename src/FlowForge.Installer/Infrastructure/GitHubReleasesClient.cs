@@ -71,7 +71,7 @@ public sealed class GitHubReleasesClient(HttpClient http, InstallerLogger log)
     /// </summary>
     public async Task<bool> DownloadNativeSqliteLibAsync(string version, CancellationToken ct = default)
     {
-        var assetName = OperatingSystem.IsWindows() ? "e_sqlite3.dll" : "e_sqlite3.so";
+        var assetName = OperatingSystem.IsWindows() ? "e_sqlite3.dll" : "libe_sqlite3.so";
         var destPath = Path.Combine(PathHelper.EngramBinDir, assetName);
 
         // Si ya existe (release anterior o symlink), no descargar

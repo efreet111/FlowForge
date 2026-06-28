@@ -227,10 +227,10 @@ public sealed class EngramModule(InstallerContext ctx)
         {
             if (OperatingSystem.IsLinux())
             {
-                var nativeLib = Path.Combine(binDir, "e_sqlite3.so");
+                var nativeLib = Path.Combine(binDir, "libe_sqlite3.so");
                 if (File.Exists(nativeLib))
                 {
-                    AnsiConsole.MarkupLine($"  [green]✓[/] e_sqlite3.so encontrado");
+                    AnsiConsole.MarkupLine($"  [green]✓[/] libe_sqlite3.so encontrado");
                     return;
                 }
 
@@ -249,7 +249,7 @@ public sealed class EngramModule(InstallerContext ctx)
                 if (systemLib != null)
                 {
                     File.CreateSymbolicLink(nativeLib, systemLib);
-                    AnsiConsole.MarkupLine($"  [green]✓[/] Symlink creado: e_sqlite3.so → {systemLib}");
+                    AnsiConsole.MarkupLine($"  [green]✓[/] Symlink creado: libe_sqlite3.so → {systemLib}");
                 }
                 else
                 {
@@ -270,7 +270,7 @@ public sealed class EngramModule(InstallerContext ctx)
         catch (Exception ex)
         {
             ctx.Log.Error($"EnsureNativeLib: {ex.Message}");
-            AnsiConsole.MarkupLine($"  [yellow]⚠[/] No se pudo verificar e_sqlite3: {ex.Message}");
+            AnsiConsole.MarkupLine($"  [yellow]⚠[/] No se pudo verificar lib nativa SQLite: {ex.Message}");
         }
     }
 }
