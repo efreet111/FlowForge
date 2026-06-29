@@ -9,14 +9,23 @@ namespace FlowForge.Installer.Commands;
 /// <summary>
 /// flowforge install — wizard interactivo multi-componente.
 /// Modo headless (--yes) usa defaults sin requerir TTY interactivo.
+/// Flags --no-engram / --no-flowforge permiten omitir componentes.
 /// </summary>
 public sealed class InstallCommand(InstallerContext ctx)
 {
     const string CurrentVersion = "0.1.0-alpha.6";
 
-    /// <param name="yes">-y / --yes: omitir confirmaciones (non-interactive)</param>
+    /// <summary>
+    /// -y / --yes: omitir confirmaciones (non-interactive)
+    /// --no-engram: omitir instalación de engram-dotnet
+    /// --no-flowforge: omitir instalación de skills FlowForge
+    /// </summary>
     [Command("")]
-    public async Task RunAsync(bool yes = false)
+    public async Task RunAsync(
+        bool yes = false,
+        bool noEngram = false,
+        bool noFlowforge = false
+    )
     {
         // Detect true headless: --yes flag OR non-interactive console (CI/CD, scripts)
         var isHeadless = yes || !Environment.UserInteractive;
@@ -50,12 +59,20 @@ public sealed class InstallCommand(InstallerContext ctx)
             // ── Headless mode: use sensible defaults ───────────────────────────
             AnsiConsole.MarkupLine("[bold]Modo no-interactivo (--yes)[/]");
             AnsiConsole.MarkupLine("[grey]Usando defaults — ambos componentes, IDEs auto-detectados[/]");
+            if (noEngram)    AnsiConsole.MarkupLine("[grey]  --no-engram: omitiendo engram-dotnet[/]");
+            if (noFlowforge) AnsiConsole.MarkupLine("[grey]  --no-flowforge: omitiendo skills FlowForge[/]");
             AnsiConsole.WriteLine();
 
-            installEngram    = true;
-            installFlowForge = true;
+            installEngram    = !noEngram;
+            installFlowForge = !noFlowforge;
             engramMode       = DetectSyncMode();
             selectedIdes     = DetectInstalledIdes();
+
+            if (!installEngram && !installFlowforge)
+            {
+                AnsiConsole.MarkupLine("[red]Error: --no-engram y --no-flowforge juntos no instalan nada.[/]");
+                return;
+            }
         }
         else
         {
