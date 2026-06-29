@@ -56,9 +56,12 @@ jobs:
         shell: bash
         run: ${{ matrix.binary }} --version
 
-      - name: Smoke — doctor (sin engram instalado)
+      - name: Smoke — doctor (sin engram instalado, exit != 0 es esperado)
         shell: bash
-        run: ${{ matrix.binary }} doctor || true
+        run: |
+          OUTPUT=$(${{ matrix.binary }} doctor 2>&1 || true)
+          echo "$OUTPUT"
+          echo "$OUTPUT" | grep -qi "FlowForge Doctor" || (echo "FAIL: doctor no arrancó"; exit 1)
 
   # ── Happy path completo (Linux) ─────────────────────────────────────────────
   install-linux:
@@ -242,9 +245,15 @@ jobs:
       - name: Verificar — flowforge doctor (Windows)
         shell: pwsh
         run: |
+          # En CI el binario está en .\out\ no en la ruta canónica de install,
+          # por eso "flowforge binary" falla — es esperado. Solo verificamos
+          # que el comando corra y muestre la tabla.
           $output = .\out\flowforge.exe doctor 2>&1 | Out-String
+          $exitCode = $LASTEXITCODE
           Write-Output $output
-          # En Windows puede no tener engram en PATH aún — WARN es aceptable
-          if ($output -match "Todo OK" -or $output -match "OK") {
-            Write-Output "PASS: doctor completó"
+          if ($output -match "FlowForge Doctor" -and $output -match "Check") {
+            Write-Output "PASS: doctor muestra tabla de diagnóstico"
+          } else {
+            Write-Error "FAIL: doctor no mostró tabla esperada"
+            exit 1
           }

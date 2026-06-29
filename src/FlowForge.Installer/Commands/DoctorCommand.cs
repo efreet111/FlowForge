@@ -88,7 +88,13 @@ public sealed class DoctorCommand(InstallerContext ctx)
         var path = Environment.GetEnvironmentVariable("PATH") ?? string.Empty;
         var inPath = path.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
             .Any(p => string.Equals(p.TrimEnd('/','\\'), dir.TrimEnd('/','\\'), OperatingSystem.IsWindows() ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal));
-        var hint = inPath ? null : "Agregá a PATH: export PATH=\"$HOME/.local/bin:$PATH\"";
+        string? hint = null;
+        if (!inPath)
+        {
+            hint = OperatingSystem.IsWindows()
+                ? $"Agregá a PATH (PowerShell): $env:PATH += ';{dir}'"
+                : $"Agregá a PATH: export PATH=\"{dir}:$PATH\"";
+        }
         return (inPath, hint);
     }
 
