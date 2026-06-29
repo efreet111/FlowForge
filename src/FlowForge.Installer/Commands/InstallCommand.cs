@@ -125,14 +125,16 @@ public sealed class InstallCommand(InstallerContext ctx)
             }
         }
 
-        // ── 4. Resumen + confirmación ─────────────────────────────────────────
+        // ── 4. Resumen + confirmación (solo en modo interactivo) ───────────────
         AnsiConsole.WriteLine();
         AnsiConsole.Write(new Rule("[bold]Resumen[/]").LeftJustified());
         if (installEngram)    AnsiConsole.MarkupLine($"  [green]●[/] engram-dotnet  (modo: {engramMode})");
         if (installFlowForge) AnsiConsole.MarkupLine($"  [green]●[/] FlowForge      (IDEs: {string.Join(", ", selectedIdes)})");
         AnsiConsole.WriteLine();
 
-        if (!yes && !AnsiConsole.Confirm("¿Proceder con la instalación?", defaultValue: true))
+        // Solo pedir confirmación en modo interactivo
+        // En headless mode: ya sabemos los defaults, no preguntar
+        if (!isHeadless && !AnsiConsole.Confirm("¿Proceder con la instalación?", defaultValue: true))
         {
             AnsiConsole.MarkupLine("[yellow]Instalación cancelada.[/]");
             return;
