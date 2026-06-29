@@ -28,8 +28,16 @@ VerbositySettings CreateVerbositySettings(bool verbose) => new(verbose);
 // ── Bootstrap services ───────────────────────────────────────────────────────
 var log      = InstallerLogger.Default;
 var store    = ConfigStore.Default;
-var http     = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
-var gh       = new GitHubReleasesClient(http, log);
+
+var apiTimeoutSeconds = int.TryParse(
+    Environment.GetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS"),
+    out var apiSecs) ? apiSecs : 30;
+var downloadTimeoutSeconds = int.TryParse(
+    Environment.GetEnvironmentVariable("FLOWFORGE_DOWNLOAD_TIMEOUT_SECONDS"),
+    out var dlSecs) ? dlSecs : 300;
+
+var http     = new HttpClient { Timeout = TimeSpan.FromSeconds(apiTimeoutSeconds) };
+var gh       = new GitHubReleasesClient(http, log, downloadTimeoutSeconds);
 var manifest = new ManifestClient(http, log);
 var ctx      = new InstallerContext(log, store, gh, manifest);
 
@@ -51,6 +59,9 @@ app.Add("", ([FromServices] InstallerContext c) =>
 // flowforge install
 app.Add<InstallCommand>("install");
 
+// flowforge doctor
+app.Add<DoctorCommand>("doctor");
+
 // flowforge init [path]
 app.Add<InitCommand>("init");
 
@@ -70,7 +81,7 @@ var filteredArgs = args.Where(a => a != "--verbose" && a != "-v").ToArray();
 // CAF lanza NRE internamente para comandos desconocidos - prevenimos ese camino
 // Solo validar argumentos que NO son opciones (no empiezan con -)
 var firstArg = filteredArgs.FirstOrDefault();
-var knownCommands = new[] { "", "install", "init", "update", "uninstall", "config" };
+var knownCommands = new[] { "", "install", "doctor", "init", "update", "uninstall", "config" };
 if (firstArg != null && !firstArg.StartsWith("-") && !knownCommands.Contains(firstArg))
 {
     // Comando desconocido: en modo verbose mostrar stack trace

@@ -171,6 +171,55 @@ Shared orchestrator contract: [`ide/shared/workflow-orchestrator-parity.md`](ide
 | [`docs/04-roadmap.md`](docs/04-roadmap.md) | Roadmap + release gate |
 | [`docs/I18N.md`](docs/I18N.md) | Translation + doc audit tracker |
 
+## Troubleshooting
+
+### MCP fails with "SQLite Error 14: unable to open database file"
+
+Causa probable: `flowforge install` se ejecutó con `sudo`, así que el directorio `~/.engram` y los binarios quedaron con owner `root:root`. SQLite no puede abrir `~/.engram/engram.db` si el usuario actual no tiene permisos.
+
+**Solución rápida:**
+
+```bash
+sudo chown -R $USER:$USER ~/.engram ~/.local/bin/engram ~/.local/bin/libe_sqlite3.so ~/.local/bin/flowforge
+```
+
+Luego hacé **Reload Window** en Cursor o VS Code para reiniciar el MCP y volver a cargar los agentes.
+
+### Verify the installation with `flowforge doctor`
+
+```bash
+flowforge doctor
+```
+
+El comando revisa 5 elementos esenciales (binarios, PATH, MCP y conectividad GitHub) y muestra una tabla con [✓] y [✗]. Si algo falla, el detalle sugiere el próximo paso.
+
+Sample output:
+
+```
+Check               Estado     Detalle
+flowforge binary    ✓ OK
+engram binary       ✓ OK
+engram en PATH      ✓ OK
+MCP configurado     ✓ OK
+GitHub reachable    ✗ FAIL     Sin conexión: timeout
+```
+
+Exit codes:
+
+- `0` — all checks pass.
+- `1` — hard error (exception while gathering data).
+- `2` — partial failure (some checks failed).
+
+### Installation timeouts are configurable
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `FLOWFORGE_API_TIMEOUT_SECONDS` | `30` | Timeout for GitHub API calls (version discovery, manifest, release metadata). |
+| `FLOWFORGE_DOWNLOAD_TIMEOUT_SECONDS` | `300` | Timeout for downloading release assets (engram binary, native libs). |
+| `FLOWFORGE_YES` | — | Set this to force `flowforge install` into headless mode — equivalent to `--yes`, even when a TTY is detected (useful in CI, Docker, scripts). |
+
+The installer and the `flowforge` CLI respect these env vars automatically; bump them when the network is slow or when running inside automation that pipes the script.
+
 ## Contributing
 
 See [`CONTRIBUTING.md`](CONTRIBUTING.md). Security: [`SECURITY.md`](SECURITY.md).

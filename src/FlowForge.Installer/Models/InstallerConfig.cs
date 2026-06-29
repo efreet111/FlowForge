@@ -101,13 +101,16 @@ public sealed class McpOpenCodeConfig
 public sealed class McpOpenCodeEntry
 {
     [JsonPropertyName("type")]
-    public string Type { get; set; } = "stdio";
+    public string Type { get; set; } = "local";
 
     [JsonPropertyName("command")]
     public List<string> Command { get; set; } = [];
 
     [JsonPropertyName("environment")]
     public Dictionary<string, string> Environment { get; set; } = [];
+
+    [JsonPropertyName("enabled")]
+    public bool Enabled { get; set; } = true;
 }
 
 [JsonSerializable(typeof(McpCursorConfig))]

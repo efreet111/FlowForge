@@ -33,14 +33,16 @@ public sealed class InstallCommand(InstallerContext ctx)
         bool noFlowforge = false
     )
     {
+        AnsiConsole.Write(new Rule($"[bold blue]FlowForge Stack Installer[/] [grey]v{FlowForgeModule.InstallerVersion}[/]").LeftJustified());
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine("[grey]Conectando a GitHub...[/]");
+        AnsiConsole.WriteLine();
+
         // Detect true headless: --yes flag OR no interactive console (CI/CD, scripts)
         // Use Spectre.Console's capability check — more reliable than Environment.UserInteractive
         // because it correctly detects whether prompts can actually be rendered.
         var canShowPrompts = AnsiConsole.Profile.Capabilities.Interactive;
         var isHeadless = yes || !canShowPrompts;
-
-        AnsiConsole.Write(new Rule("[bold blue]FlowForge Stack Installer v0.1.0-alpha.6[/]").LeftJustified());
-        AnsiConsole.WriteLine();
 
         // ── Verificar compatibilidad con manifest remoto ───────────────────────
         var remoteManifest = await ctx.Manifest.FetchAsync();
@@ -180,6 +182,14 @@ public sealed class InstallCommand(InstallerContext ctx)
         AnsiConsole.MarkupLine("[bold]Próximo paso — inicializar un proyecto:[/]");
         AnsiConsole.MarkupLine("  [blue]flowforge init[/] [grey]<ruta-del-proyecto>[/]");
         AnsiConsole.MarkupLine("  [grey]Crea AGENTS.md, .flowforge.json, docs/ y packs IDE para ese repositorio.[/]");
+
+        var sudoUser = Environment.GetEnvironmentVariable("SUDO_USER");
+        if (sudoUser != null && Environment.GetEnvironmentVariable("USER") == "root")
+        {
+            AnsiConsole.MarkupLine("[yellow]⚠[/] Instalado como root. Si el MCP falla, ejecutá:");
+            AnsiConsole.MarkupLine($"[grey]  sudo chown -R {sudoUser}:{sudoUser} ~/.engram ~/.local/bin/engram ~/.local/bin/libe_sqlite3.so ~/.local/bin/flowforge[/]");
+        }
+
         ctx.Log.Info("install: completado");
     }
 

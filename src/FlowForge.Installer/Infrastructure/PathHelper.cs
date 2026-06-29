@@ -36,6 +36,22 @@ public static class PathHelper
             ? Path.Combine(EngramBinDir, "engram.exe")
             : Path.Combine(EngramBinDir, "engram");
 
+    /// <summary>Librería SQLite nativa instalada junto a los binarios.</summary>
+    public static string NativeSqliteLib =>
+        OperatingSystem.IsWindows()
+            ? Path.Combine(InstallerBinDir, "e_sqlite3.dll")
+            : Path.Combine(InstallerBinDir, "libe_sqlite3.so");
+
+    /// <summary>Conjunto de rutas que deben pertenecer al usuario en caso de sudo.</summary>
+    public static IEnumerable<string> OwnershipTargets =>
+        new[]
+        {
+            InstallerBinary,
+            EngramBinary,
+            NativeSqliteLib,
+            EngramDir,
+        };
+
     /// <summary>Rutas de config MCP por editor.</summary>
     public static IdeConfigPaths GetIdePaths(string homeDir) => new(homeDir);
 

@@ -207,3 +207,9 @@ flowforge install --yes
 ### Release
 
 [engram-dotnet v1.2.1](https://github.com/efreet111/engram-dotnet/releases/tag/v1.2.1) — 8 assets with SHA-256 checksums.
+
+## Follow-up (2026-06-29)
+
+- Added configurable timeouts via `FLOWFORGE_API_TIMEOUT_SECONDS` / `FLOWFORGE_DOWNLOAD_TIMEOUT_SECONDS` plus clearer error messaging when GitHub is slow.
+- Signed the installer with a `flowforge doctor` command (and documentation) so users can self-diagnose GitHub connectivity, MCP config, and binary availability.
+- Hardened the Linux bootstrap (`install.sh`) with `FLOWFORGE_YES` checks, download progress/spinner, diagnostics (`--diagnose`), and sudo-friendly chown hints that align with the CLI warning.

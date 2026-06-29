@@ -8,10 +8,32 @@ namespace FlowForge.Installer.Infrastructure;
 /// <summary>
 /// Descarga binarios desde GitHub Releases y verifica SHA-256.
 /// </summary>
-public sealed class GitHubReleasesClient(HttpClient http, InstallerLogger log)
+public sealed class GitHubReleasesClient
 {
     const string EngramRepo    = "efreet111/engram-dotnet";
     const string FlowForgeRepo = "efreet111/FlowForge";
+
+    readonly HttpClient _http;
+    readonly InstallerLogger _log;
+    readonly int _downloadTimeoutSeconds;
+
+    /// <summary>
+    /// Inicializa el cliente con timeouts configurables.
+    /// </summary>
+    public GitHubReleasesClient(HttpClient http, InstallerLogger log, int downloadTimeoutSeconds = 300)
+    {
+        _http = http;
+        _log  = log;
+        var apiTimeoutSeconds = ParseTimeoutEnv("FLOWFORGE_API_TIMEOUT_SECONDS", 30);
+        _http.Timeout = TimeSpan.FromSeconds(apiTimeoutSeconds);
+        _downloadTimeoutSeconds = Math.Max(1, ParseTimeoutEnv("FLOWFORGE_DOWNLOAD_TIMEOUT_SECONDS", downloadTimeoutSeconds));
+    }
+
+    static int ParseTimeoutEnv(string envName, int fallback)
+    {
+        var raw = Environment.GetEnvironmentVariable(envName);
+        return int.TryParse(raw, out var value) && value > 0 ? value : fallback;
+    }
 
     /// <summary>
     /// Obtiene el tag de la última release estable de un repo.
@@ -28,7 +50,7 @@ public sealed class GitHubReleasesClient(HttpClient http, InstallerLogger log)
             req.Headers.Add("User-Agent", "flowforge-installer/0.1.0");
             req.Headers.Add("Accept", "application/vnd.github+json");
 
-            using var resp = await http.SendAsync(req, ct);
+            using var resp = await _http.SendAsync(req, ct);
             resp.EnsureSuccessStatusCode();
 
             var content = await resp.Content.ReadAsStringAsync(ct);
@@ -41,16 +63,21 @@ public sealed class GitHubReleasesClient(HttpClient http, InstallerLogger log)
             else
             {
                 var releases = JsonSerializer.Deserialize(content, GitHubJsonContext.Default.GitHubReleaseArray);
-                // beta: primer pre-release; nightly: primer pre-release con "nightly" en tag
                 var match = channel == "nightly"
                     ? releases?.FirstOrDefault(r => r.Prerelease && r.TagName.Contains("nightly"))
                     : releases?.FirstOrDefault(r => r.Prerelease);
                 return match?.TagName;
             }
         }
+        catch (TaskCanceledException ex) when (!ct.IsCancellationRequested)
+        {
+            var timeoutSec = _http.Timeout.TotalSeconds;
+            _log.Error($"GitHub API timeout tras {timeoutSec} segundos.");
+            throw new TimeoutException($"GitHub API request timed out after {timeoutSec} seconds.", ex);
+        }
         catch (Exception ex)
         {
-            log.Warn($"GitHubReleasesClient.GetLatestVersion: {ex.Message}");
+            _log.Warn($"GitHubReleasesClient.GetLatestVersion: {ex.Message}");
             return null;
         }
     }
@@ -67,22 +94,21 @@ public sealed class GitHubReleasesClient(HttpClient http, InstallerLogger log)
 
     /// <summary>
     /// Descarga la librería nativa SQLite (e_sqlite3.so / e_sqlite3.dll)
-    /// desde GitHub Releases. Retorna true si ya existe o se descargó correctamente.
+    /// desde GitHub Releases.
     /// </summary>
     public async Task<bool> DownloadNativeSqliteLibAsync(string version, CancellationToken ct = default)
     {
         var assetName = OperatingSystem.IsWindows() ? "e_sqlite3.dll" : "libe_sqlite3.so";
         var destPath = Path.Combine(PathHelper.EngramBinDir, assetName);
 
-        // Si ya existe (release anterior o symlink), no descargar
         if (File.Exists(destPath))
         {
-            log.Info($"Native lib ya existe: {destPath}");
+            _log.Info($"Native lib ya existe: {destPath}");
             return true;
         }
 
         var url = $"https://github.com/{EngramRepo}/releases/download/{version}/{assetName}";
-        log.Info($"Descargando native lib: {assetName}");
+        _log.Info($"Descargando native lib: {assetName}");
         return await DownloadAndVerifyAsync(url, assetName, EngramRepo, version, destPath, ct);
     }
 
@@ -96,41 +122,44 @@ public sealed class GitHubReleasesClient(HttpClient http, InstallerLogger log)
         string url, string assetName, string repo, string version,
         string destPath, CancellationToken ct)
     {
-        log.Info($"Download: {url}");
+        _log.Info($"Download: {url}");
+        var tmpPath = destPath + ".tmp";
         try
         {
             var dir = Path.GetDirectoryName(destPath);
             if (dir != null) Directory.CreateDirectory(dir);
 
-            var tmpPath = destPath + ".tmp";
             using var req = new HttpRequestMessage(HttpMethod.Get, url);
             req.Headers.Add("User-Agent", "flowforge-installer/0.1.0");
 
-            using var resp = await http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+            using var downloadCts = new CancellationTokenSource(TimeSpan.FromSeconds(_downloadTimeoutSeconds));
+            using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(ct, downloadCts.Token);
+            var linkedToken = linkedCts.Token;
+
+            using var resp = await _http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, linkedToken);
             resp.EnsureSuccessStatusCode();
 
-            await using (var stream = await resp.Content.ReadAsStreamAsync(ct))
+            await using (var stream = await resp.Content.ReadAsStreamAsync(linkedToken))
             await using (var file = File.Create(tmpPath))
             {
-                await stream.CopyToAsync(file, ct);
+                await stream.CopyToAsync(file, linkedToken);
             }
 
-            // Verify SHA-256 si hay checksum disponible
-            var expectedSha = await FetchChecksumAsync(repo, version, assetName, ct);
+            var expectedSha = await FetchChecksumAsync(repo, version, assetName, linkedToken);
             if (expectedSha != null)
             {
                 var actualSha = ComputeSha256(tmpPath);
                 if (!string.Equals(actualSha, expectedSha, StringComparison.OrdinalIgnoreCase))
                 {
-                    log.Error($"Checksum mismatch para {assetName}: esperado {expectedSha}, obtenido {actualSha}");
-                    File.Delete(tmpPath);
+                    _log.Error($"Checksum mismatch para {assetName}: esperado {expectedSha}, obtenido {actualSha}");
+                    SafeDelete(tmpPath);
                     return false;
                 }
-                log.Info($"SHA-256 OK: {assetName}");
+                _log.Info($"SHA-256 OK: {assetName}");
             }
             else
             {
-                log.Warn($"No se encontró checksum para {assetName} — descarga sin verificación");
+                _log.Warn($"No se encontró checksum para {assetName} — descarga sin verificación");
             }
 
             File.Move(tmpPath, destPath, overwrite: true);
@@ -141,34 +170,49 @@ public sealed class GitHubReleasesClient(HttpClient http, InstallerLogger log)
                     UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
                     UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
 
-            log.Info($"Instalado: {destPath}");
+            _log.Info($"Instalado: {destPath}");
             return true;
+        }
+        catch (OperationCanceledException ex)
+        {
+            _log.Error($"DownloadAndVerify timeout: {ex.Message}");
+            SafeDelete(tmpPath);
+            return false;
         }
         catch (Exception ex)
         {
-            log.Error($"DownloadAndVerify error: {ex.Message}");
+            _log.Error($"DownloadAndVerify error: {ex.Message}");
+            SafeDelete(tmpPath);
             return false;
         }
     }
 
     async Task<string?> FetchChecksumAsync(string repo, string version, string assetName, CancellationToken ct)
     {
-        // Convención: archivo {assetName}.sha256 en el release
         var url = $"https://github.com/{repo}/releases/download/{version}/{assetName}.sha256";
         try
         {
             using var req = new HttpRequestMessage(HttpMethod.Get, url);
             req.Headers.Add("User-Agent", "flowforge-installer/0.1.0");
-            using var resp = await http.SendAsync(req, ct);
+            using var resp = await _http.SendAsync(req, ct);
             if (!resp.IsSuccessStatusCode) return null;
             var content = await resp.Content.ReadAsStringAsync(ct);
-            // Formato: "<sha256>  filename" o solo "<sha256>"
-            return content.Split([' ', '\t', '\n', '\r'], StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
+            return content.Split(new char[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
         }
         catch
         {
             return null;
         }
+    }
+
+    static void SafeDelete(string path)
+    {
+        try
+        {
+            if (File.Exists(path))
+                File.Delete(path);
+        }
+        catch { }
     }
 
     static string ComputeSha256(string filePath)

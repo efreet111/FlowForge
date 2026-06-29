@@ -149,6 +149,53 @@ Detalle: [`ide/README.md`](ide/README.md)
 | [`docs/18-replicable-demo-definition.md`](docs/18-replicable-demo-definition.md) | Runbook replicable (sin repo demo obligatorio) |
 | [`docs/04-roadmap.md`](docs/04-roadmap.md) | Roadmap y release gate |
 
+## Solución de problemas
+
+### MCP falla con “SQLite Error 14: unable to open database file”
+
+Probable causa: `flowforge install` se ejecutó con `sudo` y `~/.engram` / binarios quedaron con owner `root:root`. SQLite no puede abrir `~/.engram/engram.db` si el usuario actual no tiene permisos de escritura.
+
+**Solución recomendada:**
+
+```bash
+sudo chown -R $USER:$USER ~/.engram ~/.local/bin/engram ~/.local/bin/libe_sqlite3.so ~/.local/bin/flowforge
+```
+
+Luego hacé **Reload Window** en tu IDE para reiniciar el MCP y recargar los agentes FlowForge.
+
+### Verificar la instalación con `flowforge doctor`
+
+```bash
+flowforge doctor
+```
+
+El comando ejecuta 5 chequeos clave (binarios, PATH, MCP y conectividad GitHub) y genera una tabla con [✓] y [✗]. Si algo falla, el detalle indica el siguiente paso.
+
+```
+Check               Estado     Detalle
+flowforge binary    ✓ OK
+engram binary       ✓ OK
+engram en PATH      ✓ OK
+MCP configurado     ✓ OK
+GitHub reachable    ✗ FAIL     Sin conexión: timeout
+```
+
+Códigos de salida:
+
+- `0` — todo pasó.
+- `1` — error grave (excepción durante la inspección).
+- `2` — falla parcial (al menos un chequeo falló).
+
+### Timeouts de instalación configurables
+
+| Variable | Default | Descripción |
+|----------|---------|-------------|
+| `FLOWFORGE_API_TIMEOUT_SECONDS` | `30` | Timeout para llamadas a la API de GitHub (descubrimiento de versiones, manifest). |
+| `FLOWFORGE_DOWNLOAD_TIMEOUT_SECONDS` | `300` | Timeout para descargas de assets (engram, librerías nativas). |
+| `FLOWFORGE_YES` | — | Si está definida, `flowforge install` corre en modo no interactivo (como `--yes`) incluso si detecta TTY; útil en CI/Docker/scripts. |
+
+El instalador y el CLI respetan estas variables automáticamente: aumentalas cuando la red sea lenta o estés ejecutando el script piped.
+
 ## Licencia
 
 MIT — ver [`LICENSE`](LICENSE)

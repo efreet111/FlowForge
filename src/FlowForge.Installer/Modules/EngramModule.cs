@@ -17,20 +17,35 @@ public sealed class EngramModule(InstallerContext ctx)
 
         // Determinar la versión más reciente
         string? version = null;
-        await AnsiConsole.Status()
-            .Spinner(Spinner.Known.Dots)
-            .StartAsync("Buscando última versión...", async _ =>
-            {
-                var cfg = ctx.Store.Load();
-                version = await ctx.GitHub.GetLatestVersionAsync("efreet111/engram-dotnet", cfg.Channel);
-            });
+        try
+        {
+            await AnsiConsole.Status()
+                .Spinner(Spinner.Known.Dots)
+                .StartAsync("Buscando última versión...", async _ =>
+                {
+                    var cfg = ctx.Store.Load();
+                    version = await ctx.GitHub.GetLatestVersionAsync("efreet111/engram-dotnet", cfg.Channel);
+                });
+        }
+        catch (TimeoutException)
+        {
+            AnsiConsole.MarkupLine("[red]✗ GitHub no responde o no hay releases disponibles.[/]");
+            AnsiConsole.MarkupLine("[grey]  Verificá tu conexión a internet.[/]");
+            AnsiConsole.MarkupLine("[grey]  Instalá engram-dotnet manualmente: https://github.com/efreet111/engram-dotnet/releases[/]");
+            AnsiConsole.MarkupLine("[grey]  O configurá: FLOWFORGE_API_TIMEOUT_SECONDS=60 para reintentar con más tiempo.[/]");
+            ctx.Log.Error("EngramModule.Install: no se pudo obtener versión");
+            Environment.Exit(1);
+            return;
+        }
 
         if (version == null)
         {
-            AnsiConsole.MarkupLine("[red]Error: no se pudo obtener la versión de engram-dotnet desde GitHub.[/]");
-            AnsiConsole.MarkupLine("[grey]Verificá tu conexión a internet o instalá manualmente desde:[/]");
-            AnsiConsole.MarkupLine("[grey]https://github.com/efreet111/engram-dotnet/releases[/]");
+            AnsiConsole.MarkupLine("[red]✗ GitHub no responde o no hay releases disponibles.[/]");
+            AnsiConsole.MarkupLine("[grey]  Verificá tu conexión a internet.[/]");
+            AnsiConsole.MarkupLine("[grey]  Instalá engram-dotnet manualmente: https://github.com/efreet111/engram-dotnet/releases[/]");
+            AnsiConsole.MarkupLine("[grey]  O configurá: FLOWFORGE_API_TIMEOUT_SECONDS=60 para reintentar con más tiempo.[/]");
             ctx.Log.Error("EngramModule.Install: no se pudo obtener versión");
+            Environment.Exit(1);
             return;
         }
 
@@ -186,9 +201,11 @@ public sealed class EngramModule(InstallerContext ctx)
             }
 
             // Build engram MCP entry as JsonNode
+            // OpenCode requires "type": "local" (not "stdio") and "enabled": true
             var engramNode = new System.Text.Json.Nodes.JsonObject
             {
-                ["type"]    = "stdio",
+                ["type"]    = "local",
+                ["enabled"] = true,
                 ["command"] = new System.Text.Json.Nodes.JsonArray(
                     PathHelper.EngramBinary, "mcp"),
                 ["environment"] = new System.Text.Json.Nodes.JsonObject()
@@ -252,7 +269,8 @@ public sealed class EngramModule(InstallerContext ctx)
                     {
                         ["engram"] = new McpOpenCodeEntry
                         {
-                            Type        = "stdio",
+                            Type        = "local",
+                            Enabled     = true,
                             Command     = [PathHelper.EngramBinary, "mcp"],
                             Environment = env,
                         }
