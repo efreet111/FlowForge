@@ -245,14 +245,14 @@ jobs:
       - name: Verificar — flowforge doctor (Windows)
         shell: pwsh
         run: |
-          # En CI el binario está en .\out\ no en la ruta canónica de install,
-          # por eso "flowforge binary" falla — es esperado. Solo verificamos
-          # que el comando corra y muestre la tabla.
+          # En CI el binario está en .\out\, no en la ruta canónica de install.
+          # "flowforge binary" y "engram en PATH" fallarán — es esperado.
+          # Solo verificamos que el comando corra y muestre la tabla.
           $output = .\out\flowforge.exe doctor 2>&1 | Out-String
-          $exitCode = $LASTEXITCODE
           Write-Output $output
           if ($output -match "FlowForge Doctor" -and $output -match "Check") {
             Write-Output "PASS: doctor muestra tabla de diagnóstico"
+            exit 0
           } else {
             Write-Error "FAIL: doctor no mostró tabla esperada"
             exit 1
