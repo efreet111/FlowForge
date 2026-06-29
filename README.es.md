@@ -30,9 +30,12 @@ FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños 
 
 ### Stack installer (setup completo) {#stack-installer-setup-completo}
 
-> **Recomendado para la mayoría de usuarios.** Descarga el CLI `flowforge` (binario AOT), verifica SHA-256 y lanza un **wizard interactivo**: elegís engram-dotnet, skills FlowForge, IDEs destino, modo local vs sync, y confirmás. El label `alpha` se refiere al formato binario, no a la estabilidad de la metodología — FlowForge v0.5.0 está probado en producción.
->
-> Luego de este paso, ejecutá **`flowforge init <ruta-del-proyecto>`** para configurar FlowDoc y archivos por proyecto en cada repositorio.
+> **Recomendado para la mayoría de usuarios.** Descarga el CLI `flowforge` (binario AOT), verifica SHA-256 y ejecuta el **wizard de instalación** (`flowforge install --yes`):
+> - Descarga `engram-dotnet` (servidor de memoria persistente)
+> - Instala agentes FlowForge en los IDEs detectados (Cursor, OpenCode, VS Code)
+> - Configura MCP para sync (si `ENGRAM_SERVER_URL` está definido)
+> 
+> Luego de este paso, ejecutá **`flowforge init <ruta-del-proyecto>`** para configurar FlowDoc.
 
 **Linux/macOS:**
 
@@ -47,6 +50,8 @@ iwr -useb "https://raw.githubusercontent.com/efreet111/FlowForge/main/install/in
 powershell -ExecutionPolicy Bypass -File $env:TEMP\flowforge-install.ps1
 ```
 
+> **¿Ya tenés flowforge?** Ejecutá `flowforge install --yes` para reinstalar. Usá `--yes` en CI/CD, Docker o scripts (modo no interactivo).
+>
 > En Windows, `& $env:TEMP\flowforge-install.ps1` suele fallar con *la ejecución de scripts está deshabilitada*. Usá siempre `-ExecutionPolicy Bypass -File` como arriba.
 
 Instala en `%LOCALAPPDATA%\Programs\FlowForge\` (Windows) o `~/.local/bin/flowforge` (Linux/macOS). Distribuido vía [GitHub Releases](https://github.com/efreet111/FlowForge/releases).

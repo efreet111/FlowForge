@@ -10,20 +10,19 @@
 
 FlowForge tiene **dos instaladores** — elegí uno:
 
-| | Stack installer (`install/install.*`) | Instalador IDE (`ide/install.*`) |
+| | Stack installer (`curl \| bash`) | Instalador IDE (`curl \| bash`) |
 |---|--------------------------------------|----------------------------------|
-| **Ideal para** | Setup inicial completo | Solo packs del IDE |
-| **UI** | Wizard interactivo (componentes + IDEs) | Solo log en consola (sin wizard) |
-| **Instala** | CLI `flowforge`, engram-dotnet opcional, skills IDE (global) | Agentes, reglas, comandos `/flow-*` |
-| **Requiere** | Descarga desde GitHub Releases | `git` en PATH (modo remoto clona el repo) |
+| **Instala** | CLI `flowforge` + `engram-dotnet` + agentes IDE | Solo agentes IDE |
+| **Ejecuta wizard** | ✅ Sí (`flowforge install --yes`) | ❌ No |
+| **Ideal para** | Setup inicial, stack completo | Agregar agentes a proyecto existente |
+| **Requiere** | Internet (descarga binarios) | `git` en PATH |
 
-Mismo contenido que [`README.es.md` § Instalación](README.es.md#instalacion).
+> **¿Ya tenés flowforge?** Ejecutá `flowforge install --yes` directamente.
+> Usá `--yes` para modo no interactivo (CI/CD, Docker, scripts).
 
-> **FlowDoc / scaffolding por proyecto** se configura por separado con `flowforge init <ruta>` después de que el Stack installer finalice. Ver [§ Inicializar un proyecto](#inicializar-un-proyecto) más abajo.
+### Instalador de stack (setup completo)
 
-### Instalador de stack (setup completo, v0.1.0-alpha.2+)
-
-Para instalar el stack completo de FlowForge en tu máquina — CLI `flowforge` + backend de memoria `engram-dotnet` + agentes del IDE + estructura FlowDoc.
+Descarga el CLI `flowforge` y ejecuta el wizard automáticamente.
 
 **Linux/macOS:**
 
@@ -38,9 +37,9 @@ iwr -useb "https://raw.githubusercontent.com/efreet111/FlowForge/main/install/in
 powershell -ExecutionPolicy Bypass -File $env:TEMP\flowforge-install.ps1
 ```
 
-### Solo agentes del IDE (liviano)
+### Solo agentes del IDE
 
-Para instalar solo los archivos de agentes del IDE (sin CLI `flowforge`, sin `engram-dotnet`):
+Copia agentes, reglas y comandos `/flow-*` a los IDEs detectados. Sin wizard, sin engram.
 
 **Linux/macOS:**
 

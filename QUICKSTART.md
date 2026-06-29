@@ -10,20 +10,19 @@
 
 FlowForge has **two installers** — pick one:
 
-| | Stack installer (`install/install.*`) | IDE installer (`ide/install.*`) |
+| | Stack installer (`curl \| bash`) | IDE installer (`curl \| bash`) |
 |---|--------------------------------------|----------------------------------|
-| **Best for** | First-time setup | IDE packs only |
-| **UI** | Interactive wizard (pick components + IDEs) | Console log only (no wizard) |
-| **Installs** | `flowforge` CLI, optional engram-dotnet, IDE skills (global) | Agents, rules, `/flow-*` commands |
-| **Requires** | GitHub Releases download | `git` in PATH (remote mode clones repo) |
+| **Installs** | `flowforge` CLI + `engram-dotnet` + IDE agents | IDE agents only |
+| **Runs wizard** | ✅ Yes (`flowforge install --yes`) | ❌ No |
+| **Best for** | First-time setup, full stack | Adding agents to existing project |
+| **Requires** | Internet (downloads binaries) | `git` in PATH |
 
-Same content as [`README.md` § Install](README.md#install).
+> **Already have flowforge?** Run `flowforge install --yes` directly.
+> Use `--yes` for non-interactive mode (CI/CD, Docker, scripts).
 
-> **FlowDoc / per-project scaffolding** is set up separately with `flowforge init <path>` after the Stack installer finishes. See [§ Initialize a project](#initialize-a-project) below.
+### Stack installer (full setup)
 
-### Stack installer (full setup, v0.1.0-alpha.2+)
-
-For installing the complete FlowForge stack on your machine — `flowforge` CLI + `engram-dotnet` memory backend + IDE agents + FlowDoc structure.
+Downloads the `flowforge` CLI, then runs the install wizard automatically.
 
 **Linux/macOS:**
 
@@ -38,9 +37,9 @@ iwr -useb "https://raw.githubusercontent.com/efreet111/FlowForge/main/install/in
 powershell -ExecutionPolicy Bypass -File $env:TEMP\flowforge-install.ps1
 ```
 
-### IDE agents only (lightweight)
+### IDE agents only
 
-For installing just the IDE agent files (no `flowforge` CLI, no engram-dotnet):
+Copies agents, rules, and `/flow-*` commands into detected IDEs. No wizard, no engram.
 
 **Linux/macOS:**
 
