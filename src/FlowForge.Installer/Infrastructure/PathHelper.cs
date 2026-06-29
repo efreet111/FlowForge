@@ -47,6 +47,7 @@ public static class PathHelper
 public sealed class IdeConfigPaths(string home)
 {
     public string Cursor    => Path.Combine(home, ".cursor", "mcp.json");
+    // OpenCode uses opencode.jsonc (or opencode.json). EngramModule merges into the existing file.
     public string OpenCode  => Path.Combine(home, ".config", "opencode", "opencode.json");
     public string VsCode    => Path.Combine(home, ".vscode", "mcp.json");
 

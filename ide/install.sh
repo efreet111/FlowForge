@@ -118,16 +118,28 @@ echo -e "${GREEN}[OK]${NC} Paridad global: $GLOBAL_SHARED"
 compile_cursor_agents
 
 # --- OpenCode ---
+# OpenCode auto-loads agents from ~/.config/opencode/agents/*.md and commands
+# from ~/.config/opencode/commands/*.md. No merge needed — just copy the files.
 if [ -d "${HOME}/.config/opencode" ]; then
   echo -e "${GREEN}[OK] OpenCode detectado${NC}"
-  mkdir -p "${HOME}/.config/opencode/flowforge/shared"
-  cp "$IDE_DIR/opencode/AGENTS.md" "${HOME}/.config/opencode/flowforge/"
-  install_shared "${HOME}/.config/opencode/flowforge/shared"
-  cp "$IDE_DIR/opencode/opencode.flowforge.json" "${HOME}/.config/opencode/"
-  patch_opencode_flowforge_json "${HOME}/.config/opencode/opencode.flowforge.json" "$FLOWFORGE_REPO"
-  echo -e "  ${GREEN}OK${NC} ~/.config/opencode/flowforge/"
-  echo -e "  ${YELLOW}! Merge manual: agent{} de opencode.flowforge.json → opencode.json o opencode.jsonc${NC}"
-  echo -e "  ${YELLOW}! Conserva tus bloques mcp/permission al mergear (no reemplaces todo el archivo)${NC}"
+  mkdir -p "${HOME}/.config/opencode/agents"
+  mkdir -p "${HOME}/.config/opencode/commands"
+  # Copy FlowForge agent markdown files (one per agent)
+  if [ -d "$IDE_DIR/opencode/agents" ]; then
+    cp "$IDE_DIR/opencode/agents/"*.md "${HOME}/.config/opencode/agents/" 2>/dev/null || true
+  fi
+  # Copy commands (if any)
+  if [ -d "$IDE_DIR/opencode/commands" ]; then
+    cp "$IDE_DIR/opencode/commands/"*.md "${HOME}/.config/opencode/commands/" 2>/dev/null || true
+  fi
+  # Clean up old approach: remove ~/.config/opencode/flowforge/ and opencode.flowforge.json
+  if [ -d "${HOME}/.config/opencode/flowforge" ]; then
+    rm -rf "${HOME}/.config/opencode/flowforge"
+  fi
+  if [ -f "${HOME}/.config/opencode/opencode.flowforge.json" ]; then
+    rm -f "${HOME}/.config/opencode/opencode.flowforge.json"
+  fi
+  echo -e "  ${GREEN}OK${NC} ~/.config/opencode/agents/ + commands/"
   echo -e "  ${YELLOW}! Modelos opencode-go/*: configura proveedor + API keys en OpenCode${NC}"
   INSTALLED=1
 fi

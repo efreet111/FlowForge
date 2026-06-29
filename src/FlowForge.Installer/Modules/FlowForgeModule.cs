@@ -68,9 +68,9 @@ public sealed class FlowForgeModule(InstallerContext ctx)
                         existingFiles = [.. Directory.EnumerateFiles(cursorDir, "forge-*.md", SearchOption.TopDirectoryOnly)];
                     break;
                 case "opencode":
-                    var opencodeDir = Path.Combine(home, ".config", "opencode");
-                    if (Directory.Exists(opencodeDir))
-                        existingFiles = [.. Directory.EnumerateFiles(opencodeDir, "forge-*.md", SearchOption.AllDirectories)];
+                    var opencodeAgentsDir = Path.Combine(home, ".config", "opencode", "agents");
+                    if (Directory.Exists(opencodeAgentsDir))
+                        existingFiles = [.. Directory.EnumerateFiles(opencodeAgentsDir, "forge-*.md", SearchOption.TopDirectoryOnly)];
                     break;
                 case "vs code":
                     var vscodeDir = Path.Combine(home, ".vscode", "agents");
@@ -128,28 +128,36 @@ public sealed class FlowForgeModule(InstallerContext ctx)
 
     void InstallOpenCode(string home, string ffRepo)
     {
+        // OpenCode auto-loads agents from ~/.config/opencode/agents/*.md
+        // and commands from ~/.config/opencode/commands/*.md — no merge needed.
         var dest = Path.Combine(home, ".config", "opencode");
-        Directory.CreateDirectory(dest);
+        var agentsDest = Path.Combine(dest, "agents");
+        var commandsDest = Path.Combine(dest, "commands");
+        Directory.CreateDirectory(agentsDest);
+        Directory.CreateDirectory(commandsDest);
 
-        var ideDir = Path.Combine(ffRepo, "ide", "opencode");
-        var ffDest = Path.Combine(dest, "flowforge");
-        Directory.CreateDirectory(ffDest);
+        // Copy agent markdown files (one per FlowForge agent)
+        var ideAgentsSrc = Path.Combine(ffRepo, "ide", "opencode", "agents");
+        CopyGlob(ideAgentsSrc, agentsDest, "*.md");
 
-        CopyGlob(ideDir, ffDest, "*.md");
-        var sharedSrc = Path.Combine(ffRepo, "ide", "shared");
-        if (Directory.Exists(sharedSrc))
-            CopyGlob(sharedSrc, Path.Combine(ffDest, "shared"), "*");
+        // Copy commands (if we have any — currently empty)
+        var ideCommandsSrc = Path.Combine(ffRepo, "ide", "opencode", "commands");
+        if (Directory.Exists(ideCommandsSrc))
+            CopyGlob(ideCommandsSrc, commandsDest, "*.md");
 
-        var ffJsonSrc = Path.Combine(ideDir, "opencode.flowforge.json");
-        var ffJsonDest = Path.Combine(dest, "opencode.flowforge.json");
-        if (File.Exists(ffJsonSrc))
+        // Clean up old approach: remove ~/.config/opencode/flowforge/ and opencode.flowforge.json
+        var oldFfDir = Path.Combine(dest, "flowforge");
+        if (Directory.Exists(oldFfDir))
         {
-            File.Copy(ffJsonSrc, ffJsonDest, overwrite: true);
-            PatchOpenCodeFlowforgeJson(ffJsonDest, ffRepo);
+            try { Directory.Delete(oldFfDir, recursive: true); } catch { /* best-effort */ }
+        }
+        var oldFfJson = Path.Combine(dest, "opencode.flowforge.json");
+        if (File.Exists(oldFfJson))
+        {
+            try { File.Delete(oldFfJson); } catch { /* best-effort */ }
         }
 
-        AnsiConsole.MarkupLine("  [green]✓[/] OpenCode → [grey]~/.config/opencode/flowforge/[/]");
-        AnsiConsole.MarkupLine("  [yellow]![/] Merge manual: agent{} de opencode.flowforge.json → opencode.json");
+        AnsiConsole.MarkupLine($"  [green]✓[/] OpenCode → [grey]~/.config/opencode/agents/ + commands/[/]");
     }
 
     static void InstallVsCode(string home, string ffRepo)

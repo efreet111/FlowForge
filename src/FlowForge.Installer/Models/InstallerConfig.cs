@@ -117,5 +117,6 @@ public sealed class McpOpenCodeEntry
 [JsonSerializable(typeof(Dictionary<string, McpStdioEntry>))]
 [JsonSerializable(typeof(Dictionary<string, McpOpenCodeEntry>))]
 [JsonSerializable(typeof(Dictionary<string, string>))]
+[JsonSerializable(typeof(Dictionary<string, object>))]
 [JsonSerializable(typeof(List<string>))]
 public partial class McpJsonContext : JsonSerializerContext { }

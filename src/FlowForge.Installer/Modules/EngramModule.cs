@@ -124,13 +124,87 @@ public sealed class EngramModule(InstallerContext ctx)
             WriteMcpJson(idePaths.Cursor, user, dataDir, syncEnabled, "cursor");
         }
 
-        // Configurar OpenCode si existe ~/.config/opencode/
+        // OpenCode: merge into existing opencode.jsonc (or create opencode.json)
         if (Directory.Exists(Path.Combine(home, ".config", "opencode")))
         {
-            WriteMcpJson(idePaths.OpenCode, user, dataDir, syncEnabled, "opencode");
+            MergeOpenCodeMcp(Path.Combine(home, ".config", "opencode"),
+                             user, dataDir, syncEnabled);
         }
 
         AnsiConsole.MarkupLine("[grey]  MCP configurado para los IDEs detectados.[/]");
+    }
+
+    /// <summary>
+    /// Merge engram MCP config into the user's opencode.jsonc (or opencode.json).
+    /// Preserves all existing keys (mcp, provider, agent, permission, etc).
+    /// </summary>
+    static void MergeOpenCodeMcp(string opencodeDir, string user, string dataDir, bool syncEnabled)
+    {
+        try
+        {
+            // Prefer .jsonc (user-editable with comments), fall back to .json
+            var configPath = File.Exists(Path.Combine(opencodeDir, "opencode.jsonc"))
+                ? Path.Combine(opencodeDir, "opencode.jsonc")
+                : Path.Combine(opencodeDir, "opencode.json");
+
+            Directory.CreateDirectory(opencodeDir);
+
+            // Parse existing config (may not exist or may be empty)
+            Dictionary<string, object?> cfg = new();
+            if (File.Exists(configPath))
+            {
+                try
+                {
+                    var existing = File.ReadAllText(configPath);
+                    if (!string.IsNullOrWhiteSpace(existing))
+                        cfg = System.Text.Json.JsonSerializer.Deserialize(existing,
+                            McpJsonContext.Default.DictionaryStringObject!) ?? new();
+                }
+                catch
+                {
+                    // Corrupt JSON — start fresh but warn
+                }
+            }
+
+            // Build env dict
+            var env = new Dictionary<string, string>
+            {
+                ["ENGRAM_DATA_DIR"]     = dataDir,
+                ["ENGRAM_USER"]         = user,
+                ["ENGRAM_SYNC_ENABLED"] = syncEnabled.ToString().ToLower(),
+            };
+            if (syncEnabled)
+            {
+                var serverUrl = Environment.GetEnvironmentVariable("ENGRAM_SERVER_URL")
+                                ?? "http://192.168.0.178:7437";
+                env["ENGRAM_SERVER_URL"] = serverUrl;
+            }
+
+            // Build engram MCP entry
+            var engramEntry = new Dictionary<string, object?>
+            {
+                ["type"]    = "stdio",
+                ["command"] = new[] { PathHelper.EngramBinary, "mcp" },
+                ["environment"] = env,
+            };
+
+            // Get or create mcp section
+            if (!cfg.ContainsKey("mcp") || cfg["mcp"] is not Dictionary<string, object?> mcpDict)
+            {
+                mcpDict = new Dictionary<string, object?>();
+                cfg["mcp"] = mcpDict;
+            }
+            mcpDict["engram"] = engramEntry;
+
+            // Serialize back (using source-generated context for AOT)
+            var json = System.Text.Json.JsonSerializer.Serialize(cfg,
+                McpJsonContext.Default.DictionaryStringObject!);
+            File.WriteAllText(configPath, json + Environment.NewLine);
+        }
+        catch
+        {
+            // Non-fatal
+        }
     }
 
     static void WriteMcpJson(string configPath, string user, string dataDir, bool syncEnabled, string format)
