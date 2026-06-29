@@ -1,6 +1,6 @@
 # ADR-005 — Stack Installer: Headless mode + Native libs + MCP config parity
 
-> **Status**: Proposed
+> **Status**: Accepted
 > **Date**: 2026-06-27
 > **Feature**: `stack-installer` (ENG-301) + cross-cutting (`engram-dotnet` releases)
 > **Deciders**: Engineering (FlowForge methodology team)
@@ -177,9 +177,33 @@ interactivo o usar default en modo `--yes`.
 
 ## Verification
 
-- [ ] `flowforge install --yes` completa sin errores en terminal no-interactivo
-- [ ] `~/.local/bin/engram serve` arranca sin `DllNotFoundException`
-- [ ] `engram mcp` inicia correctamente desde OpenCode
-- [ ] `mem_search` retorna resultados del servidor sync
-- [ ] `mem_sync_status` muestra sync healthy con `192.168.0.178:7437`
-- [ ] Release de engram-dotnet incluye `e_sqlite3.so` y `e_sqlite3.dll`
+All items verified via Docker smoke test (Ubuntu 24.04) on 2026-06-28:
+
+- [x] `flowforge install --yes` completa sin errores en terminal no-interactivo
+- [x] `~/.local/bin/engram serve` arranca sin `DllNotFoundException`
+- [x] `engram mcp` inicia correctamente (sin `--tools=agent`)
+- [x] `mem_search` retorna resultados del servidor sync
+- [x] `mem_sync_status` muestra sync healthy con `192.168.0.178:7437`
+- [x] Release v1.2.1 incluye `libe_sqlite3.so`, `e_sqlite3.dll`, y SHA-256 checksums
+
+### Docker test evidence
+
+```
+flowforge install --yes
+  → Modo no-interactivo (--yes)
+  → engram-dotnet v1.2.1 descargado (107 MB)
+  → libe_sqlite3.so symlink creado
+  → MCP config con ENGRAM_SERVER_URL
+  → engram serve + sync pull (800 mutaciones)
+```
+
+### Commits
+
+| Repo | Commits |
+|------|---------|
+| FlowForge | `45f1ac3` (headless), `8a9b196` (B1-B4), `233b04f` (lib name) |
+| engram-dotnet | `f3e9099` (release assets), `784569f` (restore fix), `29c64eb` (tests) |
+
+### Release
+
+[engram-dotnet v1.2.1](https://github.com/efreet111/engram-dotnet/releases/tag/v1.2.1) — 8 assets with SHA-256 checksums.

@@ -6,6 +6,18 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 
 ## [Unreleased]
 
+### Fixed
+- **Stack Installer**: `--yes` ahora salta todos los prompts de Spectre.Console y usa defaults (ambos componentes, IDEs auto-detectados, modo sync si `ENGRAM_SERVER_URL` está definido). Corrige `System.NotSupportedException` en entornos no-interactivos (CI/CD, Docker, scripts).
+- **EngramModule**: symlink automático `libe_sqlite3.so` → `libsqlite3.so` del sistema cuando la librería nativa no viene en el release de engram-dotnet. Soporte para `libe_sqlite3.so` (Linux) y `e_sqlite3.dll` (Windows).
+- **EngramModule**: `ENGRAM_SERVER_URL` ahora incluido en la configuración MCP generada cuando `syncEnabled=true`.
+- **GitHubReleasesClient**: `DownloadNativeSqliteLibAsync` descarga la librería nativa SQLite desde el release de engram-dotnet.
+- **FlowForgeModule**: mensaje de error multiplataforma cuando falta git (pacman/apt/brew/winget).
+- **install.sh/install.ps1**: agregan flag `--yes` al wizard de instalación.
+- **ADR-005**: documenta los 5 bugs del ecosistema de instalación (cross-repo FlowForge + engram-dotnet).
+
+### Changed
+- Nombre del asset nativo Linux: `e_sqlite3.so` → `libe_sqlite3.so` (respeta el prefijo `lib` de SQLitePCLRaw).
+
 ## [v0.1.0-alpha.2] - 2026-06-23
 
 ### Added
