@@ -1,3 +1,4 @@
+using System.Reflection;
 using ConsoleAppFramework;
 using FlowForge.Installer.Infrastructure;
 using FlowForge.Installer.Models;
@@ -13,7 +14,12 @@ namespace FlowForge.Installer.Commands;
 /// </summary>
 public sealed class InstallCommand(InstallerContext ctx)
 {
-    const string CurrentVersion = "0.1.0-alpha.6";
+    // Read version from assembly metadata (set by csproj <Version> or -p:Version= during publish).
+    // Falls back to "dev" if not available.
+    static readonly string CurrentVersion =
+        typeof(InstallCommand).Assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion
+        ?? typeof(InstallCommand).Assembly.GetName().Version?.ToString()
+        ?? "dev";
 
     /// <summary>
     /// -y / --yes: omitir confirmaciones (non-interactive)

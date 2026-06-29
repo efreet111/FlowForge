@@ -42,12 +42,20 @@ jobs:
       - name: Publish ${{ matrix.target }} (AOT)
         shell: bash
         run: |
+          # Strip leading 'v' from tag (NuGet requires semver without prefix)
+          VERSION="${GITHUB_REF_NAME#v}"
+          # AssemblyVersion requires strict numeric format (major.minor.build.revision)
+          # Strip pre-release suffix like "-alpha.10" for AssemblyVersion
+          ASSEMBLY_VERSION="${VERSION%%-*}.0.0.0"
           dotnet publish src/FlowForge.Installer \
             -c Release \
             -r ${{ matrix.target }} \
             --self-contained \
             -p:PublishAot=true \
             -p:DebugType=none \
+            -p:Version="$VERSION" \
+            -p:AssemblyVersion="$ASSEMBLY_VERSION" \
+            -p:InformationalVersion="$VERSION" \
             -o out
 
       - name: Rename binary
