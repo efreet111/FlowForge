@@ -114,6 +114,20 @@ if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
 fi
 
 # ── Lanzar wizard ─────────────────────────────────────────────────────────────
+# Reconectar stdin al TTY del usuario (curl consumió stdin original).
+# Esto permite que el wizard interactivo lea keystrokes del usuario.
+if [ -t 1 ] && [ -e /dev/tty ]; then
+  exec </dev/tty 2>/dev/null || true
+fi
+
+# Si hay TTY disponible (terminal interactivo), lanzar el wizard interactivo.
+# Si NO hay TTY (CI/Docker sin -t), pasar --yes para headless mode.
 echo ""
 echo "Iniciando wizard de instalación..."
-"${INSTALL_DIR}/flowforge" install --yes
+if [ -t 0 ]; then
+  # TTY disponible — modo interactivo (wizard preguntará qué instalar)
+  "${INSTALL_DIR}/flowforge" install
+else
+  # Sin TTY — modo headless con defaults (ambos componentes)
+  "${INSTALL_DIR}/flowforge" install --yes
+fi

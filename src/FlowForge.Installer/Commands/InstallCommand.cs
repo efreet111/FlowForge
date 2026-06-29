@@ -27,8 +27,11 @@ public sealed class InstallCommand(InstallerContext ctx)
         bool noFlowforge = false
     )
     {
-        // Detect true headless: --yes flag OR non-interactive console (CI/CD, scripts)
-        var isHeadless = yes || !Environment.UserInteractive;
+        // Detect true headless: --yes flag OR no interactive console (CI/CD, scripts)
+        // Use Spectre.Console's capability check — more reliable than Environment.UserInteractive
+        // because it correctly detects whether prompts can actually be rendered.
+        var canShowPrompts = AnsiConsole.Profile.Capabilities.Interactive;
+        var isHeadless = yes || !canShowPrompts;
 
         AnsiConsole.Write(new Rule("[bold blue]FlowForge Stack Installer v0.1.0-alpha.6[/]").LeftJustified());
         AnsiConsole.WriteLine();
