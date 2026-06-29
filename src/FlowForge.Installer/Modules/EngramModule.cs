@@ -149,22 +149,27 @@ public sealed class EngramModule(InstallerContext ctx)
 
             Directory.CreateDirectory(opencodeDir);
 
-            // Parse existing config (may not exist or may be empty)
-            Dictionary<string, object?> cfg = new();
-            if (File.Exists(configPath))
+            // Parse existing config as JsonDocument (AOT-safe with source-gen).
+            // We don't try to preserve exact types — we just preserve the text and
+            // do a surgical replacement of the engram MCP block.
+            var existingText = File.Exists(configPath)
+                ? File.ReadAllText(configPath)
+                : "{}";
+
+            // If existing file is empty or not JSON, start fresh
+            string canonicalText;
+            try
             {
-                try
-                {
-                    var existing = File.ReadAllText(configPath);
-                    if (!string.IsNullOrWhiteSpace(existing))
-                        cfg = System.Text.Json.JsonSerializer.Deserialize(existing,
-                            McpJsonContext.Default.DictionaryStringObject!) ?? new();
-                }
-                catch
-                {
-                    // Corrupt JSON — start fresh but warn
-                }
+                using var doc = System.Text.Json.JsonDocument.Parse(existingText);
+                canonicalText = doc.RootElement.GetRawText();
             }
+            catch
+            {
+                canonicalText = "{}";
+            }
+
+            // Re-parse into a mutable JsonNode tree
+            var node = System.Text.Json.Nodes.JsonNode.Parse(canonicalText)!;
 
             // Build env dict
             var env = new Dictionary<string, string>
@@ -180,25 +185,36 @@ public sealed class EngramModule(InstallerContext ctx)
                 env["ENGRAM_SERVER_URL"] = serverUrl;
             }
 
-            // Build engram MCP entry
-            var engramEntry = new Dictionary<string, object?>
+            // Build engram MCP entry as JsonNode
+            var engramNode = new System.Text.Json.Nodes.JsonObject
             {
                 ["type"]    = "stdio",
-                ["command"] = new[] { PathHelper.EngramBinary, "mcp" },
-                ["environment"] = env,
+                ["command"] = new System.Text.Json.Nodes.JsonArray(
+                    PathHelper.EngramBinary, "mcp"),
+                ["environment"] = new System.Text.Json.Nodes.JsonObject()
+                {
+                    ["ENGRAM_DATA_DIR"]     = dataDir,
+                    ["ENGRAM_USER"]         = user,
+                    ["ENGRAM_SYNC_ENABLED"] = syncEnabled.ToString().ToLower(),
+                },
             };
-
-            // Get or create mcp section
-            if (!cfg.ContainsKey("mcp") || cfg["mcp"] is not Dictionary<string, object?> mcpDict)
+            if (syncEnabled)
             {
-                mcpDict = new Dictionary<string, object?>();
-                cfg["mcp"] = mcpDict;
+                ((System.Text.Json.Nodes.JsonObject)engramNode["environment"]!)
+                    ["ENGRAM_SERVER_URL"] = env["ENGRAM_SERVER_URL"];
             }
-            mcpDict["engram"] = engramEntry;
 
-            // Serialize back (using source-generated context for AOT)
-            var json = System.Text.Json.JsonSerializer.Serialize(cfg,
-                McpJsonContext.Default.DictionaryStringObject!);
+            // Get or create mcp section as JsonObject
+            if (node["mcp"] is not System.Text.Json.Nodes.JsonObject mcpNode)
+            {
+                mcpNode = new System.Text.Json.Nodes.JsonObject();
+                node["mcp"] = mcpNode;
+            }
+            mcpNode["engram"] = engramNode;
+
+            // Serialize back
+            var json = node.ToJsonString(
+                new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(configPath, json + Environment.NewLine);
         }
         catch
