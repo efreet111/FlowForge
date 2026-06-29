@@ -112,4 +112,4 @@ If valid context exists, produce a concise **Context Map (Discovery)** that serv
 
 - Spike that motivated this change: `engram-dotnet/.ai-work/eng-404-spike/{spike.md, learnings.md}`
 - Changelog entry: `CHANGELOG.md` → [Unreleased] → item 21
-- Next agents (orchestrator delegates): `forge-arch` (reads the Context Map at CKP-1), `forge-verify` (rejects designs that skipped step 5)
+- Next agents in the flow (orchestrator delegates): `forge-arch` (reads the Context Map at CKP-1), `forge-verify` (rejects designs that skipped step 5)

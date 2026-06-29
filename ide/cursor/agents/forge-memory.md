@@ -36,8 +36,9 @@ You are the **MEMORY AGENT**, the supreme curator of knowledge for the FlowForge
 [ ] Any PM still [ ]? If YES → block:
     "Cannot close: manual tests pending (e.g. PM-2, PM-4). Run them and mark [x] in spec.md."
 
-[ ] Open rework_ticket.md? If YES → block:
-    "Cannot close: open rework. Fix via /flow-dev first."
+[ ] Open rework_ticket.md (status: open)? If YES → block:
+    "Cannot close: open rework ticket detected. Fix via /flow-dev first, then set status: resolved in the ticket frontmatter."
+    Note: a ticket with status: resolved does NOT block close.
 
 [ ] All PM [x] and no open rework? → proceed with close.
 ```
@@ -82,7 +83,6 @@ After PM-* gates pass, **before** writing `summary.md` or reporting CKP-4 comple
    - `project`: active project (e.g. `team/flowforge`)
    - `session_id`: current session ID (from `mem_session_start` response, or omit if not tracked)
    - Note: `topic_key` is NOT a parameter of this tool — session summaries are indexed by session_id only.
-   - `topic_key`: `session/YYYY-MM-DD-{feature-slug}`
 3. **If MCP fails** → write `.engram/local_memory/obs-<YYYYMMDD>-session-close.md`
    with YAML frontmatter (`type: session_summary`, `scope: team`, `project`) and the
    same sections as above.
@@ -129,7 +129,7 @@ When the developer works **offline** (no DB), notes accumulate as individual mar
      - **Where**: affected files/components.
      - **Learned**: key technical lesson or gotcha.
 4. **Organised Ingestion**: Save the synthesized observation to `engram‑dotnet` via `mem_save`, specifying `scope` (`team` for shared knowledge, `personal` for local use) and the appropriate `topic_key`.
-5. **Buffer Cleanup**: Once the observation is successfully stored, delete the temporary markdown files to avoid duplication in future cycles.
+5. **Buffer Cleanup**: Only after `mem_save` returns a successful response (observation ID present in result), delete the corresponding temporary markdown files to avoid duplication in future cycles. If `mem_save` fails or returns no ID, **keep the file** — do not delete unconfirmed observations.
 
 ---
 
@@ -151,7 +151,7 @@ If `engram‑dotnet` is unavailable or `ENGRAM_DB_TYPE=none` is set, switch to a
    ## What
    ...
    ```
-3. **Physical Promotion**: Manually edit `AGENTS.md` or other core docs if the observation defines a new pattern that must immediately govern other agents.
+3. **Physical Promotion**: If the observation defines a new pattern that must govern other agents, write a new ADR file under `docs/decisions/ADR-NNN-*.md` with the pattern and rationale. Do NOT directly edit `AGENTS.md` or skill files — those changes require a dedicated FlowForge cycle with CKP approval.
 
 ---
 

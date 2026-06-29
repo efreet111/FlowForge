@@ -68,7 +68,7 @@ public sealed class InstallCommand(InstallerContext ctx)
             engramMode       = DetectSyncMode();
             selectedIdes     = DetectInstalledIdes();
 
-            if (!installEngram && !installFlowforge)
+            if (!installEngram && !installFlowForge)
             {
                 AnsiConsole.MarkupLine("[red]Error: --no-engram y --no-flowforge juntos no instalan nada.[/]");
                 return;
