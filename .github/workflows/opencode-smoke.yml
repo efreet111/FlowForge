@@ -12,53 +12,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Validate JSON syntax
+      - name: Validate OpenCode agents exist
         run: |
-          if ! jq empty ide/opencode/opencode.flowforge.json 2>/dev/null; then
-            echo "ERROR: Invalid JSON in opencode.flowforge.json"
-            exit 1
-          fi
-
-      - name: Validate subagent config
-        run: |
-          count=$(jq '[.agent[] | select(.mode == "subagent")] | length' ide/opencode/opencode.flowforge.json)
-          if [ "$count" -ne 7 ]; then
-            echo "ERROR: Expected 7 subagents, found $count"
-            exit 1
-          fi
-          echo "Found $count subagents"
-
-      - name: Validate skill paths exist
-        run: |
-          # Get all skill paths and check they resolve to real files
-          # Substitute __FLOWFORGE_REPO__ with $GITHUB_WORKSPACE
-          for skill in forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher; do
-            path=$(jq -r ".agent.\"$skill\".prompt" ide/opencode/opencode.flowforge.json 2>/dev/null | grep -o "{file:__FLOWFORGE_REPO__/skills/$skill/SKILL.md}" | head -1)
-            if [ -z "$path" ]; then
-              # Try alternate pattern
-              path=$(jq -r ".agent.\"$skill\".prompt" ide/opencode/opencode.flowforge.json 2>/dev/null | grep -oE "\{file:[^}]+skills/$skill/SKILL\.md\}" | head -1)
-            fi
-            if [ -n "$path" ]; then
-              resolved="${path//__FLOWFORGE_REPLACE__/$GITHUB_WORKSPACE}"
-              resolved="${resolved//__FLOWFORGE_REPO__/$GITHUB_WORKSPACE}"
-              resolved="${resolved//\{file:/}"
-              resolved="${resolved//\}/}"
-              if [ ! -f "$resolved" ]; then
-                echo "ERROR: Missing SKILL.md: $resolved"
-                exit 1
-              fi
-              echo "OK: $resolved exists"
+          AGENTS_DIR="ide/opencode/agents"
+          EXPECTED="forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher"
+          FAIL=0
+          for agent in $EXPECTED; do
+            if [ ! -f "$AGENTS_DIR/$agent.md" ]; then
+              echo "ERROR: Missing $AGENTS_DIR/$agent.md"
+              FAIL=1
+            else
+              echo "OK: $AGENTS_DIR/$agent.md"
             fi
           done
-
-      - name: Check for placeholders
-        run: |
-          if grep -qE '__UNSET__|__TODO__|__FIXME__' ide/opencode/opencode.flowforge.json; then
-            echo "ERROR: Found unresolved placeholders in opencode.flowforge.json"
-            grep -E '__UNSET__|__TODO__|__FIXME__' ide/opencode/opencode.flowforge.json || true
-            exit 1
+          # flowforge.md (orchestrator) también debe existir
+          if [ ! -f "$AGENTS_DIR/flowforge.md" ]; then
+            echo "ERROR: Missing $AGENTS_DIR/flowforge.md"
+            FAIL=1
+          else
+            echo "OK: $AGENTS_DIR/flowforge.md"
           fi
-          echo "No unresolved placeholders found"
+          [ "$FAIL" -eq 0 ] || exit 1
 
       - name: Lint SKILL.md completeness (Layer 1 — item 22)
         run: |

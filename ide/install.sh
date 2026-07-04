@@ -100,10 +100,12 @@ install_project() {
   cp "$IDE_DIR/cursor/commands/"*.md "$root/.cursor/commands/" 2>/dev/null || true
   echo -e "  ${GREEN}OK${NC} .cursor/"
 
-  mkdir -p "$root/.github/agents" "$root/.vscode"
+  mkdir -p "$root/.github/agents" "$root/.opencode/agents" "$root/.kilo/agents"
   cp "$IDE_DIR/vscode/agents/"*.agent.md "$root/.github/agents/" 2>/dev/null || true
-  cp "$IDE_DIR/vscode/copilot-instructions.md" "$root/.vscode/" 2>/dev/null || true
-  echo -e "  ${GREEN}OK${NC} .github/agents + .vscode/"
+  cp "$IDE_DIR/vscode/copilot-instructions.md" "$root/.github/" 2>/dev/null || true
+  cp "$IDE_DIR/opencode/agents/"*.md "$root/.opencode/agents/" 2>/dev/null || true
+  cp "$IDE_DIR/opencode/agents/"*.md "$root/.kilo/agents/" 2>/dev/null || true
+  echo -e "  ${GREEN}OK${NC} .github/agents + .opencode/agents + .kilo/agents"
 }
 
 echo -e "${BLUE}========================================${NC}"
@@ -118,16 +120,28 @@ echo -e "${GREEN}[OK]${NC} Paridad global: $GLOBAL_SHARED"
 compile_cursor_agents
 
 # --- OpenCode ---
+# OpenCode auto-loads agents from ~/.config/opencode/agents/*.md and commands
+# from ~/.config/opencode/commands/*.md. No merge needed — just copy the files.
 if [ -d "${HOME}/.config/opencode" ]; then
   echo -e "${GREEN}[OK] OpenCode detectado${NC}"
-  mkdir -p "${HOME}/.config/opencode/flowforge/shared"
-  cp "$IDE_DIR/opencode/AGENTS.md" "${HOME}/.config/opencode/flowforge/"
-  install_shared "${HOME}/.config/opencode/flowforge/shared"
-  cp "$IDE_DIR/opencode/opencode.flowforge.json" "${HOME}/.config/opencode/"
-  patch_opencode_flowforge_json "${HOME}/.config/opencode/opencode.flowforge.json" "$FLOWFORGE_REPO"
-  echo -e "  ${GREEN}OK${NC} ~/.config/opencode/flowforge/"
-  echo -e "  ${YELLOW}! Merge manual: agent{} de opencode.flowforge.json → opencode.json o opencode.jsonc${NC}"
-  echo -e "  ${YELLOW}! Conserva tus bloques mcp/permission al mergear (no reemplaces todo el archivo)${NC}"
+  mkdir -p "${HOME}/.config/opencode/agents"
+  mkdir -p "${HOME}/.config/opencode/commands"
+  # Copy FlowForge agent markdown files (one per agent)
+  if [ -d "$IDE_DIR/opencode/agents" ]; then
+    cp "$IDE_DIR/opencode/agents/"*.md "${HOME}/.config/opencode/agents/" 2>/dev/null || true
+  fi
+  # Copy commands (if any)
+  if [ -d "$IDE_DIR/opencode/commands" ]; then
+    cp "$IDE_DIR/opencode/commands/"*.md "${HOME}/.config/opencode/commands/" 2>/dev/null || true
+  fi
+  # Clean up old approach: remove ~/.config/opencode/flowforge/ and opencode.flowforge.json
+  if [ -d "${HOME}/.config/opencode/flowforge" ]; then
+    rm -rf "${HOME}/.config/opencode/flowforge"
+  fi
+  if [ -f "${HOME}/.config/opencode/opencode.flowforge.json" ]; then
+    rm -f "${HOME}/.config/opencode/opencode.flowforge.json"
+  fi
+  echo -e "  ${GREEN}OK${NC} ~/.config/opencode/agents/ + commands/"
   echo -e "  ${YELLOW}! Modelos opencode-go/*: configura proveedor + API keys en OpenCode${NC}"
   INSTALLED=1
 fi
@@ -148,20 +162,53 @@ fi
 # --- VS Code ---
 if [ -d "${HOME}/.vscode" ] || [ -d "${HOME}/.vscode-server" ]; then
   echo -e "${GREEN}[OK] VS Code detectado${NC}"
-  mkdir -p "${HOME}/.vscode/agents"
-  cp "$IDE_DIR/vscode/copilot-instructions.md" "${HOME}/.vscode/" 2>/dev/null || true
-  cp "$IDE_DIR/vscode/agents/"*.agent.md "${HOME}/.vscode/agents/" 2>/dev/null || true
-  echo -e "  ${GREEN}OK${NC} ~/.vscode/"
+  HAS_COPILOT=0
+  HAS_KILO=0
+  if ls "${HOME}/.vscode/extensions"/github.copilot* &>/dev/null; then HAS_COPILOT=1; fi
+  if ls "${HOME}/.vscode/extensions"/kilocode.* &>/dev/null; then HAS_KILO=1; fi
+
+  BEST_EFFORT=0
+  if [ "$HAS_COPILOT" -eq 0 ] && [ "$HAS_KILO" -eq 0 ]; then
+    BEST_EFFORT=1
+  fi
+
+  if [ "$HAS_COPILOT" -eq 1 ] || { [ "$HAS_COPILOT" -eq 0 ] && [ "$HAS_KILO" -eq 0 ]; }; then
+    mkdir -p "${HOME}/.copilot/agents" "${HOME}/.copilot/instructions"
+    cp "$IDE_DIR/vscode/agents/"*.agent.md "${HOME}/.copilot/agents/" 2>/dev/null || true
+    if [ -f "$IDE_DIR/vscode/copilot-instructions.md" ]; then
+      {
+        echo "---"
+        echo "applyTo: '**'"
+        echo "---"
+        cat "$IDE_DIR/vscode/copilot-instructions.md"
+      } > "${HOME}/.copilot/instructions/flowforge.instructions.md"
+    fi
+    echo -e "  ${GREEN}OK${NC} GitHub Copilot → ~/.copilot/agents/"
+  fi
+
+  if [ "$HAS_KILO" -eq 1 ] || [ "$HAS_COPILOT" -eq 0 ]; then
+    mkdir -p "${HOME}/.config/kilo/agents"
+    cp "$IDE_DIR/opencode/agents/"*.md "${HOME}/.config/kilo/agents/" 2>/dev/null || true
+    echo -e "  ${GREEN}OK${NC} Kilo Code → ~/.config/kilo/agents/"
+  fi
+
+  if [ "$BEST_EFFORT" -eq 1 ]; then
+    echo -e "  ${YELLOW}! No se detectó GitHub Copilot ni Kilo Code — instalados ambos formatos${NC}"
+  fi
+
   echo -e "  ${YELLOW}! Repo: bash install.sh /path/to/project${NC}"
   INSTALLED=1
 fi
 
-# --- Antigravity hint ---
+# --- Antigravity ---
 if [ -d "${HOME}/.gemini" ]; then
   echo -e "${GREEN}[OK] Antigravity detectado${NC}"
-  if [ -z "$PROJECT_PATH" ]; then
-    echo -e "  ${YELLOW}Usa: bash install.sh .  (desde la raiz del proyecto)${NC}"
-  fi
+  mkdir -p "${HOME}/.gemini/antigravity/rules"
+  mkdir -p "${HOME}/.gemini/antigravity/workflows"
+  cp "$IDE_DIR/antigravity/AGENTS.md" "${HOME}/.gemini/antigravity/" 2>/dev/null || true
+  cp "$IDE_DIR/antigravity/rules/"*.md "${HOME}/.gemini/antigravity/rules/" 2>/dev/null || true
+  cp "$IDE_DIR/antigravity/workflows/"*.md "${HOME}/.gemini/antigravity/workflows/" 2>/dev/null || true
+  echo -e "  ${GREEN}OK${NC} ~/.gemini/antigravity/ (AGENTS.md + rules/ + workflows/)"
   INSTALLED=1
 fi
 

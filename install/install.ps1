@@ -119,6 +119,14 @@ if ($currentPath -notlike "*$InstallDir*") {
 }
 
 # ── Lanzar wizard ─────────────────────────────────────────────────────────────
+# Si hay consola interactiva disponible, lanzar el wizard interactivo.
+# Si NO (CI/Docker/pipeline), pasar --yes para headless mode.
 Write-Host ""
 Write-Host "Iniciando wizard de instalación..."
-& $BinaryDest install
+if ([Environment]::UserInteractive) {
+    # Consola interactiva — wizard preguntará qué instalar
+    & $BinaryDest install
+} else {
+    # Sin consola interactiva — modo headless con defaults (ambos componentes)
+    & $BinaryDest install --yes
+}

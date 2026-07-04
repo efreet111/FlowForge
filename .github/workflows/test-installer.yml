@@ -1,0 +1,298 @@
+name: Test Installer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/FlowForge.Installer/**"
+      - "install/**"
+      - ".github/workflows/test-installer.yml"
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  # ── Build + smoke test (ambas plataformas) ──────────────────────────────────
+  smoke:
+    name: Build & Smoke (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            rid: linux-x64
+            binary: ./out/flowforge
+          - os: windows-latest
+            rid: win-x64
+            binary: ./out/flowforge.exe
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.x"
+
+      - name: Publish (non-AOT, single-file)
+        shell: bash
+        run: |
+          dotnet publish src/FlowForge.Installer \
+            -c Release \
+            -r ${{ matrix.rid }} \
+            --self-contained \
+            -p:PublishAot=false \
+            -p:PublishSingleFile=true \
+            -p:EnableTrimAnalyzer=false \
+            -p:Version=0.0.0-ci \
+            -o out
+
+      - name: Smoke — help
+        shell: bash
+        run: ${{ matrix.binary }} --help
+
+      - name: Smoke — version
+        shell: bash
+        run: ${{ matrix.binary }} --version
+
+      - name: Smoke — doctor (sin engram instalado, exit != 0 es esperado)
+        shell: bash
+        run: |
+          OUTPUT=$(${{ matrix.binary }} doctor 2>&1 || true)
+          echo "$OUTPUT"
+          echo "$OUTPUT" | grep -qi "FlowForge Doctor" || (echo "FAIL: doctor no arrancó"; exit 1)
+
+  # ── Happy path completo (Linux) ─────────────────────────────────────────────
+  install-linux:
+    name: Happy Path Install (Linux)
+    runs-on: ubuntu-latest
+    needs: smoke
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.x"
+
+      - name: Build flowforge binary
+        run: |
+          dotnet publish src/FlowForge.Installer \
+            -c Release \
+            -r linux-x64 \
+            --self-contained \
+            -p:PublishAot=false \
+            -p:PublishSingleFile=true \
+            -p:EnableTrimAnalyzer=false \
+            -p:Version=0.0.0-ci \
+            -o out
+
+      - name: Simular IDEs instalados
+        run: |
+          mkdir -p ~/.cursor ~/.vscode/extensions/github.copilot-1.0.0 \
+            ~/.vscode/extensions/kilocode.kilo-code-1.0.0 \
+            ~/.config/opencode ~/.copilot/agents ~/.copilot/instructions \
+            ~/.config/kilo/agents ~/.gemini/antigravity/rules ~/.gemini/antigravity/workflows ~/.gemini \
+            ~/.local/bin
+
+      - name: Instalar flowforge binary
+        run: |
+          cp out/flowforge ~/.local/bin/flowforge
+          chmod +x ~/.local/bin/flowforge
+
+      - name: Instalar — happy path headless
+        env:
+          FLOWFORGE_API_TIMEOUT_SECONDS: "60"
+        run: |
+          ~/.local/bin/flowforge install --yes
+        timeout-minutes: 3
+
+      - name: Verificar — binarios
+        run: |
+          test -x ~/.local/bin/engram       && echo "PASS: engram"       || (echo "FAIL: engram missing";       exit 1)
+          test -f ~/.local/bin/libe_sqlite3.so && echo "PASS: sqlite lib" || (echo "FAIL: sqlite lib missing"; exit 1)
+
+      - name: Verificar — engram funciona
+        run: |
+          ~/.local/bin/engram --version
+          ~/.local/bin/engram stats
+
+      - name: Verificar — Cursor agents
+        run: |
+          COUNT=$(find ~/.cursor/agents -name "forge-*.md" 2>/dev/null | wc -l)
+          echo "Cursor agents: $COUNT"
+          test "$COUNT" -gt 0 || (echo "FAIL: no cursor agents"; exit 1)
+
+      - name: Verificar — OpenCode MCP format
+        run: |
+          TYPE=$(python3 -c "
+          import json
+          with open('$HOME/.config/opencode/opencode.json') as f:
+              d = json.load(f)
+          e = d.get('mcp', {}).get('engram', {})
+          print(e.get('type', 'MISSING'))
+          ")
+          echo "OpenCode MCP type: $TYPE"
+          test "$TYPE" = "local" || (echo "FAIL: expected 'local', got '$TYPE'"; exit 1)
+
+          ENABLED=$(python3 -c "
+          import json
+          with open('$HOME/.config/opencode/opencode.json') as f:
+              d = json.load(f)
+          e = d.get('mcp', {}).get('engram', {})
+          print(str(e.get('enabled', False)).lower())
+          ")
+          echo "OpenCode MCP enabled: $ENABLED"
+          test "$ENABLED" = "true" || (echo "FAIL: enabled should be true"; exit 1)
+
+      - name: Verificar — VS Code (Copilot + Kilo)
+        run: |
+          test -f ~/.copilot/instructions/flowforge.instructions.md && echo "PASS: copilot instructions" || (echo "FAIL: copilot instructions missing"; exit 1)
+          COPILOT_AGENTS=$(find ~/.copilot/agents -name "*.agent.md" 2>/dev/null | wc -l)
+          echo "Copilot agents: $COPILOT_AGENTS"
+          test "$COPILOT_AGENTS" -gt 0 || (echo "FAIL: no copilot agents"; exit 1)
+          KILO_AGENTS=$(find ~/.config/kilo/agents -name "*.md" 2>/dev/null | wc -l)
+          echo "Kilo agents: $KILO_AGENTS"
+          test "$KILO_AGENTS" -gt 0 || (echo "FAIL: no kilo agents"; exit 1)
+
+      - name: Verificar — Antigravity global
+        run: |
+          test -f ~/.gemini/antigravity/AGENTS.md && echo "PASS: Antigravity AGENTS.md" || (echo "FAIL: Antigravity AGENTS.md missing"; exit 1)
+          RULES_COUNT=$(find ~/.gemini/antigravity/rules -name "*.md" 2>/dev/null | wc -l)
+          echo "Antigravity rules: $RULES_COUNT"
+          test "$RULES_COUNT" -gt 0 || (echo "FAIL: no Antigravity rules"; exit 1)
+
+      - name: Verificar — flowforge doctor
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          # Instalación global: fuera del repo para no exigir packs de proyecto
+          cd /tmp
+          OUTPUT=$(~/.local/bin/flowforge doctor 2>&1)
+          echo "$OUTPUT"
+          echo "$OUTPUT" | grep -q "Todo OK" || (echo "FAIL: doctor no reportó 'Todo OK'"; exit 1)
+
+  # ── Happy path completo (Windows) ───────────────────────────────────────────
+  install-windows:
+    name: Happy Path Install (Windows)
+    runs-on: windows-latest
+    needs: smoke
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.x"
+
+      - name: Build flowforge.exe
+        run: |
+          dotnet publish src/FlowForge.Installer `
+            -c Release `
+            -r win-x64 `
+            --self-contained `
+            -p:PublishAot=false `
+            -p:PublishSingleFile=true `
+            -p:EnableTrimAnalyzer=false `
+            -p:Version=0.0.0-ci `
+            -o out
+
+      - name: Simular IDEs instalados
+        shell: pwsh
+        run: |
+          $dirs = @(
+            "$env:USERPROFILE\.cursor",
+            "$env:USERPROFILE\.config\opencode",
+            "$env:USERPROFILE\.vscode",
+            "$env:USERPROFILE\.gemini",
+            "$env:USERPROFILE\.copilot\agents",
+            "$env:USERPROFILE\.copilot\instructions",
+            "$env:USERPROFILE\.config\kilo\agents"
+          )
+          foreach ($d in $dirs) { New-Item -ItemType Directory -Force -Path $d | Out-Null }
+
+      - name: Instalar — happy path headless
+        shell: pwsh
+        env:
+          FLOWFORGE_API_TIMEOUT_SECONDS: "60"
+        run: |
+          .\out\flowforge.exe install --yes
+        timeout-minutes: 3
+
+      - name: Verificar — engram.exe instalado
+        shell: pwsh
+        run: |
+          $engramPath = "$env:LOCALAPPDATA\Programs\FlowForge\engram.exe"
+          if (Test-Path $engramPath) {
+            Write-Output "PASS: engram.exe en $engramPath"
+          } else {
+            Write-Error "FAIL: engram.exe no encontrado en $engramPath"
+            exit 1
+          }
+
+      - name: Verificar — engram funciona
+        shell: pwsh
+        run: |
+          $engramPath = "$env:LOCALAPPDATA\Programs\FlowForge\engram.exe"
+          & $engramPath --version
+          & $engramPath stats
+
+      - name: Verificar — OpenCode MCP format (Windows)
+        shell: pwsh
+        run: |
+          $configPath = "$env:USERPROFILE\.config\opencode\opencode.json"
+          if (Test-Path $configPath) {
+            $json = Get-Content $configPath | ConvertFrom-Json
+            $type = $json.mcp.engram.type
+            $enabled = $json.mcp.engram.enabled
+            Write-Output "OpenCode MCP type: $type, enabled: $enabled"
+            if ($type -ne "local") { Write-Error "FAIL: type should be 'local'"; exit 1 }
+            if (-not $enabled) { Write-Error "FAIL: enabled should be true"; exit 1 }
+          } else {
+            Write-Output "WARN: opencode.json no encontrado (OpenCode puede no estar detectado)"
+          }
+
+      - name: Verificar — Cursor agents (Windows)
+        shell: pwsh
+        run: |
+          $agentsDir = "$env:USERPROFILE\.cursor\agents"
+          $count = (Get-ChildItem -Path $agentsDir -Filter "forge-*.md" -ErrorAction SilentlyContinue).Count
+          Write-Output "Cursor agents: $count"
+          if ($count -eq 0) { Write-Error "FAIL: no cursor agents"; exit 1 }
+
+      - name: Verificar — VS Code Copilot + Kilo (Windows)
+        shell: pwsh
+        run: |
+          $copilotInstructions = "$env:USERPROFILE\.copilot\instructions\flowforge.instructions.md"
+          if (Test-Path $copilotInstructions) {
+            Write-Output "PASS: copilot instructions"
+          } else {
+            Write-Error "FAIL: copilot instructions missing"
+            exit 1
+          }
+          $copilotAgents = "$env:USERPROFILE\.copilot\agents"
+          $copilotCount = (Get-ChildItem -Path $copilotAgents -Filter "*.agent.md" -ErrorAction SilentlyContinue).Count
+          Write-Output "Copilot agents: $copilotCount"
+          if ($copilotCount -eq 0) { Write-Error "FAIL: no copilot agents"; exit 1 }
+          $kiloAgents = "$env:USERPROFILE\.config\kilo\agents"
+          $kiloCount = (Get-ChildItem -Path $kiloAgents -Filter "*.md" -ErrorAction SilentlyContinue).Count
+          Write-Output "Kilo agents: $kiloCount"
+          if ($kiloCount -eq 0) { Write-Error "FAIL: no kilo agents"; exit 1 }
+
+      - name: Verificar — flowforge doctor (Windows)
+        shell: pwsh
+        run: |
+          # En CI el binario está en .\out\, no en la ruta canónica de install.
+          # "flowforge binary" y "engram en PATH" fallarán — es esperado.
+          # Solo verificamos que el comando corra y muestre la tabla.
+          $output = .\out\flowforge.exe doctor 2>&1 | Out-String
+          Write-Output $output
+          if ($output -match "FlowForge Doctor" -and $output -match "Check") {
+            Write-Output "PASS: doctor muestra tabla de diagnóstico"
+            exit 0
+          } else {
+            Write-Error "FAIL: doctor no mostró tabla esperada"
+            exit 1
+          }

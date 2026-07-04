@@ -30,9 +30,12 @@ FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños 
 
 ### Stack installer (setup completo) {#stack-installer-setup-completo}
 
-> **Recomendado para la mayoría de usuarios.** Descarga el CLI `flowforge` (binario AOT), verifica SHA-256 y lanza un **wizard interactivo**: elegís engram-dotnet, skills FlowForge, IDEs destino, modo local vs sync, y confirmás. El label `alpha` se refiere al formato binario, no a la estabilidad de la metodología — FlowForge v0.5.0 está probado en producción.
->
-> Luego de este paso, ejecutá **`flowforge init <ruta-del-proyecto>`** para configurar FlowDoc y archivos por proyecto en cada repositorio.
+> **Recomendado para la mayoría de usuarios.** Descarga el CLI `flowforge` (binario AOT), verifica SHA-256 y ejecuta el **wizard de instalación** (`flowforge install --yes`):
+> - Descarga `engram-dotnet` (servidor de memoria persistente)
+> - Instala agentes FlowForge en los IDEs detectados (Cursor, OpenCode, VS Code)
+> - Configura MCP para sync (si `ENGRAM_SERVER_URL` está definido)
+> 
+> Luego de este paso, ejecutá **`flowforge init <ruta-del-proyecto>`** para configurar FlowDoc.
 
 **Linux/macOS:**
 
@@ -47,6 +50,8 @@ iwr -useb "https://raw.githubusercontent.com/efreet111/FlowForge/main/install/in
 powershell -ExecutionPolicy Bypass -File $env:TEMP\flowforge-install.ps1
 ```
 
+> **¿Ya tenés flowforge?** Ejecutá `flowforge install --yes` para reinstalar. Usá `--yes` en CI/CD, Docker o scripts (modo no interactivo).
+>
 > En Windows, `& $env:TEMP\flowforge-install.ps1` suele fallar con *la ejecución de scripts está deshabilitada*. Usá siempre `-ExecutionPolicy Bypass -File` como arriba.
 
 Instala en `%LOCALAPPDATA%\Programs\FlowForge\` (Windows) o `~/.local/bin/flowforge` (Linux/macOS). Distribuido vía [GitHub Releases](https://github.com/efreet111/FlowForge/releases).
@@ -124,12 +129,20 @@ FASE 4: CIERRE ─────── CKP-4 🟢 deploy gate
 
 ## Integración IDE
 
-| IDE | Ubicación |
-|-----|-----------|
-| **Cursor** | `ide/cursor/` → `~/.cursor/` o `.cursor/` en el proyecto |
-| **VS Code** | `ide/vscode/` → `.github/agents/` |
-| **Antigravity** | `ide/antigravity/` → `.agents/` |
-| **OpenCode** | `ide/opencode/opencode.flowforge.json` |
+FlowForge copia los packs de agentes a los directorios que cada IDE realmente lee. El siguiente cuadro resume los destinos canónicos y las notas clave de detección.
+
+| IDE | Paquete global | Paquete por proyecto | Notas |
+|-----|----------------|---------------------|-------|
+| **Cursor** | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` | `flowforge install` y `flowforge init` usan los mismos archivos; MCP en `~/.cursor/mcp.json`. |
+| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/` | El `opencode.json` local contiene `mcp.engram` con `type: local`; `opencode.flowforge.json` y `~/.config/opencode/flowforge/` son atajos históricos. |
+| **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detectado por las extensiones `github.copilot*`; el archivo de instrucciones se normaliza con el header `applyTo`. |
+| **Kilo Code** | `~/.config/kilo/agents/*.md` (mismo formato OpenCode) | `.kilo/agents/*.md` (duplicado de `.opencode/agents/`) | Detectado por `kilocode.*`; FlowForge sincroniza el bundle con OpenCode. |
+| **Antigravity** | `~/.gemini/antigravity/` (`AGENTS.md`, `rules/`, `workflows/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `AGENTS.md` | Antigravity de Google (no Claude Desktop); la instalación global refleja el bundle de proyecto. |
+| **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (MCP solamente) | — | Solo MCP manual; FlowForge documenta la ruta pero no copia agentes ni reglas. |
+
+`flowforge install` detecta estas IDEs (Cursor, OpenCode, extensiones VS Code, Antigravity) y aplica este mismo esquema. Los scripts `ide/install.sh` y `ide/install.ps1` exponen los mismos destinos y sirven para refrescar la instalación o generar bundles por proyecto.
+
+`flowforge doctor` ahora informa `[✓] github.copilot` y `[✓] kilocode.*` junto a los nuevos directorios para que veas qué pack se instaló. Consultá [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md) para la matriz canónica y la separación entre Antigravity y Claude Desktop.
 
 Detalle: [`ide/README.md`](ide/README.md)
 
@@ -143,6 +156,53 @@ Detalle: [`ide/README.md`](ide/README.md)
 | [`docs/14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md) | Referencia + casos de prueba |
 | [`docs/18-replicable-demo-definition.md`](docs/18-replicable-demo-definition.md) | Runbook replicable (sin repo demo obligatorio) |
 | [`docs/04-roadmap.md`](docs/04-roadmap.md) | Roadmap y release gate |
+
+## Solución de problemas
+
+### MCP falla con “SQLite Error 14: unable to open database file”
+
+Probable causa: `flowforge install` se ejecutó con `sudo` y `~/.engram` / binarios quedaron con owner `root:root`. SQLite no puede abrir `~/.engram/engram.db` si el usuario actual no tiene permisos de escritura.
+
+**Solución recomendada:**
+
+```bash
+sudo chown -R $USER:$USER ~/.engram ~/.local/bin/engram ~/.local/bin/libe_sqlite3.so ~/.local/bin/flowforge
+```
+
+Luego hacé **Reload Window** en tu IDE para reiniciar el MCP y recargar los agentes FlowForge.
+
+### Verificar la instalación con `flowforge doctor`
+
+```bash
+flowforge doctor
+```
+
+El comando ejecuta 5 chequeos clave (binarios, PATH, MCP y conectividad GitHub) y genera una tabla con [✓] y [✗]. Si algo falla, el detalle indica el siguiente paso.
+
+```
+Check               Estado     Detalle
+flowforge binary    ✓ OK
+engram binary       ✓ OK
+engram en PATH      ✓ OK
+MCP configurado     ✓ OK
+GitHub reachable    ✗ FAIL     Sin conexión: timeout
+```
+
+Códigos de salida:
+
+- `0` — todo pasó.
+- `1` — error grave (excepción durante la inspección).
+- `2` — falla parcial (al menos un chequeo falló).
+
+### Timeouts de instalación configurables
+
+| Variable | Default | Descripción |
+|----------|---------|-------------|
+| `FLOWFORGE_API_TIMEOUT_SECONDS` | `30` | Timeout para llamadas a la API de GitHub (descubrimiento de versiones, manifest). |
+| `FLOWFORGE_DOWNLOAD_TIMEOUT_SECONDS` | `300` | Timeout para descargas de assets (engram, librerías nativas). |
+| `FLOWFORGE_YES` | — | Si está definida, `flowforge install` corre en modo no interactivo (como `--yes`) incluso si detecta TTY; útil en CI/Docker/scripts. |
+
+El instalador y el CLI respetan estas variables automáticamente: aumentalas cuando la red sea lenta o estés ejecutando el script piped.
 
 ## Licencia
 

@@ -88,3 +88,4 @@ scratch/
 bin/
 obj/
 out/
+.directory
