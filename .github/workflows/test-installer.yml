@@ -91,7 +91,9 @@ jobs:
 
       - name: Simular IDEs instalados
         run: |
-          mkdir -p ~/.cursor ~/.vscode ~/.config/opencode ~/.copilot/agents ~/.copilot/instructions \
+          mkdir -p ~/.cursor ~/.vscode/extensions/github.copilot-1.0.0 \
+            ~/.vscode/extensions/kilocode.kilo-code-1.0.0 \
+            ~/.config/opencode ~/.copilot/agents ~/.copilot/instructions \
             ~/.config/kilo/agents ~/.gemini/antigravity/rules ~/.gemini/antigravity/workflows ~/.gemini \
             ~/.local/bin
 
@@ -164,6 +166,9 @@ jobs:
 
       - name: Verificar — flowforge doctor
         run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          # Instalación global: fuera del repo para no exigir packs de proyecto
+          cd /tmp
           OUTPUT=$(~/.local/bin/flowforge doctor 2>&1)
           echo "$OUTPUT"
           echo "$OUTPUT" | grep -q "Todo OK" || (echo "FAIL: doctor no reportó 'Todo OK'"; exit 1)
