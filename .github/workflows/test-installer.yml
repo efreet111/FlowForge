@@ -91,7 +91,7 @@ jobs:
 
       - name: Simular IDEs instalados
         run: |
-          mkdir -p ~/.cursor ~/.config/opencode ~/.copilot/agents ~/.copilot/instructions \
+          mkdir -p ~/.cursor ~/.vscode ~/.config/opencode ~/.copilot/agents ~/.copilot/instructions \
             ~/.config/kilo/agents ~/.gemini/antigravity/rules ~/.gemini/antigravity/workflows ~/.gemini \
             ~/.local/bin
 
