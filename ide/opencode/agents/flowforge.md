@@ -1,7 +1,7 @@
 ---
 description: FlowForge Orchestrator — 6 fases, 7 agentes. Coordina el flujo CKP-0 → CKP-4.
 mode: primary
-model: opencode-go/qwen3.5-plus
+model: opencode-go/qwen3.7-plus
 permission:
   edit: allow
   write: allow

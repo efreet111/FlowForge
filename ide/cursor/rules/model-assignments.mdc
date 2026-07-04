@@ -19,10 +19,10 @@ Basado en precios API de Cursor docs — prioriza input ≤ $0.75/1M salvo verif
 | Agent | Preferred Model | Fallback | Mode | Purpose |
 |-------|----------------|----------|------|---------|
 | forge-discovery | `gpt-5-mini` | `gemini-3-flash` | pinned | Mecánico; GPT-5 Mini $0.25/$2 (docs) |
-| forge-arch | `kimi-k2.5` | `gpt-5.4-mini-medium` | pinned | Spec largo; Kimi $0.6/$3 |
-| forge-plan | `kimi-k2.5` | `gpt-5.4-mini-medium` | pinned | Plan + checklist; mismo tier |
+| forge-arch | `kimi-k2.7-code` | `gpt-5.4-mini-medium` | pinned | Spec largo; Kimi K2.7 Code |
+| forge-plan | `kimi-k2.7-code` | `gpt-5.4-mini-medium` | pinned | Plan + checklist; Kimi K2.7 Code |
 | forge-dev | `gpt-5.1-codex-mini` | `composer-2.5-fast` | pinned | Código; Codex Mini $0.25/$2 + 4× limits (docs) |
-| forge-verify | `kimi-k2.5` | `claude-4.5-haiku-thinking` | pinned | Auditoría sin Sonnet ($3/$15) |
+| forge-verify | `kimi-k2.7-code` | `claude-4.5-haiku-thinking` | pinned | Auditoría sin Sonnet ($3/$15) |
 | forge-memory | `gpt-5-mini` | `gemini-3-flash` | pinned | Síntesis barata |
 | default | `gpt-5-mini` | `gemini-3-flash` | pinned | Último recurso |
 
@@ -49,7 +49,7 @@ Los slugs de esta tabla deben coincidir con los que ves en el **model picker** d
 | `gpt-5.1-codex-mini` | GPT-5.1 Codex Mini | $0.25 | $2 | Agentic code; 4× rate limits vs Codex full |
 | `gemini-3-flash` | Gemini 3 Flash | $0.50 | $3 | Fallback rápido Google |
 | `composer-2.5-fast` | Composer 2.5 | $0.50 | $2.50 | Fallback dev; también pool Auto+Composer |
-| `kimi-k2.5` | Kimi K2.5 | $0.60 | $3 | Arch/plan/verify — buen ratio reasoning/precio |
+| `kimi-k2.7-code` | Kimi K2.7 Code | — | — | Arch/plan/verify — sucesor de K2.5; verificar precio en Cursor docs |
 | `gpt-5.4-mini-medium` | GPT-5.4 Mini | $0.75 | $4.50 | Fallback arch/plan |
 | `claude-4.5-haiku-thinking` | Claude 4.5 Haiku | $1.00 | $5 | Fallback verify |
 
@@ -68,9 +68,9 @@ Los slugs de esta tabla deben coincidir con los que ves en el **model picker** d
 | Agente | Preferred | Por qué (docs) |
 |--------|-----------|----------------|
 | discovery | `gpt-5-mini` | Keywords + context map; no requiere reasoning profundo |
-| arch / plan | `kimi-k2.5` | Documentos estructurados largos; más barato que Haiku/Sonnet |
+| arch / plan | `kimi-k2.7-code` | Documentos estructurados largos; más barato que Haiku/Sonnet |
 | dev | `gpt-5.1-codex-mini` | Cursor documenta variant mini para agentic coding |
-| verify | `kimi-k2.5` | Juicio adversarial sin pagar Sonnet; Haiku si Kimi no está |
+| verify | `kimi-k2.7-code` | Juicio adversarial sin pagar Sonnet; Haiku si Kimi no está |
 | memory | `gpt-5-mini` | Resumen documental |
 
 ---
@@ -81,8 +81,8 @@ Cuando el crédito API lo permita o el release lo exija:
 
 | Agent | Preferred | Fallback |
 |-------|-----------|----------|
-| forge-arch | `claude-4.5-sonnet-thinking` | `kimi-k2.5` |
-| forge-plan | `claude-4.5-sonnet-thinking` | `kimi-k2.5` |
+| forge-arch | `claude-4.5-sonnet-thinking` | `kimi-k2.7-code` |
+| forge-plan | `claude-4.5-sonnet-thinking` | `kimi-k2.7-code` |
 | forge-dev | `gpt-5.3-codex` | `gpt-5.1-codex-mini` |
 | forge-verify | `claude-4.6-opus-high-thinking` | `claude-4-sonnet` |
 

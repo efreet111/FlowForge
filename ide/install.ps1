@@ -141,9 +141,9 @@ function Install-ProjectBundle {
         Copy-Item -Path "$vscodeAgents\*.agent.md" -Destination $ghAgents -Force
         Write-Host "  OK .github/agents/" -ForegroundColor Green
     }
-    $vscodeDir = Join-Path $Root ".vscode"
-    New-Item -ItemType Directory -Force -Path $vscodeDir | Out-Null
-    Copy-Item (Join-Path $IdeDir "vscode\copilot-instructions.md") $vscodeDir -Force -ErrorAction SilentlyContinue
+    $ghDir = Join-Path $Root ".github"
+    Copy-Item (Join-Path $IdeDir "vscode\copilot-instructions.md") $ghDir -Force -ErrorAction SilentlyContinue
+    Write-Host "  OK .github/copilot-instructions.md" -ForegroundColor Green
 }
 
 Write-Host "========================================" -ForegroundColor Blue
@@ -184,39 +184,89 @@ if (Test-Path $CursorDir) {
 $OpenCodeDir = "$env:USERPROFILE\.config\opencode"
 if (Test-Path $OpenCodeDir) {
     Write-Host "[OK] OpenCode detectado" -ForegroundColor Green
-    $ffBundle = Join-Path $OpenCodeDir "flowforge"
-    New-Item -ItemType Directory -Force -Path "$ffBundle\shared" | Out-Null
-    Copy-Item (Join-Path $IdeDir "opencode\AGENTS.md") $ffBundle -Force
-    Install-FlowForgeShared -DestinationDir (Join-Path $ffBundle "shared")
-    $ffJson = Join-Path $OpenCodeDir "opencode.flowforge.json"
-    Copy-Item (Join-Path $IdeDir "opencode\opencode.flowforge.json") $ffJson -Force
-    Patch-OpenCodeFlowforgeJson -Dest $ffJson -Repo $FlowForgeRepo
-    Write-Host "  OK ~/.config/opencode/flowforge/ + opencode.flowforge.json" -ForegroundColor Green
-    Write-Host "  ! Merge manual: agent{} de opencode.flowforge.json -> opencode.json o opencode.jsonc" -ForegroundColor Yellow
-    Write-Host "  ! Conserva mcp/permission al mergear (no reemplaces todo el archivo)" -ForegroundColor Yellow
+    $agentsDir = Join-Path $OpenCodeDir "agents"
+    $commandsDir = Join-Path $OpenCodeDir "commands"
+    New-Item -ItemType Directory -Force -Path $agentsDir, $commandsDir | Out-Null
+    if (Test-Path (Join-Path $IdeDir "opencode\agents")) {
+        Copy-Item (Join-Path $IdeDir "opencode\agents\*.md") $agentsDir -Force -ErrorAction SilentlyContinue
+    }
+    if (Test-Path (Join-Path $IdeDir "opencode\commands")) {
+        Copy-Item (Join-Path $IdeDir "opencode\commands\*.md") $commandsDir -Force -ErrorAction SilentlyContinue
+    }
+    $legacyBundle = Join-Path $OpenCodeDir "flowforge"
+    if (Test-Path $legacyBundle) {
+        Remove-Item -Recurse -Force $legacyBundle
+    }
+    $legacyJson = Join-Path $OpenCodeDir "opencode.flowforge.json"
+    if (Test-Path $legacyJson) {
+        Remove-Item -Force $legacyJson
+    }
+    Write-Host "  OK ~/.config/opencode/agents/ + commands/" -ForegroundColor Green
     Write-Host "  ! Modelos opencode-go/*: configura proveedor + API keys en OpenCode" -ForegroundColor Yellow
     $Installed = $true
 }
 
-# --- VS Code (global hints) ---
+# --- VS Code (global) ---
 if (Test-Path "$env:USERPROFILE\.vscode") {
     Write-Host "[OK] VS Code detectado" -ForegroundColor Green
-    $vsAgents = "$env:USERPROFILE\.vscode\agents"
-    New-Item -ItemType Directory -Force -Path $vsAgents | Out-Null
-    Copy-Item (Join-Path $IdeDir "vscode\copilot-instructions.md") "$env:USERPROFILE\.vscode\" -Force -ErrorAction SilentlyContinue
-    Copy-Item (Join-Path $IdeDir "vscode\agents\*.agent.md") $vsAgents -Force -ErrorAction SilentlyContinue
-    Write-Host "  OK ~/.vscode/copilot-instructions + agents" -ForegroundColor Green
+
+    $extensionsDir = "$env:USERPROFILE\.vscode\extensions"
+    $hasCopilot = (Test-Path $extensionsDir) -and (Get-ChildItem -Path $extensionsDir -Filter "github.copilot*" -Directory -ErrorAction SilentlyContinue | Measure-Object).Count -gt 0
+    $hasKilo = (Test-Path $extensionsDir) -and (Get-ChildItem -Path $extensionsDir -Filter "kilocode.*" -Directory -ErrorAction SilentlyContinue | Measure-Object).Count -gt 0
+
+    if ($hasCopilot -or -not $hasKilo) {
+        $copilotAgents = "$env:USERPROFILE\.copilot\agents"
+        $copilotInstructions = "$env:USERPROFILE\.copilot\instructions"
+        New-Item -ItemType Directory -Force -Path $copilotAgents, $copilotInstructions | Out-Null
+        Copy-Item (Join-Path $IdeDir "vscode\agents\*.agent.md") $copilotAgents -Force -ErrorAction SilentlyContinue
+        $srcInstructions = Join-Path $IdeDir "vscode\copilot-instructions.md"
+        if (Test-Path $srcInstructions) {
+            $destInstructions = Join-Path $copilotInstructions "flowforge.instructions.md"
+            @(
+                "---"
+                "applyTo: '**'"
+                "---"
+                (Get-Content $srcInstructions -Raw)
+            ) | Set-Content -Path $destInstructions -Encoding UTF8
+        }
+        Write-Host "  OK ~/.copilot/agents + ~/.copilot/instructions/" -ForegroundColor Green
+    }
+
+    if ($hasKilo) {
+        $kiloDir = "$env:USERPROFILE\.config\kilo\agents"
+        New-Item -ItemType Directory -Force -Path $kiloDir | Out-Null
+        Copy-Item (Join-Path $IdeDir "opencode\agents\*.md") $kiloDir -Force -ErrorAction SilentlyContinue
+        Write-Host "  OK ~/.config/kilo/agents/" -ForegroundColor Green
+    }
+
+    if (-not $hasCopilot -and -not $hasKilo) {
+        $kiloDir = "$env:USERPROFILE\.config\kilo\agents"
+        New-Item -ItemType Directory -Force -Path $kiloDir | Out-Null
+        Copy-Item (Join-Path $IdeDir "opencode\agents\*.md") $kiloDir -Force -ErrorAction SilentlyContinue
+        Write-Host "  ! VS Code: no se detectó GitHub Copilot ni Kilo Code — instalados ambos formatos por si acaso" -ForegroundColor Yellow
+        Write-Host "  OK ~/.config/kilo/agents/" -ForegroundColor Green
+    }
+
     Write-Host "  ! Para repo: ejecuta install.ps1 -ProjectPath <ruta>" -ForegroundColor Yellow
     $Installed = $true
 }
 
-# --- Antigravity (mensaje o proyecto) ---
-$HasAntigravity = (Test-Path "$env:LOCALAPPDATA\Google\Gemini") -or (Test-Path "$env:USERPROFILE\.gemini")
-if ($HasAntigravity) {
+# --- Antigravity (global) ---
+$globalGemini = $null
+if (Test-Path "$env:LOCALAPPDATA\Google\Gemini") {
+    $globalGemini = "$env:LOCALAPPDATA\Google\Gemini"
+} elseif (Test-Path "$env:USERPROFILE\.gemini") {
+    $globalGemini = "$env:USERPROFILE\.gemini"
+}
+
+if (-not [string]::IsNullOrWhiteSpace($globalGemini)) {
     Write-Host "[OK] Antigravity detectado" -ForegroundColor Green
-    if ([string]::IsNullOrWhiteSpace($ProjectPath)) {
-        Write-Host "  Usa: .\install.ps1 -ProjectPath .  (desde la raiz del proyecto)" -ForegroundColor $Cyan
-    }
+    $antigravityRoot = Join-Path $globalGemini "antigravity"
+    New-Item -ItemType Directory -Force -Path $antigravityRoot, (Join-Path $antigravityRoot "rules"), (Join-Path $antigravityRoot "workflows") | Out-Null
+    Copy-Item -Path (Join-Path $IdeDir "antigravity\AGENTS.md") -Destination $antigravityRoot -Force -ErrorAction SilentlyContinue
+    Copy-Item -Path (Join-Path $IdeDir "antigravity\rules\*") -Destination (Join-Path $antigravityRoot "rules") -Force -ErrorAction SilentlyContinue
+    Copy-Item -Path (Join-Path $IdeDir "antigravity\workflows\*") -Destination (Join-Path $antigravityRoot "workflows") -Force -ErrorAction SilentlyContinue
+    Write-Host "  OK $antigravityRoot (AGENTS.md + rules/ + workflows/)" -ForegroundColor Green
     $Installed = $true
 }
 

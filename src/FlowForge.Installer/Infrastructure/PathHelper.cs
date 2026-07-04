@@ -5,6 +5,9 @@ namespace FlowForge.Installer.Infrastructure;
 /// </summary>
 public static class PathHelper
 {
+    public static string HomeDir =>
+        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+
     public static string EngramDir =>
         Path.Combine(HomeDir, ".engram");
 
@@ -13,6 +16,30 @@ public static class PathHelper
 
     public static string LogFile =>
         Path.Combine(EngramDir, "install.log");
+
+    public static string FlowForgeBackupDir =>
+        Path.Combine(HomeDir, ".flowforge-backups");
+
+    public static string CopilotAgents =>
+        Path.Combine(HomeDir, ".copilot", "agents");
+
+    public static string CopilotInstructions =>
+        Path.Combine(HomeDir, ".copilot", "instructions");
+
+    public static string KiloConfigDir =>
+        Path.Combine(HomeDir, ".config", "kilo");
+
+    public static string KiloAgents =>
+        Path.Combine(KiloConfigDir, "agents");
+
+    public static string AntigravityDir =>
+        Path.Combine(HomeDir, ".gemini", "antigravity");
+
+    public static string AntigravityRules =>
+        Path.Combine(AntigravityDir, "rules");
+
+    public static string AntigravityWorkflows =>
+        Path.Combine(AntigravityDir, "workflows");
 
     /// <summary>Directorio de instalación del binario flowforge.</summary>
     public static string InstallerBinDir =>
@@ -54,9 +81,6 @@ public static class PathHelper
 
     /// <summary>Rutas de config MCP por editor.</summary>
     public static IdeConfigPaths GetIdePaths(string homeDir) => new(homeDir);
-
-    static string HomeDir =>
-        Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
 }
 
 /// <summary>Paths de configuración MCP para cada editor soportado.</summary>
@@ -66,6 +90,18 @@ public sealed class IdeConfigPaths(string home)
     // OpenCode uses opencode.jsonc (or opencode.json). EngramModule merges into the existing file.
     public string OpenCode  => Path.Combine(home, ".config", "opencode", "opencode.json");
     public string VsCode    => Path.Combine(home, ".vscode", "mcp.json");
+
+    /// <summary>VS Code Copilot user-level custom agents (see code.visualstudio.com/docs/copilot/customization/custom-agents).</summary>
+    public string CopilotAgents => Path.Combine(home, ".copilot", "agents");
+
+    /// <summary>VS Code Copilot user-level instructions directory.</summary>
+    public string CopilotInstructionsDir => Path.Combine(home, ".copilot", "instructions");
+
+    /// <summary>
+    /// Antigravity (Google): ~/.gemini/antigravity/mcp_config.json
+    /// Uses mcpServers format (same as Cursor).
+    /// </summary>
+    public string Antigravity => Path.Combine(home, ".gemini", "antigravity", "mcp_config.json");
 
     /// <summary>
     /// Claude Desktop: ruta varía por plataforma.

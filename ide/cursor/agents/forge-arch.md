@@ -1,7 +1,7 @@
 ---
 name: forge-arch
 description: FlowForge phase 1: spec.md and GWT. Invoked after discovery.
-model: kimi-k2.5
+model: kimi-k2.7-code
 readonly: false
 background: false
 ---

@@ -1,5 +1,6 @@
 using ConsoleAppFramework;
 using FlowForge.Installer.Infrastructure;
+using FlowForge.Installer.Modules;
 using Spectre.Console;
 using System.Collections.Generic;
 using System.IO;
@@ -21,6 +22,8 @@ public sealed class DoctorCommand(InstallerContext ctx)
             AnsiConsole.MarkupLine("[bold]FlowForge Doctor[/] — diagnóstico del sistema");
             AnsiConsole.WriteLine();
 
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var projectRoot = Directory.GetCurrentDirectory();
             var checks = new List<(string Name, Func<Task<(bool Passed, string? Hint)>> Check)>
             {
                 ("flowforge binary",    () => CheckFileAsync(PathHelper.InstallerBinary)),
@@ -28,7 +31,23 @@ public sealed class DoctorCommand(InstallerContext ctx)
                 ("engram en PATH",      () => Task.FromResult(CheckPath(PathHelper.EngramBinDir))),
                 ("MCP configurado",     () => Task.FromResult(CheckMcp())),
                 ("GitHub reachable",    () => CheckGitHubAsync()),
+                ("VS Code: github.copilot", () => Task.FromResult(CheckVsCodeExtension("github.copilot"))),
+                ("VS Code: kilocode.*",     () => Task.FromResult(CheckVsCodeExtension("kilocode."))),
+                ("~/.copilot/agents/",      () => Task.FromResult(CheckDirectory(PathHelper.CopilotAgents))),
+                ("~/.config/kilo/agents/",  () => Task.FromResult(CheckDirectory(PathHelper.KiloAgents))),
+                ("~/.config/opencode/agents/", () => Task.FromResult(CheckDirectory(Path.Combine(home, ".config", "opencode", "agents")))),
+                ("~/.cursor/agents/",       () => Task.FromResult(CheckDirectory(Path.Combine(home, ".cursor", "agents")))),
+                ("~/.gemini/antigravity/",  () => Task.FromResult(CheckDirectory(PathHelper.AntigravityDir))),
             };
+
+            if (IsFlowForgeProject(projectRoot))
+            {
+                checks.Add(("Project: .github/agents/", () => Task.FromResult(CheckDirectory(Path.Combine(projectRoot, ".github", "agents")))));
+                checks.Add(("Project: .opencode/agents/", () => Task.FromResult(CheckDirectory(Path.Combine(projectRoot, ".opencode", "agents")))));
+                checks.Add(("Project: .kilo/agents/", () => Task.FromResult(CheckDirectory(Path.Combine(projectRoot, ".kilo", "agents")))));
+                checks.Add(("Project: .cursor/agents/", () => Task.FromResult(CheckDirectory(Path.Combine(projectRoot, ".cursor", "agents")))));
+                checks.Add(("Project: .agents/", () => Task.FromResult(CheckDirectory(Path.Combine(projectRoot, ".agents")))));
+            }
 
             var results = new List<DoctorCheck>();
             foreach (var (name, check) in checks)
@@ -111,6 +130,29 @@ public sealed class DoctorCommand(InstallerContext ctx)
 
         var hint = configured ? null : "Ejecutá `flowforge install` para configurar MCP.";
         return (configured, hint);
+    }
+
+    static (bool, string?) CheckDirectory(string path)
+    {
+        if (!Directory.Exists(path))
+            return (false, $"No existe {path}. Ejecutá `flowforge install` o `flowforge init`.");
+        if (!Directory.EnumerateFileSystemEntries(path).Any())
+            return (false, $"El directorio {path} está vacío.");
+        return (true, null);
+    }
+
+    static (bool, string?) CheckVsCodeExtension(string prefix)
+    {
+        if (FlowForgeModule.HasVsCodeExtension(prefix))
+            return (true, null);
+        return (false, $"No se detectó VS Code: {prefix} en ~/.vscode/extensions/");
+    }
+
+    static bool IsFlowForgeProject(string root)
+    {
+        return Directory.Exists(Path.Combine(root, ".git"))
+            || File.Exists(Path.Combine(root, "flowforge.yaml"))
+            || File.Exists(Path.Combine(root, ".flowforge.json"));
     }
 
     static async Task<(bool, string?)> CheckGitHubAsync()

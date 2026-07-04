@@ -6,6 +6,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 
 ## [Unreleased]
 
+### Added
+- **ADR-008**: matriz canónica IDE × ruta global × ruta proyecto × detección (`docs/decisions/ADR-008-ide-installer-path-matrix.md`).
+
 ### Fixed
 - **Stack Installer**: `--yes` ahora salta todos los prompts de Spectre.Console y usa defaults (ambos componentes, IDEs auto-detectados, modo sync si `ENGRAM_SERVER_URL` está definido). Corrige `System.NotSupportedException` en entornos no-interactivos (CI/CD, Docker, scripts).
 - **EngramModule**: symlink automático `libe_sqlite3.so` → `libsqlite3.so` del sistema cuando la librería nativa no viene en el release de engram-dotnet. Soporte para `libe_sqlite3.so` (Linux) y `e_sqlite3.dll` (Windows).
@@ -13,7 +16,9 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 - **GitHubReleasesClient**: `DownloadNativeSqliteLibAsync` descarga la librería nativa SQLite desde el release de engram-dotnet.
 - **FlowForgeModule**: mensaje de error multiplataforma cuando falta git (pacman/apt/brew/winget).
 - **install.sh/install.ps1**: agregan flag `--yes` al wizard de instalación.
+- **Multi-IDE packs** (`fix-ide-installer-packs`): Copilot y Kilo instalan en `~/.copilot/agents/` y `~/.config/kilo/agents/`; OpenCode en `~/.config/opencode/agents/` + `commands/` (limpieza legacy); Antigravity en `~/.gemini/antigravity/`; `flowforge init` crea `.github/`, `.opencode/`, `.kilo/`, `.cursor/`, `.agents/`; `flowforge doctor` reporta extensiones VS Code y rutas globales/proyecto; paridad `install.sh`/`install.ps1` (best-effort Copilot+Kilo, OpenCode sin JSON legacy en Windows).
 - **ADR-005**: documenta los 5 bugs del ecosistema de instalación (cross-repo FlowForge + engram-dotnet).
+- feat: fix-installer — Arregla instalador que se queda "pegado": timeouts configurables, barra de progreso en descargas, detección headless fiable, feedback temprano, comando `flowforge doctor`, corrección de ownership post-sudo y documentación de troubleshooting.
 
 ### Changed
 - Nombre del asset nativo Linux: `e_sqlite3.so` → `libe_sqlite3.so` (respeta el prefijo `lib` de SQLitePCLRaw).

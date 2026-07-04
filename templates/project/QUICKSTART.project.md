@@ -53,7 +53,18 @@ Fill in the `title`, acceptance criteria, and user story. Leave `flowforge_slug:
 bash /path/to/FlowForge/ide/install.sh __PROJECT_PATH__
 ```
 
-This installs Cursor rules, OpenCode bundle, VS Code agents, and Antigravity workflows.
+This installs Cursor rules, OpenCode/Kilo bundles, VS Code agents (Copilot + Kilo), and the Antigravity workflows and rules.
+
+After this step the project contains the IDE directories:
+
+```
+.github/agents/          ← GitHub Copilot agents
+.opencode/agents/        ← OpenCode + Kilo agents
+.kilo/agents/            ← Duplicate of `.opencode/agents/` for Kilo Code
+.cursor/                 ← Cursor rules, agents, commands
+.agents/rules/           ← Antigravity rules (workflow, git-sin-push, etc.)
+.agents/workflows/       ← Antigravity `/flow-*` workflows
+```
 
 ---
 

@@ -73,9 +73,14 @@ public sealed class FlowForgeModule(InstallerContext ctx)
                         existingFiles = [.. Directory.EnumerateFiles(opencodeAgentsDir, "forge-*.md", SearchOption.TopDirectoryOnly)];
                     break;
                 case "vs code":
-                    var vscodeDir = Path.Combine(home, ".vscode", "agents");
-                    if (Directory.Exists(vscodeDir))
-                        existingFiles = [.. Directory.EnumerateFiles(vscodeDir, "*.agent.md", SearchOption.TopDirectoryOnly)];
+                    var copilotAgentsDir = Path.Combine(home, ".copilot", "agents");
+                    if (Directory.Exists(copilotAgentsDir))
+                        existingFiles = [.. Directory.EnumerateFiles(copilotAgentsDir, "forge-*.agent.md", SearchOption.TopDirectoryOnly)];
+                    break;
+                case "antigravity":
+                    var antigravityDir = Path.Combine(home, ".gemini", "antigravity", "rules");
+                    if (Directory.Exists(antigravityDir))
+                        existingFiles = [.. Directory.EnumerateFiles(antigravityDir, "*.md", SearchOption.TopDirectoryOnly)];
                     break;
             }
 
@@ -100,7 +105,10 @@ public sealed class FlowForgeModule(InstallerContext ctx)
                 InstallOpenCode(home, ffRepo);
                 break;
             case "vs code":
-                InstallVsCode(home, ffRepo);
+                InstallVsCode(ffRepo);
+                break;
+            case "antigravity":
+                InstallAntigravity(ffRepo);
                 break;
             case "claude desktop":
                 AnsiConsole.MarkupLine("  [grey]Claude Desktop: configura manualmente el MCP — ver docs/MCP-CONFIG.md[/]");
@@ -128,24 +136,18 @@ public sealed class FlowForgeModule(InstallerContext ctx)
 
     void InstallOpenCode(string home, string ffRepo)
     {
-        // OpenCode auto-loads agents from ~/.config/opencode/agents/*.md
-        // and commands from ~/.config/opencode/commands/*.md — no merge needed.
         var dest = Path.Combine(home, ".config", "opencode");
         var agentsDest = Path.Combine(dest, "agents");
         var commandsDest = Path.Combine(dest, "commands");
-        Directory.CreateDirectory(agentsDest);
-        Directory.CreateDirectory(commandsDest);
+        EnsureDirectoryWithBackup(agentsDest);
+        EnsureDirectoryWithBackup(commandsDest);
 
-        // Copy agent markdown files (one per FlowForge agent)
         var ideAgentsSrc = Path.Combine(ffRepo, "ide", "opencode", "agents");
         CopyGlob(ideAgentsSrc, agentsDest, "*.md");
 
-        // Copy commands (if we have any — currently empty)
         var ideCommandsSrc = Path.Combine(ffRepo, "ide", "opencode", "commands");
-        if (Directory.Exists(ideCommandsSrc))
-            CopyGlob(ideCommandsSrc, commandsDest, "*.md");
+        CopyGlob(ideCommandsSrc, commandsDest, "*.md");
 
-        // Clean up old approach: remove ~/.config/opencode/flowforge/ and opencode.flowforge.json
         var oldFfDir = Path.Combine(dest, "flowforge");
         if (Directory.Exists(oldFfDir))
         {
@@ -160,21 +162,207 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         AnsiConsole.MarkupLine($"  [green]✓[/] OpenCode → [grey]~/.config/opencode/agents/ + commands/[/]");
     }
 
-    static void InstallVsCode(string home, string ffRepo)
+    static void InstallAntigravity(string ffRepo)
     {
-        var vscodeHome = Path.Combine(home, ".vscode");
-        Directory.CreateDirectory(vscodeHome);
+        var dest = PathHelper.AntigravityDir;
+        EnsureDirectoryWithBackup(dest);
+        EnsureDirectoryWithBackup(Path.Combine(dest, "rules"));
+        EnsureDirectoryWithBackup(Path.Combine(dest, "workflows"));
 
-        var agentsDest = Path.Combine(vscodeHome, "agents");
+        var ideDir = Path.Combine(ffRepo, "ide", "antigravity");
+        if (!Directory.Exists(ideDir)) return;
+
+        var agentsMd = Path.Combine(ideDir, "AGENTS.md");
+        if (File.Exists(agentsMd))
+            File.Copy(agentsMd, Path.Combine(dest, "AGENTS.md"), overwrite: true);
+
+        CopyGlob(Path.Combine(ideDir, "rules"), PathHelper.AntigravityRules, "*.md");
+        CopyGlob(Path.Combine(ideDir, "workflows"), PathHelper.AntigravityWorkflows, "*.md");
+
+        AnsiConsole.MarkupLine("  [green]✓[/] Antigravity → [grey]~/.gemini/antigravity/ (AGENTS.md + rules + workflows)[/]");
+    }
+
+    static void InstallVsCode(string ffRepo)
+    {
+        var hasCopilot = HasVsCodeExtension("github.copilot");
+        var hasKilo = HasVsCodeExtension("kilocode.");
+
+        if (hasCopilot)
+        {
+            EnsureDirectoryWithBackup(PathHelper.CopilotAgents);
+            CopyGlob(Path.Combine(ffRepo, "ide", "vscode", "agents"), PathHelper.CopilotAgents, "*.agent.md");
+            EnsureDirectoryWithBackup(PathHelper.CopilotInstructions);
+            WriteUserCopilotInstructions(
+                ffRepo,
+                Path.Combine(PathHelper.CopilotInstructions, "flowforge.instructions.md"));
+            AnsiConsole.MarkupLine("  [green]✓[/] GitHub Copilot → [grey]~/.copilot/agents + instructions/[/]");
+        }
+
+        if (hasKilo)
+        {
+            InstallKilo(ffRepo);
+            AnsiConsole.MarkupLine("  [green]✓[/] Kilo Code → [grey]~/.config/kilo/agents/[/]");
+        }
+
+        if (!hasCopilot && !hasKilo)
+        {
+            EnsureDirectoryWithBackup(PathHelper.CopilotAgents);
+            CopyGlob(Path.Combine(ffRepo, "ide", "vscode", "agents"), PathHelper.CopilotAgents, "*.agent.md");
+            EnsureDirectoryWithBackup(PathHelper.CopilotInstructions);
+            WriteUserCopilotInstructions(
+                ffRepo,
+                Path.Combine(PathHelper.CopilotInstructions, "flowforge.instructions.md"));
+            InstallKilo(ffRepo);
+            AnsiConsole.MarkupLine("  [yellow]![/] VS Code: no se detectó GitHub Copilot ni Kilo Code — instalados ambos formatos por si acaso");
+        }
+
+        AnsiConsole.MarkupLine("  [yellow]![/] Para repo: [bold]flowforge init <ruta>[/] o ide/install.sh <ruta>[/]");
+    }
+
+    static void InstallKilo(string ffRepo)
+    {
+        EnsureDirectoryWithBackup(PathHelper.KiloAgents);
+        CopyGlob(Path.Combine(ffRepo, "ide", "opencode", "agents"), PathHelper.KiloAgents, "*.md");
+    }
+
+    static bool HasVsCodeExtension(string home, string prefix) =>
+        Directory.Exists(Path.Combine(home, ".vscode", "extensions")) &&
+        Directory.EnumerateDirectories(Path.Combine(home, ".vscode", "extensions"), $"{prefix}*")
+            .Any();
+
+    /// <summary>
+    /// Instala agents e instructions a nivel workspace (GitHub Copilot).
+    /// </summary>
+    public static void InstallVsCodeProject(string projectPath, string ffRepo)
+    {
+        var ghDir = Path.Combine(projectPath, ".github");
+        var agentsDest = Path.Combine(ghDir, "agents");
         Directory.CreateDirectory(agentsDest);
         CopyGlob(Path.Combine(ffRepo, "ide", "vscode", "agents"), agentsDest, "*.agent.md");
 
         var copilotSrc = Path.Combine(ffRepo, "ide", "vscode", "copilot-instructions.md");
         if (File.Exists(copilotSrc))
-            File.Copy(copilotSrc, Path.Combine(vscodeHome, "copilot-instructions.md"), overwrite: true);
+            File.Copy(copilotSrc, Path.Combine(ghDir, "copilot-instructions.md"), overwrite: true);
+    }
 
-        AnsiConsole.MarkupLine("  [green]✓[/] VS Code → [grey]~/.vscode/copilot-instructions + agents[/]");
-        AnsiConsole.MarkupLine("  [yellow]![/] Para repo: [bold]flowforge init <ruta>[/] o ide/install.ps1 -ProjectPath");
+    /// <summary>
+    /// Instala agents OpenCode a nivel proyecto (.opencode/agents).
+    /// OpenCode CLI y Kilo Code en VS Code leen esta ruta.
+    /// </summary>
+    public static void InstallOpenCodeProject(string projectPath, string ffRepo)
+    {
+        var ocDest = Path.Combine(projectPath, ".opencode", "agents");
+        Directory.CreateDirectory(ocDest);
+        CopyGlob(Path.Combine(ffRepo, "ide", "opencode", "agents"), ocDest, "*.md");
+
+        // Kilo Code también lee .kilo/agents — duplicar para máxima compatibilidad
+        var kiloDest = Path.Combine(projectPath, ".kilo", "agents");
+        Directory.CreateDirectory(kiloDest);
+        CopyGlob(Path.Combine(ffRepo, "ide", "opencode", "agents"), kiloDest, "*.md");
+    }
+
+    public static void InstallCursorProject(string projectPath, string ffRepo)
+    {
+        var cursorDir = Path.Combine(projectPath, ".cursor");
+        EnsureDirectoryWithBackup(cursorDir);
+
+        var rulesDest = Path.Combine(cursorDir, "rules");
+        EnsureDirectoryWithBackup(rulesDest);
+        CopyGlob(Path.Combine(ffRepo, "ide", "cursor", "rules"), rulesDest, "*.mdc");
+
+        var agentsDest = Path.Combine(cursorDir, "agents");
+        EnsureDirectoryWithBackup(agentsDest);
+        CopyGlob(Path.Combine(ffRepo, "ide", "cursor", "agents"), agentsDest, "forge-*.md");
+
+        var commandsDest = Path.Combine(cursorDir, "commands");
+        EnsureDirectoryWithBackup(commandsDest);
+        CopyGlob(Path.Combine(ffRepo, "ide", "cursor", "commands"), commandsDest, "*.md");
+    }
+
+    public static void InstallAntigravityProject(string projectPath, string ffRepo)
+    {
+        var agentsRoot = Path.Combine(projectPath, ".agents");
+        EnsureDirectoryWithBackup(agentsRoot);
+
+        var rulesDest = Path.Combine(agentsRoot, "rules");
+        EnsureDirectoryWithBackup(rulesDest);
+        CopyGlob(Path.Combine(ffRepo, "ide", "antigravity", "rules"), rulesDest, "*.md");
+
+        var workflowsDest = Path.Combine(agentsRoot, "workflows");
+        EnsureDirectoryWithBackup(workflowsDest);
+        CopyGlob(Path.Combine(ffRepo, "ide", "antigravity", "workflows"), workflowsDest, "*.md");
+
+        var agentsMdSrc = Path.Combine(ffRepo, "ide", "antigravity", "AGENTS.md");
+        if (File.Exists(agentsMdSrc))
+            File.Copy(agentsMdSrc, Path.Combine(projectPath, "AGENTS.md"), overwrite: true);
+    }
+
+    public static bool HasVsCodeExtension(string prefix)
+    {
+        var extensionsDir = Path.Combine(PathHelper.HomeDir, ".vscode", "extensions");
+        if (!Directory.Exists(extensionsDir))
+            return false;
+
+        return Directory.EnumerateDirectories(extensionsDir, $"{prefix}*").Any();
+    }
+
+    static void EnsureDirectoryWithBackup(string path)
+    {
+        BackupDirectory(path);
+        Directory.CreateDirectory(path);
+    }
+
+    static void BackupDirectory(string path)
+    {
+        if (!Directory.Exists(path))
+            return;
+
+        if (!Directory.EnumerateFileSystemEntries(path).Any())
+            return;
+
+        Directory.CreateDirectory(PathHelper.FlowForgeBackupDir);
+        var timestamp = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss");
+        var baseName = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar)) ?? "flowforge";
+        var backupDest = Path.Combine(PathHelper.FlowForgeBackupDir, $"{baseName}-{timestamp}");
+        CopyDirectoryRecursive(path, backupDest);
+        AnsiConsole.MarkupLine($"  [grey]⋯[/] Backup: {backupDest}");
+    }
+
+    static void CopyDirectoryRecursive(string source, string destination)
+    {
+        if (!Directory.Exists(source))
+            return;
+
+        Directory.CreateDirectory(destination);
+        foreach (var directory in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(source, directory);
+            Directory.CreateDirectory(Path.Combine(destination, relative));
+        }
+
+        foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(source, file);
+            var destFile = Path.Combine(destination, relative);
+            Directory.CreateDirectory(Path.GetDirectoryName(destFile)!);
+            File.Copy(file, destFile, overwrite: true);
+        }
+    }
+
+    static void WriteUserCopilotInstructions(string ffRepo, string destPath)
+    {
+        var copilotSrc = Path.Combine(ffRepo, "ide", "vscode", "copilot-instructions.md");
+        if (!File.Exists(copilotSrc)) return;
+
+        var body = File.ReadAllText(copilotSrc).TrimStart();
+        if (body.StartsWith("---", StringComparison.Ordinal))
+        {
+            File.WriteAllText(destPath, body + Environment.NewLine);
+            return;
+        }
+
+        File.WriteAllText(destPath,
+            $"---{Environment.NewLine}applyTo: '**'{Environment.NewLine}---{Environment.NewLine}{body}{Environment.NewLine}");
     }
 
     static void PatchOpenCodeFlowforgeJson(string dest, string repo)

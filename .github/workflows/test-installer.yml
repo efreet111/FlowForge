@@ -91,8 +91,9 @@ jobs:
 
       - name: Simular IDEs instalados
         run: |
-          mkdir -p ~/.cursor ~/.config/opencode ~/.vscode ~/.gemini
-          mkdir -p ~/.local/bin
+          mkdir -p ~/.cursor ~/.config/opencode ~/.copilot/agents ~/.copilot/instructions \
+            ~/.config/kilo/agents ~/.gemini/antigravity/rules ~/.gemini/antigravity/workflows ~/.gemini \
+            ~/.local/bin
 
       - name: Instalar flowforge binary
         run: |
@@ -144,11 +145,22 @@ jobs:
           echo "OpenCode MCP enabled: $ENABLED"
           test "$ENABLED" = "true" || (echo "FAIL: enabled should be true"; exit 1)
 
-      - name: Verificar — VS Code
+      - name: Verificar — VS Code (Copilot + Kilo)
         run: |
-          test -f ~/.vscode/copilot-instructions.md && echo "PASS: copilot-instructions" || echo "WARN: copilot-instructions missing"
-          COUNT=$(find ~/.vscode/agents -name "*.agent.md" 2>/dev/null | wc -l)
-          echo "VS Code agents: $COUNT"
+          test -f ~/.copilot/instructions/flowforge.instructions.md && echo "PASS: copilot instructions" || (echo "FAIL: copilot instructions missing"; exit 1)
+          COPILOT_AGENTS=$(find ~/.copilot/agents -name "*.agent.md" 2>/dev/null | wc -l)
+          echo "Copilot agents: $COPILOT_AGENTS"
+          test "$COPILOT_AGENTS" -gt 0 || (echo "FAIL: no copilot agents"; exit 1)
+          KILO_AGENTS=$(find ~/.config/kilo/agents -name "*.md" 2>/dev/null | wc -l)
+          echo "Kilo agents: $KILO_AGENTS"
+          test "$KILO_AGENTS" -gt 0 || (echo "FAIL: no kilo agents"; exit 1)
+
+      - name: Verificar — Antigravity global
+        run: |
+          test -f ~/.gemini/antigravity/AGENTS.md && echo "PASS: Antigravity AGENTS.md" || (echo "FAIL: Antigravity AGENTS.md missing"; exit 1)
+          RULES_COUNT=$(find ~/.gemini/antigravity/rules -name "*.md" 2>/dev/null | wc -l)
+          echo "Antigravity rules: $RULES_COUNT"
+          test "$RULES_COUNT" -gt 0 || (echo "FAIL: no Antigravity rules"; exit 1)
 
       - name: Verificar — flowforge doctor
         run: |
@@ -189,7 +201,10 @@ jobs:
             "$env:USERPROFILE\.cursor",
             "$env:USERPROFILE\.config\opencode",
             "$env:USERPROFILE\.vscode",
-            "$env:USERPROFILE\.gemini"
+            "$env:USERPROFILE\.gemini",
+            "$env:USERPROFILE\.copilot\agents",
+            "$env:USERPROFILE\.copilot\instructions",
+            "$env:USERPROFILE\.config\kilo\agents"
           )
           foreach ($d in $dirs) { New-Item -ItemType Directory -Force -Path $d | Out-Null }
 
@@ -241,6 +256,25 @@ jobs:
           $count = (Get-ChildItem -Path $agentsDir -Filter "forge-*.md" -ErrorAction SilentlyContinue).Count
           Write-Output "Cursor agents: $count"
           if ($count -eq 0) { Write-Error "FAIL: no cursor agents"; exit 1 }
+
+      - name: Verificar — VS Code Copilot + Kilo (Windows)
+        shell: pwsh
+        run: |
+          $copilotInstructions = "$env:USERPROFILE\.copilot\instructions\flowforge.instructions.md"
+          if (Test-Path $copilotInstructions) {
+            Write-Output "PASS: copilot instructions"
+          } else {
+            Write-Error "FAIL: copilot instructions missing"
+            exit 1
+          }
+          $copilotAgents = "$env:USERPROFILE\.copilot\agents"
+          $copilotCount = (Get-ChildItem -Path $copilotAgents -Filter "*.agent.md" -ErrorAction SilentlyContinue).Count
+          Write-Output "Copilot agents: $copilotCount"
+          if ($copilotCount -eq 0) { Write-Error "FAIL: no copilot agents"; exit 1 }
+          $kiloAgents = "$env:USERPROFILE\.config\kilo\agents"
+          $kiloCount = (Get-ChildItem -Path $kiloAgents -Filter "*.md" -ErrorAction SilentlyContinue).Count
+          Write-Output "Kilo agents: $kiloCount"
+          if ($kiloCount -eq 0) { Write-Error "FAIL: no kilo agents"; exit 1 }
 
       - name: Verificar — flowforge doctor (Windows)
         shell: pwsh

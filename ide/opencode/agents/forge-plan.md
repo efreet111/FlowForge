@@ -2,7 +2,7 @@
 description: Phase 2 — Breaks spec into tasks, contracts, effort estimates.
 mode: subagent
 hidden: true
-model: opencode-go/qwen3.5-plus
+model: opencode-go/qwen3.7-plus
 permission:
   edit: allow
   write: allow

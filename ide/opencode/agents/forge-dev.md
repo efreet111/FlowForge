@@ -2,7 +2,7 @@
 description: Phase 3 — Implements plan.md, writes unit tests, runs the Ralph Wiggum loop.
 mode: subagent
 hidden: true
-model: opencode-go/qwen3.5-plus
+model: opencode-go/qwen3.7-plus
 permission:
   edit: allow
   write: allow

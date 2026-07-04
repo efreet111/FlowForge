@@ -129,12 +129,20 @@ FASE 4: CIERRE ─────── CKP-4 🟢 deploy gate
 
 ## Integración IDE
 
-| IDE | Ubicación |
-|-----|-----------|
-| **Cursor** | `ide/cursor/` → `~/.cursor/` o `.cursor/` en el proyecto |
-| **VS Code** | `ide/vscode/` → `.github/agents/` |
-| **Antigravity** | `ide/antigravity/` → `.agents/` |
-| **OpenCode** | `ide/opencode/opencode.flowforge.json` |
+FlowForge copia los packs de agentes a los directorios que cada IDE realmente lee. El siguiente cuadro resume los destinos canónicos y las notas clave de detección.
+
+| IDE | Paquete global | Paquete por proyecto | Notas |
+|-----|----------------|---------------------|-------|
+| **Cursor** | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` | `flowforge install` y `flowforge init` usan los mismos archivos; MCP en `~/.cursor/mcp.json`. |
+| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/` | El `opencode.json` local contiene `mcp.engram` con `type: local`; `opencode.flowforge.json` y `~/.config/opencode/flowforge/` son atajos históricos. |
+| **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detectado por las extensiones `github.copilot*`; el archivo de instrucciones se normaliza con el header `applyTo`. |
+| **Kilo Code** | `~/.config/kilo/agents/*.md` (mismo formato OpenCode) | `.kilo/agents/*.md` (duplicado de `.opencode/agents/`) | Detectado por `kilocode.*`; FlowForge sincroniza el bundle con OpenCode. |
+| **Antigravity** | `~/.gemini/antigravity/` (`AGENTS.md`, `rules/`, `workflows/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `AGENTS.md` | Antigravity de Google (no Claude Desktop); la instalación global refleja el bundle de proyecto. |
+| **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (MCP solamente) | — | Solo MCP manual; FlowForge documenta la ruta pero no copia agentes ni reglas. |
+
+`flowforge install` detecta estas IDEs (Cursor, OpenCode, extensiones VS Code, Antigravity) y aplica este mismo esquema. Los scripts `ide/install.sh` y `ide/install.ps1` exponen los mismos destinos y sirven para refrescar la instalación o generar bundles por proyecto.
+
+`flowforge doctor` ahora informa `[✓] github.copilot` y `[✓] kilocode.*` junto a los nuevos directorios para que veas qué pack se instaló. Consultá [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md) para la matriz canónica y la separación entre Antigravity y Claude Desktop.
 
 Detalle: [`ide/README.md`](ide/README.md)
 
