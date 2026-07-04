@@ -146,6 +146,12 @@ public sealed class EngramModule(InstallerContext ctx)
                              user, dataDir, syncEnabled);
         }
 
+        // Antigravity (Google): ~/.gemini/antigravity/mcp_config.json — uses mcpServers format
+        if (Directory.Exists(Path.Combine(home, ".gemini")))
+        {
+            WriteMcpJson(idePaths.Antigravity, user, dataDir, syncEnabled, "cursor");
+        }
+
         AnsiConsole.MarkupLine("[grey]  MCP configurado para los IDEs detectados.[/]");
     }
 

@@ -1,7 +1,7 @@
 ---
 name: forge-verify
 description: FlowForge phase 3b: audit. Invoked via /flow-verify.
-model: kimi-k2.5
+model: kimi-k2.7-code
 readonly: false
 background: false
 ---

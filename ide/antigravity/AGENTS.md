@@ -46,6 +46,23 @@ Skills en `skills/` — cada agente carga on-demand (seguridad, SOLID, etc.).
 | `/flow-close` | `flow-close.md` |
 | Bug / rework | `flow-rework.md` |
 
+## Layout por contexto
+
+### Instalación global (`flowforge install` o `ide/install.sh`)
+
+- `~/.gemini/antigravity/AGENTS.md` — archivo raíz del orquestador (flowforge + hooks)
+- `~/.gemini/antigravity/rules/*.md` — reglas/estados (workflow, model-assignments, git-sin-push, etc.)
+- `~/.gemini/antigravity/workflows/*.md` — implementaciones de `/flow-*`
+- `~/.gemini/antigravity/mcp_config.json` — configuración MCP para Engram (tipo cursor + mcpServers)
+
+### Instalación en proyecto (`flowforge init <ruta>` o `install.sh <ruta>`)
+
+- `{repo}/AGENTS.md` — orquestador del proyecto en la raíz del repositorio
+- `{repo}/.agents/rules/` — reglas locales (`workflow.md`, `model-assignments.md`, `git-sin-push.md`)
+- `{repo}/.agents/workflows/` — workflows `/flow-start`, `/flow-plan`, `/flow-rework`, etc.
+
+FlowForge mantiene la paridad entre la instalación global y cada repo. Para mayor detalle, consultá [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](../../docs/decisions/ADR-008-ide-installer-path-matrix.md).
+
 ## Documentación
 
 [FlowForge](https://github.com/efreet111/FlowForge)

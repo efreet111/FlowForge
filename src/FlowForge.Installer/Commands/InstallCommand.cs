@@ -129,7 +129,7 @@ public sealed class InstallCommand(InstallerContext ctx)
                     new MultiSelectionPrompt<string>()
                         .Title("")
                         .InstructionsText("[grey](Espacio para seleccionar, Enter para confirmar)[/]")
-                        .AddChoices(["Cursor", "OpenCode", "VS Code", "Claude Desktop"]));
+                        .AddChoices(["Cursor", "OpenCode", "VS Code", "Antigravity", "Claude Desktop"]));
             }
         }
 
@@ -217,7 +217,13 @@ public sealed class InstallCommand(InstallerContext ctx)
         if (Directory.Exists(Path.Combine(home, ".vscode")) ||
             Directory.Exists(Path.Combine(home, ".vscode-server")))
             ides.Add("VS Code");
+        // ~/.gemini is Antigravity (Google's IDE), not Claude Desktop
         if (Directory.Exists(Path.Combine(home, ".gemini")))
+            ides.Add("Antigravity");
+        // Claude Desktop uses ~/.config/Claude/ on Linux, %APPDATA%\Claude on Windows
+        if (Directory.Exists(Path.Combine(home, ".config", "Claude")) ||
+            (OperatingSystem.IsWindows() && Directory.Exists(
+                Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Claude"))))
             ides.Add("Claude Desktop");
 
         return ides;

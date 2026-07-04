@@ -133,12 +133,20 @@ PHASE 4: CLOSE      ── CKP-4 🟢 deploy gate (human decides)
 
 ## IDE integration
 
-| IDE | Pack location |
-|-----|----------------|
-| **Cursor** | `ide/cursor/` → `~/.cursor/` or project `.cursor/` |
-| **VS Code** | `ide/vscode/` → `.github/agents/` + `.vscode/copilot-instructions.md` |
-| **Antigravity** | `ide/antigravity/` → `.agents/rules` + `.agents/workflows` |
-| **OpenCode** | `ide/opencode/opencode.flowforge.json` (merge into your config) |
+FlowForge writes agent packs to the directories each IDE actually reads so that the `flowforge` installer, the shell scripts, and `flowforge init` all keep the global and project layouts in sync. The table below summarizes the canonical destinations and notes the VS Code detection strategy.
+
+| IDE | Global agents | Project agents | Notes |
+|-----|---------------|----------------|-------|
+| **Cursor** | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` | `flowforge install` / `flowforge init` copy the same files; MCP written to `~/.cursor/mcp.json` |
+| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/` | `opencode.json` (or `.jsonc`) holds `mcp.engram` with `type: local`; `opencode.flowforge.json` and `~/.config/opencode/flowforge/` are legacy helpers only |
+| **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detected via extensions `github.copilot*`; instructions file is normalized with the `applyTo` header |
+| **Kilo Code** | `~/.config/kilo/agents/*.md` (same format as OpenCode) | `.kilo/agents/*.md` (duplicated from `.opencode/agents/`) | Detected via extensions `kilocode.*`; FlowForge keeps the directories in sync with OpenCode bundles |
+| **Antigravity** | `~/.gemini/antigravity/` (`AGENTS.md`, `rules/`, `workflows/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `AGENTS.md` | Google Antigravity (not Claude Desktop); global install mirrors project bundle |
+| **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (MCP only) | — | Anthropic MCP config only; FlowForge documents it but does not copy agents or rules |
+
+`flowforge install` automatically detects the IDEs listed above (Cursor, OpenCode, VS Code extensions, Antigravity) and installs the matching rows from this matrix. The bootstrap scripts (`ide/install.sh`, `ide/install.ps1`) expose the same destinations and can be used for manual refreshes or per-project bundles when you prefer shell wizards.
+
+`flowforge doctor` now reports `[✓] github.copilot` and `[✓] kilocode.*` alongside the new directories so you can see which VS Code pack ran. See [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md) for the canonical matrix and the rationale for separating Antigravity from Claude Desktop.
 
 Shared orchestrator contract: [`ide/shared/workflow-orchestrator-parity.md`](ide/shared/workflow-orchestrator-parity.md)
 

@@ -27,6 +27,23 @@ ide/shared/workflow-orchestrator-parity.md
 python ide/cursor/compile-agents-from-skills.py
 ```
 
+## IDE matrix (canonical paths)
+
+FlowForge escribe agentes en los mismos destinos que la tabla canónica; la matriz que sigue explica qué rutas maneja cada IDE y qué formato requiere.
+
+| IDE | Global | Proyecto | Formato |
+|-----|--------|----------|---------|
+| **Cursor** | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` | Markdown para agents y comandos, `.mdc` para reglas. |
+| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/` | Markdown + `opencode.json` (`mcp.engram.type = "local"`). El directorio `~/.config/opencode/flowforge/` y `opencode.flowforge.json` son rutas legacy. |
+| **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | `*.agent.md`; el archivo de instrucciones incluye el header `applyTo`. Detectado por `github.copilot*`. |
+| **Kilo Code** | `~/.config/kilo/agents/*.md` (el mismo bundle de OpenCode) | `.kilo/agents/*.md` (duplicado) | Markdown OpenCode; detectado por `kilocode.*`. |
+| **Antigravity** | `~/.gemini/antigravity/` (`AGENTS.md`, `rules/`, `workflows/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `AGENTS.md` | Markdown de reglas + workflows; no es Claude Desktop. |
+| **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (config MCP) | — | MCP JSON manual (Anthropic). |
+
+El instalador `flowforge install` detecta estas IDEs y aplica la misma matriz; `docker-pm1-test.sh` verifica las rutas globales para `~/.copilot/agents/`, `~/.config/kilo/agents/` y `~/.gemini/antigravity/` para mantener la paridad Linux. Los scripts `ide/install.sh` / `ide/install.ps1` exponen las mismas carpetas y permiten instalaciones manuales o bundles por proyecto.
+
+`flowforge doctor` reporta `[✓] github.copilot` y `[✓] kilocode.*` junto a los directorios nuevos, y el reporte del doctor es la fuente de verdad para la detección de VS Code. Para más detalles, consultá [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](../docs/decisions/ADR-008-ide-installer-path-matrix.md).
+
 ## Quick install (recommended)
 
 ### Windows (PowerShell)
@@ -53,12 +70,12 @@ The installer:
 
 1. Copies `ide/shared/` → `~/.flowforge/shared/` (orchestrator parity)
 2. Recompiles Cursor agents from `skills/` (if Python is available)
-3. Installs Cursor (`~/.cursor`), OpenCode (`~/.config/opencode/flowforge/`), VS Code (`~/.vscode`)
+3. Installs Cursor (`~/.cursor/`), OpenCode (`~/.config/opencode/agents/` + `commands/`), VS Code (Copilot → `~/.copilot/agents/` & instructions, Kilo → `~/.config/kilo/agents/`), and Antigravity (`~/.gemini/antigravity/`)
 4. With a project path: `.agents/`, `.cursor/`, `.github/agents/`, `.flowforge/shared/`
 
 ### Manual install
 
-**OpenCode:** run `install.sh` — it copies the bundle and patches `__FLOWFORGE_REPO__` in `opencode.flowforge.json` to your clone path. Then **merge** `agent{}` into `opencode.json` or `opencode.jsonc` (keep your `mcp` / `permission` blocks). Models default to `opencode-go/*` (configure provider + API keys). Do not put placeholder `file:` references with ellipsis inside JSON strings — OpenCode treats every `file:` reference as a real path.
+**OpenCode:** run `install.sh`; it copies `ide/opencode/agents/*.md` → `~/.config/opencode/agents/` and `ide/opencode/commands/*.md` → `~/.config/opencode/commands/`. Patch your `opencode.json` (type `local`) to include the `mcp.engram` block—do **not** rely on `opencode.flowforge.json` or `~/.config/opencode/flowforge/` as the primary path. Those legacy files exist only to help update older installs; keep your custom `mcp` / `permission` nodes intact and avoid placeholder `file:` entries with ellipsis.
 
 **Cursor:**
 
@@ -68,18 +85,18 @@ cp ide/cursor/agents/*.md  ~/.cursor/agents/
 cp ide/cursor/commands/*.md ~/.cursor/commands/
 ```
 
-**Antigravity (per project):** `bash install.sh <project>` or copy `ide/antigravity/` to `.agents/`.
+**Antigravity (per project):** `bash install.sh <project>` or copy `ide/antigravity/` to `.agents/` (`rules/`, `workflows/`, `AGENTS.md`).
 
-**VS Code:** `install.sh <project>` copies to `.github/agents/` and `.vscode/copilot-instructions.md`.
+**VS Code:** `install.sh <project>` copies to `.github/agents/` and writes `~/.copilot/instructions/flowforge.instructions.md` plus `.github/copilot-instructions.md`.
 
 ## What each IDE gets
 
 | Component | OpenCode | Cursor | Antigravity | VS Code |
 |-----------|----------|--------|-------------|---------|
-| Workflow orchestrator | `opencode.flowforge.json` | `rules/workflow.mdc` | `rules/workflow.md` | copilot-instructions + agents |
-| Model assignments | inline in agent config | `rules/model-assignments.mdc` | `rules/model-assignments.md` | embedded |
+| Workflow orchestrator | `agents/flowforge.md` + MCP in `opencode.json` | `rules/workflow.mdc` | `rules/workflow.md` | copilot-instructions + agents |
+| Model assignments | inline in `agents/*.md` frontmatter | `rules/model-assignments.mdc` | `rules/model-assignments.md` | embedded |
 | Git safety | `permission.bash` in opencode.json | `rules/git-sin-push.mdc` | `rules/git-sin-push.md` | embedded |
-| Agent instructions | `{file:...}` → `skills/*/SKILL.md` | `agents/forge-*.md` | via workflow | embedded |
+| Agent instructions | compiled `agents/forge-*.md` | `agents/forge-*.md` | via workflow | `.github/agents/*.agent.md` |
 | Shared parity doc | `flowforge/shared/...` | ref in workflow | in rules | `{file:../shared/...}` |
 | Slash commands | rules / chat | `.cursor/commands/flow-*.md` | `workflows/flow-*.md` | chat + agents |
 | MCP (Engram) | native engram MCP | project MCP config | project MCP | project MCP |
