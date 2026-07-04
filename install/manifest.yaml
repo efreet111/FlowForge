@@ -10,7 +10,10 @@ default_channel: stable
 # CLI flags, etc.), se actualiza el rango aquí. El installer lee este archivo
 # en runtime desde GitHub, no desde el binario compilado.
 requires:
-  engram-dotnet: ">=0.3.0"
+  # >=0.4.0 is required for sync recovery (ENG-451) and self-loop detection
+  # (ENG-452). Older versions silently lose pulled mutations on interrupted
+  # sync and spam 501 errors every 30ms with no remediation.
+  engram-dotnet: ">=0.4.0"
   installer:     ">=0.1.0-alpha.1"
 
 components:

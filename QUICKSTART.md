@@ -60,6 +60,12 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercon
 
 After the Stack installer completes, run `flowforge init` inside each repository where you want FlowForge's full per-project setup:
 
+> **First time installing?** Before running `flowforge init`, follow the
+> [POST-INSTALL.md](POST-INSTALL.md) checklist to verify the binary is the
+> latest version and your sync mode is configured correctly. Common gotchas
+> (self-loop warnings, stale binaries, missing `ENGRAM_SERVER_URL`) are
+> covered there.
+
 ```powershell
 # Windows
 flowforge init E:\Proyectos\my-app
