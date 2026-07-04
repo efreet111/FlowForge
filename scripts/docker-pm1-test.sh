@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # PM-1: Happy path — instalación completa desde cero
 # Verifica que flowforge instala TODOS los componentes en un solo paso:
-#   engram-dotnet, MCP config, y agents para Cursor + OpenCode + VS Code + Claude Desktop
+#   engram-dotnet, MCP config, y agents para Cursor + OpenCode + VS Code + Antigravity
 #
 # Ejecutado dentro del contenedor Docker (llamado por test-docker.sh pm1)
 # Requiere: red disponible (descarga engram-dotnet de GitHub)
@@ -30,14 +30,14 @@ echo -e "${BLUE}║  FlowForge — PM-1: Happy Path Install         ║${NC}"
 echo -e "${BLUE}╚═══════════════════════════════════════════════╝${NC}"
 echo ""
 log "Usuario: $(whoami) | HOME: $HOME"
-log "IDEs simulados: Cursor, OpenCode, VS Code, Claude Desktop"
+log "IDEs simulados: Cursor, OpenCode, VS Code, Antigravity"
 echo ""
 
 # ── Pre-condiciones ───────────────────────────────────────────────────────────
 sep
 log "Pre-condiciones — verificando entorno limpio"
 
-for dir in ~/.cursor ~/.config/opencode ~/.vscode ~/.gemini; do
+for dir in ~/.cursor ~/.config/opencode ~/.copilot/agents ~/.config/kilo/agents ~/.gemini/antigravity; do
     if [ -d "$dir" ]; then
         pass "Dir IDE existe: $dir"
     else
@@ -137,21 +137,53 @@ else
     fail "PM-1-3a: OpenCode agents NO instalados"
 fi
 
-# ── Verificar VS Code ─────────────────────────────────────────────────────────
+# ── Verificar VS Code (Copilot + Kilo) ─────────────────────────────────────────
 sep
-log "Verificando VS Code"
+log "Verificando VS Code (Copilot + Kilo)"
 
-if [ -f "$HOME/.vscode/copilot-instructions.md" ]; then
-    pass "PM-1-4a: ~/.vscode/copilot-instructions.md instalado"
+if [ -f "$HOME/.copilot/instructions/flowforge.instructions.md" ]; then
+    pass "PM-1-4a: ~/.copilot/instructions/flowforge.instructions.md instalado"
 else
-    warn "PM-1-4a: copilot-instructions.md no encontrado (puede no existir en el repo)"
+    warn "PM-1-4a: Copilot instructions no encontrado (flowforge.instructions.md)"
 fi
 
-VSCODE_AGENTS=$(find "$HOME/.vscode/agents" -name "*.agent.md" 2>/dev/null | wc -l)
-if [ "$VSCODE_AGENTS" -gt 0 ]; then
-    pass "PM-1-4b: VS Code agents instalados ($VSCODE_AGENTS archivos .agent.md)"
+COPILOT_AGENTS=$(find "$HOME/.copilot/agents" -name "*.agent.md" 2>/dev/null | wc -l)
+if [ "$COPILOT_AGENTS" -gt 0 ]; then
+    pass "PM-1-4b: Copilot agents instalados ($COPILOT_AGENTS archivos)"
 else
-    warn "PM-1-4b: VS Code agents no encontrados (puede no existir en el repo aún)"
+    warn "PM-1-4b: Copilot agents no encontrados"
+fi
+
+KILO_AGENTS=$(find "$HOME/.config/kilo/agents" -name "*.md" 2>/dev/null | wc -l)
+if [ "$KILO_AGENTS" -gt 0 ]; then
+    pass "PM-1-4c: Kilo agents instalados ($KILO_AGENTS archivos)"
+else
+    warn "PM-1-4c: Kilo agents no encontrados"
+fi
+
+# ── Verificar Antigravity ───────────────────────────────────────────────────
+sep
+log "Verificando Antigravity"
+
+ANTI_AGENTS="$HOME/.gemini/antigravity/AGENTS.md"
+if [ -f "$ANTI_AGENTS" ]; then
+    pass "PM-1-4d: Antigravity AGENTS.md presente"
+else
+    warn "PM-1-4d: Antigravity AGENTS.md no encontrado"
+fi
+
+ANTI_RULES=$(find "$HOME/.gemini/antigravity/rules" -name "*.md" 2>/dev/null | wc -l)
+if [ "$ANTI_RULES" -gt 0 ]; then
+    pass "PM-1-4e: Antigravity rules instaladas ($ANTI_RULES archivos)"
+else
+    warn "PM-1-4e: Antigravity rules no encontrados"
+fi
+
+ANTI_WF=$(find "$HOME/.gemini/antigravity/workflows" -name "*.md" 2>/dev/null | wc -l)
+if [ "$ANTI_WF" -gt 0 ]; then
+    pass "PM-1-4f: Antigravity workflows instalados ($ANTI_WF archivos)"
+else
+    warn "PM-1-4f: Antigravity workflows no encontrados"
 fi
 
 # ── Verificar MCP config ──────────────────────────────────────────────────────

@@ -100,7 +100,7 @@ Los términos están agrupados por el sistema que los define. Si eres nuevo, lee
 | **Cursor** | IDE nativo de IA (fork de VS Code). FlowForge instala reglas, agentes y comandos en `~/.cursor/`. |
 | **OpenCode** | Agente de codificación IA basado en terminal. FlowForge instala un bundle en `~/.config/opencode/`. |
 | **VS Code / Copilot** | VS Code estándar con GitHub Copilot. FlowForge instala archivos de agente en `~/.vscode/` y `.github/agents/`. |
-| **Antigravity** | Herramienta de codificación agéntica basada en Google Gemini. FlowForge instala reglas y flujos de trabajo en `.agents/` en la raíz del proyecto. |
+| **Antigravity** | Herramienta de codificación agéntica basada en Google Gemini. FlowForge instala paquetes en `~/.gemini/antigravity/` (AGENTS.md + rules/ + workflows/) y, por proyecto, en `.agents/rules/`, `.agents/workflows/` y `AGENTS.md`. No es Claude Desktop. |
 | **Paridad de IDEs** | La garantía de que el mismo flujo de trabajo FlowForge (CKP-0 → CKP-4) funciona de forma idéntica en los 4 IDEs soportados. Se mantiene a través de `workflow-orchestrator-parity.md`. |
 | **`workflow-orchestrator-parity.md`** | La especificación de orquestación compartida única usada por los 4 IDEs. Cualquier cambio en la lógica del flujo de trabajo se hace aquí primero, luego se refleja en la configuración de cada IDE. |
 | **`compile-agents-from-skills.py`** | Script que regenera los archivos de agente de Cursor desde las fuentes canónicas `skills/forge-*/SKILL.md`. Se ejecuta automáticamente por el instalador. |

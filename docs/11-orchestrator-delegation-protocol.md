@@ -48,7 +48,7 @@ Example shape:
     "persona": "Senior software architect, formal and direct.",
     "agents": {
       "forge-discovery": { "model": "gpt-5-mini", "provider": "openai" },
-      "forge-arch": { "model": "kimi-k2.5", "provider": "moonshot" }
+      "forge-arch": { "model": "kimi-k2.7-code", "provider": "moonshot" }
     },
     "database_engine": {
       "type": "postgres",

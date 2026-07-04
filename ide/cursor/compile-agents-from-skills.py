@@ -13,10 +13,10 @@ MODELS = {
     # Budget tier — sync with ide/cursor/rules/model-assignments.mdc
     # Pricing ref: https://cursor.com/docs/models-and-pricing
     "forge-discovery": "gpt-5-mini",
-    "forge-arch": "kimi-k2.5",
-    "forge-plan": "kimi-k2.5",
+    "forge-arch": "kimi-k2.7-code",
+    "forge-plan": "kimi-k2.7-code",
     "forge-dev": "gpt-5.1-codex-mini",
-    "forge-verify": "kimi-k2.5",
+    "forge-verify": "kimi-k2.7-code",
     "forge-memory": "gpt-5-mini",
 }
 
