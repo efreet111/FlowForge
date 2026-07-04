@@ -90,7 +90,7 @@ public sealed class InstallCommand(InstallerContext ctx)
             // ── 1. Selección de componentes (global) ──────────────────────────
             AnsiConsole.MarkupLine("[bold]¿Qué componentes instalar?[/]");
             AnsiConsole.MarkupLine("[grey]Este wizard instala componentes globales (binario + IDE agents).[/]");
-            AnsiConsole.MarkupLine("[grey]Para inicializar un proyecto usa: [/][blue]flowforge init <ruta>[/]");
+            AnsiConsole.MarkupLine("[grey]Para inicializar un proyecto usa:[/] [blue]flowforge init[/] [grey]<ruta>[/]");
             AnsiConsole.WriteLine();
             var components = AnsiConsole.Prompt(
                 new MultiSelectionPrompt<string>()
