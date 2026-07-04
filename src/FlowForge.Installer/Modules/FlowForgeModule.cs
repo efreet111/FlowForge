@@ -216,7 +216,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
             AnsiConsole.MarkupLine("  [yellow]![/] VS Code: no se detectó GitHub Copilot ni Kilo Code — instalados ambos formatos por si acaso");
         }
 
-        AnsiConsole.MarkupLine("  [yellow]![/] Para repo: [bold]flowforge init <ruta>[/] o ide/install.sh <ruta>[/]");
+        AnsiConsole.MarkupLine("  [yellow]![/] Para repo: [bold]flowforge init[/] [grey]<ruta>[/] o [bold]ide/install.sh[/] [grey]<ruta>[/]");
     }
 
     static void InstallKilo(string ffRepo)

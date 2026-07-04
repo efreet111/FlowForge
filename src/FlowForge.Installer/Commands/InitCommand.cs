@@ -95,7 +95,7 @@ public sealed class InitCommand(InstallerContext ctx)
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[bold]Próximos pasos:[/]");
         AnsiConsole.MarkupLine("  1. Abrí el proyecto en tu IDE");
-        AnsiConsole.MarkupLine("  2. Ejecutá [blue]/flow-start <feature>[/] para iniciar una tarea");
+        AnsiConsole.MarkupLine("  2. Ejecutá [blue]/flow-start[/] [grey]<feature>[/] para iniciar una tarea");
         if (!noFlowDoc)
             AnsiConsole.MarkupLine("  [grey]FlowDoc activo — los agentes leen docs/ vía .flowforge.json[/]");
         else
