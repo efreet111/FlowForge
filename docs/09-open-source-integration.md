@@ -19,7 +19,7 @@ ide/shared/workflow-orchestrator-parity.md
 | IDE | Install | Orchestrator | Skills |
 |-----|---------|--------------|--------|
 | **Cursor** | `ide/install.ps1` / `install.sh` | `.cursor/rules/workflow.mdc` | Compiled `ide/cursor/agents/*.md` |
-| **OpenCode** | Bundle → `~/.config/opencode/flowforge/` | Primary agent + subagents | `{file:./skills/.../SKILL.md}` |
+| **OpenCode** | Bundle → `~/.config/opencode/agents/` + `commands/` | Primary agent + subagents | `{file:./skills/.../SKILL.md}` |
 | **Antigravity** | Project `.agents/` | `rules/workflow.md` | On-demand via workflows |
 | **VS Code** | `.github/agents/` + copilot instructions | `forge-orchestrator.agent.md` | Embedded / agent files |
 
@@ -55,7 +55,7 @@ Legacy `.cursorrules` in the repo root is **deprecated** in favor of `.mdc` rule
 
 ## 3. OpenCode (primary origin of this project)
 
-Merge `ide/opencode/opencode.flowforge.json` into `~/.config/opencode/opencode.json`, or run the installer to copy the bundle.
+`ide/install.sh` copies the bundle directly into `~/.config/opencode/agents/` and `~/.config/opencode/commands/`, and patches `opencode.json`/`.jsonc` with `mcp.engram.type = "local"` plus `enabled: true`. `opencode.flowforge.json` and `~/.config/opencode/flowforge/` remain available for migrating legacy installs, but FlowForge now prefers writing straight into the `agents/` directory.
 
 Typical smoke after Linux setup:
 

@@ -1,0 +1,62 @@
+# FlowForge — Dockerfile de pruebas para PM-* del feature fix-installer
+#
+# Stage 1: Compila el binario flowforge desde el código local
+#   (non-AOT: mismo código, build más rápido para tests)
+# Stage 2: Imagen de test con el binario + scripts
+#
+# Build:
+#   docker build -f Dockerfile.test -t flowforge-test .
+#
+# Tests (ver scripts/test-docker.sh para todos):
+#   docker run --rm flowforge-test flowforge doctor
+#   docker run --rm -e FLOWFORGE_YES=1 flowforge-test bash /test/install.sh
+
+# ── Stage 1: Build ──────────────────────────────────────────────────────────
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /repo/src/FlowForge.Installer
+
+COPY src/FlowForge.Installer/ .
+
+# Build non-AOT + single-file para tests rápidos
+# (AOT solo para releases oficiales; misma funcionalidad)
+RUN dotnet publish -c Release -r linux-x64 --self-contained \
+    -p:PublishAot=false \
+    -p:PublishSingleFile=true \
+    -p:EnableTrimAnalyzer=false \
+    -p:Version=0.1.0-test \
+    -o /build/out
+
+# ── Stage 2: Imagen de test ─────────────────────────────────────────────────
+FROM ubuntu:24.04
+
+RUN apt-get update -qq && apt-get install -y --no-install-recommends \
+    curl git ca-certificates bash procps iproute2 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Binario compilado localmente
+COPY --from=build /build/out/flowforge /usr/local/bin/flowforge
+RUN chmod +x /usr/local/bin/flowforge
+
+# Scripts de instalación
+COPY install/install.sh /test/install.sh
+RUN chmod +x /test/install.sh
+
+# Scripts de tests integrados
+COPY scripts/docker-pm-tests.sh /test/run-tests.sh
+COPY scripts/docker-pm1-test.sh /test/run-pm1.sh
+RUN chmod +x /test/run-tests.sh /test/run-pm1.sh
+
+# Crear usuario no-root (simula usuario real con todos los IDEs instalados)
+RUN useradd -m -s /bin/bash testuser && \
+    mkdir -p \
+        /home/testuser/.local/bin \
+        /home/testuser/.cursor \
+        /home/testuser/.config/opencode \
+        /home/testuser/.vscode \
+        /home/testuser/.gemini && \
+    chown -R testuser:testuser /home/testuser
+
+ENV HOME=/home/testuser
+WORKDIR /test
+
+CMD ["flowforge", "--help"]

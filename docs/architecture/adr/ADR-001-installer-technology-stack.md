@@ -12,7 +12,9 @@
 El proyecto necesita un instalador unificado que cubra los tres componentes del stack:
 
 - **engram-dotnet** — binario self-contained (backend de memoria, .NET AOT)
-- **FlowForge** — skills e integración con IDEs (Cursor, OpenCode, VS Code, Claude Desktop)
+- **FlowForge** — skills e integración con IDEs (Cursor, OpenCode, VS Code, Antigravity, Claude Desktop)
+
+> **Nota:** Antigravity usa `~/.gemini/antigravity/` para agents/rules/workflows, mientras que Claude Desktop sólo expone MCP en `~/.config/Claude/claude_desktop_config.json`.
 - **FlowDoc** — estructura de documentación (`docs/` + `AGENTS.md`)
 
 El instalador debe correr en Linux/macOS y Windows sin requerir que el usuario instale runtimes adicionales (Node, Python, .NET SDK, etc.).

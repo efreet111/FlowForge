@@ -87,13 +87,15 @@ public sealed class InitCommand(InstallerContext ctx)
             EnsureAgentsMdMinimal(projectPath);
         }
 
+        InstallVsCodeProjectPack(projectPath, ctx);
+
         AnsiConsole.WriteLine();
         AnsiConsole.Write(new Rule("[bold green]Proyecto inicializado[/]").LeftJustified());
         AnsiConsole.MarkupLine($"[grey]{projectPath}[/]");
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[bold]Próximos pasos:[/]");
         AnsiConsole.MarkupLine("  1. Abrí el proyecto en tu IDE");
-        AnsiConsole.MarkupLine("  2. Ejecutá [blue]/flow-start <feature>[/] para iniciar una tarea");
+        AnsiConsole.MarkupLine("  2. Ejecutá [blue]/flow-start[/] [grey]<feature>[/] para iniciar una tarea");
         if (!noFlowDoc)
             AnsiConsole.MarkupLine("  [grey]FlowDoc activo — los agentes leen docs/ vía .flowforge.json[/]");
         else
@@ -228,6 +230,28 @@ public sealed class InitCommand(InstallerContext ctx)
             """);
 
         AnsiConsole.MarkupLine("  [green]✓[/] AGENTS.md creado");
+    }
+
+    static void InstallVsCodeProjectPack(string projectPath, InstallerContext ctx)
+    {
+        var locator = new FlowForgeRepoLocator(ctx.Log);
+        if (!locator.EnsureAvailable(out var ffRepo) || ffRepo == null)
+        {
+            AnsiConsole.MarkupLine("  [yellow]![/] IDE packs omitidos — no se pudo localizar el repo FlowForge");
+            return;
+        }
+
+        FlowForgeModule.InstallVsCodeProject(projectPath, ffRepo);
+        AnsiConsole.MarkupLine("  [green]✓[/] GitHub Copilot → [grey].github/agents + copilot-instructions.md[/]");
+
+        FlowForgeModule.InstallOpenCodeProject(projectPath, ffRepo);
+        AnsiConsole.MarkupLine("  [green]✓[/] OpenCode / Kilo → [grey].opencode/agents + .kilo/agents[/]");
+
+        FlowForgeModule.InstallCursorProject(projectPath, ffRepo);
+        AnsiConsole.MarkupLine("  [green]✓[/] Cursor → [grey].cursor/rules + .cursor/agents + commands/[/]");
+
+        FlowForgeModule.InstallAntigravityProject(projectPath, ffRepo);
+        AnsiConsole.MarkupLine("  [green]✓[/] Antigravity → [grey].agents/rules + workflows + AGENTS.md[/]");
     }
 
     static bool IsSystemPath(string path) =>

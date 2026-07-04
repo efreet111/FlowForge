@@ -10,20 +10,19 @@
 
 FlowForge tiene **dos instaladores** — elegí uno:
 
-| | Stack installer (`install/install.*`) | Instalador IDE (`ide/install.*`) |
+| | Stack installer (`curl \| bash`) | Instalador IDE (`curl \| bash`) |
 |---|--------------------------------------|----------------------------------|
-| **Ideal para** | Setup inicial completo | Solo packs del IDE |
-| **UI** | Wizard interactivo (componentes + IDEs) | Solo log en consola (sin wizard) |
-| **Instala** | CLI `flowforge`, engram-dotnet opcional, skills IDE (global) | Agentes, reglas, comandos `/flow-*` |
-| **Requiere** | Descarga desde GitHub Releases | `git` en PATH (modo remoto clona el repo) |
+| **Instala** | CLI `flowforge` + `engram-dotnet` + agentes IDE | Solo agentes IDE |
+| **Ejecuta wizard** | ✅ Sí (`flowforge install --yes`) | ❌ No |
+| **Ideal para** | Setup inicial, stack completo | Agregar agentes a proyecto existente |
+| **Requiere** | Internet (descarga binarios) | `git` en PATH |
 
-Mismo contenido que [`README.es.md` § Instalación](README.es.md#instalacion).
+> **¿Ya tenés flowforge?** Ejecutá `flowforge install --yes` directamente.
+> Usá `--yes` para modo no interactivo (CI/CD, Docker, scripts).
 
-> **FlowDoc / scaffolding por proyecto** se configura por separado con `flowforge init <ruta>` después de que el Stack installer finalice. Ver [§ Inicializar un proyecto](#inicializar-un-proyecto) más abajo.
+### Instalador de stack (setup completo)
 
-### Instalador de stack (setup completo, v0.1.0-alpha.2+)
-
-Para instalar el stack completo de FlowForge en tu máquina — CLI `flowforge` + backend de memoria `engram-dotnet` + agentes del IDE + estructura FlowDoc.
+Descarga el CLI `flowforge` y ejecuta el wizard automáticamente.
 
 **Linux/macOS:**
 
@@ -38,9 +37,9 @@ iwr -useb "https://raw.githubusercontent.com/efreet111/FlowForge/main/install/in
 powershell -ExecutionPolicy Bypass -File $env:TEMP\flowforge-install.ps1
 ```
 
-### Solo agentes del IDE (liviano)
+### Solo agentes del IDE
 
-Para instalar solo los archivos de agentes del IDE (sin CLI `flowforge`, sin `engram-dotnet`):
+Copia agentes, reglas y comandos `/flow-*` a los IDEs detectados. Sin wizard, sin engram.
 
 **Linux/macOS:**
 
@@ -55,6 +54,21 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercon
 ```
 
 ---
+
+## Rutas posteriores a la instalación
+
+FlowForge escribe los agentes en los directorios que cada IDE realmente lee. Después de ejecutar cualquier instalador, confirmá las ubicaciones con esta matriz:
+
+| IDE | Agentes globales | Agentes por proyecto | Notas |
+|-----|------------------|----------------------|-------|
+| **Cursor** | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` | MCP en `~/.cursor/mcp.json`. |
+| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/` | `opencode.json`/`.jsonc` mantiene `mcp.engram.type = "local"`. `opencode.flowforge.json` y `~/.config/opencode/flowforge/` son legados opcionales. |
+| **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detectado por `github.copilot*`. |
+| **Kilo Code** | `~/.config/kilo/agents/*.md` (el mismo bundle que OpenCode) | `.kilo/agents/*.md` (duplicado) | Detectado por `kilocode.*`. |
+| **Antigravity** | `~/.gemini/antigravity/` (`AGENTS.md`, `rules/`, `workflows/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `AGENTS.md` | Google Antigravity (no Claude Desktop). |
+| **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (solo MCP) | — | Fuera del alcance de los packs de agentes. |
+
+`flowforge doctor`, `ide/install.sh` e `ide/install.ps1` respetan esta matriz; consultá [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md) para la estructura canónica.
 
 ## 2. Inicializar un proyecto {#inicializar-un-proyecto}
 
@@ -277,6 +291,6 @@ Los `/flow-*` son convenciones de texto en modo Agent. Autocomplete requiere `id
 | **Usaste `/forge-memory` por error** | Usá `/flow-close` (comando) — `forge-memory` es el nombre del agente |
 | **Hay que cargar `@skills` a mano** | Usá agentes compilados (Cursor) o packs desde `ide/install` |
 | **OpenCode no arranca tras instalar FlowForge** | Revisá `~/.local/share/opencode/log/`; no uses texto `file:` con `...` en strings JSON; mergeá solo `agent{}` y conservá `mcp`/`permission` |
-| **Subagentes sin modelo en OpenCode** | Configurá proveedor `opencode-go` y API keys, o cambiá `model` en `opencode.flowforge.json` a tus modelos disponibles |
+| **Subagentes sin modelo en OpenCode** | Configurá proveedor `opencode-go` y API keys, o cambiá `model` en `~/.config/opencode/agents/*.md` (o `.opencode/agents/*.md` por proyecto) a tus modelos disponibles |
 
 > **¿Problemas?** Abrí un issue: https://github.com/efreet111/FlowForge

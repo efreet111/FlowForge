@@ -19,7 +19,7 @@
     <TrimMode>full</TrimMode>
     <PublishSingleFile>false</PublishSingleFile><!-- AOT ya produce single file -->
 
-    <!-- Version info -->
+    <!-- Version info (overridden by release.yml via -p:Version=X) -->
     <Version>0.1.0-alpha.6</Version>
     <AssemblyVersion>0.1.0.0</AssemblyVersion>
     <InformationalVersion>0.1.0-alpha.6</InformationalVersion>

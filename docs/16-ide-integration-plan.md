@@ -32,7 +32,7 @@ We reviewed `cursor-enterprise-agents` v0.0.5 and mapped patterns directly to Fl
 | IDE install automation | `ide/install.ps1`, `ide/install.sh` | ✅ |
 | Orchestrator parity across IDEs | `ide/shared/workflow-orchestrator-parity.md` | ✅ |
 | `/flow-plan`, `/flow-rework` commands | Cursor + Antigravity workflows | ✅ |
-| OpenCode bundle | `opencode.flowforge.json` + `~/.config/opencode/flowforge/` | ✅ |
+| OpenCode bundle | `~/.config/opencode/agents/` + `commands/` (legacy: `opencode.flowforge.json`) | ✅ |
 
 ### Remaining improvements
 
@@ -57,7 +57,7 @@ skills/ (canonical — 31 SKILL.md files)
   ├──→ ide/cursor/      ← .mdc rules + agents/*.md + commands/flow-*.md
   ├──→ ide/antigravity/ ← .agents/rules/ + workflows/
   ├──→ ide/vscode/      ← copilot-instructions.md + .github/agents/
-  └──→ ide/opencode/    ← opencode.flowforge.json + bundle paths
+  └──→ ide/opencode/    ← agents/*.md + commands/*.md → ~/.config/opencode/
 ```
 
 Canonical orchestrator behavior: [`ide/shared/workflow-orchestrator-parity.md`](../ide/shared/workflow-orchestrator-parity.md).
@@ -69,7 +69,22 @@ Canonical orchestrator behavior: [`ide/shared/workflow-orchestrator-parity.md`](
 | **Cursor** | `.cursor/rules/*.mdc` | `.cursor/agents/*.md` | `ide/cursor/commands/flow-*.md` | `ide/install.ps1` / `install.sh` |
 | **Antigravity** | `.agents/rules/*.md` | skills under `.agents/skills/` | `.agents/workflows/flow-*.md` | install script → project |
 | **VS Code / Copilot** | `.github/copilot-instructions.md` or `.vscode/` | `.github/agents/*.md` | Chat + agent files | copy or install script |
-| **OpenCode** | bundle `flowforge/rules/` | bundle `flowforge/agents/` | config JSON `{file:...}` | install script → `~/.config/opencode/flowforge/` |
+| **OpenCode** | MCP in `opencode.json` (`type: local`) | `agents/*.md` (orchestrator: `flowforge.md`) | `commands/*.md` | install script → `~/.config/opencode/agents/` + `commands/` |
+
+### IDE path matrix
+
+FlowForge writes agent packs to the directories each IDE actually reads. The matrix below shows the canonical global and project destinations plus the detection signals used by the installer.
+
+| IDE | Global agents | Project agents | Detection |
+|-----|---------------|----------------|-----------|
+| **Cursor** | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` | Presence of `~/.cursor` |
+| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/`, `.kilo/agents/` (mirrored) | Presence of `~/.config/opencode` |
+| **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | VS Code extension `github.copilot*` |
+| **Kilo Code** | `~/.config/kilo/agents/*.md` (same bundle as OpenCode) | `.kilo/agents/*.md` (duplicated) | VS Code extension `kilocode.*` |
+| **Antigravity** | `~/.gemini/antigravity/` (`AGENTS.md`, `rules/`, `workflows/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `AGENTS.md` | `~/.gemini` or `%LOCALAPPDATA%\Google\Gemini` |
+| **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (MCP only) | — | `%APPDATA%\Claude` / `~/.config/Claude/` |
+
+This matrix is the reference for `flowforge install`, `ide/install.sh`, `ide/install.ps1`, and the CI checks. See [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md) for the rationale and detection logic.
 
 ### Files per IDE (current layout)
 

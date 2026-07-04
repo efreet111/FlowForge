@@ -16,6 +16,18 @@ Thank you for improving FlowForge. This repository contains **methodology**, **s
 - **IDE integrations**: `ide/cursor/`, `ide/opencode/`, `ide/antigravity/`, `ide/vscode/`.
 - **Skills**: improvements to `skills/**/SKILL.md` (keep CKP semantics and orchestrator parity consistent).
 
+## IDE pack paths
+
+FlowForge installs each IDE bundle into the directories listed below. Matching docs and CI must keep this table in sync with [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md).
+
+| IDE | Global | Project |
+|-----|--------|---------|
+| Cursor | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` |
+| OpenCode | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/` + `.kilo/agents/` |
+| GitHub Copilot | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` |
+| Kilo Code | `~/.config/kilo/agents/*.md` | `.kilo/agents/*.md` |
+| Antigravity | `~/.gemini/antigravity/` (`AGENTS.md`, `rules/`, `workflows/`) | `.agents/rules/`, `.agents/workflows/`, `AGENTS.md` |
+
 ## Issues
 
 Please include:
