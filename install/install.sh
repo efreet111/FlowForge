@@ -219,21 +219,24 @@ if ! echo "$PATH" | grep -q "$INSTALL_DIR"; then
 fi
 
 # ── Lanzar wizard ─────────────────────────────────────────────────────────────
-# Reconectar stdin al TTY del usuario (curl consumió stdin original).
-# Esto permite que el wizard interactivo lea keystrokes del usuario.
-if [ -t 1 ] && [ -e /dev/tty ]; then
+# curl | bash entrega el script por stdin (pipe). Hay que detectar headless ANTES
+# de exec </dev/tty: si no, bash puede terminar el script justo después de exec
+# y nunca llega a flowforge install (síntoma: se queda en "Instalado: .../flowforge").
+INSTALL_HEADLESS=false
+if [ -n "${FLOWFORGE_YES:-}" ] || ! [ -t 0 ]; then
+  INSTALL_HEADLESS=true
+fi
+
+# Reconectar stdin al TTY solo en invocación interactiva directa (bash install.sh).
+if [ "$INSTALL_HEADLESS" = false ] && [ -t 1 ] && [ -e /dev/tty ]; then
   exec </dev/tty 2>/dev/null || true
 fi
 
-# Si hay TTY disponible (terminal interactivo), lanzar el wizard interactivo.
-# Si NO hay TTY (CI/Docker sin -t), pasar --yes para headless mode.
 echo ""
 echo "Iniciando wizard de instalación..."
-if [ -n "${FLOWFORGE_YES:-}" ] || ! [ -t 0 ]; then
-  # Headless mode: pasar --yes y no preguntar
+if [ "$INSTALL_HEADLESS" = true ]; then
   "${INSTALL_DIR}/flowforge" install --yes
 else
-  # Interactive mode
   "${INSTALL_DIR}/flowforge" install
 fi
 
