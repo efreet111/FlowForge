@@ -16,6 +16,9 @@ public sealed class InstallerConfig
     [JsonPropertyName("flowdoc")]
     public FlowDocConfig FlowDoc { get; set; } = new();
 
+    [JsonPropertyName("sync")]
+    public SyncConfig? Sync { get; set; }
+
     [JsonPropertyName("components")]
     public ComponentsConfig Components { get; set; } = new();
 }
@@ -24,6 +27,29 @@ public sealed class FlowDocConfig
 {
     [JsonPropertyName("enabled")]
     public bool Enabled { get; set; } = true;
+}
+
+/// <summary>
+/// Persisted sync configuration written by the installer (since ADR-010).
+/// Source of truth for `ENGRAM_SERVER_URL` and `ENGRAM_SYNC_ENABLED` across
+/// re-installs. The wizard reads this on each run and prefills the prompt.
+/// </summary>
+public sealed class SyncConfig
+{
+    [JsonPropertyName("mode")]
+    public string Mode { get; set; } = "local";
+
+    [JsonPropertyName("remote_url")]
+    public string RemoteUrl { get; set; } = "";
+
+    [JsonPropertyName("user")]
+    public string User { get; set; } = "";
+
+    [JsonPropertyName("data_dir")]
+    public string DataDir { get; set; } = "";
+
+    [JsonPropertyName("connected_at")]
+    public string ConnectedAt { get; set; } = "";
 }
 
 public sealed class ComponentsConfig
@@ -64,6 +90,7 @@ public sealed class FlowForgeComponentEntry
 
 [JsonSerializable(typeof(InstallerConfig))]
 [JsonSerializable(typeof(FlowDocConfig))]
+[JsonSerializable(typeof(SyncConfig))]
 [JsonSerializable(typeof(ComponentsConfig))]
 [JsonSerializable(typeof(ComponentEntry))]
 [JsonSerializable(typeof(FlowForgeComponentEntry))]
