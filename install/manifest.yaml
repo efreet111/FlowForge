@@ -1,4 +1,4 @@
-installer_version: 0.1.0-alpha.6
+installer_version: 0.1.0-alpha.7
 channels:
   - stable
   - beta
@@ -13,6 +13,8 @@ requires:
   # >=0.4.0 is required for sync recovery (ENG-451) and self-loop detection
   # (ENG-452). Older versions silently lose pulled mutations on interrupted
   # sync and spam 501 errors every 30ms with no remediation.
+  # Current stable: v1.3.0 (2026-07-06) — version string unification, CHANGELOG
+  # aligned with git tags, ADR-009 (two-version model), ADR-010 (docs immutability).
   engram-dotnet: ">=0.4.0"
   installer:     ">=0.1.0-alpha.1"
 
