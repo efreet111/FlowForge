@@ -39,12 +39,24 @@ public sealed class ConfigStore
         }
     }
 
-    /// <summary>Guarda la config. Crea el directorio si no existe.</summary>
+    /// <summary>Guarda la config. Crea el directorio si no existe.
+    /// Write is atomic: writes to .tmp then renames to avoid partial writes.</summary>
     public void Save(InstallerConfig config)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(_configFile)!);
         var json = JsonSerializer.Serialize(config, InstallerJsonContext.Default.InstallerConfig);
-        File.WriteAllText(_configFile, json + Environment.NewLine);
+        var tmpFile = _configFile + ".tmp";
+        try
+        {
+            File.WriteAllText(tmpFile, json + Environment.NewLine);
+            File.Move(tmpFile, _configFile, overwrite: true);
+        }
+        finally
+        {
+            // Clean up .tmp if the rename failed or an exception occurred before it.
+            if (File.Exists(tmpFile))
+                File.Delete(tmpFile);
+        }
         _log.Info($"ConfigStore.Save: config.json actualizado");
     }
 
