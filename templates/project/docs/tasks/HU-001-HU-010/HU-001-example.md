@@ -6,17 +6,17 @@
 ---
 hu_id: HU-001
 title: "Project Onboarding"
-status: done
-flowforge_slug: "project-onboarding"
+status: draft
+flowforge_slug: ""
 ---
 
-# HU-001 — Project Onboarding
+# HU-001 — [Feature name]
 
 ## User Story
 
-**As a** new team member,
-**I want** to understand the project structure, tools, and conventions,
-**so that** I can start contributing effectively.
+**As a** [user role],
+**I want** [action or capability],
+**so that** [benefit or outcome].
 
 ---
 
@@ -25,9 +25,8 @@ flowforge_slug: "project-onboarding"
 These criteria define when this feature is "done" from a **business perspective**.
 **Do not include technical details here** — those belong in spec.md.
 
-- [ ] AC-1: Team member can run the project locally following README instructions
-- [ ] AC-2: Team member understands the folder structure and its purpose
-- [ ] AC-3: Team member knows how to run tests and linters
+- [ ] AC-1: [Business outcome 1 — what the user experiences]
+- [ ] AC-2: [Business outcome 2]
 
 ---
 
@@ -38,51 +37,51 @@ Each scenario describes verifiable behavior. Use Given/When/Then format.
 
 ### Happy Path
 
-- [ ] **Onboarding complete**
-  **GIVEN** a new team member joins the project
-  **WHEN** they follow the README and ONBOARDING.md
-  **THEN** they can run the application locally
-  **🧪 Ref**: `README.md` → "Verify: runs without errors"
+- [ ] **[Main scenario name]**
+  **GIVEN** [precondition]
+  **WHEN** [action]
+  **THEN** [expected result]
+  **🧪 Ref**: `tests/...` → "[test name]"
 
 ### Edge Cases
 
-- [ ] **Missing dependencies**
-  **GIVEN** a new team member with incomplete toolchain
-  **WHEN** they try to run the project
-  **THEN** they see clear error messages explaining what's missing
-  **🧪 Ref**: `docs/troubleshooting.md` → "Verify: error messages are actionable"
+- [ ] **[Edge case name]**
+  **GIVEN** [precondition]
+  **WHEN** [action]
+  **THEN** [expected result]
+  **🧪 Ref**: `tests/...` → "[test name]"
 
 ### Error Cases
 
-- [ ] **Unsupported platform**
-  **GIVEN** a new team member on an unsupported OS
-  **WHEN** they try to run the setup scripts
-  **THEN** they see a clear message listing supported platforms
-  **🧪 Ref**: `docs/troubleshooting.md` → "Verify: supported platforms documented"
+- [ ] **[Error name]**
+  **GIVEN** [precondition]
+  **WHEN** [action]
+  **THEN** [expected result]
+  **🧪 Ref**: `tests/...` → "[test name]"
 
 ---
 
 ## Context / Notes
 
-This HU was completed as part of initial project setup. All acceptance criteria were met and verified by the tech lead.
+This is a **template example** — replace the content below with your own HU. All checkboxes are unchecked and `flowforge_slug` is empty so adopters can copy-paste without carrying over state from the example.
 
 ---
 
 ## Owner & Timeline
 
-- **Owner**: @techlead
-- **Target milestone**: v1.0
-- **Dependencies**: None
+- **Owner**: @username
+- **Target milestone**: [sprint/month/version]
+- **Dependencies**: [what this HU needs from others]
 
 ---
 
 ## Definition of Done
 
-- [x] Code reviewed and merged
-- [x] Unit tests passing (coverage ≥ threshold)
-- [x] Manual tests (PM-*) executed by developer
-- [x] ADR created if architecture decision was made
-- [x] Documentation updated (if applicable)
+- [ ] Code reviewed and merged
+- [ ] Unit tests passing (coverage ≥ threshold)
+- [ ] Manual tests (PM-*) executed by developer
+- [ ] ADR created if architecture decision was made
+- [ ] Documentation updated (if applicable)
 
 ---
 
@@ -94,7 +93,7 @@ To implement this HU:
 
 ```bash
 # Start the feature cycle
-/flow-start HU-001-project-onboarding
+/flow-start HU-001-[feature-slug]
 ```
 
 - `flowforge_slug` is set by forge-arch when `.ai-work/{slug}/` is created
@@ -105,4 +104,4 @@ To implement this HU:
 
 ## Technical Debt (if applicable)
 
-None — onboarding documentation is complete.
+[Any item left pending, why, and how it will be resolved later]
