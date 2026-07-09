@@ -112,16 +112,17 @@ FlowForge (metodología + `.ai-work/`) y FlowDoc (capa `docs/` de producto) son 
 
 | Objetivo | Qué hacer |
 |----------|-----------|
-| **Setup completo** (default) | `flowforge init .` — define `"docs_framework": "flowdoc@1.1"` y `paths` por defecto |
+| **Setup completo** (default) | `flowforge init .` — define `"docs_framework": "flowdoc"` + `"docs_framework_version": "2.0"` y `paths` por defecto |
 | **Solo FlowForge** (sin FlowDoc) | `flowforge init . --no-flow-doc` — sin `docs/`, sin `docs_framework`; los agentes usan solo `.ai-work/` |
 | **Desactivar después** | Editá `.flowforge.json`: quitá `"docs_framework"` o poné `"docs_framework": null` |
-| **Carpetas propias** | Mantené `"docs_framework": "flowdoc@1.1"` y apuntá `paths` a tus rutas |
+| **Carpetas propias** | Mantené `"docs_framework": "flowdoc"` + `"docs_framework_version": "2.0"` y apuntá `paths` a tus rutas |
 
 Ejemplo — rutas personalizadas (semántica FlowDoc, tu árbol):
 
 ```json
 {
-  "docs_framework": "flowdoc@1.1",
+  "docs_framework": "flowdoc",
+  "docs_framework_version": "2.0",
   "paths": {
     "prd": "producto/requisitos.md",
     "backlog": "producto/historias",
@@ -144,7 +145,19 @@ Ejemplo — solo FlowForge (sin capa de documentación de producto):
 }
 ```
 
-En `/flow-start`, `forge-discovery` lee este archivo: si `docs_framework` no está o es `null`, **omite** el paso FlowDoc y sigue solo con la metodología FlowForge.
+En `/flow-start`, `forge-discovery` lee este archivo: si `docs_framework` no está o es `null`, **omite** el paso FlowDoc y sigue solo con la metodología FlowForge. Si está presente, `docs_framework_version` se chequea para determinar la compatibilidad de templates.
+
+### Niveles de adopción de FlowDoc
+
+FlowDoc v2.0 define tres niveles de adopción. Elegís cuán profundamente integrás con FlowForge:
+
+| Nivel | Nombre | Qué obtenés | Integración FlowForge |
+|-------|--------|-------------|----------------------|
+| **L1** | Estructura | Layout de carpeta `docs/`, plantilla PRD, plantilla HU, plantillas ADR/RFC | `flowforge init` — scaffold de una sola vez. No requiere workflow de agentes. |
+| **L2** | Decisiones | L1 + ciclo de feature completo: backlog → spec → plan → implementar → cerrar | `/flow-start` hasta `/flow-close`. Todos los gates CKP-0→4 activos. |
+| **L3** | Completo | L2 + retrospectivas humanas, métricas, ceremonias de equipo | Workflow L2 + `forge-memory/metrics` + `forge-verify` + revisión humana post-ciclo |
+
+**Default:** `flowforge init` te arranca en L1. Activá los agentes (`/flow-start`) cuando el equipo esté listo para L2.
 
 ### Dónde queda cada cosa (global vs proyecto)
 

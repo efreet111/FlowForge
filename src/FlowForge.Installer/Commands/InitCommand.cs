@@ -153,7 +153,12 @@ public sealed class InitCommand(InstallerContext ctx)
           "version": "1",
           "workflow": "flowforge",
           "flowforge_version": "{{ffVersion}}",
-          "docs_framework": "flowdoc@1.1",
+          "docs_framework": "flowdoc",
+          "docs_framework_version": "2.0",
+          "upstream": {
+            "repo": "https://github.com/crhistianmdz/FlowDocs",
+            "status": "private"
+          },
           "adoption_level": 1,
           "project": "{{projectName}}",
           "created": "{{today}}",
