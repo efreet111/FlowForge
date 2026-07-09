@@ -1,8 +1,8 @@
 # FlowForge × FlowDoc — Adopter Guide
 
 > **Status**: Active  
-> **FlowForge version**: 0.4.1+  
-> **FlowDoc version referenced**: 1.1 (2026-06-05)  
+> **FlowForge version**: 0.5.0+  
+> **FlowDoc version referenced**: 2.0 (2026-06-05 — original v1.1 superseded 2026-07-08)  
 > **Related**: [ADR-004](decisions/ADR-004-flowdoc-integration.md) · [GLOSSARY.md](../GLOSSARY.md) · [21-flowdoc-integration-proposal.md](21-flowdoc-integration-proposal.md)
 
 ---
@@ -12,11 +12,12 @@
 [FlowDoc](https://github.com/crhistianmdz/FlowDocs) is a documentation framework for small async teams (2–6 people). It defines how to organize `docs/` using plain Markdown in Git, without heavyweight tools. It covers:
 
 - **PRD** — what the product is and who it's for
-- **User Stories (HU)** — backlog as human-readable Markdown files
+- **User Stories (HU)** — backlog as human-readable Markdown files with detailed GWT scenarios
 - **ADRs & RFCs** — architecture decisions and proposals
-- **Team rhythm** — optional 15-day sprint cycle
 
-FlowForge uses FlowDoc as its **documentation layer for generated projects**. When you run `flow-init`, the created `docs/` structure comes from FlowDoc v1.1 templates (adapted and attributed — see [ADR-004](decisions/ADR-004-flowdoc-integration.md)).
+FlowForge uses FlowDoc as its **documentation layer for generated projects**. When you run `flow-init`, the created `docs/` structure comes from FlowDoc v2.0 templates (adapted and attributed — see [ADR-004](decisions/ADR-004-flowdoc-integration.md)).
+
+> **v2.0 note:** The `flowdoc-ciclo.md` team rhythm document from v1.1 is deprecated in FlowDoc v2.0. FlowForge provides its own workflow lifecycle via CKP-0→4 and `/flow-*` commands. See the adoption levels table below for how FlowForge maps team rhythm to L3.
 
 ---
 
@@ -27,7 +28,7 @@ FlowForge and FlowDoc serve different purposes and must not be confused:
 ```
 ┌─────────────────────────────────────────────────────┐
 │  LAYER 1 — FlowForge (how we work)                  │
-│  skills/forge-*  ·  CKP-0→4  ·  ADR methodology    │
+│  skills/forge-*  ·  CKP-0→4  ·  ADR methodology     │
 └──────────────────────┬──────────────────────────────┘
                        │ orchestrates
 ┌──────────────────────▼──────────────────────────────┐
@@ -54,7 +55,7 @@ FlowForge and FlowDoc serve different purposes and must not be confused:
 
 ---
 
-## What FlowForge takes from FlowDoc v1.1
+## What FlowForge takes from FlowDoc v2.0
 
 ### Taken without modification
 
@@ -64,14 +65,16 @@ FlowForge and FlowDoc serve different purposes and must not be confused:
 | PRD template | `templates/project/docs/PRD.md` |
 | ADR template (product) | `templates/project/docs/architecture/adr/` |
 | RFC template | `templates/project/docs/architecture/rfc/` |
-| `flowdoc-ciclo.md` (optional, L3+) | `templates/project/docs/flowdoc-ciclo.md` |
-| Adoption levels concept (L1–L4) | Mapped to CKP levels below |
+| Adoption levels concept (L1–L3) | Mapped to FlowForge equivalents below |
+| Range-binned folder structure (ADR-005) | `docs/tasks/HU-001-HU-099/` |
 
 ### Taken and modified
 
 | FlowDoc artifact | Modification | Reason |
 |-----------------|-------------|--------|
-| HU template | Added `flowforge_slug` + `status` frontmatter fields; added `## FlowForge` section | Links HU ↔ `.ai-work/{slug}/`; enables traceability |
+| HU template (detailed v2.0) | Added `hu_id`, `status`, `flowforge_slug` frontmatter; added `## FlowForge` section; extended GWT scenarios with `🧪 Ref` test links | Links HU ↔ `.ai-work/{slug}/`; enables traceability and process automation |
+| Owner & Timeline | Adopted from v2.0 (owner, milestone, dependencies) | Richer accountability without overloading the HU |
+| Technical Debt section | Adopted from v2.0 as optional trailing section | Captures intentional technical debt decisions alongside the user story |
 
 ### Not taken (and why)
 
@@ -81,6 +84,11 @@ FlowForge and FlowDoc serve different purposes and must not be confused:
 | `sdd-context.md` (ADR-009) | Renamed proposal: `flow-context.md`; implementation deferred to Sprint 2 |
 | `/sdd-*` commands | Separate ceremony; FlowForge uses `/flow-*` exclusively |
 | `hu-to-issues` scripts | Deferred to Sprint 2 |
+| `flowdoc-ciclo.md` | **Deprecated in FlowDoc v2.0.** FlowForge provides workflow via CKP-0→4 |
+| `priority` frontmatter field | Removed — FlowForge uses `status` for lifecycle; backlog order sets priority |
+| `created` frontmatter field | Removed — Git history provides timestamps; explicit field is redundant |
+| **Tasks section** (v2.0) | Not adopted — FlowForge captures implementation tasks in `.ai-work/{slug}/plan.md` |
+| **Contract section** (v2.0) | Not adopted — API contracts live alongside code, not in HUs |
 
 > **Important for existing FlowDoc users:** If your project previously used `openspec/`, migrate its contents to `.ai-work/` following the [FlowDoc adoption guide](https://github.com/crhistianmdz/FlowDocs). The `openspec/` path is not recognized by FlowForge agents.
 
@@ -88,14 +96,13 @@ FlowForge and FlowDoc serve different purposes and must not be confused:
 
 ## Adoption levels: combined matrix
 
-FlowDoc defines L1–L4. FlowForge adds CKPs. Here is how they map:
+FlowDoc v2.0 defines L1–L3. FlowForge adds CKPs. Here is how they map:
 
 | FlowDoc level | What it includes | FlowForge equivalent | Active CKPs |
 |---------------|-----------------|---------------------|-------------|
-| **L1** Docs only | PRD + HU + ADR in `docs/` | Optional: no `/flow-*` needed | None |
-| **L2** SDD basic | SDD-Ready templates active | `/flow-start` … `/flow-close` | CKP-0 → CKP-4 |
-| **L3** Team | Sprint cycle + feature flags + owners | L2 + `flowdoc-ciclo.md` | L2 + human retrospective |
-| **L4** Full team | Metrics + formal retro | L3 + `forge-memory/metrics` | L4 + KPIs |
+| **L1** Structure | Docs folder layout, PRD template, HU template, ADR/RFC structure | `flowforge init` — one-time scaffold | None |
+| **L2** Decisions | Full HU workflow (backlog → spec → plan → implement → close) | `/flow-start` … `/flow-close` | CKP-0 → CKP-4 |
+| **L3** Complete | L2 + human retrospective + metrics + team ceremonies | L2 + `forge-memory/metrics` + `forge-verify` + human retrospectives | L2 + post-cycle review |
 
 **Default when you run `flow-init`:** `adoption_level: 1` — your project gets documented from day 1.  
 Activate FlowForge agents when your team is ready (L2).
@@ -110,17 +117,17 @@ Planning           →  Execution         →  Close
 docs/tasks/            .ai-work/{slug}/       docs/
 HU-042-login.md        spec.md                architecture/adr/
   (backlog)            plan.md                  (decisions land here)
-      │                verify-report.md      HU-042-login.md
-      │                summary.md              status: done ✓
-      │                                        flowforge_slug: user-login
-      ▼                    ▲
+       │               verify-report.md      HU-042-login.md
+       │               summary.md              status: done ✓
+       │                                        flowforge_slug: user-login
+       ▼                    ▲
  /flow-start {slug}   forge-memory at /flow-close
  sets flowforge_slug  updates HU checkboxes
 ```
 
 **Key traceability chain:**
 
-1. **HU** defines the user need and acceptance criteria
+1. **HU** defines the user need and acceptance criteria, with GWT scenarios and test references
 2. `/flow-start` creates `.ai-work/{slug}/` and links it via `flowforge_slug` in the HU
 3. forge-arch imports the HU's "As a / I want / So that" into `spec.md` (no manual copy)
 4. forge-memory at `/flow-close` checks off PM-* in `spec.md` and updates the HU `status` to `done`
@@ -129,17 +136,24 @@ HU-042-login.md        spec.md                architecture/adr/
 
 ## Keeping templates in sync with FlowDoc upstream
 
-FlowForge pins the FlowDoc version in `.flowforge.json`:
+FlowForge pins the FlowDoc version in `.flowforge.json` using split keys:
 
 ```json
-"docs_framework": "flowdoc@1.1"
+{
+  "docs_framework": "flowdoc",
+  "docs_framework_version": "2.0",
+  "upstream": {
+    "repo": "https://github.com/crhistianmdz/FlowDocs",
+    "status": "private"
+  }
+}
 ```
 
 When FlowDoc releases a new version:
 
 1. Review the FlowDoc changelog for changes to templates we've imported
 2. Update affected files in `templates/project/`
-3. Update the version pin in `.flowforge.json.template`
+3. Update `docs_framework_version` in `.flowforge.json`
 4. Update the attribution header in changed template files
 5. Update this document and ADR-004 status history
 
@@ -156,7 +170,7 @@ These are improvement requests filed with FlowDoc maintainers (tracked in [ADR-0
 | FlowDoc L2 guide still mentions `openspec/` | Confuses teams migrating from FlowDoc L2 | Use `.ai-work/` as documented here; ignore `openspec/` references |
 | ADR-009 hardcodes `openspec/changes/` | `sdd-context.md` not usable with FlowForge | Deferred — `flow-context.md` coming in Sprint 2 |
 | HU template lacks `flowforge_slug` upstream | Manual frontmatter needed when using FlowDoc templates directly | FlowForge templates already include it |
-| No `flowdoc.version` export file | Hard to detect version programmatically | Use commit date + release tag manually |
+| No `flowdoc.version` export file | Hard to detect version programmatically | Use `docs_framework_version` from `.flowforge.json` as canonical source |
 
 ---
 

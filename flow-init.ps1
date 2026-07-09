@@ -169,5 +169,5 @@ Write-Host "  See QUICKSTART.project.md for the full guide."
 Write-Host "========================================"
 Write-Host "  Project: $ProjectName" -ForegroundColor Green
 Write-Host "  Path:    $Target" -ForegroundColor Green
-Write-Host "  FlowDoc: flowdoc@1.1 (embedded)" -ForegroundColor Green
+Write-Host "  FlowDoc: flowdoc@2.0 (embedded)" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Blue

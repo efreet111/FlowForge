@@ -98,7 +98,7 @@ This creates:
 
 | File / folder | Purpose |
 |---|---|
-| `.flowforge.json` | Project config (activates FlowDoc, sets `docs_framework`, teacher mode, etc.) |
+| `.flowforge.json` | Project config (activates FlowDoc, sets `docs_framework` + `docs_framework_version`, teacher mode, etc.) |
 | `AGENTS.md` | Agent guidance for this repo |
 | `docs/` | PRD, HUs, ADRs, RFCs, templates |
 | `.ai-work/` | Versioned feature artifacts |
@@ -118,16 +118,17 @@ FlowForge (methodology + `.ai-work/`) and FlowDoc (`docs/` product layer) are **
 
 | Goal | What to do |
 |------|------------|
-| **Full setup** (default) | `flowforge init .` — sets `"docs_framework": "flowdoc@1.1"` and default `paths` |
+| **Full setup** (default) | `flowforge init .` — sets `"docs_framework": "flowdoc"` + `"docs_framework_version": "2.0"` and default `paths` |
 | **FlowForge only** (no FlowDoc) | `flowforge init . --no-flow-doc` — no `docs/`, no `docs_framework`; agents use only `.ai-work/` |
 | **Disable later** | Edit `.flowforge.json`: remove `"docs_framework"` or set `"docs_framework": null` |
-| **Custom folder layout** | Keep `"docs_framework": "flowdoc@1.1"` and point `paths` to your folders |
+| **Custom folder layout** | Keep `"docs_framework": "flowdoc"` + `"docs_framework_version": "2.0"` and point `paths` to your folders |
 
 Example — custom paths (FlowDoc semantics, your tree):
 
 ```json
 {
-  "docs_framework": "flowdoc@1.1",
+  "docs_framework": "flowdoc",
+  "docs_framework_version": "2.0",
   "paths": {
     "prd": "product/requirements.md",
     "backlog": "product/stories",
@@ -150,7 +151,19 @@ Example — FlowForge only (no product doc layer):
 }
 ```
 
-At `/flow-start`, `forge-discovery` reads this file: if `docs_framework` is missing or `null`, it **skips** the FlowDoc step and proceeds with the FlowForge workflow only.
+At `/flow-start`, `forge-discovery` reads this file: if `docs_framework` is missing or `null`, it **skips** the FlowDoc step and proceeds with the FlowForge workflow only. If present, `docs_framework_version` is checked to determine template compatibility.
+
+### FlowDoc adoption levels
+
+FlowDoc v2.0 defines three adoption levels. You choose how deeply to integrate with FlowForge:
+
+| Level | Name | What you get | FlowForge integration |
+|-------|------|-------------|----------------------|
+| **L1** | Structure | `docs/` folder layout, PRD template, HU template, ADR/RFC templates | `flowforge init` — one-time scaffold. No agent workflow required. |
+| **L2** | Decisions | L1 + full feature lifecycle: backlog → spec → plan → implement → close | `/flow-start` through `/flow-close`. All CKP-0→4 gates active. |
+| **L3** | Complete | L2 + human retrospectives, metrics tracking, team ceremonies | L2 workflow + `forge-memory/metrics` + `forge-verify` + post-cycle human review |
+
+**Default:** `flowforge init` starts you at L1. Activate agents (`/flow-start`) when your team is ready for L2.
 
 ### Where files live (global vs project)
 

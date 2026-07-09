@@ -2,7 +2,12 @@
   "version": "1",
   "workflow": "flowforge",
   "flowforge_version": "__FLOWFORGE_VERSION__",
-  "docs_framework": "flowdoc@1.1",
+  "docs_framework": "flowdoc",
+  "docs_framework_version": "2.0",
+  "upstream": {
+    "repo": "https://github.com/crhistianmdz/FlowDocs",
+    "status": "private"
+  },
   "adoption_level": 1,
   "project": "__PROJECT_NAME__",
   "created": "__DATE__",
