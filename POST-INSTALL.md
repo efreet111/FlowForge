@@ -55,8 +55,13 @@ a warning at startup (see step 4).
 
 ## 3. Configure the sync target (sync mode only)
 
-If you have a team relay server (e.g. a TrueNAS machine running engram with
-PostgreSQL), set its URL:
+If you chose **Offline-first sync** during `flowforge install`, the installer
+already prompted for the server URL and persisted it in `~/.engram/config.json`.
+No manual configuration needed.
+
+To change the sync server URL later, either:
+- Re-run `flowforge install` and select sync again (the prompt pre-fills with the existing URL)
+- Or set `ENGRAM_SERVER_URL` as an environment variable:
 
 ```bash
 # Linux/macOS — add to ~/.bashrc to persist
@@ -69,10 +74,6 @@ source ~/.bashrc
 )
 # Then restart your shell / IDE
 ```
-
-> **ENG-453 (planned)**: `flowforge install --mode=sync` will prompt for the
-> remote URL and persist it in `~/.engram/config.json`. Until then, set the
-> env var manually as shown.
 
 ---
 
@@ -191,7 +192,3 @@ Expected: a row with the saved content appears.
   `Mutation transport 501` every 30ms with no clear remediation
 - Both are in `engram-dotnet` `>=0.4.0`. Any `flowforge install` that fetches
   an older release will have broken sync.
-
-Until **ENG-453** ships (FlowForge persists `ENGRAM_SERVER_URL` in
-`mode=sync` install), users who want sync must set the env var manually as
-shown in step 3.

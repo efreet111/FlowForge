@@ -1,7 +1,8 @@
 # ADR-010 — Installer must prompt for `ENGRAM_SERVER_URL` in `mode=sync`
 
-> **Status**: Proposed
+> **Status**: Accepted
 > **Date**: 2026-07-01
+> **Accepted**: 2026-07-09
 > **Feature**: Stack installer / engram-dotnet sync setup
 > **Deciders**: Engineering (FlowForge methodology team)
 > **Links**: [ADR-006 OpenCode MCP config](ADR-006-opencode-mcp-config.md) ·
