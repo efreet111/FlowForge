@@ -62,10 +62,10 @@ FlowForge writes agents into the directories each IDE expects. After running any
 | IDE | Global agents | Project agents | Notes |
 |-----|---------------|----------------|-------|
 | **Cursor** | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` | MCP configured in `~/.cursor/mcp.json`. |
-| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/` | `opencode.json`/`.jsonc` keeps `mcp.engram.type = "local"`. `opencode.flowforge.json` and `~/.config/opencode/flowforge/` are legacy helpers. |
+| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/`, `.opencode/commands/` | Skills en `{repo}/skills/` (no copiados). Ver [ADR-009](docs/decisions/ADR-009-opencode-antigravity-customizations.md). |
 | **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detected via `github.copilot*`. |
 | **Kilo Code** | `~/.config/kilo/agents/*.md` (same bundle as OpenCode) | `.kilo/agents/*.md` (duplicated) | Detected via `kilocode.*`. |
-| **Antigravity** | `~/.gemini/antigravity/` (`AGENTS.md`, `rules/`, `workflows/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `AGENTS.md` | Google Antigravity (not Claude Desktop). |
+| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `workflows/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `.agents/skills/` | Google Antigravity (not Claude Desktop). |
 | **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (MCP only) | — | Out of scope for agent packs. |
 
 `flowforge doctor`, `ide/install.sh`, and `ide/install.ps1` follow this matrix; see [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md) for the canonical layout.
@@ -112,16 +112,16 @@ FlowForge (methodology + `.ai-work/`) and FlowDoc (`docs/` product layer) are **
 
 | Goal | What to do |
 |------|------------|
-| **Full setup** (default) | `flowforge init .` — sets `"docs_framework": "flowdoc@1.1"` and default `paths` |
+| **Full setup** (default) | `flowforge init .` — sets `"docs_framework": "flowdoc@2.0"` and default `paths` |
 | **FlowForge only** (no FlowDoc) | `flowforge init . --no-flow-doc` — no `docs/`, no `docs_framework`; agents use only `.ai-work/` |
 | **Disable later** | Edit `.flowforge.json`: remove `"docs_framework"` or set `"docs_framework": null` |
-| **Custom folder layout** | Keep `"docs_framework": "flowdoc@1.1"` and point `paths` to your folders |
+| **Custom folder layout** | Keep `"docs_framework": "flowdoc@2.0"` and point `paths` to your folders |
 
 Example — custom paths (FlowDoc semantics, your tree):
 
 ```json
 {
-  "docs_framework": "flowdoc@1.1",
+  "docs_framework": "flowdoc@2.0",
   "paths": {
     "prd": "product/requirements.md",
     "backlog": "product/stories",
