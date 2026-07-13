@@ -104,6 +104,7 @@ public sealed class InstallCommand(InstallerContext ctx)
                     AnsiConsole.MarkupLine("[red]Error: sync mode requires --server-url, " +
                         "ENGRAM_SERVER_URL env var, or a previous install with sync config.[/]");
                     AnsiConsole.MarkupLine("[grey]  Set: flowforge install --server-url http://your-relay:7437[/]");
+                    Environment.Exit(1);
                     return;
                 }
             }
