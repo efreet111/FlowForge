@@ -77,6 +77,48 @@ compile_cursor_agents() {
   (cd "$FLOWFORGE_REPO" && $py "$compile") && echo -e "  ${GREEN}OK${NC} Agentes Cursor recompilados"
 }
 
+install_antigravity_skills() {
+  local dest="$1"
+  mkdir -p "$dest"
+  for skill_dir in "$FLOWFORGE_REPO/skills"/forge-*; do
+    [ -d "$skill_dir" ] || continue
+    local name
+    name="$(basename "$skill_dir")"
+    local target="$dest/$name"
+    rm -rf "$target" 2>/dev/null || true
+    if [[ "$FLOWFORGE_REPO" == /tmp/* ]] || [[ "$FLOWFORGE_REPO" == *flowforge-install* ]]; then
+      cp -a "$skill_dir" "$target"
+    else
+      ln -sfn "$skill_dir" "$target"
+    fi
+  done
+}
+
+cleanup_legacy_antigravity_pack() {
+  local leg="${HOME}/.gemini/antigravity"
+  rm -f "$leg/AGENTS.md" 2>/dev/null || true
+  rm -rf "$leg/rules" "$leg/workflows" 2>/dev/null || true
+  rm -f "${HOME}/.gemini/config/skills.json" 2>/dev/null || true
+}
+
+install_antigravity_global() {
+  local cfg="${HOME}/.gemini/config"
+  mkdir -p "$cfg/rules" "$cfg/workflows" "$cfg/skills"
+  mkdir -p "$cfg/.agents/rules" "$cfg/.agents/workflows" "$cfg/.agents/skills"
+  cp "$IDE_DIR/antigravity/AGENTS.md" "$cfg/" 2>/dev/null || true
+  cp "$IDE_DIR/antigravity/AGENTS.md" "$cfg/.agents/" 2>/dev/null || true
+  cp "$IDE_DIR/antigravity/rules/"*.md "$cfg/rules/" 2>/dev/null || true
+  cp "$IDE_DIR/antigravity/workflows/"*.md "$cfg/workflows/" 2>/dev/null || true
+  cp "$IDE_DIR/antigravity/rules/"*.md "$cfg/.agents/rules/" 2>/dev/null || true
+  cp "$IDE_DIR/antigravity/workflows/"*.md "$cfg/.agents/workflows/" 2>/dev/null || true
+  install_antigravity_skills "$cfg/skills"
+  install_antigravity_skills "$cfg/.agents/skills"
+  if [ -f "$IDE_DIR/antigravity/rules/workflow.md" ]; then
+    cp "$IDE_DIR/antigravity/rules/workflow.md" "${HOME}/.gemini/GEMINI.md" 2>/dev/null || true
+  fi
+  cleanup_legacy_antigravity_pack
+}
+
 install_project() {
   local root="$1"
   if [ ! -d "$root" ]; then
@@ -85,11 +127,15 @@ install_project() {
   fi
   echo -e "${GREEN}[*] Instalacion por proyecto: $root${NC}"
 
-  mkdir -p "$root/.agents/rules" "$root/.agents/workflows"
+  mkdir -p "$root/.agents/rules" "$root/.agents/workflows" "$root/.agents/skills"
   cp -r "$IDE_DIR/antigravity/rules/"* "$root/.agents/rules/"
   cp -r "$IDE_DIR/antigravity/workflows/"* "$root/.agents/workflows/"
-  cp "$IDE_DIR/antigravity/AGENTS.md" "$root/"
-  echo -e "  ${GREEN}OK${NC} .agents/"
+  cp "$IDE_DIR/antigravity/AGENTS.md" "$root/.agents/AGENTS.md"
+  install_antigravity_skills "$root/.agents/skills"
+  if [ ! -f "$root/AGENTS.md" ]; then
+    cp "$IDE_DIR/antigravity/AGENTS.md" "$root/"
+  fi
+  echo -e "  ${GREEN}OK${NC} .agents/ (+ skills + AGENTS.md en raíz solo si no existía)"
 
   install_shared "$root/.flowforge/shared"
   echo -e "  ${GREEN}OK${NC} .flowforge/shared/"
@@ -100,12 +146,13 @@ install_project() {
   cp "$IDE_DIR/cursor/commands/"*.md "$root/.cursor/commands/" 2>/dev/null || true
   echo -e "  ${GREEN}OK${NC} .cursor/"
 
-  mkdir -p "$root/.github/agents" "$root/.opencode/agents" "$root/.kilo/agents"
+  mkdir -p "$root/.github/agents" "$root/.opencode/agents" "$root/.opencode/commands" "$root/.kilo/agents"
   cp "$IDE_DIR/vscode/agents/"*.agent.md "$root/.github/agents/" 2>/dev/null || true
   cp "$IDE_DIR/vscode/copilot-instructions.md" "$root/.github/" 2>/dev/null || true
   cp "$IDE_DIR/opencode/agents/"*.md "$root/.opencode/agents/" 2>/dev/null || true
+  cp "$IDE_DIR/opencode/commands/"*.md "$root/.opencode/commands/" 2>/dev/null || true
   cp "$IDE_DIR/opencode/agents/"*.md "$root/.kilo/agents/" 2>/dev/null || true
-  echo -e "  ${GREEN}OK${NC} .github/agents + .opencode/agents + .kilo/agents"
+  echo -e "  ${GREEN}OK${NC} .github/agents + .opencode/agents + .opencode/commands + .kilo/agents"
 }
 
 echo -e "${BLUE}========================================${NC}"
@@ -120,29 +167,68 @@ echo -e "${GREEN}[OK]${NC} Paridad global: $GLOBAL_SHARED"
 compile_cursor_agents
 
 # --- OpenCode ---
-# OpenCode auto-loads agents from ~/.config/opencode/agents/*.md and commands
-# from ~/.config/opencode/commands/*.md. No merge needed — just copy the files.
-if [ -d "${HOME}/.config/opencode" ]; then
+# Generates opencode.json (not just copy agents). See ide/opencode/generate-config.sh
+if [ -d "${HOME}/.config/opencode" ] || mkdir -p "${HOME}/.config/opencode" 2>/dev/null; then
   echo -e "${GREEN}[OK] OpenCode detectado${NC}"
+
+  # Backup existing config
+  OC_BACKUP="${BACKUP_DIR}/opencode"
+  mkdir -p "$OC_BACKUP"
+  [ -f "${HOME}/.config/opencode/opencode.json" ] && \
+    cp "${HOME}/.config/opencode/opencode.json" "$OC_BACKUP/" 2>/dev/null || true
+  [ -f "${HOME}/.config/opencode/opencode.jsonc" ] && \
+    cp "${HOME}/.config/opencode/opencode.jsonc" "$OC_BACKUP/" 2>/dev/null || true
+
+  # Generate opencode.json + model-assignments.md + sidecar
+  if command -v flowforge >/dev/null 2>&1; then
+    flowforge install --ide opencode --yes 2>/dev/null && \
+      echo -e "  ${GREEN}OK${NC} opencode.json via flowforge binary" || \
+      echo -e "  ${YELLOW}! flowforge install failed; trying bash fallback${NC}"
+  fi
+  if [ ! -f "${HOME}/.config/opencode/opencode.json" ] || \
+     ! command -v flowforge >/dev/null 2>&1; then
+    if [ -f "$IDE_DIR/opencode/generate-config.sh" ]; then
+      bash "$IDE_DIR/opencode/generate-config.sh" "$FLOWFORGE_REPO" && \
+        echo -e "  ${GREEN}OK${NC} opencode.json via bash generate-config.sh"
+    else
+      echo -e "  ${RED}✗ generate-config.sh not found${NC}"
+    fi
+    if ! command -v flowforge >/dev/null 2>&1; then
+      echo -e "  ${YELLOW}! Instalar binario flowforge recomendado para futuras actualizaciones${NC}"
+    fi
+  fi
+
+  # Copy agents (strip .tpl, patch model: from agent-models.json)
   mkdir -p "${HOME}/.config/opencode/agents"
-  mkdir -p "${HOME}/.config/opencode/commands"
-  # Copy FlowForge agent markdown files (one per agent)
-  if [ -d "$IDE_DIR/opencode/agents" ]; then
+  if [ -d "$IDE_DIR/opencode/templates/agents" ]; then
+    for tpl in "$IDE_DIR/opencode/templates/agents/"*.md.tpl; do
+      [ -f "$tpl" ] || continue
+      dest_name="$(basename "$tpl" .tpl)"
+      dest="${HOME}/.config/opencode/agents/${dest_name}"
+      cp "$tpl" "$dest"
+      agent_key="${dest_name%.md}"
+      if command -v jq >/dev/null 2>&1 && [ -f "$IDE_DIR/opencode/templates/agent-models.json" ]; then
+        model=$(jq -r ".agents[\"${agent_key}\"].model // empty" "$IDE_DIR/opencode/templates/agent-models.json")
+        if [ -n "$model" ]; then
+          sed -i "s|^model:.*|model: opencode-zen/${model}|" "$dest"
+        fi
+      fi
+    done
+  elif [ -d "$IDE_DIR/opencode/agents" ]; then
     cp "$IDE_DIR/opencode/agents/"*.md "${HOME}/.config/opencode/agents/" 2>/dev/null || true
   fi
-  # Copy commands (if any)
-  if [ -d "$IDE_DIR/opencode/commands" ]; then
+
+  # Copy commands
+  mkdir -p "${HOME}/.config/opencode/commands"
+  [ -d "$IDE_DIR/opencode/commands" ] && \
     cp "$IDE_DIR/opencode/commands/"*.md "${HOME}/.config/opencode/commands/" 2>/dev/null || true
-  fi
-  # Clean up old approach: remove ~/.config/opencode/flowforge/ and opencode.flowforge.json
-  if [ -d "${HOME}/.config/opencode/flowforge" ]; then
-    rm -rf "${HOME}/.config/opencode/flowforge"
-  fi
-  if [ -f "${HOME}/.config/opencode/opencode.flowforge.json" ]; then
-    rm -f "${HOME}/.config/opencode/opencode.flowforge.json"
-  fi
-  echo -e "  ${GREEN}OK${NC} ~/.config/opencode/agents/ + commands/"
-  echo -e "  ${YELLOW}! Modelos opencode-go/*: configura proveedor + API keys en OpenCode${NC}"
+
+  # Cleanup legacy paths
+  [ -d "${HOME}/.config/opencode/flowforge" ] && rm -rf "${HOME}/.config/opencode/flowforge"
+  [ -f "${HOME}/.config/opencode/opencode.flowforge.json" ] && rm -f "${HOME}/.config/opencode/opencode.flowforge.json"
+
+  echo -e "  ${GREEN}OK${NC} ~/.config/opencode/ (config + agents + commands)"
+  echo -e "  ${YELLOW}⚠ Free Zen models may use your data for training. See docs/PII-POLICY.md${NC}"
   INSTALLED=1
 fi
 
@@ -203,12 +289,8 @@ fi
 # --- Antigravity ---
 if [ -d "${HOME}/.gemini" ]; then
   echo -e "${GREEN}[OK] Antigravity detectado${NC}"
-  mkdir -p "${HOME}/.gemini/antigravity/rules"
-  mkdir -p "${HOME}/.gemini/antigravity/workflows"
-  cp "$IDE_DIR/antigravity/AGENTS.md" "${HOME}/.gemini/antigravity/" 2>/dev/null || true
-  cp "$IDE_DIR/antigravity/rules/"*.md "${HOME}/.gemini/antigravity/rules/" 2>/dev/null || true
-  cp "$IDE_DIR/antigravity/workflows/"*.md "${HOME}/.gemini/antigravity/workflows/" 2>/dev/null || true
-  echo -e "  ${GREEN}OK${NC} ~/.gemini/antigravity/ (AGENTS.md + rules/ + workflows/)"
+  install_antigravity_global
+  echo -e "  ${GREEN}OK${NC} ~/.gemini/config/ (AGENTS + rules + workflows + skills)"
   INSTALLED=1
 fi
 
