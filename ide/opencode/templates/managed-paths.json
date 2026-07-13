@@ -1,0 +1,15 @@
+[
+  "instructions",
+  "agent.flowforge",
+  "agent.forge-discovery",
+  "agent.forge-arch",
+  "agent.forge-plan",
+  "agent.forge-dev",
+  "agent.forge-verify",
+  "agent.forge-memory",
+  "agent.forge-teacher",
+  "provider.opencode-zen",
+  "permission.bash",
+  "permission.read",
+  "mcp.engram"
+]
