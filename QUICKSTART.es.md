@@ -62,10 +62,10 @@ FlowForge escribe los agentes en los directorios que cada IDE realmente lee. Des
 | IDE | Agentes globales | Agentes por proyecto | Notas |
 |-----|------------------|----------------------|-------|
 | **Cursor** | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` | MCP en `~/.cursor/mcp.json`. |
-| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/` | `opencode.json`/`.jsonc` mantiene `mcp.engram.type = "local"`. `opencode.flowforge.json` y `~/.config/opencode/flowforge/` son legados opcionales. |
+| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/`, `.opencode/commands/` | Skills en `{repo}/skills/` (no copiados). Ver [ADR-009](docs/decisions/ADR-009-opencode-antigravity-customizations.md). |
 | **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detectado por `github.copilot*`. |
 | **Kilo Code** | `~/.config/kilo/agents/*.md` (el mismo bundle que OpenCode) | `.kilo/agents/*.md` (duplicado) | Detectado por `kilocode.*`. |
-| **Antigravity** | `~/.gemini/antigravity/` (`AGENTS.md`, `rules/`, `workflows/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `AGENTS.md` | Google Antigravity (no Claude Desktop). |
+| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `workflows/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `.agents/skills/` | Google Antigravity (no Claude Desktop). |
 | **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (solo MCP) | — | Fuera del alcance de los packs de agentes. |
 
 `flowforge doctor`, `ide/install.sh` e `ide/install.ps1` respetan esta matriz; consultá [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md) para la estructura canónica.

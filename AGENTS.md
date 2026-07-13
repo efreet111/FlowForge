@@ -2,6 +2,8 @@
 
 When working on this project, load the relevant skill(s) BEFORE writing any code.
 
+> **📚 FlowDoc v2.0 Adopter**: This project follows [FlowDoc v2.0](https://github.com/crhistianmdz/FlowDocs) as its documentation layer. See [`docs/20-flowdoc-ecosystem.md`](docs/20-flowdoc-ecosystem.md) for the canonical adopter guide and [`docs/decisions/ADR-004-flowdoc-integration.md`](docs/decisions/ADR-004-flowdoc-integration.md) for the integration decision. FlowDoc is pinned in `.flowforge.json` via `docs_framework: "flowdoc"` and `docs_framework_version: "2.0"`.
+
 > **🔧 engram-dotnet Reference**: For the complete catalog of 25 MCP tools across 6 capability areas (Core Memory, Sync, Verification, ADR Promotion, Obsidian Export, Diagnostics), see [`docs/12-engram-tool-reference.md`](docs/12-engram-tool-reference.md). Every agent should know which tools are available before starting any phase.
 
 ## How to Use
