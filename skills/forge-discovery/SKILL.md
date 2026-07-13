@@ -33,7 +33,7 @@ During that spike, the discovery agent realized that `src/Engram.Verification/` 
      - Use `grep_search` over the `./.engram/local_memory/` directory, searching for the extracted keywords in local Markdown files.
      - For each matching file, read it fully with `view_file` to extract its YAML FrontMatter and structured content.
 3b. **PRD & HU read (FlowDoc layer)**
-   - **Precondition**: only run when `.flowforge.json` has `docs_framework` set to a non-empty value other than `"none"` (e.g. `"flowdoc@2.0"`). If `docs_framework` is absent, `null`, or `"none"`, skip this step — the project uses FlowForge only (`.ai-work/`), not the FlowDoc documentation layer.
+   - **Precondition**: only run when `.flowforge.json` has `docs_framework` set to a non-empty value other than `"none"` (e.g. `"flowdoc"` with `docs_framework_version: "2.0"`). If `docs_framework` is absent, `null`, or `"none"`, skip this step — the project uses FlowForge only (`.ai-work/`), not the FlowDoc documentation layer.
    - If `docs/PRD.md` (or `paths.prd` from `.flowforge.json`) exists, read the first two sections to understand product context before searching memory.
    - List the 3 most recent HU files under `paths.backlog` (sorted by filename descending). If the human pointed to a specific HU, read it fully and extract: title, acceptance criteria, and the "As a / I want / So that" fields.
    - Add a `## FlowDoc context` block to the Context Map:

@@ -112,16 +112,17 @@ FlowForge (methodology + `.ai-work/`) and FlowDoc (`docs/` product layer) are **
 
 | Goal | What to do |
 |------|------------|
-| **Full setup** (default) | `flowforge init .` — sets `"docs_framework": "flowdoc@2.0"` and default `paths` |
+| **Full setup** (default) | `flowforge init .` — sets `"docs_framework": "flowdoc"` + `"docs_framework_version": "2.0"` and default `paths` |
 | **FlowForge only** (no FlowDoc) | `flowforge init . --no-flow-doc` — no `docs/`, no `docs_framework`; agents use only `.ai-work/` |
 | **Disable later** | Edit `.flowforge.json`: remove `"docs_framework"` or set `"docs_framework": null` |
-| **Custom folder layout** | Keep `"docs_framework": "flowdoc@2.0"` and point `paths` to your folders |
+| **Custom folder layout** | Keep `"docs_framework": "flowdoc"` + `"docs_framework_version": "2.0"` and point `paths` to your folders |
 
 Example — custom paths (FlowDoc semantics, your tree):
 
 ```json
 {
-  "docs_framework": "flowdoc@2.0",
+  "docs_framework": "flowdoc",
+  "docs_framework_version": "2.0",
   "paths": {
     "prd": "product/requirements.md",
     "backlog": "product/stories",
