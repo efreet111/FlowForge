@@ -28,11 +28,11 @@ el drift completo sin afectar a proyectos generados downstream.
 
 | Archivo | Cambio | Líneas |
 |---|---|---|
-| `.flowforge.json` | `"flowdoc@1.1"` → `"flowdoc@2.0"` | 1 |
-| `AGENTS.md` | Callout "FlowDoc v1.1 Adopter" → "FlowDoc v2.0 Adopter" + versión del pin | 1 |
+| `.flowforge.json` | `"flowdoc"` + `"docs_framework_version": "2.0"` (formato nuevo del installer fix) | 1 |
+| `AGENTS.md` | Callout "FlowDoc v2.0 Adopter" + versión del pin | 1 |
 | `ide/opencode/AGENTS.md` | Sección "FlowDoc Integration" — versión + pin | 2 |
-| `ide/cursor/agents/forge-discovery.md` | Ejemplo precondition `"flowdoc@1.1"` → `"flowdoc@2.0"` | 1 |
-| `skills/forge-discovery/SKILL.md` | Ejemplo precondition `"flowdoc@1.1"` → `"flowdoc@2.0"` | 1 |
+| `ide/cursor/agents/forge-discovery.md` | Ejemplo precondition formato nuevo | 1 |
+| `skills/forge-discovery/SKILL.md` | Ejemplo precondition formato nuevo | 1 |
 | `QUICKSTART.md` | 3 menciones en tabla + ejemplo JSON | 3 |
 | `QUICKSTART.es.md` | 3 menciones en tabla + ejemplo JSON | 3 |
 
@@ -112,7 +112,7 @@ Memory Curation Protocol (ADR-001) intenta evitar.
 2. Verificar que `flowforge init .` sigue funcionando en proyecto de prueba
 3. Verificar que proyectos generados son compatibles con v1.1→v2.0 (si es que
    hay proyectos existentes)
-4. Actualizar `templates/.flowforge.json.template` con `flowdoc@2.0`
+4. Actualizar `templates/.flowforge.json.template` con `flowdoc` + `docs_framework_version: "2.0"`
 
 ### Paso 4 — Comunicación
 1. Anuncio en CHANGELOG.md (nueva entrada bajo "Unreleased")
@@ -122,7 +122,7 @@ Memory Curation Protocol (ADR-001) intenta evitar.
 
 | Recurso | Path / Comando |
 |---|---|
-| Pin actual | `.flowforge.json` → `docs_framework: "flowdoc@2.0"` ✅ |
+| Pin actual | `.flowforge.json` → `docs_framework: "flowdoc"` + `docs_framework_version: "2.0"` ✅ |
 | Adopter Guide | `docs/20-flowdoc-ecosystem.md` (sigue con contenido v1.1 — pendiente) |
 | Decisión original v1.1 | `docs/decisions/ADR-004-flowdoc-integration.md` (frozen) |
 | Commits de migración | `d6a2288`, `0f3b872` |

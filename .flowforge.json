@@ -3,5 +3,6 @@
   "engram": {
     "project": "flowforge"
   },
-  "docs_framework": "flowdoc@2.0"
+  "docs_framework": "flowdoc",
+  "docs_framework_version": "2.0"
 }

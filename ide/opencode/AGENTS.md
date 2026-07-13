@@ -33,7 +33,7 @@ Al mostrar `spec.md`, escanear Section 5. Si hay preguntas `[BLOCKER]`, no acept
 
 ## FlowDoc Integration
 
-Esta configuración sigue [FlowDoc v2.0](https://github.com/crhistianmdz/FlowDocs) como capa documental del proyecto FlowForge. La versión está pineada en `.flowforge.json` (`docs_framework: "flowdoc@2.0"`).
+Esta configuración sigue [FlowDoc v2.0](https://github.com/crhistianmdz/FlowDocs) como capa documental del proyecto FlowForge. La versión está pineada en `.flowforge.json` (`docs_framework: "flowdoc"` + `docs_framework_version: "2.0"`).
 
 **Referencias clave en el repo FlowForge:**
 
