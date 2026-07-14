@@ -37,7 +37,7 @@ echo ""
 sep
 log "Pre-condiciones — verificando entorno limpio"
 
-for dir in ~/.cursor ~/.config/opencode ~/.copilot/agents ~/.config/kilo/agents ~/.gemini/antigravity; do
+for dir in ~/.cursor ~/.config/opencode ~/.copilot/agents ~/.config/kilo/agents ~/.gemini/config; do
     if [ -d "$dir" ]; then
         pass "Dir IDE existe: $dir"
     else
@@ -165,25 +165,31 @@ fi
 sep
 log "Verificando Antigravity"
 
-ANTI_AGENTS="$HOME/.gemini/antigravity/AGENTS.md"
+ANTI_AGENTS="$HOME/.gemini/config/AGENTS.md"
 if [ -f "$ANTI_AGENTS" ]; then
-    pass "PM-1-4d: Antigravity AGENTS.md presente"
+    pass "PM-1-4d: Antigravity AGENTS.md presente (~/.gemini/config/)"
 else
-    warn "PM-1-4d: Antigravity AGENTS.md no encontrado"
+    warn "PM-1-4d: Antigravity AGENTS.md no encontrado en ~/.gemini/config/"
 fi
 
-ANTI_RULES=$(find "$HOME/.gemini/antigravity/rules" -name "*.md" 2>/dev/null | wc -l)
+ANTI_RULES=$(find "$HOME/.gemini/config/rules" -name "*.md" 2>/dev/null | wc -l)
 if [ "$ANTI_RULES" -gt 0 ]; then
     pass "PM-1-4e: Antigravity rules instaladas ($ANTI_RULES archivos)"
 else
     warn "PM-1-4e: Antigravity rules no encontrados"
 fi
 
-ANTI_WF=$(find "$HOME/.gemini/antigravity/workflows" -name "*.md" 2>/dev/null | wc -l)
+ANTI_WF=$(find "$HOME/.gemini/config/workflows" -name "*.md" 2>/dev/null | wc -l)
 if [ "$ANTI_WF" -gt 0 ]; then
     pass "PM-1-4f: Antigravity workflows instalados ($ANTI_WF archivos)"
 else
     warn "PM-1-4f: Antigravity workflows no encontrados"
+fi
+
+if [ -f "$HOME/.gemini/antigravity/AGENTS.md" ]; then
+    warn "PM-1-4g: legacy ~/.gemini/antigravity/AGENTS.md aún presente (debería eliminarse)"
+else
+    pass "PM-1-4g: legacy antigravity pack ausente"
 fi
 
 # ── Verificar MCP config ──────────────────────────────────────────────────────
