@@ -21,6 +21,11 @@ public sealed class InstallCommand(InstallerContext ctx)
         ?? typeof(InstallCommand).Assembly.GetName().Version?.ToString()
         ?? "dev";
 
+    /// <summary>
+    /// -y / --yes: omitir confirmaciones (non-interactive)
+    /// --no-engram: omitir instalación de engram-dotnet
+    /// --no-flowforge: omitir instalación de skills FlowForge
+    /// </summary>
     [Command("")]
     public async Task RunAsync(
         bool yes = false,
