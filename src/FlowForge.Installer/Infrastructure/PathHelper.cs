@@ -19,6 +19,21 @@ public static class PathHelper
 
     public static string FlowForgeBackupDir =>
         Path.Combine(HomeDir, ".flowforge-backups");
+    public static string OpenCodeBackupsDir => FlowForgeBackupDir;
+    public static string OpenCodeSidecarPath =>
+        Path.Combine(HomeDir, ".config", "opencode", ".flowforge-managed.json");
+
+    public static string OpenCodeTemplatesDir(string ffRepo)
+    {
+        if (!string.IsNullOrWhiteSpace(ffRepo))
+            return Path.Combine(ffRepo, "ide", "opencode", "templates");
+
+        var repoEnv = Environment.GetEnvironmentVariable("FLOWFORGE_REPO");
+        if (!string.IsNullOrWhiteSpace(repoEnv))
+            return Path.Combine(repoEnv, "ide", "opencode", "templates");
+
+        return Path.Combine(HomeDir, ".flowforge", "templates");
+    }
 
     public static string CopilotAgents =>
         Path.Combine(HomeDir, ".copilot", "agents");
@@ -32,14 +47,27 @@ public static class PathHelper
     public static string KiloAgents =>
         Path.Combine(KiloConfigDir, "agents");
 
-    public static string AntigravityDir =>
+    /// <summary>Antigravity 2.0 global customizations root (rules, workflows, skills, MCP).</summary>
+    public static string AntigravityConfigDir =>
+        Path.Combine(HomeDir, ".gemini", "config");
+
+    /// <summary>Legacy FlowForge pack path — no longer written; cleaned on install.</summary>
+    public static string AntigravityLegacyDir =>
         Path.Combine(HomeDir, ".gemini", "antigravity");
 
+    public static string AntigravityDir => AntigravityConfigDir;
+
     public static string AntigravityRules =>
-        Path.Combine(AntigravityDir, "rules");
+        Path.Combine(AntigravityConfigDir, "rules");
 
     public static string AntigravityWorkflows =>
-        Path.Combine(AntigravityDir, "workflows");
+        Path.Combine(AntigravityConfigDir, "workflows");
+
+    public static string AntigravitySkills =>
+        Path.Combine(AntigravityConfigDir, "skills");
+
+    public static string AntigravityWorkspaceAgents =>
+        Path.Combine(AntigravityConfigDir, ".agents");
 
     /// <summary>Directorio de instalación del binario flowforge.</summary>
     public static string InstallerBinDir =>
@@ -98,10 +126,10 @@ public sealed class IdeConfigPaths(string home)
     public string CopilotInstructionsDir => Path.Combine(home, ".copilot", "instructions");
 
     /// <summary>
-    /// Antigravity (Google): ~/.gemini/antigravity/mcp_config.json
-    /// Uses mcpServers format (same as Cursor).
+    /// Antigravity (Google): ~/.gemini/config/mcp_config.json
+    /// Uses mcpServers format (same as Cursor). Workspace: .agents/mcp_config.json
     /// </summary>
-    public string Antigravity => Path.Combine(home, ".gemini", "antigravity", "mcp_config.json");
+    public string Antigravity => Path.Combine(home, ".gemini", "config", "mcp_config.json");
 
     /// <summary>
     /// Claude Desktop: ruta varía por plataforma.

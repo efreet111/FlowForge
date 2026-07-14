@@ -1,0 +1,136 @@
+/* Source: https://opencode.ai/config.json (fallback cache) - retrieved 2026-07-13 */
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "FlowForge OpenCode configuration",
+  "description": "Simplified schema derived from OpenCode's published config reference for FlowForge-managed instals.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "instructions": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "agent": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/agentDefinition"
+      }
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/providerDefinition"
+      }
+    },
+    "permission": {
+      "$ref": "#/definitions/permissionBlock"
+    },
+    "mcp": {
+      "type": "object",
+      "properties": {
+        "engram": {
+          "$ref": "#/definitions/mcpEngram"
+        }
+      },
+      "required": ["engram"],
+      "additionalProperties": true
+    }
+  },
+  "required": ["$schema", "instructions", "agent", "provider", "permission", "mcp"],
+  "additionalProperties": true,
+  "definitions": {
+    "agentDefinition": {
+      "type": "object",
+      "properties": {
+        "description": { "type": "string" },
+        "mode": { "type": "string" },
+        "hidden": { "type": "boolean" },
+        "model": { "type": "string" },
+        "permission": { "$ref": "#/definitions/agentPermission" },
+        "prompt": { "type": "string" },
+        "skills": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "tools": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["mode", "model"],
+      "additionalProperties": true
+    },
+    "agentPermission": {
+      "type": "object",
+      "properties": {
+        "edit": { "enum": ["allow", "deny"] },
+        "write": { "enum": ["allow", "deny"] },
+        "read": { "enum": ["allow", "deny"] },
+        "bash": { "enum": ["allow", "deny"] },
+        "task": { "enum": ["allow", "deny"] }
+      },
+      "additionalProperties": true
+    },
+    "permissionBlock": {
+      "type": "object",
+      "properties": {
+        "bash": {
+          "type": "object",
+          "properties": {
+            "allow": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "deny": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "required": ["allow", "deny"],
+          "additionalProperties": false
+        },
+        "read": {
+          "type": "object",
+          "properties": {
+            "allow": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "deny": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "required": ["allow", "deny"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["bash", "read"],
+      "additionalProperties": true
+    },
+    "providerDefinition": {
+      "type": "object",
+      "properties": {
+        "api": { "type": "string" },
+        "npm": { "type": "string" },
+        "models": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["api", "npm", "models"],
+      "additionalProperties": true
+    },
+    "mcpEngram": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string" },
+        "enabled": { "type": "boolean" },
+        "command": { "type": "string" },
+        "environment": { "type": "object" }
+      },
+      "required": ["type", "enabled", "command"],
+      "additionalProperties": true
+    }
+  }
+}
