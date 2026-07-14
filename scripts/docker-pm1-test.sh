@@ -41,7 +41,10 @@ for dir in ~/.cursor ~/.config/opencode ~/.copilot/agents ~/.config/kilo/agents 
     if [ -d "$dir" ]; then
         pass "Dir IDE existe: $dir"
     else
-        fail "Dir IDE falta: $dir (el auto-detect no lo detectará)"
+        # Not a hard failure: the installer creates these dirs during install
+        # (auto-detect handles missing dirs). Post-install PM-1-4* checks verify
+        # the actual installation result.
+        warn "Dir IDE no existe pre-install: $dir (el installer lo creará)"
     fi
 done
 

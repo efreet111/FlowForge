@@ -6,12 +6,13 @@ public sealed class PiiScanner
 {
     static readonly Regex[] Patterns =
     {
+        // Real PII: absolute home paths like /home/victor/... (NOT relative ~/ paths,
+        // which are generic placeholders used legitimately in docs/instructions).
         new(@"[=:\s]\s*/home/[A-Za-z0-9_.-]{3,}/", RegexOptions.Compiled | RegexOptions.IgnoreCase),
         new(@"@local\.dev", RegexOptions.Compiled | RegexOptions.IgnoreCase),
         new(@"OPENCODIGO_API_KEY\s*[:=]\s*[""'']?[A-Za-z0-9\-_]{20,}", RegexOptions.Compiled),
         new(@"DEEPSEEK_API_KEY\s*[:=]\s*[""'']?[A-Za-z0-9\-_]{20,}", RegexOptions.Compiled),
         new(@"MINIMAX_API_KEY\s*[:=]\s*[""'']?[A-Za-z0-9\-_]{20,}", RegexOptions.Compiled),
-        new(@"~\/\.config\/opencode\/.+", RegexOptions.Compiled),
     };
 
     public (bool Clean, List<PiiHit> Hits) Scan(string input)
