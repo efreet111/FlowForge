@@ -1,4 +1,4 @@
-<!-- Adapted from FlowDoc v1.1 (github.com/crhistianmdz/FlowDocs) — MIT License -->
+<!-- Adapted from FlowDoc v2.0 (github.com/crhistianmdz/FlowDocs) — MIT License -->
 
 # RFC-NNN — [Short title]
 
