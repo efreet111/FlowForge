@@ -147,7 +147,19 @@ Ejemplo — solo FlowForge (sin capa de documentación de producto):
 }
 ```
 
-En `/flow-start`, `forge-discovery` lee este archivo: si `docs_framework` no está o es `null`, **omite** el paso FlowDoc y sigue solo con la metodología FlowForge.
+En `/flow-start`, `forge-discovery` lee este archivo: si `docs_framework` no está o es `null`, **omite** el paso FlowDoc y sigue solo con la metodología FlowForge. Si está presente, `docs_framework_version` se chequea para determinar la compatibilidad de templates.
+
+### Niveles de adopción de FlowDoc
+
+FlowDoc v2.0 define tres niveles de adopción. Elegís cuán profundamente integrás con FlowForge:
+
+| Nivel | Nombre | Qué obtenés | Integración FlowForge |
+|-------|--------|-------------|----------------------|
+| **L1** | Estructura | Layout de carpeta `docs/`, plantilla PRD, plantilla HU, plantillas ADR/RFC | `flowforge init` — scaffold de una sola vez. No requiere workflow de agentes. |
+| **L2** | Decisiones | L1 + ciclo de feature completo: backlog → spec → plan → implementar → cerrar | `/flow-start` hasta `/flow-close`. Todos los gates CKP-0→4 activos. |
+| **L3** | Completo | L2 + retrospectivas humanas, métricas, ceremonias de equipo | Workflow L2 + `forge-memory/metrics` + `forge-verify` + revisión humana post-ciclo |
+
+**Default:** `flowforge init` te arranca en L1. Activá los agentes (`/flow-start`) cuando el equipo esté listo para L2.
 
 ### Dónde queda cada cosa (global vs proyecto)
 

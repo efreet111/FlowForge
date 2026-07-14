@@ -30,7 +30,8 @@ public sealed class InstallCommand(InstallerContext ctx)
         bool dryRun = false,
         bool jsonOnly = false,
         bool allowSymlink = false,
-        bool noSudo = false
+        bool noSudo = false,
+        string? serverUrl = null
     )
     {
         AnsiConsole.Write(new Rule($"[bold blue]FlowForge Stack Installer[/] [grey]v{FlowForgeModule.InstallerVersion}[/]").LeftJustified());
@@ -68,9 +69,14 @@ public sealed class InstallCommand(InstallerContext ctx)
 
         var cfg = ctx.Store.Load();
 
+        // Read existing sync config to prefill the prompt on re-runs.
+        var existingSync = cfg.Sync;
+        var existingUrl = existingSync?.RemoteUrl ?? "";
+
         bool installEngram;
         bool installFlowForge;
         string engramMode;
+        string? engramSyncUrl = null;
         List<string> selectedIdes;
 
         if (isHeadless)
@@ -91,6 +97,24 @@ public sealed class InstallCommand(InstallerContext ctx)
             {
                 AnsiConsole.MarkupLine("[red]Error: --no-engram y --no-flowforge juntos no instalan nada.[/]");
                 return;
+            }
+
+            // Resolve sync URL in priority order: --server-url flag, env, persisted config.
+            if (engramMode == "sync")
+            {
+                engramSyncUrl = !string.IsNullOrWhiteSpace(serverUrl)
+                    ? serverUrl
+                    : Environment.GetEnvironmentVariable("ENGRAM_SERVER_URL");
+                if (string.IsNullOrWhiteSpace(engramSyncUrl))
+                    engramSyncUrl = existingUrl;
+                if (string.IsNullOrWhiteSpace(engramSyncUrl))
+                {
+                    AnsiConsole.MarkupLine("[red]Error: sync mode requires --server-url, " +
+                        "ENGRAM_SERVER_URL env var, or a previous install with sync config.[/]");
+                    AnsiConsole.MarkupLine("[grey]  Set: flowforge install --server-url http://your-relay:7437[/]");
+                    Environment.Exit(1);
+                    return;
+                }
             }
         }
         else
@@ -126,6 +150,38 @@ public sealed class InstallCommand(InstallerContext ctx)
                             "Offline-first sync (SQLite + servidor)",
                         ]));
                 engramMode = engramMode.StartsWith("Local") ? "local" : "sync";
+
+                if (engramMode == "sync")
+                {
+                    // Prompt for the relay server URL. Prefill with persisted value
+                    // (re-install) or the --server-url flag if provided.
+                    var promptDefault = !string.IsNullOrWhiteSpace(serverUrl)
+                        ? serverUrl
+                        : existingUrl;
+                    engramSyncUrl = AnsiConsole.Prompt(
+                        new TextPrompt<string>("[bold]URL del servidor sync[/] [grey](http://host:port)[/]:")
+                            .PromptStyle("yellow")
+                            .DefaultValue(promptDefault ?? "")
+                            .ValidationErrorMessage("[red]URL inválida — debe ser http(s)://host:port[/]")
+                            .Validate(url =>
+                            {
+                                if (string.IsNullOrWhiteSpace(url))
+                                    return ValidationResult.Error("[red]Requerido en modo sync[/]");
+                                if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+                                    return ValidationResult.Error("[red]URL no parseable[/]");
+                                if (uri.Scheme != "http" && uri.Scheme != "https")
+                                    return ValidationResult.Error("[red]Scheme debe ser http o https[/]");
+                                return ValidationResult.Success();
+                            }));
+
+                    // Warn (but don't fail) if the URL is unreachable — the user
+                    // may be installing on a machine without VPN to the relay.
+                    if (!ProbeServerHealth(engramSyncUrl))
+                    {
+                        AnsiConsole.MarkupLine($"[yellow]⚠[/] {engramSyncUrl} no responde a GET /health");
+                        AnsiConsole.MarkupLine("[grey]  La instalación continúa; el sync reintentará en cada ciclo.[/]");
+                    }
+                }
             }
 
             // ── 3. IDEs para FlowForge ────────────────────────────────────────
@@ -145,6 +201,8 @@ public sealed class InstallCommand(InstallerContext ctx)
         AnsiConsole.WriteLine();
         AnsiConsole.Write(new Rule("[bold]Resumen[/]").LeftJustified());
         if (installEngram)    AnsiConsole.MarkupLine($"  [green]●[/] engram-dotnet  (modo: {engramMode})");
+        if (engramMode == "sync" && !string.IsNullOrWhiteSpace(engramSyncUrl))
+            AnsiConsole.MarkupLine($"                  [grey]sync server: {engramSyncUrl}[/]");
         if (installFlowForge) AnsiConsole.MarkupLine($"  [green]●[/] FlowForge      (IDEs: {string.Join(", ", selectedIdes)})");
         AnsiConsole.WriteLine();
 
@@ -162,7 +220,7 @@ public sealed class InstallCommand(InstallerContext ctx)
         if (installEngram)
         {
             var module = new EngramModule(ctx);
-            await module.InstallAsync(engramMode);
+            await module.InstallAsync(engramMode, engramSyncUrl);
         }
 
         if (installFlowForge)
@@ -174,6 +232,21 @@ public sealed class InstallCommand(InstallerContext ctx)
         // ── 6. Guardar config ─────────────────────────────────────────────────
         ctx.Store.Update(c =>
         {
+            if (installEngram)
+            {
+                // Persist sync config (the source of truth since ADR-010).
+                var dataDir = PathHelper.EngramDir;
+                var user    = Environment.GetEnvironmentVariable("ENGRAM_USER")
+                              ?? $"{Environment.UserName}@local.dev";
+                c.Sync = new SyncConfig
+                {
+                    Mode        = engramMode,
+                    RemoteUrl   = engramSyncUrl ?? "",
+                    User        = user,
+                    DataDir     = dataDir,
+                    ConnectedAt = DateTime.UtcNow.ToString("yyyy-MM-ddTHH:mm:ssZ"),
+                };
+            }
             if (installFlowForge && selectedIdes.Count > 0)
             {
                 c.Components.FlowForge ??= new FlowForgeComponentEntry();
@@ -201,12 +274,49 @@ public sealed class InstallCommand(InstallerContext ctx)
     }
 
     /// <summary>
-    /// Detecta el modo sync adecuado: si ENGRAM_SERVER_URL está configurado → sync, sino local.
+    /// Detecta el modo sync adecuado. Prioridad:
+    ///   1. ENGRAM_SERVER_URL env var (CI / scripts)
+    ///   2. ~/.engram/config.json → sync.remote_url (re-install con persistencia)
+    ///   3. local (sin URL en ningún lado)
     /// </summary>
-    static string DetectSyncMode()
+    string DetectSyncMode()
     {
-        var serverUrl = Environment.GetEnvironmentVariable("ENGRAM_SERVER_URL");
-        return string.IsNullOrWhiteSpace(serverUrl) ? "local" : "sync";
+        var fromEnv = Environment.GetEnvironmentVariable("ENGRAM_SERVER_URL");
+        if (!string.IsNullOrWhiteSpace(fromEnv)) return "sync";
+
+        try
+        {
+            var cfg = ctx.Store.Load();
+            if (cfg.Sync != null && !string.IsNullOrWhiteSpace(cfg.Sync.RemoteUrl))
+                return "sync";
+        }
+        catch
+        {
+            // No config or unreadable — fall through to local
+        }
+
+        return "local";
+    }
+
+    /// <summary>
+    /// Probes the sync server's /health endpoint with a short timeout.
+    /// Used to warn (not fail) the user if the URL is unreachable during install.
+    /// </summary>
+    static bool ProbeServerHealth(string url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return false;
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri)) return false;
+        try
+        {
+            var healthUrl = $"{uri.Scheme}://{uri.Host}:{uri.Port}/health";
+            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+            var resp = http.GetAsync(healthUrl).GetAwaiter().GetResult();
+            return resp.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
     /// <summary>

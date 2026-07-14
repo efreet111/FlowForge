@@ -8,6 +8,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 
 ### Added
 - **ADR-008**: matriz canónica IDE × ruta global × ruta proyecto × detección (`docs/decisions/ADR-008-ide-installer-path-matrix.md`).
+- **ADR-007 — FlowDoc v2.0 migration** (absorbs branch `FlowDocsv2Adoption`): migrate project templates from FlowDoc v1.1 → v2.0. HU template expanded with GWT scenarios (Happy Path, Edge Cases, Error Cases), Owner & Timeline, Technical Debt, and 🧪 Ref test links. `flowdoc-ciclo.md` removed from artifact table (deprecated upstream in v2.0). Range-binned folder structure adopted (`docs/tasks/HU-001-HU-099/`). `.flowforge.json` version pin moved from concatenated string (`flowdoc@1.1`) to split keys (`docs_framework` + `docs_framework_version` + `upstream`). Adoption levels reduced from L1–L4 to L1–L3 (L4 split into L3 + post-cycle review). See [`docs/decisions/ADR-007-flowdocs-v2-absorption.md`](docs/decisions/ADR-007-flowdocs-v2-absorption.md) and [`docs/decisions/ADR-004-flowdoc-integration.md`](docs/decisions/ADR-004-flowdoc-integration.md).
 
 ### Fixed
 - **Stack Installer**: `--yes` ahora salta todos los prompts de Spectre.Console y usa defaults (ambos componentes, IDEs auto-detectados, modo sync si `ENGRAM_SERVER_URL` está definido). Corrige `System.NotSupportedException` en entornos no-interactivos (CI/CD, Docker, scripts).

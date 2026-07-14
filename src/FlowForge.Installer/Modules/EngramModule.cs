@@ -13,10 +13,27 @@ namespace FlowForge.Installer.Modules;
 /// </summary>
 public sealed class EngramModule(InstallerContext ctx)
 {
-    public async Task InstallAsync(string mode)
+    public async Task InstallAsync(string mode, string? syncUrl = null)
     {
         AnsiConsole.MarkupLine("[bold]Instalando engram-dotnet...[/]");
-        ctx.Log.Info($"EngramModule.Install: mode={mode}");
+        ctx.Log.Info($"EngramModule.Install: mode={mode} syncUrl={(string.IsNullOrWhiteSpace(syncUrl) ? "<none>" : syncUrl)}");
+
+        // If mode is sync, server URL is mandatory. We accept the explicit
+        // parameter first, then env var, then fail loudly with a clear message
+        // instead of silently using a hardcoded IP (the old behavior).
+        string? resolvedSyncUrl = null;
+        if (mode == "sync")
+        {
+            resolvedSyncUrl = syncUrl;
+            if (string.IsNullOrWhiteSpace(resolvedSyncUrl))
+                resolvedSyncUrl = Environment.GetEnvironmentVariable("ENGRAM_SERVER_URL");
+            if (string.IsNullOrWhiteSpace(resolvedSyncUrl))
+            {
+                AnsiConsole.MarkupLine("[red]Error: sync mode requires ENGRAM_SERVER_URL.[/]");
+                AnsiConsole.MarkupLine("[grey]  Set it via --server-url, ENGRAM_SERVER_URL env, or interactive prompt.[/]");
+                throw new InvalidOperationException("ENGRAM_SERVER_URL is required for sync mode.");
+            }
+        }
 
         // Determinar la versión más reciente
         string? version = null;
@@ -91,8 +108,8 @@ public sealed class EngramModule(InstallerContext ctx)
 
         AnsiConsole.MarkupLine($"  [green]✓[/] engram-dotnet {version} instalado en [grey]{PathHelper.EngramBinary}[/]");
 
-        // Configurar MCP según modo
-        ConfigureMcp(mode);
+        // Configurar MCP según modo (passing the resolved URL — no more hardcoded IP)
+        ConfigureMcp(mode, resolvedSyncUrl);
         ctx.Log.Info($"EngramModule.Install: completado {version}");
     }
 
@@ -127,7 +144,7 @@ public sealed class EngramModule(InstallerContext ctx)
         ctx.Log.Info($"EngramModule.Update: completado {newVersion}");
     }
 
-    void ConfigureMcp(string mode)
+    void ConfigureMcp(string mode, string? syncUrl = null)
     {
         var home     = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         var idePaths = PathHelper.GetIdePaths(home);
@@ -139,20 +156,20 @@ public sealed class EngramModule(InstallerContext ctx)
         // Configurar Cursor si existe ~/.cursor/
         if (Directory.Exists(Path.Combine(home, ".cursor")))
         {
-            WriteMcpJson(idePaths.Cursor, user, dataDir, syncEnabled, "cursor");
+            WriteMcpJson(idePaths.Cursor, user, dataDir, syncEnabled, syncUrl, "cursor");
         }
 
         // OpenCode: merge into existing opencode.jsonc (or create opencode.json)
         if (Directory.Exists(Path.Combine(home, ".config", "opencode")))
         {
             MergeOpenCodeMcp(Path.Combine(home, ".config", "opencode"),
-                             user, dataDir, syncEnabled);
+                             user, dataDir, syncEnabled, syncUrl);
         }
 
         // Antigravity (Google): ~/.gemini/config/mcp_config.json — uses mcpServers format
         if (Directory.Exists(Path.Combine(home, ".gemini")))
         {
-            WriteMcpJson(idePaths.Antigravity, user, dataDir, syncEnabled, "cursor");
+            WriteMcpJson(idePaths.Antigravity, user, dataDir, syncEnabled, syncUrl, "cursor");
         }
 
         AnsiConsole.MarkupLine("[grey]  MCP configurado para los IDEs detectados.[/]");
@@ -162,7 +179,7 @@ public sealed class EngramModule(InstallerContext ctx)
     /// Merge engram MCP config into the user's opencode.jsonc (or opencode.json).
     /// Preserves all existing keys (mcp, provider, agent, permission, etc).
     /// </summary>
-    static void MergeOpenCodeMcp(string opencodeDir, string user, string dataDir, bool syncEnabled)
+    static void MergeOpenCodeMcp(string opencodeDir, string user, string dataDir, bool syncEnabled, string? syncUrl = null)
     {
         try
         {
@@ -206,11 +223,9 @@ public sealed class EngramModule(InstallerContext ctx)
                 ["ENGRAM_USER"]         = user,
                 ["ENGRAM_SYNC_ENABLED"] = syncEnabled.ToString().ToLower(),
             };
-            if (syncEnabled)
+            if (syncEnabled && !string.IsNullOrWhiteSpace(syncUrl))
             {
-                var serverUrl = Environment.GetEnvironmentVariable("ENGRAM_SERVER_URL")
-                                ?? "http://192.168.0.178:7437";
-                env["ENGRAM_SERVER_URL"] = serverUrl;
+                env["ENGRAM_SERVER_URL"] = syncUrl;
             }
 
             // Build engram MCP entry as JsonNode
@@ -228,10 +243,10 @@ public sealed class EngramModule(InstallerContext ctx)
                     ["ENGRAM_SYNC_ENABLED"] = syncEnabled.ToString().ToLower(),
                 },
             };
-            if (syncEnabled)
+            if (syncEnabled && !string.IsNullOrWhiteSpace(syncUrl))
             {
                 ((System.Text.Json.Nodes.JsonObject)engramNode["environment"]!)
-                    ["ENGRAM_SERVER_URL"] = env["ENGRAM_SERVER_URL"];
+                    ["ENGRAM_SERVER_URL"] = syncUrl;
             }
 
             // Get or create mcp section as JsonObject
@@ -286,7 +301,7 @@ public sealed class EngramModule(InstallerContext ctx)
         return false;
     }
 
-    static void WriteMcpJson(string configPath, string user, string dataDir, bool syncEnabled, string format)
+    static void WriteMcpJson(string configPath, string user, string dataDir, bool syncEnabled, string? syncUrl, string format)
     {
         try
         {
@@ -299,11 +314,9 @@ public sealed class EngramModule(InstallerContext ctx)
                 ["ENGRAM_SYNC_ENABLED"] = syncEnabled.ToString().ToLower(),
             };
 
-            if (syncEnabled)
+            if (syncEnabled && !string.IsNullOrWhiteSpace(syncUrl))
             {
-                var serverUrl = Environment.GetEnvironmentVariable("ENGRAM_SERVER_URL")
-                                ?? "http://192.168.0.178:7437";
-                env["ENGRAM_SERVER_URL"] = serverUrl;
+                env["ENGRAM_SERVER_URL"] = syncUrl;
             }
 
             string json;
