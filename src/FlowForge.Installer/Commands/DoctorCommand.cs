@@ -18,22 +18,16 @@ public sealed class DoctorCommand(InstallerContext ctx)
     // ctx disponible para futura extensión (logs, store)
     readonly InstallerContext _ctx = ctx;
 
-    [Option("--refresh-models")]
-    public bool RefreshModels { get; set; }
-
-    [Option("--refresh-schema")]
-    public bool RefreshSchema { get; set; }
-
     [Command("")]
-    public async Task<int> RunAsync()
+    public async Task<int> RunAsync(bool refreshModels = false, bool refreshSchema = false)
     {
-        if (RefreshModels)
+        if (refreshModels)
         {
             AnsiConsole.MarkupLine("[grey]--refresh-models[/]: No implementado en v1; follow-up PR.[/]");
             return 0;
         }
 
-        if (RefreshSchema)
+        if (refreshSchema)
             return await RefreshSchemaAsync();
 
         try
@@ -338,7 +332,7 @@ public sealed class DoctorCommand(InstallerContext ctx)
             results.Add(new DoctorCheck("OpenCode agent models", true));
 
         var scanner = new PiiScanner();
-        var pii = scanner.Scan(text);
+        var pii = scanner.ScanGenerated(text, home);
         results.Add(new DoctorCheck("OpenCode PII scan", pii.Clean, pii.Clean ? null : "PII detectada en opencode.json"));
 
         var modelAssignmentsPath = Path.Combine(opencodeDir, ".agents", "rules", "model-assignments.md");

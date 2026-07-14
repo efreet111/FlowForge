@@ -11,7 +11,6 @@ public sealed class PiiScanner
         new(@"\bOPENCODIGO_API_KEY\b", RegexOptions.Compiled),
         new(@"\bDEEPSEEK_API_KEY\b", RegexOptions.Compiled),
         new(@"\bMINIMAX_API_KEY\b", RegexOptions.Compiled),
-        new(@"~\/\.config\/opencode\/.+", RegexOptions.Compiled),
     };
 
     public (bool Clean, List<PiiHit> Hits) Scan(string input)
@@ -32,6 +31,18 @@ public sealed class PiiScanner
         }
 
         return (hits.Count == 0, hits);
+    }
+
+    public (bool Clean, List<PiiHit> Hits) ScanGenerated(string input, string home)
+    {
+        if (string.IsNullOrEmpty(input))
+            return (true, new List<PiiHit>());
+
+        var normalized = input;
+        if (!string.IsNullOrWhiteSpace(home))
+            normalized = normalized.Replace(home.TrimEnd('/'), "$HOME", StringComparison.Ordinal);
+
+        return Scan(normalized);
     }
 
     public void EnsureClean(string input, string context)

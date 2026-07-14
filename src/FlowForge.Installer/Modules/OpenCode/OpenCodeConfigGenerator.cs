@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using FlowForge.Installer.Infrastructure;
 
@@ -60,7 +61,7 @@ public sealed class OpenCodeConfigGenerator
         var merged = MergeManagedPaths(existingNode, templateNode, managedPaths, paidProviderDetected, warnings);
 
         var serialized = JsonSerializer.Serialize(merged, new JsonSerializerOptions { WriteIndented = true });
-        var pii = _piiScanner.Scan(serialized);
+        var pii = _piiScanner.ScanGenerated(serialized, home);
         if (!pii.Clean)
             throw new PiiDetectedException("OpenCode config", pii.Hits);
 
@@ -120,15 +121,18 @@ public sealed class OpenCodeConfigGenerator
             if (paidProviderDetected && IsPaidPath(path, target, warnings))
                 continue;
 
-            SetValueAtPath(target, path, templateValue.Clone());
+            SetValueAtPath(target, path, DeepCopy(templateValue));
         }
 
         var engramNode = GetNodeAtPath(template, "mcp.engram");
         if (engramNode is not null)
-            SetValueAtPath(target, "mcp.engram", engramNode.Clone());
+            SetValueAtPath(target, "mcp.engram", DeepCopy(engramNode));
 
         return target;
     }
+
+    static JsonNode DeepCopy(JsonNode node) =>
+        JsonNode.Parse(node.ToJsonString()) ?? new JsonObject();
 
     static JsonNode? GetNodeAtPath(JsonNode root, string path)
     {
@@ -193,10 +197,18 @@ public sealed class OpenCodeConfigGenerator
     public sealed record GenerateResult(string OutputPath, string[] ManagedPaths, bool PaidProviderDetected, List<string> Warnings);
 
     public sealed record AgentModelsManifest(
-        Dictionary<string, AgentEntry> Agents,
-        ProviderDef Provider);
+        [property: JsonPropertyName("agents")] Dictionary<string, AgentEntry> Agents,
+        [property: JsonPropertyName("provider")] ProviderDef Provider);
 
-    public sealed record AgentEntry(string Model, string Fallback, string Mode, string Purpose);
+    public sealed record AgentEntry(
+        [property: JsonPropertyName("model")] string Model,
+        [property: JsonPropertyName("fallback")] string Fallback,
+        [property: JsonPropertyName("mode")] string Mode,
+        [property: JsonPropertyName("purpose")] string Purpose);
 
-    public sealed record ProviderDef(string Id, string Api, string Npm, string[] Models);
+    public sealed record ProviderDef(
+        [property: JsonPropertyName("id")] string Id,
+        [property: JsonPropertyName("api")] string Api,
+        [property: JsonPropertyName("npm")] string Npm,
+        [property: JsonPropertyName("models")] string[] Models);
 }
