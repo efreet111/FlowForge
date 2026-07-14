@@ -4,16 +4,56 @@
       "id": "opencode-zen",
       "api": "https://opencode.ai/zen/v1",
       "npm": "@ai-sdk/openai-compatible",
-      "models": [
-        "big-pickle",
-        "deepseek-v4-flash-free",
-        "mimo-v2.5-free",
-        "mimo-v2-pro-free",
-        "north-mini-code-free",
-        "nemotron-3-ultra-free",
-        "nemotron-3-super-free",
-        "minimax-m2.5-free"
-      ]
+      "models": {
+        "big-pickle": {
+          "name": "Big Pickle",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "deepseek-v4-flash-free": {
+          "name": "DeepSeek V4 Flash Free",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "mimo-v2.5-free": {
+          "name": "MiMo V2.5 Free",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "mimo-v2-pro-free": {
+          "name": "MiMo V2 Pro Free",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "north-mini-code-free": {
+          "name": "North Mini Code Free",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "nemotron-3-ultra-free": {
+          "name": "Nemotron 3 Ultra Free",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "nemotron-3-super-free": {
+          "name": "Nemotron 3 Super Free",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "minimax-m2.5-free": {
+          "name": "MiniMax M2.5 Free",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        }
+      }
     },
     "opencode-go": {
       "id": "opencode-go",

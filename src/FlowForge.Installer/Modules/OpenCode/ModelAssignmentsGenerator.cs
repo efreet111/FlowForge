@@ -1,7 +1,10 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using FlowForge.Installer.Modules.OpenCode;
 
 namespace FlowForge.Installer.Modules.OpenCode;
@@ -39,6 +42,8 @@ public sealed class ModelAssignmentsGenerator
             OpenCodeJsonContext.Default.AgentModelsManifest)
                        ?? throw new InvalidOperationException("No agent models manifest");
 
+        var providerModels = ReadProviderModels(opencodeJsonPath);
+        var effectiveProvider = ResolveEffectiveProvider(providerModels, _provider);
         var builder = new StringBuilder();
         builder.AppendLine("| Agent | Preferred Model | Fallback | Mode | Purpose |");
         builder.AppendLine("| --- | --- | --- | --- | --- |");
@@ -48,8 +53,8 @@ public sealed class ModelAssignmentsGenerator
             if (!manifest.Agents.TryGetValue(agent, out var entry))
                 continue;
 
-            var preferred = manifest.ResolveAgentModel(agent, _provider);
-            var fallback = manifest.ResolveAgentFallback(agent, _provider);
+            var preferred = manifest.ResolveAgentModel(agent, effectiveProvider);
+            var fallback = manifest.ResolveAgentFallback(agent, effectiveProvider);
             builder.AppendLine($"| {agent} | `{preferred}` | `{fallback}` | {entry.Mode} | {entry.Purpose} |");
         }
 
@@ -58,5 +63,72 @@ public sealed class ModelAssignmentsGenerator
 
         Directory.CreateDirectory(Path.GetDirectoryName(_outputPath) ?? string.Empty);
         File.WriteAllText(_outputPath, builder.ToString());
+    }
+
+    static Dictionary<string, HashSet<string>> ReadProviderModels(string configPath)
+    {
+        var providers = new Dictionary<string, HashSet<string>>(StringComparer.OrdinalIgnoreCase);
+        if (string.IsNullOrWhiteSpace(configPath) || !File.Exists(configPath))
+            return providers;
+
+        try
+        {
+            var text = File.ReadAllText(configPath);
+            if (configPath.EndsWith(".jsonc", StringComparison.OrdinalIgnoreCase))
+                text = Regex.Replace(text, @"\/\/.*$", string.Empty, RegexOptions.Multiline);
+
+            var root = JsonNode.Parse(text) as JsonObject;
+            var providerNode = root?["provider"] as JsonObject;
+            if (providerNode is null)
+                return providers;
+
+            foreach (var kvp in providerNode)
+            {
+                if (kvp.Value is not JsonObject providerObj)
+                    continue;
+
+                HashSet<string>? models = null;
+                var modelsNode = providerObj["models"];
+                if (modelsNode is JsonArray array)
+                {
+                    models = array
+                        .Select(v => v?.GetValue<string>())
+                        .Where(m => !string.IsNullOrWhiteSpace(m))
+                        .Select(m => m!.Split('/', StringSplitOptions.RemoveEmptyEntries).Last())
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                }
+                else if (modelsNode is JsonObject obj)
+                {
+                    models = obj
+                        .Select(k => k.Key)
+                        .Where(m => !string.IsNullOrWhiteSpace(m))
+                        .Select(m => m!.Split('/', StringSplitOptions.RemoveEmptyEntries).Last())
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                }
+
+                if (models is { Count: > 0 })
+                    providers[kvp.Key] = models;
+            }
+        }
+        catch
+        {
+            // Ignore parse errors; fallback to defaults.
+        }
+
+        return providers;
+    }
+
+    static string ResolveEffectiveProvider(Dictionary<string, HashSet<string>> providerModels, string desiredProvider)
+    {
+        if (!string.IsNullOrWhiteSpace(desiredProvider) && providerModels.ContainsKey(desiredProvider))
+            return desiredProvider;
+
+        if (providerModels.ContainsKey("opencode-zen"))
+            return "opencode-zen";
+
+        if (providerModels.Count > 0)
+            return providerModels.Keys.First();
+
+        return string.IsNullOrWhiteSpace(desiredProvider) ? "opencode-zen" : desiredProvider;
     }
 }
