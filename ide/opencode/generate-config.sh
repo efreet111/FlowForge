@@ -5,6 +5,7 @@ command -v jq >/dev/null 2>&1 || { echo "jq no disponible" >&2; exit 1; }
 command -v envsubst >/dev/null 2>&1 || { echo "envsubst no disponible" >&2; exit 1; }
 
 FF_REPO="${1:?Usage: generate-config.sh <FLOWFORGE_REPO>}"
+FF_REPO="${FF_REPO//\\//}"
 TEMPLATES="$FF_REPO/ide/opencode/templates"
 LIB_DIR="$FF_REPO/ide/opencode/lib"
 
