@@ -42,32 +42,32 @@ public sealed class GitHubReleasesClient
     {
         try
         {
-            var url = channel == "stable"
-                ? $"https://api.github.com/repos/{repo}/releases/latest"
-                : $"https://api.github.com/repos/{repo}/releases?per_page=10";
-
-            using var req = new HttpRequestMessage(HttpMethod.Get, url);
-            req.Headers.Add("User-Agent", "flowforge-installer/0.1.0");
-            req.Headers.Add("Accept", "application/vnd.github+json");
-
-            using var resp = await _http.SendAsync(req, ct);
-            resp.EnsureSuccessStatusCode();
-
-            var content = await resp.Content.ReadAsStringAsync(ct);
+            if (string.Equals(repo, EngramRepo, StringComparison.Ordinal))
+                return await GetLatestEngramVersionAsync(channel, ct);
 
             if (channel == "stable")
             {
+                var url = $"https://api.github.com/repos/{repo}/releases/latest";
+                using var req = new HttpRequestMessage(HttpMethod.Get, url);
+                req.Headers.Add("User-Agent", "flowforge-installer/0.1.0");
+                req.Headers.Add("Accept", "application/vnd.github+json");
+
+                using var resp = await _http.SendAsync(req, ct);
+                resp.EnsureSuccessStatusCode();
+
+                var content = await resp.Content.ReadAsStringAsync(ct);
                 var release = JsonSerializer.Deserialize(content, GitHubJsonContext.Default.GitHubRelease);
                 return release?.TagName;
             }
-            else
-            {
-                var releases = JsonSerializer.Deserialize(content, GitHubJsonContext.Default.GitHubReleaseArray);
-                var match = channel == "nightly"
-                    ? releases?.FirstOrDefault(r => r.Prerelease && r.TagName.Contains("nightly"))
-                    : releases?.FirstOrDefault(r => r.Prerelease);
-                return match?.TagName;
-            }
+
+            var releases = await FetchReleasesPageAsync(repo, 10, ct);
+            if (releases == null)
+                return null;
+
+            var match = channel == "nightly"
+                ? releases.FirstOrDefault(r => r.Prerelease && r.TagName.Contains("nightly", StringComparison.OrdinalIgnoreCase))
+                : releases.FirstOrDefault(r => r.Prerelease);
+            return match?.TagName;
         }
         catch (TaskCanceledException ex) when (!ct.IsCancellationRequested)
         {
@@ -80,6 +80,65 @@ public sealed class GitHubReleasesClient
             _log.Warn($"GitHubReleasesClient.GetLatestVersion: {ex.Message}");
             return null;
         }
+    }
+
+    /// <summary>
+    /// engram-dotnet v1.3.0+ may publish release notes without assets; skip empty releases.
+    /// </summary>
+    async Task<string?> GetLatestEngramVersionAsync(string channel, CancellationToken ct)
+    {
+        var releases = await FetchReleasesPageAsync(EngramRepo, 20, ct);
+        if (releases == null || releases.Length == 0)
+            return null;
+
+        var assetName = GetEngramAssetName();
+        foreach (var release in releases)
+        {
+            if (release.Draft)
+                continue;
+
+            var matchesChannel = channel switch
+            {
+                "stable" => !release.Prerelease,
+                "nightly" => release.Prerelease && release.TagName.Contains("nightly", StringComparison.OrdinalIgnoreCase),
+                _ => release.Prerelease,
+            };
+            if (!matchesChannel)
+                continue;
+
+            if (await ReleaseAssetExistsAsync(release.TagName, assetName, ct))
+            {
+                _log.Info($"engram-dotnet: usando {release.TagName} ({assetName} disponible)");
+                return release.TagName;
+            }
+
+            _log.Warn($"engram-dotnet: omitiendo {release.TagName} — asset {assetName} no publicado");
+        }
+
+        return null;
+    }
+
+    async Task<GitHubRelease[]?> FetchReleasesPageAsync(string repo, int perPage, CancellationToken ct)
+    {
+        var url = $"https://api.github.com/repos/{repo}/releases?per_page={perPage}";
+        using var req = new HttpRequestMessage(HttpMethod.Get, url);
+        req.Headers.Add("User-Agent", "flowforge-installer/0.1.0");
+        req.Headers.Add("Accept", "application/vnd.github+json");
+
+        using var resp = await _http.SendAsync(req, ct);
+        resp.EnsureSuccessStatusCode();
+
+        var content = await resp.Content.ReadAsStringAsync(ct);
+        return JsonSerializer.Deserialize(content, GitHubJsonContext.Default.GitHubReleaseArray);
+    }
+
+    async Task<bool> ReleaseAssetExistsAsync(string version, string assetName, CancellationToken ct)
+    {
+        var url = $"https://github.com/{EngramRepo}/releases/download/{version}/{assetName}";
+        using var req = new HttpRequestMessage(HttpMethod.Head, url);
+        req.Headers.Add("User-Agent", "flowforge-installer/0.1.0");
+        using var resp = await _http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+        return resp.IsSuccessStatusCode;
     }
 
     /// <summary>
