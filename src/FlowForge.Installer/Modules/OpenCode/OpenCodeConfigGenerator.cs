@@ -11,6 +11,7 @@ namespace FlowForge.Installer.Modules.OpenCode;
 public sealed class OpenCodeConfigGenerator
 {
     readonly string _repoPath;
+    readonly string _provider;
     readonly bool _forceFree;
     readonly bool _dryRun;
     readonly bool _allowSymlink;
@@ -18,9 +19,10 @@ public sealed class OpenCodeConfigGenerator
     readonly PiiScanner _piiScanner = new();
     readonly AtomicWriter _atomicWriter = new();
 
-    public OpenCodeConfigGenerator(string repoPath, bool forceFree = false, bool dryRun = false, bool allowSymlink = false)
+    public OpenCodeConfigGenerator(string repoPath, string provider = "opencode-zen", bool forceFree = false, bool dryRun = false, bool allowSymlink = false)
     {
         _repoPath = repoPath;
+        _provider = string.IsNullOrWhiteSpace(provider) ? "opencode-zen" : provider;
         _forceFree = forceFree;
         _dryRun = dryRun;
         _allowSymlink = allowSymlink;
@@ -37,8 +39,9 @@ public sealed class OpenCodeConfigGenerator
         var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
         var user = Environment.UserName;
 
-        var manifest = JsonSerializer.Deserialize<AgentModelsManifest>(
-            File.ReadAllText(agentModelsPath))
+        var manifest = JsonSerializer.Deserialize(
+            File.ReadAllText(agentModelsPath),
+            OpenCodeJsonContext.Default.AgentModelsManifest)
             ?? throw new InvalidOperationException("agent-models.json is invalid.");
 
         var templateText = File.ReadAllText(Path.Combine(templatesDir, "opencode.json.tpl"));
@@ -49,7 +52,7 @@ public sealed class OpenCodeConfigGenerator
             .Replace("$FLOWFORGE_ENGRAM_BIN", ToJsonPath(PathHelper.EngramBinary));
 
         var templateNode = JsonNode.Parse(templateText) ?? new JsonObject();
-        InjectAgentModels(templateNode, manifest);
+        InjectAgentModels(templateNode, manifest, _provider);
 
         var managedPaths = ReadManagedPaths(managedPathsPath);
         var existingNode = LoadExistingConfig(targetConfigPath);
@@ -60,8 +63,8 @@ public sealed class OpenCodeConfigGenerator
 
         var merged = MergeManagedPaths(existingNode, templateNode, managedPaths, paidProviderDetected, warnings);
 
-        var serialized = JsonSerializer.Serialize(merged, new JsonSerializerOptions { WriteIndented = true });
-        var pii = _piiScanner.ScanGenerated(serialized, home);
+        var serialized = merged.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
+        var pii = _piiScanner.Scan(serialized);
         if (!pii.Clean)
             throw new PiiDetectedException("OpenCode config", pii.Hits);
 
@@ -69,7 +72,7 @@ public sealed class OpenCodeConfigGenerator
         {
             _atomicWriter.Write(targetConfigPath, serialized, _allowSymlink);
             Directory.CreateDirectory(Path.GetDirectoryName(sidecarPath) ?? string.Empty);
-            File.WriteAllText(sidecarPath, JsonSerializer.Serialize(managedPaths, new JsonSerializerOptions { WriteIndented = true }));
+            File.WriteAllText(sidecarPath, JsonSerializer.Serialize(managedPaths, OpenCodeJsonContext.Default.StringArray));
         }
 
         return new GenerateResult(targetConfigPath, managedPaths, paidProviderDetected, warnings);
@@ -83,7 +86,7 @@ public sealed class OpenCodeConfigGenerator
             return Array.Empty<string>();
 
         var text = File.ReadAllText(managedPathsPath);
-        return JsonSerializer.Deserialize<string[]>(text) ?? Array.Empty<string>();
+        return JsonSerializer.Deserialize(text, OpenCodeJsonContext.Default.StringArray) ?? Array.Empty<string>();
     }
 
     static JsonNode LoadExistingConfig(string targetConfigPath)
@@ -98,15 +101,15 @@ public sealed class OpenCodeConfigGenerator
         return JsonNode.Parse(text) ?? new JsonObject();
     }
 
-    static void InjectAgentModels(JsonNode templateNode, AgentModelsManifest manifest)
+    static void InjectAgentModels(JsonNode templateNode, AgentModelsManifest manifest, string provider)
     {
         if (templateNode["agent"] is not JsonObject agents)
             return;
 
-        foreach (var (name, entry) in manifest.Agents)
+        foreach (var (name, _) in manifest.Agents)
         {
             if (agents[name] is JsonObject agent)
-                agent["model"] = $"opencode-zen/{entry.Model}";
+                agent["model"] = manifest.ResolveAgentModel(name, provider);
         }
     }
 
@@ -199,18 +202,44 @@ public sealed class OpenCodeConfigGenerator
     public sealed record GenerateResult(string OutputPath, string[] ManagedPaths, bool PaidProviderDetected, List<string> Warnings);
 
     public sealed record AgentModelsManifest(
-        [property: JsonPropertyName("agents")] Dictionary<string, AgentEntry> Agents,
-        [property: JsonPropertyName("provider")] ProviderDef Provider);
+        Dictionary<string, AgentEntry> Agents,
+        Dictionary<string, ProviderDef>? Providers)
+    {
+        public string ResolveAgentModel(string agentName, string provider)
+        {
+            if (!Agents.TryGetValue(agentName, out var entry))
+                return $"{provider}/big-pickle";
+            return entry.ResolveModel(provider);
+        }
 
-    public sealed record AgentEntry(
-        [property: JsonPropertyName("model")] string Model,
-        [property: JsonPropertyName("fallback")] string Fallback,
-        [property: JsonPropertyName("mode")] string Mode,
-        [property: JsonPropertyName("purpose")] string Purpose);
+        public string ResolveAgentFallback(string agentName, string provider)
+        {
+            if (!Agents.TryGetValue(agentName, out var entry))
+                return $"{provider}/big-pickle";
+            return entry.ResolveFallback(provider);
+        }
+    }
 
-    public sealed record ProviderDef(
-        [property: JsonPropertyName("id")] string Id,
-        [property: JsonPropertyName("api")] string Api,
-        [property: JsonPropertyName("npm")] string Npm,
-        [property: JsonPropertyName("models")] string[] Models);
+    public sealed record AgentEntry(Dictionary<string, string>? Model, Dictionary<string, string>? Fallback, string Mode, string Purpose)
+    {
+        public string ResolveModel(string provider) => ResolveValue(Model, provider);
+        public string ResolveFallback(string provider) => ResolveValue(Fallback, provider);
+
+        static string ResolveValue(Dictionary<string, string>? map, string provider)
+        {
+            if (map != null)
+            {
+                if (map.TryGetValue(provider, out var providerModel) && !string.IsNullOrWhiteSpace(providerModel))
+                    return $"{provider}/{providerModel}";
+                if (map.TryGetValue("opencode-zen", out var zenModel) && !string.IsNullOrWhiteSpace(zenModel))
+                    return $"opencode-zen/{zenModel}";
+                if (map.TryGetValue("default", out var def) && !string.IsNullOrWhiteSpace(def))
+                    return def.Contains("/") ? def : $"opencode-zen/{def}";
+            }
+
+            return $"{provider}/big-pickle";
+        }
+    }
+
+    public sealed record ProviderDef(string Id, string Api, string Npm, JsonElement Models, string? Description = null, string[]? Env = null);
 }
