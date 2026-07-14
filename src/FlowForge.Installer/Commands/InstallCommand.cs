@@ -21,31 +21,16 @@ public sealed class InstallCommand(InstallerContext ctx)
         ?? typeof(InstallCommand).Assembly.GetName().Version?.ToString()
         ?? "dev";
 
-    [Option("--force-free")]
-    public bool ForceFree { get; set; }
-
-    [Option("--dry-run")]
-    public bool DryRun { get; set; }
-
-    [Option("--json-only")]
-    public bool JsonOnly { get; set; }
-
-    [Option("--allow-symlink")]
-    public bool AllowSymlink { get; set; }
-
-    [Option("--no-sudo")]
-    public bool NoSudo { get; set; }
-
-    /// <summary>
-    /// -y / --yes: omitir confirmaciones (non-interactive)
-    /// --no-engram: omitir instalación de engram-dotnet
-    /// --no-flowforge: omitir instalación de skills FlowForge
-    /// </summary>
     [Command("")]
     public async Task RunAsync(
         bool yes = false,
         bool noEngram = false,
-        bool noFlowforge = false
+        bool noFlowforge = false,
+        bool forceFree = false,
+        bool dryRun = false,
+        bool jsonOnly = false,
+        bool allowSymlink = false,
+        bool noSudo = false
     )
     {
         AnsiConsole.Write(new Rule($"[bold blue]FlowForge Stack Installer[/] [grey]v{FlowForgeModule.InstallerVersion}[/]").LeftJustified());
@@ -60,7 +45,7 @@ public sealed class InstallCommand(InstallerContext ctx)
         var isHeadless = yes || !canShowPrompts;
 
         var sudoUser = Environment.GetEnvironmentVariable("SUDO_USER");
-        if (NoSudo && !string.IsNullOrEmpty(sudoUser))
+        if (noSudo && !string.IsNullOrEmpty(sudoUser))
         {
             AnsiConsole.MarkupLine("[red]✗[/] --no-sudo solicitado pero el instalador corre bajo sudo. Ejecutá sin sudo.");
             Environment.Exit(3);
@@ -182,14 +167,8 @@ public sealed class InstallCommand(InstallerContext ctx)
 
         if (installFlowForge)
         {
-            var module = new FlowForgeModule(ctx)
-            {
-                ForceFree = ForceFree,
-                DryRun = DryRun,
-                JsonOnly = JsonOnly,
-                AllowSymlink = AllowSymlink,
-            };
-            module.Install(selectedIdes);
+            var module = new FlowForgeModule(ctx);
+            module.Install(selectedIdes, forceFree, dryRun, jsonOnly, allowSymlink, noSudo);
         }
 
         // ── 6. Guardar config ─────────────────────────────────────────────────

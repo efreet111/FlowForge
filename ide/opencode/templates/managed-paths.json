@@ -1,4 +1,5 @@
 [
+  "$schema",
   "instructions",
   "agent.flowforge",
   "agent.forge-discovery",

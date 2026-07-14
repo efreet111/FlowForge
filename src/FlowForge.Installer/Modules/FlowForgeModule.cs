@@ -3,9 +3,6 @@ using System.Text;
 using System.Text.Json;
 using System.Collections.Generic;
 using System.IO;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
 using FlowForge.Installer.Commands;
 using FlowForge.Installer.Infrastructure;
 using FlowForge.Installer.Modules.OpenCode;
@@ -20,7 +17,13 @@ public sealed class FlowForgeModule(InstallerContext ctx)
 {
     public const string InstallerVersion = "0.1.0-alpha.6";
 
-    public void Install(List<string> selectedIdes)
+    public void Install(
+        List<string> selectedIdes,
+        bool forceFree = false,
+        bool dryRun = false,
+        bool jsonOnly = false,
+        bool allowSymlink = false,
+        bool noSudo = false)
     {
         AnsiConsole.MarkupLine("[bold]Instalando FlowForge skills...[/]");
         ctx.Log.Info($"FlowForgeModule.Install: ides={string.Join(",", selectedIdes)}");
@@ -46,7 +49,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         InstallSharedParity(home, ffRepo);
 
         foreach (var ide in selectedIdes)
-            InstallForIde(ide, home, ffRepo);
+            InstallForIde(ide, home, ffRepo, forceFree, dryRun, jsonOnly, allowSymlink, noSudo);
     }
 
     void InstallSharedParity(string home, string ffRepo)
@@ -103,7 +106,15 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         AnsiConsole.MarkupLine($"[yellow]⚠️  Detecté {totalFiles} archivos forge-* existentes — serán sobrescritos.[/]");
     }
 
-    void InstallForIde(string ide, string home, string ffRepo)
+    void InstallForIde(
+        string ide,
+        string home,
+        string ffRepo,
+        bool forceFree,
+        bool dryRun,
+        bool jsonOnly,
+        bool allowSymlink,
+        bool noSudo)
     {
         switch (ide.ToLowerInvariant())
         {
@@ -111,7 +122,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
                 InstallCursor(home, ffRepo);
                 break;
             case "opencode":
-                InstallOpenCode(ffRepo, home);
+                InstallOpenCode(ffRepo, home, forceFree, dryRun, jsonOnly, allowSymlink, noSudo);
                 break;
             case "vs code":
                 InstallVsCode(ffRepo);
@@ -143,7 +154,14 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         CopyGlob(Path.Combine(ideDir, "commands"), Path.Combine(cursorDir, "commands"), "*.md");
     }
 
-    void InstallOpenCode(string ffRepo, string home, bool forceFree = false, bool dryRun = false, bool jsonOnly = false)
+    void InstallOpenCode(
+        string ffRepo,
+        string home,
+        bool forceFree = false,
+        bool dryRun = false,
+        bool jsonOnly = false,
+        bool allowSymlink = false,
+        bool noSudo = false)
     {
         var opencodeDir = Path.Combine(home, ".config", "opencode");
         var agentsDest = Path.Combine(opencodeDir, "agents");
@@ -178,7 +196,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
 
         var preHash = File.Exists(configPath) ? ComputeSha256(configPath) : null;
 
-        var configGen = new OpenCodeConfigGenerator(ffRepo, forceFree, dryRun);
+        var configGen = new OpenCodeConfigGenerator(ffRepo, forceFree, dryRun, allowSymlink);
         var result = configGen.GenerateOrMerge(
             configPath,
             templatesDir,
@@ -206,12 +224,9 @@ public sealed class FlowForgeModule(InstallerContext ctx)
                 var templateAgents = Path.Combine(ffRepo, "ide", "opencode", "agents");
                 if (Directory.Exists(templateAgents))
                 {
-                    foreach (var templateAgent in Directory.GetFiles(templateAgents, "*.md.tpl"))
+                    foreach (var templateAgent in Directory.GetFiles(templateAgents, "*.md"))
                     {
                         var agentName = Path.GetFileNameWithoutExtension(templateAgent);
-                        if (agentName.EndsWith(".md"))
-                            agentName = agentName[..^3];
-
                         var dest = Path.Combine(agentsDest, $"{agentName}.md");
                         File.Copy(templateAgent, dest, overwrite: true);
                         if (manifest.Agents.TryGetValue(agentName, out var entry))
