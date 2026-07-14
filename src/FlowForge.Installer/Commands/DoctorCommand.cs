@@ -390,7 +390,7 @@ public sealed class DoctorCommand(InstallerContext ctx)
         }
         else
         {
-            var list = JsonSerializer.Deserialize<string[]>(File.ReadAllText(sidecarPath));
+            var list = JsonSerializer.Deserialize(File.ReadAllText(sidecarPath), OpenCodeJsonContext.Default.StringArray);
             if (list == null || !list.Any(p => p.Equals("mcp.engram", StringComparison.OrdinalIgnoreCase)))
                 results.Add(new DoctorCheck("OpenCode sidecar", false, "Sidecar no contiene mcp.engram"));
             else
