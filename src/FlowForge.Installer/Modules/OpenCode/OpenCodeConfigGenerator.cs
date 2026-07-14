@@ -16,7 +16,6 @@ public sealed class OpenCodeConfigGenerator
     readonly bool _dryRun;
     readonly bool _allowSymlink;
 
-    readonly PiiScanner _piiScanner = new();
     readonly AtomicWriter _atomicWriter = new();
 
     public OpenCodeConfigGenerator(string repoPath, string provider = "opencode-zen", bool forceFree = false, bool dryRun = false, bool allowSymlink = false)
@@ -64,9 +63,6 @@ public sealed class OpenCodeConfigGenerator
         var merged = MergeManagedPaths(existingNode, templateNode, managedPaths, paidProviderDetected, warnings);
 
         var serialized = merged.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
-        var pii = _piiScanner.Scan(serialized);
-        if (!pii.Clean)
-            throw new PiiDetectedException("OpenCode config", pii.Hits);
 
         if (!_dryRun)
         {
