@@ -74,6 +74,12 @@ FlowForge writes agents into the directories each IDE expects. After running any
 
 After the Stack installer completes, run `flowforge init` inside each repository where you want FlowForge's full per-project setup:
 
+> **First time installing?** Before running `flowforge init`, follow the
+> [POST-INSTALL.md](POST-INSTALL.md) checklist to verify the binary is the
+> latest version and your sync mode is configured correctly. Common gotchas
+> (self-loop warnings, stale binaries, missing `ENGRAM_SERVER_URL`) are
+> covered there.
+
 ```powershell
 # Windows
 flowforge init E:\Proyectos\my-app
@@ -92,7 +98,7 @@ This creates:
 
 | File / folder | Purpose |
 |---|---|
-| `.flowforge.json` | Project config (activates FlowDoc, sets `docs_framework`, teacher mode, etc.) |
+| `.flowforge.json` | Project config (activates FlowDoc, sets `docs_framework` + `docs_framework_version`, teacher mode, etc.) |
 | `AGENTS.md` | Agent guidance for this repo |
 | `docs/` | PRD, HUs, ADRs, RFCs, templates |
 | `.ai-work/` | Versioned feature artifacts |
@@ -145,7 +151,19 @@ Example — FlowForge only (no product doc layer):
 }
 ```
 
-At `/flow-start`, `forge-discovery` reads this file: if `docs_framework` is missing or `null`, it **skips** the FlowDoc step and proceeds with the FlowForge workflow only.
+At `/flow-start`, `forge-discovery` reads this file: if `docs_framework` is missing or `null`, it **skips** the FlowDoc step and proceeds with the FlowForge workflow only. If present, `docs_framework_version` is checked to determine template compatibility.
+
+### FlowDoc adoption levels
+
+FlowDoc v2.0 defines three adoption levels. You choose how deeply to integrate with FlowForge:
+
+| Level | Name | What you get | FlowForge integration |
+|-------|------|-------------|----------------------|
+| **L1** | Structure | `docs/` folder layout, PRD template, HU template, ADR/RFC templates | `flowforge init` — one-time scaffold. No agent workflow required. |
+| **L2** | Decisions | L1 + full feature lifecycle: backlog → spec → plan → implement → close | `/flow-start` through `/flow-close`. All CKP-0→4 gates active. |
+| **L3** | Complete | L2 + human retrospectives, metrics tracking, team ceremonies | L2 workflow + `forge-memory/metrics` + `forge-verify` + post-cycle human review |
+
+**Default:** `flowforge init` starts you at L1. Activate agents (`/flow-start`) when your team is ready for L2.
 
 ### Where files live (global vs project)
 

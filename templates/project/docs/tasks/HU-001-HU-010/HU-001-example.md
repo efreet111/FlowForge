@@ -4,13 +4,13 @@
 -->
 
 ---
-hu_id: HU-NNN
-title: "[Feature name]"
-status: draft                    # FlowForge addition
-flowforge_slug: ""              # FlowForge: links to .ai-work/{slug}/
+hu_id: HU-001
+title: "Project Onboarding"
+status: draft
+flowforge_slug: ""
 ---
 
-# HU-NNN — [Feature name]
+# HU-001 — [Feature name]
 
 ## User Story
 
@@ -63,11 +63,7 @@ Each scenario describes verifiable behavior. Use Given/When/Then format.
 
 ## Context / Notes
 
-[Optional: background, constraints, design references, mockup links]
-
-> ⚠️ **For spec.md decisions**: If a question affects implementation, 
-> flag it as OQ-1 [BLOCKER] in spec.md — do not resolve technical 
-> decisions in the HU.
+This is a **template example** — replace the content below with your own HU. All checkboxes are unchecked and `flowforge_slug` is empty so adopters can copy-paste without carrying over state from the example.
 
 ---
 
@@ -97,7 +93,7 @@ To implement this HU:
 
 ```bash
 # Start the feature cycle
-/flow-start HU-NNN-slug
+/flow-start HU-001-[feature-slug]
 ```
 
 - `flowforge_slug` is set by forge-arch when `.ai-work/{slug}/` is created
