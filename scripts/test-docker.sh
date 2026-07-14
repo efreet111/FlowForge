@@ -82,10 +82,15 @@ pm1() {
     warn "Este test descarga engram-dotnet de GitHub (~10MB). Requiere internet."
     warn "Timeout: 120s para la descarga."
     echo ""
+    # Mount the local repo read-only so the installer uses the current working
+    # tree templates instead of cloning from GitHub (which would not have the
+    # unpushed changes). FLOWFORGE_REPO short-circuits FlowForgeRepoLocator.
     docker run --rm \
         -u testuser \
         -e HOME=/home/testuser \
+        -e FLOWFORGE_REPO=/repo-local \
         -e FLOWFORGE_API_TIMEOUT_SECONDS=60 \
+        -v "$REPO_ROOT:/repo-local:ro" \
         "$IMAGE" \
         bash /test/run-pm1.sh
 }
