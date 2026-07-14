@@ -55,7 +55,7 @@ FlowForge tiene **dos capas** en el repo:
 | **Skills** (metodología) | `skills/forge-*/SKILL.md` | Fuente de verdad: checkpoints, Ralph loop, PM-*, etc. |
 | **Agents IDE** | `ide/opencode/agents/*.md` | Empaquetado OpenCode: orquestador + subagentes |
 
-El instalador **solo copia agents + commands**. **No** crea `.opencode/skills/` ni copia `skills/` a `~/.config/opencode/`.
+El instalador **solo copia agents + commands**. **No** crea `.opencode/skills/` ni copia `skills/` a `$HOME/.config/opencode/`.
 
 Los agents dicen al modelo que cargue skills **por ruta relativa** al repo:
 
@@ -83,17 +83,17 @@ Los subagentes pueden usar `{file:ruta}` en `opencode.json` para rutas absolutas
 
 ### Instalación global
 
-- `~/.config/opencode/agents/` — Markdown de los agentes FlowForge
-- `~/.config/opencode/commands/` — Comandos opcionales (ya no se mezclan desde `flowforge/`)
+- `$HOME/.config/opencode/agents/` — Markdown de los agentes FlowForge
+- `$HOME/.config/opencode/commands/` — Comandos opcionales (ya no se mezclan desde `flowforge/`)
 - `opencode.json` / `opencode.jsonc` (tipo `local`) — contiene `mcp.engram` generado por FlowForge o `ide/install.sh`; conserva tus bloques `mcp`, `permission`, `provider`.
-- `~/.config/opencode/flowforge/` + `opencode.flowforge.json` se mantienen solo para migraciones y no forman parte de la instalación primaria.
+- `$HOME/.config/opencode/flowforge/` + `opencode.flowforge.json` se mantienen solo para migraciones y no forman parte de la instalación primaria.
 
 ### Instalación por proyecto
 
-- `.opencode/agents/` — copia local de los agentes
-- `.opencode/commands/` — comandos `/flow-*` del proyecto
-- `.kilo/agents/` — duplicado inmediato de `.opencode/agents/` para compatibilidad con Kilo Code
+- `$HOME/.opencode/agents/` — copia local de los agentes
+- `$HOME/.opencode/commands/` — comandos `/flow-*` del proyecto
+- `$HOME/.kilo/agents/` — duplicado inmediato de `.opencode/agents/` para compatibilidad con Kilo Code
 
 ### Nota legacy
 
-`opencode.flowforge.json` ya no es la ruta principal. FlowForge escribe directamente en `.config/opencode/agents/` y en `opencode.json` (tipo `local`). Conservá el archivo legacy solo para migraciones históricas y evita merges que reemplacen los bloques `mcp`/`permission`.
+`opencode.flowforge.json` ya no es la ruta principal. FlowForge escribe directamente en `$HOME/.config/opencode/agents/` y en `opencode.json` (tipo `local`). Conservá el archivo legacy solo para migraciones históricas y evita merges que reemplacen los bloques `mcp`/`permission`.

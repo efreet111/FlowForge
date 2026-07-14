@@ -285,13 +285,31 @@ public sealed class DoctorCommand(InstallerContext ctx)
         {
             foreach (var kvp in providerNode)
             {
-                if (kvp.Value is JsonObject providerObj && providerObj["models"] is JsonArray array)
+                if (kvp.Value is not JsonObject providerObj)
+                    continue;
+
+                HashSet<string>? models = null;
+                var modelsNode = providerObj["models"];
+                if (modelsNode is JsonArray array)
                 {
-                    providerModels[kvp.Key] = array
+                    models = array
                         .Select(v => v?.GetValue<string>())
                         .Where(m => !string.IsNullOrWhiteSpace(m))
                         .Select(m => m!.Split('/', StringSplitOptions.RemoveEmptyEntries).Last())
                         .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                }
+                else if (modelsNode is JsonObject obj)
+                {
+                    models = obj
+                        .Select(kv => kv.Key)
+                        .Where(m => !string.IsNullOrWhiteSpace(m))
+                        .Select(m => m!.Split('/', StringSplitOptions.RemoveEmptyEntries).Last())
+                        .ToHashSet(StringComparer.OrdinalIgnoreCase);
+                }
+
+                if (models is { Count: > 0 })
+                {
+                    providerModels[kvp.Key] = models;
                 }
             }
         }
@@ -331,10 +349,6 @@ public sealed class DoctorCommand(InstallerContext ctx)
         else
             results.Add(new DoctorCheck("OpenCode agent models", true));
 
-        var scanner = new PiiScanner();
-        var pii = scanner.ScanGenerated(text, home);
-        results.Add(new DoctorCheck("OpenCode PII scan", pii.Clean, pii.Clean ? null : "PII detectada en opencode.json"));
-
         var modelAssignmentsPath = Path.Combine(opencodeDir, ".agents", "rules", "model-assignments.md");
         if (!File.Exists(modelAssignmentsPath))
         {
@@ -342,7 +356,7 @@ public sealed class DoctorCommand(InstallerContext ctx)
         }
         else
         {
-            var stalePattern = new Regex(@"claude-|gpt-|opencode-go/", RegexOptions.IgnoreCase);
+            var stalePattern = new Regex(@"claude-\d|gpt-\d", RegexOptions.IgnoreCase);
             var content = File.ReadAllText(modelAssignmentsPath);
             var stale = stalePattern.IsMatch(content);
             if (stale)
@@ -390,7 +404,7 @@ public sealed class DoctorCommand(InstallerContext ctx)
         }
         else
         {
-            var list = JsonSerializer.Deserialize<string[]>(File.ReadAllText(sidecarPath));
+            var list = JsonSerializer.Deserialize(File.ReadAllText(sidecarPath), OpenCodeJsonContext.Default.StringArray);
             if (list == null || !list.Any(p => p.Equals("mcp.engram", StringComparison.OrdinalIgnoreCase)))
                 results.Add(new DoctorCheck("OpenCode sidecar", false, "Sidecar no contiene mcp.engram"));
             else

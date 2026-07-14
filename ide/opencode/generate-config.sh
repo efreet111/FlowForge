@@ -35,6 +35,21 @@ for agent in $AGENTS; do
   json="$(printf '%s' "$json" | jq --arg agent "$agent" --arg model "opencode-zen/$model" '.agent[$agent].model = $model')"
 done
 
+if ! printf '%s' "$json" | jq -e '.provider["opencode-zen"].models | type == "object"' >/dev/null 2>&1; then
+  echo "provider.opencode-zen.models must be an object" >&2
+  exit 1
+fi
+
+if ! printf '%s' "$json" | jq -e '(.permission.bash | type == "object") and (.permission.read | type == "object")' >/dev/null 2>&1; then
+  echo "permission.bash and permission.read must be objects" >&2
+  exit 1
+fi
+
+if ! printf '%s' "$json" | jq -e '.agent | to_entries | map(.value.tools) | map(type == "object") | all' >/dev/null 2>&1; then
+  echo "agent.*.tools must all be objects" >&2
+  exit 1
+fi
+
 if [ -f "$CONFIG" ]; then
   existing="$(jq -c '.' "$CONFIG")"
 else
