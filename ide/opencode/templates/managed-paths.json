@@ -10,6 +10,7 @@
   "agent.forge-memory",
   "agent.forge-teacher",
   "provider.opencode-zen",
+  "provider.opencode-go",
   "permission.bash",
   "permission.read",
   "mcp.engram"
