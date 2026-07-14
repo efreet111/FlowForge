@@ -219,8 +219,9 @@ public sealed class FlowForgeModule(InstallerContext ctx)
 
             if (!jsonOnly)
             {
-                var manifest = JsonSerializer.Deserialize<OpenCodeConfigGenerator.AgentModelsManifest>(
-                    File.ReadAllText(agentModelsPath))
+                var manifest = JsonSerializer.Deserialize(
+                    File.ReadAllText(agentModelsPath),
+                    OpenCodeJsonContext.Default.AgentModelsManifest)
                     ?? throw new InvalidOperationException("agent-models.json inválido.");
 
                 var patcher = new AgentFrontmatterPatcher();
