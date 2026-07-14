@@ -63,6 +63,8 @@ FlowForge escribe los agentes en los directorios que cada IDE realmente lee. Des
 |-----|------------------|----------------------|-------|
 | **Cursor** | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` | MCP en `~/.cursor/mcp.json`. |
 | **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/`, `.opencode/commands/` | Skills en `{repo}/skills/` (no copiados). Ver [ADR-009](docs/decisions/ADR-009-opencode-antigravity-customizations.md). |
+
+> El instalador OpenCode ahora genera `opencode.json` completo con el provider `opencode-zen` (8 modelos gratis), registra el sidecar y se valida con `flowforge doctor`. El warning sobre entrenamiento aparece en consola y la política de placeholders está en `docs/PII-POLICY.md`.
 | **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detectado por `github.copilot*`. |
 | **Kilo Code** | `~/.config/kilo/agents/*.md` (el mismo bundle que OpenCode) | `.kilo/agents/*.md` (duplicado) | Detectado por `kilocode.*`. |
 | **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `workflows/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `.agents/skills/` | Google Antigravity (no Claude Desktop). |

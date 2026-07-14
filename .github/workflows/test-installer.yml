@@ -94,7 +94,7 @@ jobs:
           mkdir -p ~/.cursor ~/.vscode/extensions/github.copilot-1.0.0 \
             ~/.vscode/extensions/kilocode.kilo-code-1.0.0 \
             ~/.config/opencode ~/.copilot/agents ~/.copilot/instructions \
-            ~/.config/kilo/agents ~/.gemini/antigravity/rules ~/.gemini/antigravity/workflows ~/.gemini \
+            ~/.config/kilo/agents ~/.gemini/config/rules ~/.gemini/config/workflows ~/.gemini \
             ~/.local/bin
 
       - name: Instalar flowforge binary
@@ -105,6 +105,7 @@ jobs:
       - name: Instalar — happy path headless
         env:
           FLOWFORGE_API_TIMEOUT_SECONDS: "60"
+          FLOWFORGE_REPO: ${{ github.workspace }}
         run: |
           ~/.local/bin/flowforge install --yes
         timeout-minutes: 3
@@ -159,10 +160,14 @@ jobs:
 
       - name: Verificar — Antigravity global
         run: |
-          test -f ~/.gemini/antigravity/AGENTS.md && echo "PASS: Antigravity AGENTS.md" || (echo "FAIL: Antigravity AGENTS.md missing"; exit 1)
-          RULES_COUNT=$(find ~/.gemini/antigravity/rules -name "*.md" 2>/dev/null | wc -l)
+          test -f ~/.gemini/config/AGENTS.md && echo "PASS: Antigravity AGENTS.md" || (echo "FAIL: Antigravity AGENTS.md missing"; exit 1)
+          RULES_COUNT=$(find ~/.gemini/config/rules -name "*.md" 2>/dev/null | wc -l)
           echo "Antigravity rules: $RULES_COUNT"
           test "$RULES_COUNT" -gt 0 || (echo "FAIL: no Antigravity rules"; exit 1)
+          WF_COUNT=$(find ~/.gemini/config/workflows -name "*.md" 2>/dev/null | wc -l)
+          echo "Antigravity workflows: $WF_COUNT"
+          test "$WF_COUNT" -gt 0 || (echo "FAIL: no Antigravity workflows"; exit 1)
+          test ! -f ~/.gemini/antigravity/AGENTS.md && echo "PASS: legacy antigravity pack absent" || (echo "FAIL: legacy antigravity pack still present"; exit 1)
 
       - name: Verificar — flowforge doctor
         run: |
@@ -217,6 +222,7 @@ jobs:
         shell: pwsh
         env:
           FLOWFORGE_API_TIMEOUT_SECONDS: "60"
+          FLOWFORGE_REPO: ${{ github.workspace }}
         run: |
           .\out\flowforge.exe install --yes
         timeout-minutes: 3

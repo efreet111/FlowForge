@@ -21,16 +21,16 @@ public sealed class InstallCommand(InstallerContext ctx)
         ?? typeof(InstallCommand).Assembly.GetName().Version?.ToString()
         ?? "dev";
 
-    /// <summary>
-    /// -y / --yes: omitir confirmaciones (non-interactive)
-    /// --no-engram: omitir instalación de engram-dotnet
-    /// --no-flowforge: omitir instalación de skills FlowForge
-    /// </summary>
     [Command("")]
     public async Task RunAsync(
         bool yes = false,
         bool noEngram = false,
         bool noFlowforge = false,
+        bool forceFree = false,
+        bool dryRun = false,
+        bool jsonOnly = false,
+        bool allowSymlink = false,
+        bool noSudo = false,
         string? serverUrl = null
     )
     {
@@ -44,6 +44,14 @@ public sealed class InstallCommand(InstallerContext ctx)
         // because it correctly detects whether prompts can actually be rendered.
         var canShowPrompts = AnsiConsole.Profile.Capabilities.Interactive;
         var isHeadless = yes || !canShowPrompts;
+
+        var sudoUser = Environment.GetEnvironmentVariable("SUDO_USER");
+        if (noSudo && !string.IsNullOrEmpty(sudoUser))
+        {
+            AnsiConsole.MarkupLine("[red]✗[/] --no-sudo solicitado pero el instalador corre bajo sudo. Ejecutá sin sudo.");
+            Environment.Exit(3);
+            return;
+        }
 
         // ── Verificar compatibilidad con manifest remoto ───────────────────────
         var remoteManifest = await ctx.Manifest.FetchAsync();
@@ -218,7 +226,7 @@ public sealed class InstallCommand(InstallerContext ctx)
         if (installFlowForge)
         {
             var module = new FlowForgeModule(ctx);
-            module.Install(selectedIdes);
+            module.Install(selectedIdes, forceFree, dryRun, jsonOnly, allowSymlink, noSudo);
         }
 
         // ── 6. Guardar config ─────────────────────────────────────────────────
@@ -256,7 +264,6 @@ public sealed class InstallCommand(InstallerContext ctx)
         AnsiConsole.MarkupLine("  [blue]flowforge init[/] [grey]<ruta-del-proyecto>[/]");
         AnsiConsole.MarkupLine("  [grey]Crea AGENTS.md, .flowforge.json, docs/ y packs IDE para ese repositorio.[/]");
 
-        var sudoUser = Environment.GetEnvironmentVariable("SUDO_USER");
         if (sudoUser != null && Environment.GetEnvironmentVariable("USER") == "root")
         {
             AnsiConsole.MarkupLine("[yellow]⚠[/] Instalado como root. Si el MCP falla, ejecutá:");

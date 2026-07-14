@@ -60,6 +60,8 @@ Instala en `%LOCALAPPDATA%\Programs\FlowForge\` (Windows) o `~/.local/bin/flowfo
 
 > **Liviano — sin wizard.** Copia agentes, reglas y comandos `/flow-*` a los IDEs detectados (Cursor, OpenCode, VS Code). Muestra un resumen en consola. **No** instala el CLI `flowforge` ni el binario `engram-dotnet`. Usalo si ya tenés engram configurado o solo necesitás los packs de metodología.
 
+> **OpenCode** ahora genera `opencode.json` completo (provider `opencode-zen`, 8 modelos gratis, `mcp.engram` local) y el doctor valida el schema + PII. El warning de entrenamiento aparece en consola. Más detalles en `docs/opencode-installer.md` y la política de PII en `docs/PII-POLICY.md`.
+
 **Linux/macOS:**
 
 ```bash
@@ -137,7 +139,7 @@ FlowForge copia los packs de agentes a los directorios que cada IDE realmente le
 | **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/` | El `opencode.json` local contiene `mcp.engram` con `type: local`; `opencode.flowforge.json` y `~/.config/opencode/flowforge/` son atajos históricos. |
 | **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detectado por las extensiones `github.copilot*`; el archivo de instrucciones se normaliza con el header `applyTo`. |
 | **Kilo Code** | `~/.config/kilo/agents/*.md` (mismo formato OpenCode) | `.kilo/agents/*.md` (duplicado de `.opencode/agents/`) | Detectado por `kilocode.*`; FlowForge sincroniza el bundle con OpenCode. |
-| **Antigravity** | `~/.gemini/antigravity/` (`AGENTS.md`, `rules/`, `workflows/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `AGENTS.md` | Antigravity de Google (no Claude Desktop); la instalación global refleja el bundle de proyecto. |
+| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `workflows/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `.agents/skills/`, `.agents/AGENTS.md` | Antigravity de Google (no Claude Desktop); ver [ADR-009](docs/decisions/ADR-009-opencode-antigravity-customizations.md) |
 | **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (MCP solamente) | — | Solo MCP manual; FlowForge documenta la ruta pero no copia agentes ni reglas. |
 
 `flowforge install` detecta estas IDEs (Cursor, OpenCode, extensiones VS Code, Antigravity) y aplica este mismo esquema. Los scripts `ide/install.sh` y `ide/install.ps1` exponen los mismos destinos y sirven para refrescar la instalación o generar bundles por proyecto.

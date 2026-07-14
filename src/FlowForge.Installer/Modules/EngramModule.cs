@@ -2,6 +2,9 @@ using FlowForge.Installer.Commands;
 using FlowForge.Installer.Infrastructure;
 using FlowForge.Installer.Models;
 using Spectre.Console;
+using System;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace FlowForge.Installer.Modules;
 
@@ -147,7 +150,7 @@ public sealed class EngramModule(InstallerContext ctx)
         var idePaths = PathHelper.GetIdePaths(home);
         var dataDir  = PathHelper.EngramDir;
         var user     = Environment.GetEnvironmentVariable("ENGRAM_USER")
-                       ?? $"{Environment.UserName}@local.dev";
+                       ?? Environment.UserName;
         var syncEnabled = mode == "sync";
 
         // Configurar Cursor si existe ~/.cursor/
@@ -163,7 +166,7 @@ public sealed class EngramModule(InstallerContext ctx)
                              user, dataDir, syncEnabled, syncUrl);
         }
 
-        // Antigravity (Google): ~/.gemini/antigravity/mcp_config.json — uses mcpServers format
+        // Antigravity (Google): ~/.gemini/config/mcp_config.json — uses mcpServers format
         if (Directory.Exists(Path.Combine(home, ".gemini")))
         {
             WriteMcpJson(idePaths.Antigravity, user, dataDir, syncEnabled, syncUrl, "cursor");
@@ -184,6 +187,10 @@ public sealed class EngramModule(InstallerContext ctx)
             var configPath = File.Exists(Path.Combine(opencodeDir, "opencode.jsonc"))
                 ? Path.Combine(opencodeDir, "opencode.jsonc")
                 : Path.Combine(opencodeDir, "opencode.json");
+
+            var sidecarPath = PathHelper.OpenCodeSidecarPath;
+            if (ShouldSkipOpenCodeMerge(configPath, sidecarPath))
+                return;
 
             Directory.CreateDirectory(opencodeDir);
 
@@ -259,6 +266,39 @@ public sealed class EngramModule(InstallerContext ctx)
         {
             // Non-fatal
         }
+    }
+
+    static bool ShouldSkipOpenCodeMerge(string configPath, string sidecarPath)
+    {
+        try
+        {
+            if (!File.Exists(sidecarPath) || !File.Exists(configPath))
+                return false;
+
+            var managed = JsonSerializer.Deserialize<string[]>(File.ReadAllText(sidecarPath));
+            if (managed == null || !managed.Contains("mcp.engram", StringComparer.OrdinalIgnoreCase))
+                return false;
+
+            var configText = File.ReadAllText(configPath);
+            var node = JsonNode.Parse(configText);
+            var engram = node?["mcp"]?["engram"];
+            if (engram is not JsonObject engramNode)
+                return false;
+
+            var type = engramNode["type"]?.GetValue<string>() ?? string.Empty;
+            var enabled = engramNode["enabled"]?.GetValue<bool>() ?? false;
+            if (string.Equals(type, "local", StringComparison.OrdinalIgnoreCase) && enabled)
+            {
+                AnsiConsole.MarkupLine("[grey]⋯[/] OpenCode MCP already configured by OpenCodeConfigGenerator; skipping merge.");
+                return true;
+            }
+        }
+        catch
+        {
+            // best-effort; fall back to legacy merge
+        }
+
+        return false;
     }
 
     static void WriteMcpJson(string configPath, string user, string dataDir, bool syncEnabled, string? syncUrl, string format)
