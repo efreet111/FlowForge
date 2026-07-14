@@ -10,12 +10,8 @@ default_channel: stable
 # CLI flags, etc.), se actualiza el rango aquí. El installer lee este archivo
 # en runtime desde GitHub, no desde el binario compilado.
 requires:
-  # >=0.4.0 is required for sync recovery (ENG-451) and self-loop detection
-  # (ENG-452). Older versions silently lose pulled mutations on interrupted
-  # sync and spam 501 errors every 30ms with no remediation.
-  # Current stable tag on GitHub may be v1.3.0 (notes-only); installer skips releases
-  # without published binaries and falls back to the newest tag with assets (e.g. v1.2.1).
-  engram-dotnet: ">=0.4.0"
+  # Latest GitHub tag may be notes-only (e.g. v1.3.0); installer skips releases without binaries.
+  engram-dotnet: ">=0.3.0"
   installer:     ">=0.1.0-alpha.1"
 
 components:
