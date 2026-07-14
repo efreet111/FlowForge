@@ -113,6 +113,22 @@ public sealed class OpenCodeConfigGenerator
     {
         var target = existing is JsonObject obj ? obj : new JsonObject();
 
+        // Capture paid flowforge model before merge so we can restore it after the
+        // agent.flowforge block is replaced. We must NOT preserve the whole block
+        // (that would keep stale `tools` arrays / old permission shapes from a
+        // previous broken install) — only the model the user paid for.
+        string? preservedPaidModel = null;
+        if (paidProviderDetected)
+        {
+            var existingModel = GetNodeAtPath(target, "agent.flowforge.model")?.GetValue<string>();
+            if (!string.IsNullOrWhiteSpace(existingModel)
+                && existingModel.StartsWith("opencode-go/", StringComparison.OrdinalIgnoreCase))
+            {
+                preservedPaidModel = existingModel;
+                warnings.Add("Preserving paid flowforge model (field-level).");
+            }
+        }
+
         foreach (var path in managedPaths)
         {
             var templateValue = GetNodeAtPath(template, path);
@@ -123,6 +139,13 @@ public sealed class OpenCodeConfigGenerator
                 continue;
 
             SetValueAtPath(target, path, DeepCopy(templateValue));
+        }
+
+        // Restore the paid model on top of the freshly-merged agent.flowforge.
+        if (preservedPaidModel is not null
+            && GetNodeAtPath(target, "agent.flowforge") is JsonObject ffObj)
+        {
+            ffObj["model"] = preservedPaidModel;
         }
 
         var engramNode = GetNodeAtPath(template, "mcp.engram");
@@ -160,16 +183,9 @@ public sealed class OpenCodeConfigGenerator
             return true;
         }
 
-        if (path == "agent.flowforge")
-        {
-            var model = GetNodeAtPath(target, "agent.flowforge.model")?.GetValue<string>();
-            if (!string.IsNullOrWhiteSpace(model) && model.StartsWith("opencode-go/", StringComparison.OrdinalIgnoreCase))
-            {
-                warnings.Add("Preserving paid flowforge model.");
-                return true;
-            }
-        }
-
+        // agent.flowforge is no longer skipped: we replace the whole block so
+        // stale tools/permission shapes get refreshed, then restore the paid
+        // model field in MergeManagedPaths. See preservedPaidModel logic there.
         return false;
     }
 
