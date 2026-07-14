@@ -43,10 +43,10 @@ public sealed class OpenCodeConfigGenerator
 
         var templateText = File.ReadAllText(Path.Combine(templatesDir, "opencode.json.tpl"));
         templateText = templateText
-            .Replace("$FLOWFORGE_REPO", _repoPath)
-            .Replace("$HOME", home)
+            .Replace("$FLOWFORGE_REPO", ToJsonPath(_repoPath))
+            .Replace("$HOME", ToJsonPath(home))
             .Replace("$USER", user)
-            .Replace("$FLOWFORGE_ENGRAM_BIN", PathHelper.EngramBinary);
+            .Replace("$FLOWFORGE_ENGRAM_BIN", ToJsonPath(PathHelper.EngramBinary));
 
         var templateNode = JsonNode.Parse(templateText) ?? new JsonObject();
         InjectAgentModels(templateNode, manifest);
@@ -74,6 +74,8 @@ public sealed class OpenCodeConfigGenerator
 
         return new GenerateResult(targetConfigPath, managedPaths, paidProviderDetected, warnings);
     }
+
+    static string ToJsonPath(string path) => path.Replace('\\', '/');
 
     static string[] ReadManagedPaths(string managedPathsPath)
     {

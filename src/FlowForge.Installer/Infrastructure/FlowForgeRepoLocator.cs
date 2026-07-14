@@ -13,15 +13,17 @@ public sealed class FlowForgeRepoLocator(InstallerLogger log)
 
     public string? Locate()
     {
-        var envRepo = Environment.GetEnvironmentVariable("FLOWFORGE_REPO");
-        if (envRepo != null && Directory.Exists(envRepo))
+        var envRepo = Environment.GetEnvironmentVariable("FLOWFORGE_REPO")
+                      ?? Environment.GetEnvironmentVariable("GITHUB_WORKSPACE");
+        if (envRepo != null && Directory.Exists(envRepo) && RepoHasOpenCodeTemplates(envRepo))
             return envRepo;
 
         var dir = AppContext.BaseDirectory;
         for (int i = 0; i < 5; i++)
         {
             var agents = Path.Combine(dir, "AGENTS.md");
-            if (File.Exists(agents) && File.ReadAllText(agents).Contains("FlowForge", StringComparison.Ordinal))
+            if (File.Exists(agents) && File.ReadAllText(agents).Contains("FlowForge", StringComparison.Ordinal)
+                && RepoHasOpenCodeTemplates(dir))
                 return dir;
 
             var parent = Directory.GetParent(dir)?.FullName;
@@ -30,11 +32,14 @@ public sealed class FlowForgeRepoLocator(InstallerLogger log)
         }
 
         var cache = CachePath;
-        if (File.Exists(Path.Combine(cache, "AGENTS.md")))
+        if (File.Exists(Path.Combine(cache, "AGENTS.md")) && RepoHasOpenCodeTemplates(cache))
             return cache;
 
         return null;
     }
+
+    static bool RepoHasOpenCodeTemplates(string repo) =>
+        File.Exists(Path.Combine(repo, "ide", "opencode", "templates", "agent-models.json"));
 
     /// <summary>Localiza el repo o clona a ~/.flowforge/cache/FlowForge.</summary>
     public bool EnsureAvailable(out string? repoPath)
@@ -66,6 +71,11 @@ public sealed class FlowForgeRepoLocator(InstallerLogger log)
         {
             if (Directory.Exists(cache) && !File.Exists(Path.Combine(cache, "AGENTS.md")))
             {
+                Directory.Delete(cache, true);
+            }
+            else if (Directory.Exists(cache) && !RepoHasOpenCodeTemplates(cache))
+            {
+                log.Info("FlowForgeRepoLocator: cache stale (missing OpenCode templates), refreshing");
                 Directory.Delete(cache, true);
             }
 
