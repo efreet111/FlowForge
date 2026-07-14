@@ -171,6 +171,120 @@
         "nemotron-3-super-free",
         "minimax-m2.5-free"
       ]
+    },
+    "opencode-go": {
+      "id": "opencode-go",
+      "name": "OpenCode Go - Suscripción",
+      "npm": "@ai-sdk/openai-compatible",
+      "api": "https://opencode.ai/zen/go/v1",
+      "env": [
+        "OPENCODIGO_API_KEY"
+      ],
+      "description": "Conjunto paid de 17+ modelos para suscriptores OpenCode Go",
+      "models": {
+        "glm-5.1": {
+          "name": "GLM 5.1",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "glm-5.2": {
+          "name": "GLM 5.2",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "kimi-k2.5": {
+          "name": "Kimi K2.5",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "kimi-k2.6": {
+          "name": "Kimi K2.6",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "kimi-k2.7-code": {
+          "name": "Kimi K2.7 Code",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "mimo-v2.5": {
+          "name": "MiMo V2.5",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "mimo-v2.5-pro": {
+          "name": "MiMo V2.5 Pro",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "minimax-m2.3": {
+          "name": "MiniMax M2.3",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "minimax-m2.5": {
+          "name": "MiniMax M2.5",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "minimax-m2.7": {
+          "name": "MiniMax M2.7",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "minimax-m3": {
+          "name": "MiniMax M3",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "deepseek-v4-flash": {
+          "name": "DeepSeek V4 Flash",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "deepseek-v4-pro": {
+          "name": "DeepSeek V4 Pro",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "qwen3.5-plus": {
+          "name": "Qwen3.5 Plus",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "qwen3.6-plus": {
+          "name": "Qwen3.6 Plus",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "qwen3.7-plus": {
+          "name": "Qwen3.7 Plus",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        },
+        "qwen3.7-max": {
+          "name": "Qwen3.7 Max",
+          "reasoning": false,
+          "structured_output": true,
+          "tool_call": true
+        }
+      }
     }
   },
   "permission": {

@@ -6,11 +6,12 @@ public sealed class PiiScanner
 {
     static readonly Regex[] Patterns =
     {
-        new(@"/home/[a-z]+/", RegexOptions.Compiled | RegexOptions.IgnoreCase),
+        new(@"[=:\s]\s*/home/[A-Za-z0-9_.-]{3,}/", RegexOptions.Compiled | RegexOptions.IgnoreCase),
         new(@"@local\.dev", RegexOptions.Compiled | RegexOptions.IgnoreCase),
-        new(@"\bOPENCODIGO_API_KEY\b", RegexOptions.Compiled),
-        new(@"\bDEEPSEEK_API_KEY\b", RegexOptions.Compiled),
-        new(@"\bMINIMAX_API_KEY\b", RegexOptions.Compiled),
+        new(@"OPENCODIGO_API_KEY\s*[:=]\s*[""'']?[A-Za-z0-9\-_]{20,}", RegexOptions.Compiled),
+        new(@"DEEPSEEK_API_KEY\s*[:=]\s*[""'']?[A-Za-z0-9\-_]{20,}", RegexOptions.Compiled),
+        new(@"MINIMAX_API_KEY\s*[:=]\s*[""'']?[A-Za-z0-9\-_]{20,}", RegexOptions.Compiled),
+        new(@"~\/\.config\/opencode\/.+", RegexOptions.Compiled),
     };
 
     public (bool Clean, List<PiiHit> Hits) Scan(string input)
