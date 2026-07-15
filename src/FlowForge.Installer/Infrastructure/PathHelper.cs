@@ -60,7 +60,12 @@ public static class PathHelper
     public static string AntigravityRules =>
         Path.Combine(AntigravityConfigDir, "rules");
 
+    /// <summary>Antigravity 2.1+ global workflows (slash picker scans this path).</summary>
     public static string AntigravityWorkflows =>
+        Path.Combine(AntigravityConfigDir, "global_workflows");
+
+    /// <summary>Legacy global workflows dir (Antigravity 2.0); migrated on install.</summary>
+    public static string AntigravityLegacyWorkflowsDir =>
         Path.Combine(AntigravityConfigDir, "workflows");
 
     public static string AntigravitySkills =>

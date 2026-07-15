@@ -62,6 +62,24 @@ public class AntigravityPackValidatorTests
         }
     }
 
+    [Fact]
+    public void FR_016_LegacyWorkflowsDirDetectedWhenObsoletePathHasFlowFiles()
+    {
+        var tempConfig = Path.Combine(Path.GetTempPath(), "ff-legacy-wf-" + Guid.NewGuid().ToString("N"));
+        var legacyDir = Path.Combine(tempConfig, "workflows");
+        Directory.CreateDirectory(legacyDir);
+        try
+        {
+            Assert.False(AntigravityPackValidator.LegacyWorkflowsDirDetected(legacyDir));
+            File.WriteAllText(Path.Combine(legacyDir, "flow-start.md"), "---\ndescription: test\n---\n");
+            Assert.True(AntigravityPackValidator.LegacyWorkflowsDirDetected(legacyDir));
+        }
+        finally
+        {
+            Directory.Delete(tempConfig, recursive: true);
+        }
+    }
+
     static string FindRepoRoot()
     {
         var dir = AppContext.BaseDirectory;

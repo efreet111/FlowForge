@@ -289,6 +289,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         EnsureDirectoryWithBackup(PathHelper.AntigravityRules);
         EnsureDirectoryWithBackup(PathHelper.AntigravityWorkflows);
         EnsureDirectoryWithBackup(PathHelper.AntigravitySkills);
+        MigrateLegacyWorkflowsDir();
 
         var workspaceAgents = PathHelper.AntigravityWorkspaceAgents;
         EnsureDirectoryWithBackup(Path.Combine(workspaceAgents, "rules"));
@@ -315,7 +316,33 @@ public sealed class FlowForgeModule(InstallerContext ctx)
             File.Copy(workflowRule, Path.Combine(PathHelper.HomeDir, ".gemini", "GEMINI.md"), overwrite: true);
 
         CleanupLegacyAntigravityPack();
-        AnsiConsole.MarkupLine("  [green]✓[/] Antigravity → [grey]~/.gemini/config/ (AGENTS + rules + workflows + skills)[/]");
+        AnsiConsole.MarkupLine("  [green]✓[/] Antigravity → [grey]~/.gemini/config/ (AGENTS + rules + global_workflows + skills)[/]");
+    }
+
+    static void MigrateLegacyWorkflowsDir()
+    {
+        var legacyDir = PathHelper.AntigravityLegacyWorkflowsDir;
+        if (!Directory.Exists(legacyDir))
+            return;
+
+        var targetDir = PathHelper.AntigravityWorkflows;
+        Directory.CreateDirectory(targetDir);
+
+        foreach (var file in Directory.GetFiles(legacyDir, "flow-*.md"))
+        {
+            var dest = Path.Combine(targetDir, Path.GetFileName(file));
+            if (File.Exists(dest) && File.GetLastWriteTimeUtc(dest) >= File.GetLastWriteTimeUtc(file))
+                continue;
+
+            try
+            {
+                File.Copy(file, dest, overwrite: true);
+            }
+            catch
+            {
+                /* best-effort */
+            }
+        }
     }
 
     static void CleanupLegacyAntigravityPack()
