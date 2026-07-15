@@ -310,5 +310,6 @@ Direct `@forge-*` invocation (legacy) bypasses checkpoints and Memory Curation �
 | **`/flow-close` not in autocomplete** | Run `ide/install.ps1 -ProjectPath <repo>`; or type `/flow-close` as plain text — it is not a Cursor built-in |
 | **Used `/forge-memory` by mistake** | Use `/flow-close` (command) — `forge-memory` is the agent name, not a slash command |
 | **No `@skills` manual load** | Use compiled agents (Cursor) or IDE packs from `ide/install` |
+| **`/flow-*` missing in Antigravity picker** | Reload/restart Antigravity first (required after install). Then verify `~/.gemini/config/workflows/` has 7 files with YAML `description:` frontmatter; run `flowforge doctor` |
 
 > **Problems?** Open an issue: https://github.com/efreet111/FlowForge
