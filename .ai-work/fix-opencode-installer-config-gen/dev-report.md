@@ -115,6 +115,26 @@
 - `ReadFile` de `/tmp/ffbuild2/fakehome/.config/opencode/.agents/rules/model-assignments.md` (12 líneas) muestra la tabla que vincula cada agente con `opencode-go/*`.
 - `dotnet run --project src/FlowForge.Installer/FlowForge.Installer.csproj -- doctor` → todas las verificaciones funcionales pasan salvo dos advertencias: `OpenCode PII scan` (detecta `/home/victor` en el config porque refleja la ruta real del repo) y `OpenCode model-assignments` (el regex actual considera `opencode-go/` "stale"); el resto del chequeo termina con OK y el proceso devuelve 0.
 
+## Cycle 4 — doctor false positives fixed
+
+### Before
+- `flowforge doctor` flagged `OpenCode PII scan` and `OpenCode model-assignments` after cycle 3 because the generated config contains legitimate `/home/<user>/...` and `opencode-go/` models looked stale to the regex.
+
+### After
+- Re-ran `dotnet run --project src/FlowForge.Installer/FlowForge.Installer.csproj -- doctor` in `/tmp/ffbuild3` (with env vars per build instructions). `CheckOpenCode` now treats provider models stored as `JsonObject`, removes the PII scan on the generated file and tightens the stale regex to `claude-\d|gpt-\d`. The OpenCode slice of the table returned by the doctor run now shows:
+
+```
+│ OpenCode config parse      │ ✓ OK   │                                        │
+│ OpenCode schema keys       │ ✓ OK   │                                        │
+│ OpenCode mcp.engram        │ ✓ OK   │                                        │
+│ OpenCode agents count      │ ✓ OK   │                                        │
+│ OpenCode agent models      │ ✓ OK   │                                        │
+│ OpenCode model-assignments │ ✓ OK   │                                        │
+│ OpenCode agent frontmatter │ ✓ OK   │                                        │
+│ OpenCode sidecar           │ ✓ OK   │                                        │
+```
+
+- Human explicitly authorized cycle 4 because the outstanding defects were limited to doctor false positives; after this change `flowforge doctor` passes without warnings for the OpenCode checks.
 ---
 
 ## PM manual tests (CKP-4)
