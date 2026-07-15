@@ -305,6 +305,7 @@ Los `/flow-*` son convenciones de texto en modo Agent. Autocomplete requiere `id
 | **`/flow-close` no aparece en autocomplete** | Corré `ide/install.ps1 -ProjectPath <repo>`; o escribí `/flow-close` como texto — no es comando nativo de Cursor |
 | **Usaste `/forge-memory` por error** | Usá `/flow-close` (comando) — `forge-memory` es el nombre del agente |
 | **Hay que cargar `@skills` a mano** | Usá agentes compilados (Cursor) o packs desde `ide/install` |
+| **`/flow-*` no aparecen en Antigravity** | Reiniciá Antigravity tras install; verificá `~/.gemini/config/workflows/` (7 archivos con frontmatter `description:`); `flowforge doctor` |
 | **OpenCode no arranca tras instalar FlowForge** | Revisá `~/.local/share/opencode/log/`; no uses texto `file:` con `...` en strings JSON; mergeá solo `agent{}` y conservá `mcp`/`permission` |
 | **Subagentes sin modelo en OpenCode** | Configurá proveedor `opencode-go` y API keys, o cambiá `model` en `~/.config/opencode/agents/*.md` (o `.opencode/agents/*.md` por proyecto) a tus modelos disponibles |
 

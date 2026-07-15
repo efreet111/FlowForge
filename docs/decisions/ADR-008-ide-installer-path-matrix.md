@@ -18,7 +18,7 @@ Adoptamos la siguiente matriz canónica en la que cada IDE tiene rutas globales,
 | OpenCode | `~/.config/opencode/agents/` + `commands/` | `.opencode/agents/` | `~/.config/opencode` |
 | GitHub Copilot | `~/.copilot/agents/*.agent.md` + `instructions/flowforge.instructions.md` | `.github/agents/*.agent.md` + `copilot-instructions.md` | Extensión `github.copilot*` en `~/.vscode/extensions/` |
 | Kilo Code | `~/.config/kilo/agents/*.md` (replicado desde OpenCode) | `.kilo/agents/*.md` (duplicado desde `.opencode/agents/`) | Extensión `kilocode.*` en `~/.vscode/extensions/` |
-| Antigravity (Google) | `~/.gemini/antigravity/` con `AGENTS.md`, `rules/`, `workflows/` y `mcp_config.json` | `.agents/rules/`, `.agents/workflows/`, `AGENTS.md` | `~/.gemini` o `%LOCALAPPDATA%\Google\Gemini` |
+| Antigravity (Google) | `~/.gemini/config/` con `AGENTS.md`, `rules/`, `workflows/`, `skills/` y `mcp_config.json` | `.agents/rules/`, `.agents/workflows/`, `.agents/skills/`, `AGENTS.md` | `~/.gemini` — ver [ADR-009](ADR-009-opencode-antigravity-customizations.md) para Antigravity 2.0 |
 | Claude Desktop (Anthropic) | `~/.config/Claude/claude_desktop_config.json` (MCP manual) | — | Presencia de `%APPDATA%\Claude` o `~/.config/Claude/` |
 
 ## Consecuencias

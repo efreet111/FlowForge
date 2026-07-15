@@ -92,6 +92,95 @@ function Compile-CursorAgents {
     }
 }
 
+function Install-AntigravitySkills {
+    param(
+        [string]$DestDir,
+        [string]$FlowForgeRepo
+    )
+    $skillsSrc = Join-Path $FlowForgeRepo "skills"
+    if (-not (Test-Path $skillsSrc)) { return }
+
+    New-Item -ItemType Directory -Force -Path $DestDir | Out-Null
+    $useCopy = $script:IsRemote -or ($FlowForgeRepo -match '[\\/]Temp[\\/]') -or ($FlowForgeRepo -match '[\\/]tmp[\\/]')
+
+    foreach ($skillDir in Get-ChildItem -Path $skillsSrc -Directory -Filter "forge-*") {
+        $name = $skillDir.Name
+        $target = Join-Path $DestDir $name
+        if (Test-Path $target) {
+            Remove-Item -Recurse -Force $target -ErrorAction SilentlyContinue
+        }
+        if ($useCopy) {
+            Copy-Item -Path $skillDir.FullName -Destination $target -Recurse -Force
+        } else {
+            try {
+                New-Item -ItemType SymbolicLink -Path $target -Target $skillDir.FullName -Force | Out-Null
+            } catch {
+                Copy-Item -Path $skillDir.FullName -Destination $target -Recurse -Force
+            }
+        }
+    }
+}
+
+function Remove-LegacyAntigravityPack {
+    $legacyPaths = @(
+        (Join-Path $env:USERPROFILE ".gemini\antigravity"),
+        (Join-Path $env:LOCALAPPDATA "Google\Gemini\antigravity")
+    )
+    foreach ($legacy in $legacyPaths) {
+        if (-not (Test-Path $legacy)) { continue }
+        foreach ($item in @("AGENTS.md", "rules", "workflows")) {
+            $path = Join-Path $legacy $item
+            if (Test-Path $path) {
+                Remove-Item -Recurse -Force $path -ErrorAction SilentlyContinue
+            }
+        }
+    }
+    $skillsJson = Join-Path $env:USERPROFILE ".gemini\config\skills.json"
+    if (Test-Path $skillsJson) {
+        Remove-Item -Force $skillsJson -ErrorAction SilentlyContinue
+    }
+}
+
+function Install-AntigravityGlobal {
+    param([string]$FlowForgeRepo)
+
+    $configDir = Join-Path $env:USERPROFILE ".gemini\config"
+    $workspaceAgents = Join-Path $configDir ".agents"
+    $dirs = @(
+        $configDir,
+        (Join-Path $configDir "rules"),
+        (Join-Path $configDir "workflows"),
+        (Join-Path $configDir "skills"),
+        $workspaceAgents,
+        (Join-Path $workspaceAgents "rules"),
+        (Join-Path $workspaceAgents "workflows"),
+        (Join-Path $workspaceAgents "skills")
+    )
+    foreach ($d in $dirs) { New-Item -ItemType Directory -Force -Path $d | Out-Null }
+
+    $agentsMd = Join-Path $IdeDir "antigravity\AGENTS.md"
+    if (Test-Path $agentsMd) {
+        Copy-Item $agentsMd (Join-Path $configDir "AGENTS.md") -Force
+        Copy-Item $agentsMd (Join-Path $workspaceAgents "AGENTS.md") -Force
+    }
+    Copy-Item (Join-Path $IdeDir "antigravity\rules\*") (Join-Path $configDir "rules") -Force -ErrorAction SilentlyContinue
+    Copy-Item (Join-Path $IdeDir "antigravity\workflows\*") (Join-Path $configDir "workflows") -Force -ErrorAction SilentlyContinue
+    Copy-Item (Join-Path $IdeDir "antigravity\rules\*") (Join-Path $workspaceAgents "rules") -Force -ErrorAction SilentlyContinue
+    Copy-Item (Join-Path $IdeDir "antigravity\workflows\*") (Join-Path $workspaceAgents "workflows") -Force -ErrorAction SilentlyContinue
+
+    Install-AntigravitySkills -DestDir (Join-Path $configDir "skills") -FlowForgeRepo $FlowForgeRepo
+    Install-AntigravitySkills -DestDir (Join-Path $workspaceAgents "skills") -FlowForgeRepo $FlowForgeRepo
+
+    $workflowRule = Join-Path $IdeDir "antigravity\rules\workflow.md"
+    if (Test-Path $workflowRule) {
+        $geminiMd = Join-Path $env:USERPROFILE ".gemini\GEMINI.md"
+        New-Item -ItemType Directory -Force -Path (Split-Path $geminiMd) | Out-Null
+        Copy-Item $workflowRule $geminiMd -Force
+    }
+
+    Remove-LegacyAntigravityPack
+}
+
 function Install-ProjectBundle {
     param([string]$Root)
     if (-not (Test-Path $Root)) {
@@ -103,11 +192,16 @@ function Install-ProjectBundle {
     # Antigravity
     $agentsRules = Join-Path $Root ".agents\rules"
     $agentsWf = Join-Path $Root ".agents\workflows"
-    New-Item -ItemType Directory -Force -Path $agentsRules, $agentsWf | Out-Null
+    $agentsSkills = Join-Path $Root ".agents\skills"
+    New-Item -ItemType Directory -Force -Path $agentsRules, $agentsWf, $agentsSkills | Out-Null
     Copy-Item -Path (Join-Path $IdeDir "antigravity\rules\*") -Destination $agentsRules -Force
     Copy-Item -Path (Join-Path $IdeDir "antigravity\workflows\*") -Destination $agentsWf -Force
-    Copy-Item -Path (Join-Path $IdeDir "antigravity\AGENTS.md") -Destination $Root -Force
-    Write-Host "  OK .agents/rules + workflows + AGENTS.md" -ForegroundColor Green
+    Copy-Item -Path (Join-Path $IdeDir "antigravity\AGENTS.md") -Destination (Join-Path $Root ".agents\AGENTS.md") -Force
+    if (-not (Test-Path (Join-Path $Root "AGENTS.md"))) {
+        Copy-Item -Path (Join-Path $IdeDir "antigravity\AGENTS.md") -Destination $Root -Force
+    }
+    Install-AntigravitySkills -DestDir $agentsSkills -FlowForgeRepo $FlowForgeRepo
+    Write-Host "  OK .agents/rules + workflows + skills + AGENTS.md" -ForegroundColor Green
 
     # Paridad en repo (referencia)
     $projShared = Join-Path $Root ".flowforge\shared"
@@ -252,21 +346,10 @@ if (Test-Path "$env:USERPROFILE\.vscode") {
 }
 
 # --- Antigravity (global) ---
-$globalGemini = $null
-if (Test-Path "$env:LOCALAPPDATA\Google\Gemini") {
-    $globalGemini = "$env:LOCALAPPDATA\Google\Gemini"
-} elseif (Test-Path "$env:USERPROFILE\.gemini") {
-    $globalGemini = "$env:USERPROFILE\.gemini"
-}
-
-if (-not [string]::IsNullOrWhiteSpace($globalGemini)) {
+if (Test-Path (Join-Path $env:USERPROFILE ".gemini")) {
     Write-Host "[OK] Antigravity detectado" -ForegroundColor Green
-    $antigravityRoot = Join-Path $globalGemini "antigravity"
-    New-Item -ItemType Directory -Force -Path $antigravityRoot, (Join-Path $antigravityRoot "rules"), (Join-Path $antigravityRoot "workflows") | Out-Null
-    Copy-Item -Path (Join-Path $IdeDir "antigravity\AGENTS.md") -Destination $antigravityRoot -Force -ErrorAction SilentlyContinue
-    Copy-Item -Path (Join-Path $IdeDir "antigravity\rules\*") -Destination (Join-Path $antigravityRoot "rules") -Force -ErrorAction SilentlyContinue
-    Copy-Item -Path (Join-Path $IdeDir "antigravity\workflows\*") -Destination (Join-Path $antigravityRoot "workflows") -Force -ErrorAction SilentlyContinue
-    Write-Host "  OK $antigravityRoot (AGENTS.md + rules/ + workflows/)" -ForegroundColor Green
+    Install-AntigravityGlobal -FlowForgeRepo $FlowForgeRepo
+    Write-Host "  OK $env:USERPROFILE\.gemini\config\ (AGENTS + rules + workflows + skills)" -ForegroundColor Green
     $Installed = $true
 }
 
@@ -288,7 +371,7 @@ if ($Installed) {
     if (Test-Path $BackupDir) { Write-Host "  Backups: $BackupDir" -ForegroundColor Yellow }
     Write-Host ""
     Write-Host "Proximos pasos:" -ForegroundColor Yellow
-    Write-Host "  1. Reload Window en el IDE"
+    Write-Host "  1. Reload Window / reiniciar Antigravity en el IDE"
     Write-Host "  2. Proyecto nuevo: install.ps1 -ProjectPath <repo>"
     Write-Host "  3. /flow-start <feature>  o  /flow-rework si hay bug"
     Write-Host ""

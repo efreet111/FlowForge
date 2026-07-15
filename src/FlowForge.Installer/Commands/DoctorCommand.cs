@@ -19,7 +19,7 @@ public sealed class DoctorCommand(InstallerContext ctx)
     readonly InstallerContext _ctx = ctx;
 
     [Command("")]
-    public async Task<int> RunAsync(bool refreshModels = false, bool refreshSchema = false)
+    public async Task<int> RunAsync(bool refreshModels = false, bool refreshSchema = false, bool strict = false)
     {
         if (refreshModels)
         {
@@ -72,12 +72,14 @@ public sealed class DoctorCommand(InstallerContext ctx)
             var openCodeResults = CheckOpenCode(home);
             results.AddRange(openCodeResults);
 
+            results.AddRange(CheckAntigravity(home, projectRoot));
+
             var table = new Table().Border(TableBorder.Rounded);
             table.AddColumn("Check");
             table.AddColumn("Estado");
             table.AddColumn("Detalle");
 
-            foreach (var (name, passed, hint) in results)
+            foreach (var (name, passed, hint, _) in results)
             {
                 var status = passed ? "[green]✓ OK[/]" : "[red]✗ FAIL[/]";
                 var detail = hint ?? (passed ? string.Empty : "ver hints abajo");
@@ -86,17 +88,31 @@ public sealed class DoctorCommand(InstallerContext ctx)
 
             AnsiConsole.Write(table);
 
-            var failures = results.Count(r => !r.Passed);
-            if (failures > 0)
+            var coreFailures = results.Count(r => !r.Passed && !r.IsAntigravity);
+            var antigravityFailures = results.Count(r => !r.Passed && r.IsAntigravity);
+
+            if (coreFailures > 0 || antigravityFailures > 0)
             {
                 AnsiConsole.WriteLine();
                 AnsiConsole.MarkupLine("[yellow]Hints:[/]");
-                foreach (var (name, passed, hint) in results.Where(r => !r.Passed))
+                foreach (var (name, passed, hint, _) in results.Where(r => !r.Passed))
                 {
                     var detail = hint ?? "ejecutá `flowforge install` para reinstalar";
                     AnsiConsole.MarkupLine($"  [grey]{name}[/]: {detail}");
                 }
+            }
+
+            if (coreFailures > 0)
                 return 2;
+
+            if (antigravityFailures > 0)
+            {
+                if (strict)
+                    return 2;
+
+                AnsiConsole.WriteLine();
+                AnsiConsole.MarkupLine("[yellow]Antigravity: incumplimientos detectados (exit 0). Usá --strict para fallar.[/]");
+                return 0;
             }
 
             AnsiConsole.MarkupLine("[green]Todo OK.[/]");
@@ -109,7 +125,7 @@ public sealed class DoctorCommand(InstallerContext ctx)
         }
     }
 
-    readonly record struct DoctorCheck(string Name, bool Passed, string? Hint = null);
+    readonly record struct DoctorCheck(string Name, bool Passed, string? Hint = null, bool IsAntigravity = false);
 
     static Task<(bool, string?)> CheckFileAsync(string path)
     {
@@ -205,6 +221,72 @@ public sealed class DoctorCommand(InstallerContext ctx)
             AnsiConsole.MarkupLine($"[red]✗[/] No se pudo refrescar schema: {ex.Message}");
             return 1;
         }
+    }
+
+    static List<DoctorCheck> CheckAntigravity(string home, string projectRoot)
+    {
+        var results = new List<DoctorCheck>();
+        var workflowsDir = PathHelper.AntigravityWorkflows;
+        var workflowIssues = AntigravityPackValidator.ValidateWorkflows(workflowsDir);
+        if (workflowIssues.Count == 0)
+        {
+            results.Add(new DoctorCheck("Antigravity: workflows frontmatter", true, IsAntigravity: true));
+        }
+        else
+        {
+            var detail = string.Join("; ", workflowIssues.Select(i => $"{i.File}: {i.Rule}"));
+            results.Add(new DoctorCheck(
+                "Antigravity: workflows frontmatter",
+                false,
+                detail,
+                IsAntigravity: true));
+        }
+
+        var globalSkills = PathHelper.AntigravitySkills;
+        if (AntigravityPackValidator.HasForgeDiscoverySkill(globalSkills))
+        {
+            results.Add(new DoctorCheck("Antigravity: skill forge-discovery", true, IsAntigravity: true));
+        }
+        else
+        {
+            results.Add(new DoctorCheck(
+                "Antigravity: skill forge-discovery",
+                false,
+                "config/skills/forge-discovery/SKILL.md no encontrado. Ejecutá `flowforge install`.",
+                IsAntigravity: true));
+        }
+
+        if (AntigravityPackValidator.LegacyPackDetected())
+        {
+            results.Add(new DoctorCheck(
+                "Antigravity: legacy pack",
+                false,
+                "Pack legacy en ~/.gemini/antigravity/ detectado. Re-ejecutá install corregido.",
+                IsAntigravity: true));
+        }
+        else
+        {
+            results.Add(new DoctorCheck("Antigravity: legacy pack", true, IsAntigravity: true));
+        }
+
+        if (IsFlowForgeProject(projectRoot))
+        {
+            var projectSkills = Path.Combine(projectRoot, ".agents", "skills");
+            if (AntigravityPackValidator.HasForgeDiscoverySkill(projectSkills))
+            {
+                results.Add(new DoctorCheck("Antigravity: project forge-discovery", true, IsAntigravity: true));
+            }
+            else
+            {
+                results.Add(new DoctorCheck(
+                    "Antigravity: project forge-discovery",
+                    false,
+                    ".agents/skills/forge-discovery/SKILL.md no encontrado. Ejecutá `flowforge init`.",
+                    IsAntigravity: true));
+            }
+        }
+
+        return results;
     }
 
     static List<DoctorCheck> CheckOpenCode(string home)
