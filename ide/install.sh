@@ -9,7 +9,21 @@
 
 set -euo pipefail
 
-PROJECT_PATH="${1:-}"
+PROJECT_PATH=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --ide)
+      shift 2
+      ;;
+    --yes|--no-engram)
+      shift
+      ;;
+    *)
+      PROJECT_PATH="$1"
+      shift
+      ;;
+  esac
+done
 
 # ── Locate FlowForge repo ─────────────────────────────────────────────────
 if [ -z "${FLOWFORGE_REPO:-}" ]; then
@@ -30,6 +44,26 @@ IDE_DIR="$FLOWFORGE_REPO/ide"
 BACKUP_DIR="${HOME}/.flowforge-backups/$(date +%Y%m%d-%H%M%S)"
 GLOBAL_SHARED="${HOME}/.flowforge/shared"
 INSTALLED=0
+AGENT_MODELS_JSON="$IDE_DIR/opencode/templates/agent-models.json"
+OPENCODE_TEMPLATE="$IDE_DIR/opencode/templates/opencode.json.tpl"
+PROVIDER="${FLOWFORGE_PROVIDER:-opencode-zen}"
+if command -v jq >/dev/null 2>&1 && [ -f "$OPENCODE_TEMPLATE" ]; then
+  if ! jq -e --arg provider "$PROVIDER" '.provider[$provider]' "$OPENCODE_TEMPLATE" >/dev/null 2>&1; then
+    if jq -e '.provider["opencode-zen"]' "$OPENCODE_TEMPLATE" >/dev/null 2>&1; then
+      PROVIDER="opencode-zen"
+    else
+      PROVIDER="$(jq -r '.provider | keys[0] // \"opencode-zen\"' "$OPENCODE_TEMPLATE" 2>/dev/null || echo "opencode-zen")"
+    fi
+  fi
+fi
+format_model_reference() {
+  local raw="$1"
+  if [[ "$raw" == */* ]]; then
+    printf '%s' "$raw"
+  else
+    printf '%s/%s' "$PROVIDER" "$raw"
+  fi
+}
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -207,10 +241,11 @@ if [ -d "${HOME}/.config/opencode" ] || mkdir -p "${HOME}/.config/opencode" 2>/d
       dest="${HOME}/.config/opencode/agents/${dest_name}"
       cp "$tpl" "$dest"
       agent_key="${dest_name%.md}"
-      if command -v jq >/dev/null 2>&1 && [ -f "$IDE_DIR/opencode/templates/agent-models.json" ]; then
-        model=$(jq -r ".agents[\"${agent_key}\"].model // empty" "$IDE_DIR/opencode/templates/agent-models.json")
-        if [ -n "$model" ]; then
-          sed -i "s|^model:.*|model: opencode-zen/${model}|" "$dest"
+      if command -v jq >/dev/null 2>&1 && [ -f "$AGENT_MODELS_JSON" ]; then
+        raw_model="$(jq -r --arg agent "$agent_key" --arg provider "$PROVIDER" '.agents[$agent].model[$provider] // .agents[$agent].model // empty' "$AGENT_MODELS_JSON")"
+        if [ -n "$raw_model" ] && [ "$raw_model" != "null" ]; then
+          formatted_model="$(format_model_reference "$raw_model")"
+          sed -i "s|^model:.*|model: $formatted_model|" "$dest"
         fi
       fi
     done
