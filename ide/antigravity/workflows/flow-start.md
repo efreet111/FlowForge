@@ -1,3 +1,7 @@
+---
+description: Iniciar feature FlowForge (Discovery a Spec, CKP-0 y CKP-1)
+---
+
 # /flow-start — New feature
 
 1. Derive `feature-slug` (kebab-case) from the description.

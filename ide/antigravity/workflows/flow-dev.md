@@ -1,3 +1,7 @@
+---
+description: Fase Dev — implementacion segun plan.md aprobado
+---
+
 # /flow-dev — Implement the active feature
 
 1. Verify approved `spec.md` + `plan.md` under `.ai-work/{feature-slug}/`.

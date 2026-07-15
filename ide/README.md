@@ -37,10 +37,10 @@ FlowForge escribe agentes en los mismos destinos que la tabla canónica; la matr
 | **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/` | Markdown + `opencode.json` (`mcp.engram.type = "local"`). El directorio `~/.config/opencode/flowforge/` y `opencode.flowforge.json` son rutas legacy. |
 | **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | `*.agent.md`; el archivo de instrucciones incluye el header `applyTo`. Detectado por `github.copilot*`. |
 | **Kilo Code** | `~/.config/kilo/agents/*.md` (el mismo bundle de OpenCode) | `.kilo/agents/*.md` (duplicado) | Markdown OpenCode; detectado por `kilocode.*`. |
-| **Antigravity** | `~/.gemini/antigravity/` (`AGENTS.md`, `rules/`, `workflows/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `AGENTS.md` | Markdown de reglas + workflows; no es Claude Desktop. |
+| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `workflows/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `.agents/skills/`, `AGENTS.md` | Markdown de reglas + workflows con frontmatter `description:`; no es Claude Desktop. Ver [ADR-009](../docs/decisions/ADR-009-opencode-antigravity-customizations.md). |
 | **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (config MCP) | — | MCP JSON manual (Anthropic). |
 
-El instalador `flowforge install` detecta estas IDEs y aplica la misma matriz; `docker-pm1-test.sh` verifica las rutas globales para `~/.copilot/agents/`, `~/.config/kilo/agents/` y `~/.gemini/antigravity/` para mantener la paridad Linux. Los scripts `ide/install.sh` / `ide/install.ps1` exponen las mismas carpetas y permiten instalaciones manuales o bundles por proyecto.
+El instalador `flowforge install` detecta estas IDEs y aplica la misma matriz; `docker-pm1-test.sh` verifica las rutas globales para `~/.copilot/agents/`, `~/.config/kilo/agents/` y `~/.gemini/config/` para mantener la paridad Linux. Los scripts `ide/install.sh` / `ide/install.ps1` exponen las mismas carpetas y permiten instalaciones manuales o bundles por proyecto.
 
 `flowforge doctor` reporta `[✓] github.copilot` y `[✓] kilocode.*` junto a los directorios nuevos, y el reporte del doctor es la fuente de verdad para la detección de VS Code. Para más detalles, consultá [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](../docs/decisions/ADR-008-ide-installer-path-matrix.md).
 
@@ -70,7 +70,7 @@ The installer:
 
 1. Copies `ide/shared/` → `~/.flowforge/shared/` (orchestrator parity)
 2. Recompiles Cursor agents from `skills/` (if Python is available)
-3. Installs Cursor (`~/.cursor/`), OpenCode (`~/.config/opencode/agents/` + `commands/`), VS Code (Copilot → `~/.copilot/agents/` & instructions, Kilo → `~/.config/kilo/agents/`), and Antigravity (`~/.gemini/antigravity/`)
+3. Installs Cursor (`~/.cursor/`), OpenCode (`~/.config/opencode/agents/` + `commands/`), VS Code (Copilot → `~/.copilot/agents/` & instructions, Kilo → `~/.config/kilo/agents/`), and Antigravity (`~/.gemini/config/`)
 4. With a project path: `.agents/`, `.cursor/`, `.github/agents/`, `.flowforge/shared/`
 
 ### Manual install
