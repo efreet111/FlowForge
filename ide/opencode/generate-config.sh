@@ -28,11 +28,40 @@ HOME="${HOME}"
 USER="${USER:-$(whoami)}"
 export FLOWFORGE_REPO="$FF_REPO" HOME USER FLOWFORGE_ENGRAM_BIN="$HOME/.local/bin/engram"
 
-json="$(envsubst < "$TEMPLATES/opencode.json.tpl")"
+json="$(envsubst '$FLOWFORGE_REPO $FLOWFORGE_ENGRAM_BIN $USER' < "$TEMPLATES/opencode.json.tpl")"
 AGENTS="flowforge forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher"
+provider="${FLOWFORGE_PROVIDER:-opencode-zen}"
+if ! printf '%s' "$json" | jq -e --arg provider "$provider" '.provider[$provider]' >/dev/null 2>&1; then
+  provider="$(printf '%s' "$json" | jq -r '.provider | keys[] | select(. == "opencode-zen") // empty' 2>/dev/null || true)"
+  provider="${provider:-$(printf '%s' "$json" | jq -r '.provider | keys[0] // \"opencode-zen\"')}"
+fi
+SCHEMA_KEY='$schema'
+
+resolve_agent_field() {
+  local agent_name="$1"
+  local field_name="$2"
+  jq -r --arg agent "$agent_name" --arg provider "$provider" --arg field "$field_name" '
+    (.agents[$agent][$field][$provider]) // (.agents[$agent][$field])
+  ' "$TEMPLATES/agent-models.json"
+}
+
+format_model_reference() {
+  local raw="$1"
+  if [[ "$raw" == */* ]]; then
+    printf '%s' "$raw"
+  else
+    printf '%s/%s' "$provider" "$raw"
+  fi
+}
+
 for agent in $AGENTS; do
-  model="$(jq -r ".agents[\"$agent\"].model" "$TEMPLATES/agent-models.json")"
-  json="$(printf '%s' "$json" | jq --arg agent "$agent" --arg model "opencode-zen/$model" '.agent[$agent].model = $model')"
+  raw_model="$(resolve_agent_field "$agent" "model")"
+  if [ -z "$raw_model" ] || [ "$raw_model" = "null" ]; then
+    echo "Modelo no configurado para $agent @ $provider" >&2
+    exit 1
+  fi
+  full_model="$(format_model_reference "$raw_model")"
+  json="$(printf '%s' "$json" | jq --arg agent "$agent" --arg model "$full_model" '.agent[$agent].model = $model')"
 done
 
 if ! printf '%s' "$json" | jq -e '.provider["opencode-zen"].models | type == "object"' >/dev/null 2>&1; then
@@ -65,6 +94,7 @@ merged="$(jq -n \
   --argjson existing "$existing" \
   --argjson new "$json" \
   --arg agents "$AGENTS" \
+  --arg schema_key "$SCHEMA_KEY" \
   '
   ($existing // {}) as $base
   | reduce ($agents | split(" "))[] as $agent (
@@ -74,7 +104,8 @@ merged="$(jq -n \
   | .instructions = $new.instructions
   | .permission = $new.permission
   | .mcp = (.mcp // {}) | .mcp["engram"] = $new.mcp["engram"]
-  | .provider = (.provider // {}) | .provider["opencode-zen"] = $new.provider["opencode-zen"]
+  | .provider = ((.provider // {}) + ($new.provider // {}))
+  | .[$schema_key] = $new[$schema_key]
 '
 )"
 
@@ -89,11 +120,21 @@ cat <<'EOF' > "$tmp_rules"
 EOF
 
 for agent in $AGENTS default; do
-  model="$(jq -r ".agents[\"$agent\"].model" "$TEMPLATES/agent-models.json")"
-  fallback="$(jq -r ".agents[\"$agent\"].fallback" "$TEMPLATES/agent-models.json")"
+  raw_model="$(resolve_agent_field "$agent" "model")"
+  raw_fallback="$(resolve_agent_field "$agent" "fallback")"
+  if [ -z "$raw_model" ] || [ "$raw_model" = "null" ]; then
+    echo "Modelo no configurado para $agent @ $provider (rules table)" >&2
+    exit 1
+  fi
+  if [ -z "$raw_fallback" ] || [ "$raw_fallback" = "null" ]; then
+    echo "Fallback no configurado para $agent @ $provider (rules table)" >&2
+    exit 1
+  fi
+  preferred_model="$(format_model_reference "$raw_model")"
+  fallback_model="$(format_model_reference "$raw_fallback")"
   mode="$(jq -r ".agents[\"$agent\"].mode" "$TEMPLATES/agent-models.json")"
   purpose="$(jq -r ".agents[\"$agent\"].purpose" "$TEMPLATES/agent-models.json")"
-  echo "| $agent | opencode-zen/$model | opencode-zen/$fallback | $mode | $purpose |" >> "$tmp_rules"
+  echo "| $agent | $preferred_model | $fallback_model | $mode | $purpose |" >> "$tmp_rules"
 done
 
 cat <<'EOF' >> "$tmp_rules"
