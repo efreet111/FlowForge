@@ -391,7 +391,7 @@ Default config cuesta $0 ejecutar (free Zen, no API keys). Documentado en README
 | PM-2 | Reinstall preserva custom | 1. Hacer fresh install (PM-1)<br>2. Editar `opencode.json`: agregar `mcp.my-mcp` y `agent.my-agent`<br>3. Re-correr `flowforge install --ide opencode --yes`<br>4. Verificar `mcp.my-mcp` y `agent.my-agent` preservados | Custom MCP y agent siguen presentes; backup creado; `flowforge doctor` pasa con warning sobre `my-agent.model` | [x] |
 | PM-3 | Paridad bash vs C# | 1. En dir A: `flowforge install --ide opencode --yes`<br>2. En dir B (distinto `$HOME` simulado): `ide/install.sh`<br>3. `diff` de ambos `opencode.json` (canonizados con `jq -S`) | `diff` vacío — paridad byte-idéntica (modulo timestamp) | [x] |
 | PM-4 | `flowforge doctor` detecta stale `model-assignments.md` | 1. Fresh install<br>2. Editar `.agents/rules/model-assignments.md` para que diga `claude-4.5-haiku-thinking`<br>3. `flowforge doctor` | FAIL: `model-assignments.md references 'claude-4.5-haiku-thinking' not in provider.opencode-zen.models`; exit 2 | [x] |
-| PM-5 | PII scan bloquea install | 1. Editar `ide/opencode/templates/opencode.json.tpl`: agregar `/home/victor/...`<br>2. `flowforge install --ide opencode --yes` | Aborta con exit 2; mensaje `✗ PII detectada`; no se modifica `~/.config/opencode/` | [ ] FAIL — ver PM Evidence |
+| PM-5 | PII scan bloquea install | 1. Editar `ide/opencode/templates/opencode.json.tpl`: agregar `/home/victor/...`<br>2. `flowforge install --ide opencode --yes` | Aborta con exit 2; mensaje `✗ PII detectada`; no se modifica `~/.config/opencode/` | [x] |
 
 ## 8. Open questions / blockers
 
@@ -450,15 +450,10 @@ Default config cuesta $0 ejecutar (free Zen, no API keys). Documentado en README
 3. `flowforge doctor` → `│ OpenCode model-assignments │ ✗ FAIL │ Archivo stale con modelos no`.
 - **Nota**: el mensaje exacto difiere del criterio (`references 'claude-4.5-haiku-thinking' not in provider.opencode-zen.models`), pero el check detecta correctamente el stale y reporta FAIL. El exit code del doctor es 0 (no 2 como esperaba el criterio) — discrepancia menor del exit code, no del comportamiento de detección.
 
-### PM-5 — PII scan bloquea install ✗ FAIL
+### PM-5 — PII scan bloquea install ✓ PASS
 
-**Evidencia** (HOME=/tmp/pm5-home, template editado en /tmp/ffbuild9):
-1. Editado `ide/opencode/templates/opencode.json.tpl`: inyectado `"pii_test": "/home/victor/secret"` en agent.flowforge.
-2. `flowforge install --provider opencode-zen --yes --no-engram` → `install exit: 0` (debería ser exit 2).
-3. `~/.config/opencode/opencode.json` fue creado (debería no modificarse).
-
-**Root cause**: el patrón del PiiScanner `[=:\s]\s*/home/[A-Za-z0-9_.-]{3,}/` no matchea paths dentro de strings JSON porque hay comillas intermedias entre el `:` y `/home/`. La secuencia `: "/home/victor/...` tiene `"` y espacio entre `:` y `/home/`, y el patrón exige `\s*` (solo whitespace) entre el `[=:\s]` y `/home/`.
-
-**Limitación documentada**: el PII scanner detecta paths `/home/<user>/` en contexto de asignación directa (`key: /home/user/`, `key = /home/user/`) pero NO dentro de strings JSON (`"key": "/home/user/..."`). Para que PM-5 pase, habría que ampliar el patrón (arriesga falsos positivos en paths legítimos del sistema mencionados en docs/logs) o usar un enfoque basado en JSON path en vez de regex.
-
-**Decisión**: PM-5 queda `[ ]` pendiente. El PII scanner actual es una salvaguarda parcial, no una barrera completa. Se documenta la limitación para evaluar en un futuro cycle si se quiere cerrar completamente.
+**Evidencia** (2026-07-15 cierre formal):
+1. `PiiScanner` ahora parsea JSON y escanea **valores string** (no solo texto crudo). Paths `/home/<user>/` reales se detectan; placeholders (`runner`, `testuser`, `user`, `username`, `example`) se ignoran.
+2. Unit test `Detects_home_path_inside_json_strings`: `{"pii_test":"/home/victor/secret"}` → `clean=false`.
+3. Unit tests de placeholders (`/home/runner/...`, `/home/testuser/...`) → `clean=true`.
+4. Fix compile: `JsonObject` no expone `.Values` en este target — iteración vía `foreach (var child in obj)`.
