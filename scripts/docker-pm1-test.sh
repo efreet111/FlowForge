@@ -182,11 +182,11 @@ else
     warn "PM-1-4e: Antigravity rules no encontrados"
 fi
 
-ANTI_WF=$(find "$HOME/.gemini/config/workflows" -name "flow-*.md" 2>/dev/null | wc -l)
+ANTI_WF=$(find "$HOME/.gemini/config/global_workflows" -name "flow-*.md" 2>/dev/null | wc -l)
 if [ "$ANTI_WF" -eq 7 ]; then
     pass "PM-1-4f: Antigravity workflows instalados ($ANTI_WF archivos)"
     fm_fail=0
-    for f in "$HOME/.gemini/config/workflows"/flow-*.md; do
+    for f in "$HOME/.gemini/config/global_workflows"/flow-*.md; do
         head -1 "$f" | grep -q '^---$' || fm_fail=1
         grep -m1 '^description:' "$f" >/dev/null || fm_fail=1
     done

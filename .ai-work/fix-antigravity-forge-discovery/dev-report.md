@@ -1,33 +1,31 @@
 # Dev Report — fix-antigravity-forge-discovery
 
 **Date:** 2026-07-15  
-**Phase:** forge-dev (CKP-2 cleared)
+**Phase:** forge-dev rework P0 (global_workflows path)
 
 ## Verdict
 
-**IMPLEMENTATION COMPLETE** — Fases 1–4 del plan implementadas. Fase 5 (PM-1..PM-5) pendiente de verificación manual humana.
+**REWORK RESOLVED** — Destino global de workflows migrado a `~/.gemini/config/global_workflows/` (Antigravity 2.1+). Migración legacy desde `config/workflows/` en C#, `install.sh` y `install.ps1`.
 
 ---
 
-## Implemented
+## Rework fix (P0)
 
-### Fase 1 — Pack fuente
-- 7 workflows en `ide/antigravity/workflows/` con frontmatter `description:` (sync desde `.agents/workflows/`)
-- `ide/antigravity/rules/workflow.md` con `alwaysApply: true`
-- `scripts/validate-antigravity-pack.sh` — PASS local
+### Root cause
+Antigravity IDE 2.1 lee workflows globales desde `config/global_workflows/`, no `config/workflows/`. Instalador escribía en ruta obsoleta → picker `/` vacío.
 
-### Fase 2 — install.ps1
-- Destino `%USERPROFILE%\.gemini\config\` (ya no escribe en `%LOCALAPPDATA%\...\antigravity\`)
-- `Install-AntigravitySkills`, `Remove-LegacyAntigravityPack`, `Install-AntigravityGlobal`
-- Proyecto: `.agents/skills/` + paridad `InstallAntigravityProject`
+### Implemented
+- `PathHelper.AntigravityWorkflows` → `{AntigravityConfigDir}/global_workflows`
+- `PathHelper.AntigravityLegacyWorkflowsDir` → `{AntigravityConfigDir}/workflows` (solo migración/doctor)
+- `MigrateLegacyWorkflowsDir()` en C# + equivalente bash/PowerShell
+- Doctor: nuevo check `Antigravity: legacy workflows dir`
+- CI (`test-installer.yml`), `docker-pm1-test.sh`: asserts en `global_workflows`
+- Docs: ADR-009, `ide/antigravity/AGENTS.md`, QUICKSTART*, `ide/README.md`
+- `rework_ticket.md` → `status: resolved`
 
-### Fase 3 — Doctor + CI
-- `AntigravityPackValidator.cs` + tests `AntigravityPackValidatorTests.cs`
-- `DoctorCommand`: checks Antigravity + flag `--strict` (OQ-3)
-- CI: validate pack en smoke; asserts FM + forge-discovery Linux/Windows; `docker-pm1-test.sh` extendido
-
-### Fase 4 — Docs
-- `ide/antigravity/AGENTS.md`, `.agents/AGENTS.md`, `ide/README.md`, `README.md`, ADR-008, QUICKSTART*
+### Path property final value
+`Path.Combine(AntigravityConfigDir, "global_workflows")`  
+→ `~/.gemini/config/global_workflows/` (Linux) / `%USERPROFILE%\.gemini\config\global_workflows\` (Windows)
 
 ---
 
@@ -36,40 +34,32 @@
 | Test | Result |
 |------|--------|
 | `scripts/validate-antigravity-pack.sh` | **PASS** |
-| `dotnet test AntigravityPackValidatorTests` | **NOT RUN** — `src/FlowForge.Installer/obj/` root-owned (perm denied) |
-| PM-1..PM-5 | **PENDING HUMAN** |
+| `dotnet test --filter AntigravityPackValidator` | **PASS** (7/7) |
+| `dotnet test --filter PathHelperTests` | **PASS** (incl. FR_016) |
+| PM-1..PM-5 | **PENDING HUMAN** (reload Antigravity + picker) |
 
 ---
 
-## Files changed (summary)
+## Files changed (rework)
 
-- `ide/antigravity/workflows/flow-{start,plan,dev,verify,close,rework}.md`
-- `ide/antigravity/rules/workflow.md`
-- `ide/antigravity/AGENTS.md`, `.agents/AGENTS.md`
-- `ide/install.ps1`
-- `scripts/validate-antigravity-pack.sh` (new)
-- `scripts/docker-pm1-test.sh`
-- `src/FlowForge.Installer/Infrastructure/AntigravityPackValidator.cs` (new)
+- `src/FlowForge.Installer/Infrastructure/PathHelper.cs`
+- `src/FlowForge.Installer/Infrastructure/AntigravityPackValidator.cs`
+- `src/FlowForge.Installer/Modules/FlowForgeModule.cs`
 - `src/FlowForge.Installer/Commands/DoctorCommand.cs`
-- `tests/FlowForge.Installer.Tests/AntigravityPackValidatorTests.cs` (new)
+- `ide/install.sh`, `ide/install.ps1`
+- `tests/FlowForge.Installer.Tests/PathHelperTests.cs`
+- `tests/FlowForge.Installer.Tests/AntigravityPackValidatorTests.cs`
 - `.github/workflows/test-installer.yml`
-- `ide/README.md`, `README.md`, `QUICKSTART.md`, `QUICKSTART.es.md`
-- `docs/decisions/ADR-008-ide-installer-path-matrix.md`
-- `docs/16-ide-integration-plan.md`, `docs/architecture/adr/ADR-001-installer-technology-stack.md`
+- `scripts/docker-pm1-test.sh`
+- `docs/decisions/ADR-009-opencode-antigravity-customizations.md`
+- `ide/antigravity/AGENTS.md`, `ide/README.md`, `QUICKSTART.md`, `QUICKSTART.es.md`
 - `.ai-work/fix-antigravity-forge-discovery/plan.md`
-
----
-
-## Remaining gaps (human)
-
-- **PM-1..PM-5** en `spec.md` — reload Antigravity + picker `/flow-*` + doctor en máquina real
-- **2.7, 2.8** — idempotencia `install.ps1` en Windows
-- Fix local: `sudo chown -R $USER src/FlowForge.Installer/obj bin` para correr `dotnet test`
+- `.ai-work/fix-antigravity-forge-discovery/rework_ticket.md`
 
 ---
 
 ## Memory Signal
 
-- type: pattern
+- type: bugfix
 - significance: high
-- summary: "Antigravity pack FM sync .agents→ide/antigravity; install.ps1 migrado a config/ con Install-AntigravitySkills; doctor --strict + CI validate-antigravity-pack.sh"
+- summary: "Antigravity 2.1 reads global workflows from config/global_workflows not config/workflows; installer path fix + legacy migration on install"

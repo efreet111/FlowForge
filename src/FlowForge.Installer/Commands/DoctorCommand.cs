@@ -269,6 +269,19 @@ public sealed class DoctorCommand(InstallerContext ctx)
             results.Add(new DoctorCheck("Antigravity: legacy pack", true, IsAntigravity: true));
         }
 
+        if (AntigravityPackValidator.LegacyWorkflowsDirDetected())
+        {
+            results.Add(new DoctorCheck(
+                "Antigravity: legacy workflows dir",
+                false,
+                "config/workflows/ obsoleto detectado. Antigravity 2.1 usa config/global_workflows/. Re-ejecutá install.",
+                IsAntigravity: true));
+        }
+        else
+        {
+            results.Add(new DoctorCheck("Antigravity: legacy workflows dir", true, IsAntigravity: true));
+        }
+
         if (IsFlowForgeProject(projectRoot))
         {
             var projectSkills = Path.Combine(projectRoot, ".agents", "skills");
