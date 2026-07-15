@@ -1,3 +1,7 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
 namespace FlowForge.Installer.Modules.OpenCode;
@@ -15,23 +19,49 @@ public sealed class PiiScanner
         new(@"MINIMAX_API_KEY\s*[:=]\s*[""'']?[A-Za-z0-9\-_]{20,}", RegexOptions.Compiled),
     };
 
+    static readonly Regex HomePathRegex = new(@"/home/(?<user>[A-Za-z0-9_.-]{3,})/", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+    static readonly HashSet<string> PlaceholderUsernames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "runner",
+        "testuser",
+        "user",
+        "username",
+        "example",
+    };
+
     public (bool Clean, List<PiiHit> Hits) Scan(string input)
     {
         var hits = new List<PiiHit>();
         if (string.IsNullOrEmpty(input))
             return (true, hits);
 
-        foreach (var pattern in Patterns)
+        try
         {
-            foreach (Match match in pattern.Matches(input))
-            {
-                if (!match.Success)
-                    continue;
-
-                hits.Add(new PiiHit(pattern.ToString(), match.Value, match.Index));
-            }
+            return ScanJsonValues(input);
         }
+        catch (JsonException)
+        {
+            foreach (var pattern in Patterns)
+            {
+                foreach (Match match in pattern.Matches(input))
+                {
+                    if (!match.Success)
+                        continue;
 
+                    hits.Add(new PiiHit(pattern.ToString(), match.Value, match.Index));
+                }
+            }
+
+            return (hits.Count == 0, hits);
+        }
+    }
+
+    public (bool Clean, List<PiiHit> Hits) ScanJsonValues(string jsonText)
+    {
+        var hits = new List<PiiHit>();
+        var node = JsonNode.Parse(jsonText);
+        ScanJsonNode(node, hits);
         return (hits.Count == 0, hits);
     }
 
@@ -54,6 +84,56 @@ public sealed class PiiScanner
             return;
 
         throw new PiiDetectedException(context, hits);
+    }
+
+    static void ScanJsonNode(JsonNode? node, List<PiiHit> hits)
+    {
+        if (node is null)
+            return;
+
+        switch (node)
+        {
+            case JsonValue value when value.TryGetValue(out string? str) && !string.IsNullOrEmpty(str):
+                ScanJsonStringValue(str, hits);
+                break;
+            case JsonObject obj:
+                foreach (var child in obj)
+                    ScanJsonNode(child.Value, hits);
+                break;
+            case JsonArray array:
+                foreach (var child in array)
+                    ScanJsonNode(child, hits);
+                break;
+        }
+    }
+
+    static void ScanJsonStringValue(string value, List<PiiHit> hits)
+    {
+        if (string.IsNullOrEmpty(value))
+            return;
+
+        foreach (var pattern in Patterns)
+        {
+            foreach (Match match in pattern.Matches(value))
+            {
+                if (!match.Success)
+                    continue;
+
+                hits.Add(new PiiHit(pattern.ToString(), match.Value, match.Index));
+            }
+        }
+
+        foreach (Match match in HomePathRegex.Matches(value))
+        {
+            if (!match.Success)
+                continue;
+
+            var user = match.Groups["user"].Value;
+            if (string.IsNullOrEmpty(user) || PlaceholderUsernames.Contains(user))
+                continue;
+
+            hits.Add(new PiiHit("JSON string home path", match.Value, match.Index));
+        }
     }
 }
 
