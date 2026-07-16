@@ -21,7 +21,7 @@ Paridad compartida (todos los IDEs): `ide/shared/workflow-orchestrator-parity.md
 | forge-verify | 3b | verify-report.md o rework_ticket |
 | forge-memory | 4 | Cierre; bloquea si PM-* pendientes |
 
-Skills en `.agents/skills/forge-*/SKILL.md` (symlinks o copia desde `skills/forge-*` del repo FlowForge). **No** uses `skills.json` — no es mecanismo soportado (ADR-009).
+Skills en `.agents/skills/forge-*/SKILL.md` (symlinks o copia desde `skills/forge-*` del repo FlowForge). **No** uses `skills.json` — no es mecanismo soportado (ADR-011).
 
 ## Artefactos
 
@@ -53,9 +53,9 @@ Los workflows **requieren frontmatter YAML** con `description:` en **una sola l�
 
 ### Instalación global (`flowforge install`, `ide/install.sh` o `ide/install.ps1`)
 
-- **Linux:** `~/.gemini/config/` — `AGENTS.md`, `rules/`, `workflows/`, `skills/forge-*/`
+- **Linux:** `~/.gemini/config/` — `AGENTS.md`, `rules/`, `global_workflows/`, `skills/forge-*/`
 - **Windows:** `%USERPROFILE%\.gemini\config\` — mismo inventario
-- Espejo: `config/.agents/{rules,workflows,skills}/`
+- Espejo workspace: `config/.agents/{rules,workflows,skills}/`
 - Always-on: `~/.gemini/GEMINI.md` (copia de `rules/workflow.md`)
 - MCP Engram: `config/mcp_config.json` — escrito por `flowforge install` (C#), no por scripts shell v1
 
@@ -71,11 +71,11 @@ Los workflows **requieren frontmatter YAML** con `description:` en **una sola l�
 
 ## Post-install
 
-1. **Reiniciá Antigravity** (reload IDE) tras `flowforge install` o reinstalar — los `/flow-*` no aparecen hasta que el IDE reescanea `config/workflows/`.
+1. **Reiniciá Antigravity** (reload IDE) tras `flowforge install` o reinstalar — los `/flow-*` no aparecen hasta que el IDE reescanea `config/global_workflows/`.
 2. Si `/` no lista comandos `flow-*`: reload primero; luego `flowforge doctor` o `scripts/validate-antigravity-pack.sh` en el repo.
 3. Para MCP/Engram completo usá `flowforge install` (no solo `ide/install.ps1`).
 
-Ver [`docs/decisions/ADR-009-opencode-antigravity-customizations.md`](../../docs/decisions/ADR-009-opencode-antigravity-customizations.md) y [`ADR-008`](../../docs/decisions/ADR-008-ide-installer-path-matrix.md).
+Ver [`docs/decisions/ADR-011-opencode-antigravity-customizations.md`](../../docs/decisions/ADR-011-opencode-antigravity-customizations.md) y [`ADR-008`](../../docs/decisions/ADR-008-ide-installer-path-matrix.md).
 
 ## Documentación
 

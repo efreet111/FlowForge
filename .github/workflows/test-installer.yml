@@ -103,7 +103,7 @@ jobs:
           mkdir -p ~/.cursor ~/.vscode/extensions/github.copilot-1.0.0 \
             ~/.vscode/extensions/kilocode.kilo-code-1.0.0 \
             ~/.config/opencode ~/.copilot/agents ~/.copilot/instructions \
-            ~/.config/kilo/agents ~/.gemini/config/rules ~/.gemini/config/workflows ~/.gemini \
+            ~/.config/kilo/agents ~/.gemini/config/rules ~/.gemini/config/global_workflows ~/.gemini \
             ~/.local/bin
 
       - name: Instalar flowforge binary
@@ -173,10 +173,10 @@ jobs:
           RULES_COUNT=$(find ~/.gemini/config/rules -name "*.md" 2>/dev/null | wc -l)
           echo "Antigravity rules: $RULES_COUNT"
           test "$RULES_COUNT" -gt 0 || (echo "FAIL: no Antigravity rules"; exit 1)
-          WF_COUNT=$(find ~/.gemini/config/workflows -name "flow-*.md" 2>/dev/null | wc -l)
+          WF_COUNT=$(find ~/.gemini/config/global_workflows -name "flow-*.md" 2>/dev/null | wc -l)
           echo "Antigravity workflows: $WF_COUNT"
           test "$WF_COUNT" -eq 7 || (echo "FAIL: expected 7 Antigravity workflows, got $WF_COUNT"; exit 1)
-          for f in ~/.gemini/config/workflows/flow-*.md; do
+          for f in ~/.gemini/config/global_workflows/flow-*.md; do
             head -1 "$f" | grep -q '^---$' || (echo "FAIL: $(basename "$f") missing frontmatter"; exit 1)
             grep -m1 '^description:' "$f" >/dev/null || (echo "FAIL: $(basename "$f") missing description:"; exit 1)
           done
@@ -307,10 +307,10 @@ jobs:
         run: |
           $config = "$env:USERPROFILE\.gemini\config"
           if (-not (Test-Path "$config\AGENTS.md")) { Write-Error "FAIL: Antigravity AGENTS.md missing"; exit 1 }
-          $wfCount = (Get-ChildItem -Path "$config\workflows" -Filter "flow-*.md" -ErrorAction SilentlyContinue).Count
+          $wfCount = (Get-ChildItem -Path "$config\global_workflows" -Filter "flow-*.md" -ErrorAction SilentlyContinue).Count
           Write-Output "Antigravity workflows: $wfCount"
           if ($wfCount -ne 7) { Write-Error "FAIL: expected 7 workflows, got $wfCount"; exit 1 }
-          foreach ($f in Get-ChildItem -Path "$config\workflows" -Filter "flow-*.md") {
+          foreach ($f in Get-ChildItem -Path "$config\global_workflows" -Filter "flow-*.md") {
             $head = Get-Content $f.FullName -TotalCount 1
             if ($head -ne "---") { Write-Error "FAIL: $($f.Name) missing frontmatter"; exit 1 }
             $content = Get-Content $f.FullName -Raw

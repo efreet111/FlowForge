@@ -2,61 +2,57 @@
 feature_slug: fix-antigravity-forge-discovery
 verdict: PASS
 cycle_count: 1
+rework_status: resolved
 verified_at: 2026-07-15
 verifier: forge-verify
 reaudit: true
+reaudit_scope: P0 global_workflows path rework
 ---
 
-# Verify Report — fix-antigravity-forge-discovery
+# Verify Report — fix-antigravity-forge-discovery (re-audit P0)
 
 ## Verdict: PASS
 
-Re-auditoría tras corrección de permisos `obj/` y ejecución exitosa de tests unitarios.
+Re-auditoría tras rework P0 (`config/workflows/` → `config/global_workflows/`). El fix resuelve la causa raíz del picker vacío en Antigravity 2.1+. Layer A cumple criterios automatizados; PM-* siguen pendientes para CKP-4.
 
 | Capa | Resultado |
 |------|-----------|
-| Spec compliance (estático) | ✅ |
-| Context map `Reusable Patterns Found` | ✅ |
-| Cobertura GWT (tests declarados) | ✅ (4 tests en `AntigravityPackValidatorTests.cs`) |
-| `validate-antigravity-pack.sh` | ✅ PASS (re-ejecutado en re-verify) |
-| `dotnet test` AntigravityPackValidator | ✅ **4/4 PASS** (orquestador + verify agent) |
-| PM-1..PM-5 (humano) | ⏳ Pendiente — no evaluado en verify (gate CKP-4) |
-
-**Nota:** El veredicto anterior `PASS_DEGRADADO` se debía únicamente a tests no ejecutables por permisos. Con suite verde, Layer A cumple criterio **PASS**. PM-* permanecen obligatorios para `/flow-close`, no para este veredicto.
+| Rework P0 — destino `global_workflows` | ✅ |
+| Migración legacy `config/workflows/` | ✅ |
+| Doctor — alerta legacy workflows dir | ✅ |
+| CI + docker — asserts `global_workflows` | ✅ |
+| Docs ADR-009 / AGENTS / QUICKSTART | ✅ |
+| Proyecto `.agents/workflows/` sin cambio | ✅ |
+| Pack fuente frontmatter (7/7) | ✅ |
+| `validate-antigravity-pack.sh` | ✅ PASS |
+| `dotnet test` (AntigravityPackValidator + PathHelperTests) | ✅ **7/7 PASS** |
+| PM-1..PM-5 (humano) | ⏳ Pendiente — no evaluado en verify |
 
 ---
 
 ## Resumen ejecutivo
 
-La implementación cumple FR-001–FR-015 en revisión estática, validación del pack fuente y tests unitarios ejecutados. Los siete workflows Antigravity tienen frontmatter `description:` alineado con `.agents/workflows/`; `install.ps1` migra a `%USERPROFILE%\.gemini\config\` con skills y cleanup legacy; doctor + CI + script de validación cubren frontmatter y `forge-discovery`. No se emitió REWORK.
+El rework P0 migra correctamente el destino global de workflows a `~/.gemini/config/global_workflows/` en los tres canales (C#, `install.sh`, `install.ps1`), con migración best-effort desde `config/workflows/` legacy y check de doctor dedicado. CI Linux/Windows y `docker-pm1-test.sh` assertan la ruta nueva. ADR-009 y documentación operativa actualizados. El pack fuente mantiene frontmatter válido; tests unitarios verdes (incl. `FR_016`). No se emitió REWORK.
 
 ---
 
-## Evidencia de re-auditoría (2026-07-15)
+## Criterios de aceptación rework P0
 
-### Tests unitarios — PASS
+| # | Criterio | Estado | Evidencia |
+|---|----------|--------|-----------|
+| 1 | `PathHelper.AntigravityWorkflows` → `global_workflows` | ✅ | `PathHelper.cs` L64–65; test `FR_016_AntigravityWorkflowsUsesGlobalWorkflowsPath` |
+| 2 | C#, `install.sh`, `install.ps1` instalan en `global_workflows` | ✅ | `FlowForgeModule.InstallAntigravity` L307; `install.sh` L154–160; `install.ps1` L165–182 |
+| 3 | Migración legacy `config/workflows/` | ✅ | `MigrateLegacyWorkflowsDir()` C# L322–339; `migrate_legacy_antigravity_workflows()` bash L138–149; `Migrate-LegacyAntigravityWorkflows` PS1 L144–155 |
+| 4 | Doctor advierte legacy `config/workflows/` | ✅ | `DoctorCommand` L272–283; `LegacyWorkflowsDirDetected()`; test `FR_016_LegacyWorkflowsDirDetectedWhenObsoletePathHasFlowFiles` |
+| 5 | CI/docker assert `global_workflows` | ✅ | `test-installer.yml` L106, L176–179, L310–313; `docker-pm1-test.sh` L185–189 |
+| 6 | Docs/ADR-009 actualizados | ✅ | ADR-009 L81–87; `ide/antigravity/AGENTS.md`; `QUICKSTART*.md`; `ide/README.md` |
+| 7 | Proyecto `.agents/workflows/` sin cambio | ✅ | C# espejo L309; bash L162, L181; PS1 L184 — destino proyecto sigue `.agents/workflows/` |
+| 8 | Frontmatter pack válido | ✅ | `validate-antigravity-pack.sh` PASS; test `FR_001_*` PASS |
+| 9 | Tests AntigravityPackValidator + PathHelperTests | ✅ | 7/7 PASS (5 + 2 tests) |
 
-**Comando (humano):**
-```bash
-cd "/home/victor/Documentos/Proyectos/Desarrollo Personal/FlowForge"
-DOTNET_ROOT=$HOME/.dotnet dotnet test tests/FlowForge.Installer.Tests --filter "FullyQualifiedName~AntigravityPackValidator"
-```
+---
 
-**Resultado humano:** total 4, errores 0, correcto 4, omitido 0, duración 0.7 s. Compilación OK (7 advertencias pre-existentes en OpenCodeConfigGenerator / ManagedPathsSidecar / EngramModule).
-
-**Re-ejecución verify agent:**
-```bash
-DOTNET_ROOT=$HOME/.dotnet PATH=$DOTNET_ROOT:$PATH dotnet test tests/FlowForge.Installer.Tests --filter "FullyQualifiedName~AntigravityPackValidator"
-```
-
-**Resultado:** `Superado: 4, Con error: 0, Omitido: 0, Total: 4, Duración: 10 ms`
-
-| Test | FR | Resultado |
-|------|-----|-----------|
-| `FR_001_GoldenPackWorkflowsHaveValidFrontmatter` | FR-001 | ✅ PASS |
-| `FR_003_WorkflowRuleHasAlwaysApply` | FR-003 | ✅ PASS |
-| `FR_010_WorkflowWithoutFrontmatterFailsValidation` | FR-010 | ✅ PASS |
-| `FR_011_HasForgeDiscoverySkillDetectsPresenceAndAbsence` | FR-011 | ✅ PASS |
+## Evidencia de ejecución (2026-07-15)
 
 ### Script pack — PASS
 
@@ -65,100 +61,110 @@ bash scripts/validate-antigravity-pack.sh
 # Antigravity pack validation passed (7 workflows + workflow rule)
 ```
 
-### Spot-check estático (re-verify)
+### Tests unitarios — PASS
+
+```bash
+DOTNET_ROOT=$HOME/.dotnet PATH=$DOTNET_ROOT:$PATH \
+  dotnet test tests/FlowForge.Installer.Tests \
+  --filter "FullyQualifiedName~AntigravityPackValidator|FullyQualifiedName~PathHelperTests"
+```
+
+**Resultado:** `Superado: 7, Con error: 0, Omitido: 0, Total: 7, Duración: 8 ms`
+
+| Test | FR / scope | Resultado |
+|------|------------|-----------|
+| `FR_001_GoldenPackWorkflowsHaveValidFrontmatter` | FR-001 | ✅ |
+| `FR_003_WorkflowRuleHasAlwaysApply` | FR-003 | ✅ |
+| `FR_010_WorkflowWithoutFrontmatterFailsValidation` | FR-010 | ✅ |
+| `FR_011_HasForgeDiscoverySkillDetectsPresenceAndAbsence` | FR-011 | ✅ |
+| `FR_016_LegacyWorkflowsDirDetectedWhenObsoletePathHasFlowFiles` | Rework P0 | ✅ |
+| `FR_007_OwnershipTargetsIncludeCriticalPaths` | NFR | ✅ |
+| `FR_016_AntigravityWorkflowsUsesGlobalWorkflowsPath` | Rework P0 | ✅ |
+
+### Spot-check estático
 
 | Check | Resultado |
 |-------|-----------|
-| 7/7 `ide/antigravity/workflows/flow-*.md` con `---` + `description:` | ✅ |
-| `ide/antigravity/rules/workflow.md` con `alwaysApply: true` | ✅ |
+| `grep config/workflows` en instaladores — solo rutas legacy/migración | ✅ |
+| `grep global_workflows` en C#/sh/ps1/CI/docker | ✅ coherente |
 | `diff -q .agents/workflows/ ide/antigravity/workflows/` | ✅ idénticos (7 pares) |
-| `install.ps1`: `Install-AntigravitySkills`, `%USERPROFILE%\.gemini\config\`, `Remove-LegacyAntigravityPack` | ✅ |
-| `AntigravityPackValidator.cs` + tests presentes | ✅ |
-| `ide/antigravity/AGENTS.md` documenta `config/` (legacy rechazado) | ✅ |
+| `rework_ticket.md` → `status: resolved` | ✅ |
+| Sin debug prints en archivos modificados | ✅ |
 
 ---
 
-## Auditoría por FR (Layer A)
+## Auditoría por FR (Layer A — acumulado + rework)
 
-### Pack fuente (FR-001, FR-002, FR-003)
+### Pack fuente (FR-001–FR-003)
 
-| FR | Estado | Evidencia |
-|----|--------|-----------|
-| FR-001 | ✅ | 7/7 workflows con frontmatter válido; test `FR_001_*` PASS |
-| FR-002 | ✅ | `diff -q` idéntico entre `.agents/workflows/` e `ide/antigravity/workflows/` |
-| FR-003 | ✅ | `workflow.md` con `alwaysApply: true`; test `FR_003_*` PASS |
+| FR | Estado | Notas |
+|----|--------|-------|
+| FR-001 | ✅ | 7/7 frontmatter; validador + tests |
+| FR-002 | ✅ | Paridad `.agents/` ↔ `ide/antigravity/` |
+| FR-003 | ✅ | `alwaysApply: true` en regla orquestador |
 
 ### Instalación skills (FR-004–FR-007)
 
-| FR | Estado | Evidencia |
-|----|--------|-----------|
-| FR-004 | ✅ | `install.sh` sin cambios lógicos; pack fuente corregido |
-| FR-005 | ✅ | `Install-AntigravitySkills` en `ide/install.ps1` |
-| FR-006 | ✅ | `Install-ProjectBundle` pobla `.agents\skills\` |
-| FR-007 | ✅ | PS1 no crea `skills.json`; elimina legacy si existe |
+| FR | Estado | Notas |
+|----|--------|-------|
+| FR-004 | ✅ | `install.sh` + C# skills symlink/copy |
+| FR-005 | ✅ | `Install-AntigravitySkills` en PS1 |
+| FR-006 | ✅ | Proyecto `.agents/skills/` |
+| FR-007 | ✅ | Sin `skills.json` escrito por instalador |
 
 ### Migración install.ps1 (FR-008, FR-009)
 
-| FR | Estado | Evidencia |
-|----|--------|-----------|
-| FR-008 | ✅ | Destino `$env:USERPROFILE\.gemini\config`; cleanup legacy |
-| FR-009 | ✅ | AGENTS, rules, workflows, skills; MCP documentado como solo C# |
+| FR | Estado | Notas |
+|----|--------|-------|
+| FR-008 | ✅ | Destino `%USERPROFILE%\.gemini\config\`; **global** workflows en `global_workflows/` (supersede escenarios spec que citan `config/workflows/`) |
+| FR-009 | ✅ | Paridad artefactos; MCP solo C# documentado |
 
 ### Validación doctor / CI (FR-010–FR-012)
 
-| FR | Estado | Evidencia |
-|----|--------|-----------|
-| FR-010 | ✅ | Script CI + `AntigravityPackValidator`; tests negativos PASS |
-| FR-011 | ⚠️ parcial | CI Linux + Windows post-`flowforge install`; **CI no ejecuta `install.ps1`** (PM-2 humano) |
-| FR-012 | ✅ | `DoctorCommand.CheckAntigravity`; `--strict` → exit 2 |
+| FR | Estado | Notas |
+|----|--------|-------|
+| FR-010 | ✅ | Script CI + validator + tests negativos |
+| FR-011 | ⚠️ parcial | CI valida `global_workflows` post-`flowforge install`; CI Windows no ejecuta `install.ps1` (PM-2) |
+| FR-012 | ✅ | Doctor global FM en `global_workflows`; legacy dir check; `--strict` |
 
 ### Documentación (FR-013, FR-014)
 
-| FR | Estado | Evidencia |
-|----|--------|-----------|
-| FR-013 | ✅ | `ide/antigravity/AGENTS.md`, README, ADR-008/009 |
-| FR-014 | ✅ | Sección Post-install en AGENTS; troubleshooting QUICKSTART* |
+| FR | Estado | Notas |
+|----|--------|-------|
+| FR-013 | ✅ | ADR-009, AGENTS, README, QUICKSTART |
+| FR-014 | ✅ | Post-install reload documentado |
 
 ### Paridad multi-canal (FR-015)
 
-| FR | Estado | Evidencia |
-|----|--------|-----------|
-| FR-015 | ⚠️ parcial | Linux: C# + bash + pack + tests; Windows PS1 implementado pero sin CI dedicado ni PM-2 |
-
-### NFR
-
-| NFR | Estado | Notas |
-|-----|--------|-------|
-| NFR-001 | ⚠️ | PM Win/Linux pendientes (humano) |
-| NFR-002 | ✅ | Sin rutas alternativas ni `skills.json` registry |
-| NFR-003 | ⏳ | Idempotencia PS1 — PM-5 pendiente |
-| NFR-004 | ✅ | Fallback copy si repo en temp en PS1 |
-| NFR-005 | ✅ | Cambios acotados a Antigravity + doctor/CI |
-| NFR-006 | ✅ | Mensajes accionables en validator y doctor |
+| FR | Estado | Notas |
+|----|--------|-------|
+| FR-015 | ⚠️ parcial | Linux automatizado; Windows PS1 implementado — PM-2 humano |
 
 ---
 
-## Step Zero — Inspección línea por línea
+## Step Zero — Inspección línea por línea (rework)
 
-- Sin `print`/`console.log` de debug en archivos nuevos/modificados.
-- `AntigravityPackValidator.WorkflowHasValidFrontmatter`: lógica coherente.
-- `DoctorCommand`: separación core vs Antigravity; OQ-3 respetado.
-- `install.ps1`: destino principal `%USERPROFILE%\.gemini\config\`.
+- `MigrateLegacyWorkflowsDir`: copia condicional por mtime; no borra legacy (doctor alerta residuos) — comportamiento aceptable.
+- Migración bash/PS1: misma semántica que C# (copia si destino ausente o legacy más nuevo).
+- `LegacyWorkflowsDirDetected`: detecta `flow-*.md` en dir obsoleto — coherente con doctor.
+- Espejo `config/.agents/workflows/` conservado para workspace mixto — sin regresión.
 
 ---
 
 ## Herramientas Engram
 
-- `mem_verify_artifact`: no disponible (error MCP en sesión original).
-- `mem_traceability`: no disponible (error MCP en re-audit). Trazabilidad documentada manualmente en este reporte.
+- `mem_verify_artifact`: no disponible (error MCP en sesión).
+- `mem_traceability`: no disponible (error MCP en sesión).
+- Trazabilidad documentada manualmente en este reporte.
 
 ---
 
-## Gaps residuales (no bloquean Layer A / PASS)
+## Gaps residuales (no bloquean PASS)
 
-1. **CI Windows** valida `flowforge install`, no `ide/install.ps1` — aceptable v1; cubrir con PM-2.
-2. **`GLOSSARY.md` / `CONTRIBUTING.md`** pueden citar rutas legacy — follow-up opcional fuera del barrido plan.
-3. **PM-1..PM-5** sin marcar en `spec.md` — requerido para CKP-4, no para veredicto verify.
+1. **`spec.md` drift:** FR-008/FR-011/FR-013 y PM-5 aún citan `config/workflows/` como destino global; implementación y ADR-009 usan `global_workflows/`. Recomendado sync spec en follow-up doc, no rework de código.
+2. **CI Windows** no ejecuta `ide/install.ps1` — cubrir con PM-2.
+3. **PM-1..PM-5** sin marcar — requerido para CKP-4, no para veredicto verify.
+4. **Legacy dir no se elimina** tras migración — doctor advierte; usuario puede limpiar manualmente.
 
 ---
 
@@ -172,21 +178,21 @@ El desarrollador debe ejecutar PM-* de `spec.md` antes de `/flow-close`:
 | PM-2 | [ ] Windows install.ps1 paridad config |
 | PM-3 | [ ] Proyecto `.agents/skills/forge-discovery` |
 | PM-4 | [ ] Doctor diagnóstico |
-| PM-5 | [ ] Reinstall no degrada frontmatter |
+| PM-5 | [ ] Reinstall no degrada frontmatter en `global_workflows/` |
 
 ---
 
 ## 🔍 Manual Verification Steps
 
-1. **PM-1 (Linux picker):** Tras `flowforge install`, reiniciar Antigravity → escribir `/` → verificar 7 comandos `flow-*`; `/flow-start` debe mencionar delegar a forge-discovery.
+1. **PM-1 (Linux picker — crítico post-rework):** Tras `flowforge install`, reiniciar Antigravity → escribir `/` → verificar 7 comandos `flow-*`. Confirmar archivos en `~/.gemini/config/global_workflows/` (no solo `config/workflows/`).
 
-2. **PM-2 (Windows):** Ejecutar `ide/install.ps1` → verificar `%USERPROFILE%\.gemini\config\workflows\` (7 archivos con FM) → no legacy en `%LOCALAPPDATA%\Google\Gemini\antigravity\`.
+2. **PM-2 (Windows):** Ejecutar `ide/install.ps1` → verificar `%USERPROFILE%\.gemini\config\global_workflows\` (7 archivos con FM) → no legacy en `%LOCALAPPDATA%\Google\Gemini\antigravity\`.
 
-3. **PM-3 (Proyecto):** `flowforge init .` → confirmar `.agents/skills/forge-discovery/SKILL.md`.
+3. **PM-3 (Proyecto):** `flowforge init .` → confirmar `.agents/skills/forge-discovery/SKILL.md` y `.agents/workflows/flow-*.md`.
 
-4. **PM-4 (Doctor):** `flowforge doctor` sin alertas Antigravity; opcional simular workflow roto y verificar mensaje accionable.
+4. **PM-4 (Doctor):** Con install correcto: `flowforge doctor` sin alertas Antigravity. Simular legacy: crear `~/.gemini/config/workflows/flow-test.md` → doctor debe reportar `Antigravity: legacy workflows dir`.
 
-5. **PM-5 (Idempotencia):** Re-ejecutar install → `head -5 ~/.gemini/config/workflows/flow-start.md` sigue con frontmatter.
+5. **PM-5 (Idempotencia):** Re-ejecutar install → `head -5 ~/.gemini/config/global_workflows/flow-start.md` sigue con frontmatter.
 
 6. **Marcar PM-* en spec.md** antes de invocar `/flow-close`.
 
@@ -194,7 +200,7 @@ El desarrollador debe ejecutar PM-* de `spec.md` antes de `/flow-close`:
 
 ## Decisión CKP-3
 
-`cycle_count: 1` — primer ciclo verify completado con PASS. Sin REWORK ticket.
+`cycle_count: 1` — rework P0 resuelto y verificado. Sin REWORK ticket abierto. Máximo 3 ciclos no alcanzado.
 
 ---
 
@@ -202,5 +208,6 @@ El desarrollador debe ejecutar PM-* de `spec.md` antes de `/flow-close`:
 
 | Fecha | Veredicto | Motivo |
 |-------|-----------|--------|
-| 2026-07-15 (inicial) | PASS_DEGRADADO | Tests bloqueados por permisos `obj/` root-owned |
-| 2026-07-15 (re-audit) | **PASS** | 4/4 tests verdes + estático OK |
+| 2026-07-15 (inicial) | PASS_DEGRADADO | Tests bloqueados por permisos `obj/` |
+| 2026-07-15 (re-audit v1) | PASS | 4/4 tests verdes + estático OK (pre-rework path) |
+| 2026-07-15 (re-audit P0) | **PASS** | Rework `global_workflows` verificado; 7/7 tests + validador OK |

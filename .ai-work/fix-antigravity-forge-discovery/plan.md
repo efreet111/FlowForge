@@ -88,7 +88,7 @@ flowchart TD
 - [MODIFY] `.github/workflows/test-installer.yml` — Job smoke o lint: ejecutar `scripts/validate-antigravity-pack.sh` **antes** de install (falla PR sin FM en fuente)
 - [MODIFY] `scripts/docker-pm1-test.sh` — Añadir checks: frontmatter en workflows instalados + `config/skills/forge-discovery/SKILL.md`
 - [MODIFY] `src/FlowForge.Installer/Commands/DoctorCommand.cs` — Nuevos checks Antigravity:
-  - `Antigravity: workflows frontmatter` (global `config/workflows/` + proyecto `.agents/workflows/` si `.flowforge.json`)
+  - `Antigravity: workflows frontmatter` (global `config/global_workflows/` + proyecto `.agents/workflows/` si `.flowforge.json`)
   - `Antigravity: skill forge-discovery` (global + proyecto)
   - Flag `--strict` en `RunAsync`: si falla check Antigravity → exit 2 (OQ-3)
 - [NEW] `src/FlowForge.Installer/Infrastructure/AntigravityPackValidator.cs` — Lógica compartida doctor + opcional pre-flight en `FlowForgeModule` (warn en install si destino post-copia carece FM)
@@ -266,6 +266,15 @@ forge-plan, forge-teacher, forge-verify
 - [ ] **5.3** Proyecto: `flowforge init .` en clone FlowForge → `.agents/skills/forge-discovery/SKILL.md` presente
   > Pending: PM-3 — humano
 - [ ] **5.4** Marcar PM-1..PM-5 en `spec.md` tras pruebas manuales (CKP-4)
+
+### Rework P0 — `global_workflows` path (2026-07-15) — **6 tareas**
+
+- [x] **R.1** `PathHelper.AntigravityWorkflows` → `config/global_workflows`; `AntigravityLegacyWorkflowsDir` para migración
+- [x] **R.2** `FlowForgeModule.MigrateLegacyWorkflowsDir()` — copia `config/workflows/flow-*.md` → `global_workflows/`
+- [x] **R.3** `ide/install.sh` + `ide/install.ps1` — destino global `global_workflows` + migración legacy
+- [x] **R.4** Doctor: check `Antigravity: legacy workflows dir`; CI/docker asserts en `global_workflows`
+- [x] **R.5** Docs: ADR-009, `ide/antigravity/AGENTS.md`, QUICKSTART*, `ide/README.md`
+- [x] **R.6** Tests: `PathHelperTests.FR_016`, `AntigravityPackValidatorTests.FR_016`
 
 ---
 
