@@ -87,4 +87,14 @@ public static class AntigravityPackValidator
         var legacyAgents = Path.Combine(PathHelper.AntigravityLegacyDir, "AGENTS.md");
         return File.Exists(legacyAgents);
     }
+
+    /// <summary>True when obsolete config/workflows/ still contains flow-*.md (Antigravity 2.0 path).</summary>
+    public static bool LegacyWorkflowsDirDetected(string? workflowsDir = null)
+    {
+        var legacyDir = workflowsDir ?? PathHelper.AntigravityLegacyWorkflowsDir;
+        if (!Directory.Exists(legacyDir))
+            return false;
+
+        return Directory.GetFiles(legacyDir, "flow-*.md").Length > 0;
+    }
 }

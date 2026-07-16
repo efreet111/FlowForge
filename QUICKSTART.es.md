@@ -62,7 +62,7 @@ FlowForge escribe los agentes en los directorios que cada IDE realmente lee. Des
 | IDE | Agentes globales | Agentes por proyecto | Notas |
 |-----|------------------|----------------------|-------|
 | **Cursor** | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` | MCP en `~/.cursor/mcp.json`. |
-| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/`, `.opencode/commands/` | Skills en `{repo}/skills/` (no copiados). Ver [ADR-009](docs/decisions/ADR-009-opencode-antigravity-customizations.md). |
+| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/`, `.opencode/commands/` | Skills en `{repo}/skills/` (no copiados). Ver [ADR-011](docs/decisions/ADR-011-opencode-antigravity-customizations.md). |
 
 > El instalador OpenCode ahora genera `opencode.json` completo con el provider `opencode-zen` (8 modelos gratis), registra el sidecar y se valida con `flowforge doctor`. El warning sobre entrenamiento aparece en consola y la política de placeholders está en `docs/PII-POLICY.md`.
 | **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detectado por `github.copilot*`. |
@@ -305,7 +305,7 @@ Los `/flow-*` son convenciones de texto en modo Agent. Autocomplete requiere `id
 | **`/flow-close` no aparece en autocomplete** | Corré `ide/install.ps1 -ProjectPath <repo>`; o escribí `/flow-close` como texto — no es comando nativo de Cursor |
 | **Usaste `/forge-memory` por error** | Usá `/flow-close` (comando) — `forge-memory` es el nombre del agente |
 | **Hay que cargar `@skills` a mano** | Usá agentes compilados (Cursor) o packs desde `ide/install` |
-| **`/flow-*` no aparecen en Antigravity** | Reiniciá Antigravity tras install; verificá `~/.gemini/config/workflows/` (7 archivos con frontmatter `description:`); `flowforge doctor` |
+| **`/flow-*` no aparecen en Antigravity** | Reiniciá Antigravity tras install; verificá `~/.gemini/config/global_workflows/` (7 archivos con frontmatter `description:`); `flowforge doctor` |
 | **OpenCode no arranca tras instalar FlowForge** | Revisá `~/.local/share/opencode/log/`; no uses texto `file:` con `...` en strings JSON; mergeá solo `agent{}` y conservá `mcp`/`permission` |
 | **Subagentes sin modelo en OpenCode** | Configurá proveedor `opencode-go` y API keys, o cambiá `model` en `~/.config/opencode/agents/*.md` (o `.opencode/agents/*.md` por proyecto) a tus modelos disponibles |
 

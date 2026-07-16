@@ -15,4 +15,12 @@ public class PathHelperTests
         Assert.Contains(PathHelper.EngramDir, targets);
         Assert.Contains(PathHelper.NativeSqliteLib, targets);
     }
+
+    [Fact]
+    public void FR_016_AntigravityWorkflowsUsesGlobalWorkflowsPath()
+    {
+        Assert.EndsWith("global_workflows", PathHelper.AntigravityWorkflows, StringComparison.Ordinal);
+        Assert.EndsWith("workflows", PathHelper.AntigravityLegacyWorkflowsDir, StringComparison.Ordinal);
+        Assert.NotEqual(PathHelper.AntigravityWorkflows, PathHelper.AntigravityLegacyWorkflowsDir);
+    }
 }
