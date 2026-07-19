@@ -1,0 +1,85 @@
+{
+  "$schema": "https://flowforge.dev/schemas/agent-models-v1.json",
+  "provider": {
+    "id": "vscode-copilot",
+    "name": "VS Code Copilot (Free Tier)",
+    "docs_url": "https://docs.github.com/en/copilot/about-github-copilot/models",
+    "models": [
+      "gpt-4o"
+    ]
+  },
+  "active_tier": "budget",
+  "tiers": {
+    "budget": {
+      "description": "Copilot free tier — gpt-4o for all agents",
+      "cost_policy": "All agents use gpt-4o (included in Copilot free tier).",
+      "agents": {
+        "forge-orchestrator": { "model": "gpt-4o", "fallback": "gpt-4o" },
+        "forge-discovery": { "model": "gpt-4o", "fallback": "gpt-4o" },
+        "forge-arch": { "model": "gpt-4o", "fallback": "gpt-4o" },
+        "forge-plan": { "model": "gpt-4o", "fallback": "gpt-4o" },
+        "forge-dev": { "model": "gpt-4o", "fallback": "gpt-4o" },
+        "forge-verify": { "model": "gpt-4o", "fallback": "gpt-4o" },
+        "forge-memory": { "model": "gpt-4o", "fallback": "gpt-4o" },
+        "forge-teacher": { "model": "gpt-4o", "fallback": "gpt-4o" },
+        "default": { "model": "gpt-4o", "fallback": "gpt-4o" }
+      }
+    }
+  },
+  "agents": {
+    "forge-orchestrator": {
+      "model": "gpt-4o",
+      "fallback": "gpt-4o",
+      "mode": "primary",
+      "purpose": "CKP-0..4 coordinator"
+    },
+    "forge-discovery": {
+      "model": "gpt-4o",
+      "fallback": "gpt-4o",
+      "mode": "subagent",
+      "purpose": "Context map / CKP-0"
+    },
+    "forge-arch": {
+      "model": "gpt-4o",
+      "fallback": "gpt-4o",
+      "mode": "subagent",
+      "purpose": "Spec + STRIDE analysis"
+    },
+    "forge-plan": {
+      "model": "gpt-4o",
+      "fallback": "gpt-4o",
+      "mode": "subagent",
+      "purpose": "Plan decomposition and checklist"
+    },
+    "forge-dev": {
+      "model": "gpt-4o",
+      "fallback": "gpt-4o",
+      "mode": "subagent",
+      "purpose": "Implementation and tests"
+    },
+    "forge-verify": {
+      "model": "gpt-4o",
+      "fallback": "gpt-4o",
+      "mode": "subagent",
+      "purpose": "Audit and verify-report"
+    },
+    "forge-memory": {
+      "model": "gpt-4o",
+      "fallback": "gpt-4o",
+      "mode": "subagent",
+      "purpose": "Session closure and memory"
+    },
+    "forge-teacher": {
+      "model": "gpt-4o",
+      "fallback": "gpt-4o",
+      "mode": "subagent",
+      "purpose": "Explanations and teaching"
+    },
+    "default": {
+      "model": "gpt-4o",
+      "fallback": "gpt-4o",
+      "mode": "primary",
+      "purpose": "Default for unknown agents"
+    }
+  }
+}

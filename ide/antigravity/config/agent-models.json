@@ -1,0 +1,86 @@
+{
+  "$schema": "https://flowforge.dev/schemas/agent-models-v1.json",
+  "provider": {
+    "id": "antigravity-gemini",
+    "name": "Antigravity (Gemini)",
+    "docs_url": "https://ai.google.dev/gemini-api/docs/models/gemini",
+    "models": [
+      "gemini-3-flash",
+      "gemini-3-pro"
+    ]
+  },
+  "active_tier": "budget",
+  "tiers": {
+    "budget": {
+      "description": "Default tier — Gemini Flash for cheap tasks, Gemini Pro for reasoning",
+      "cost_policy": "Discovery/Memory/Teacher → Flash (fast, cheap). Arch/Plan/Dev/Verify → Pro (reasoning).",
+      "agents": {
+        "forge-orchestrator": { "model": "gemini-3-pro", "fallback": "gemini-3-flash" },
+        "forge-discovery": { "model": "gemini-3-flash", "fallback": "gemini-3-flash" },
+        "forge-arch": { "model": "gemini-3-pro", "fallback": "gemini-3-flash" },
+        "forge-plan": { "model": "gemini-3-pro", "fallback": "gemini-3-flash" },
+        "forge-dev": { "model": "gemini-3-pro", "fallback": "gemini-3-flash" },
+        "forge-verify": { "model": "gemini-3-pro", "fallback": "gemini-3-flash" },
+        "forge-memory": { "model": "gemini-3-flash", "fallback": "gemini-3-flash" },
+        "forge-teacher": { "model": "gemini-3-flash", "fallback": "gemini-3-flash" },
+        "default": { "model": "gemini-3-flash", "fallback": "gemini-3-flash" }
+      }
+    }
+  },
+  "agents": {
+    "forge-orchestrator": {
+      "model": "gemini-3-pro",
+      "fallback": "gemini-3-flash",
+      "mode": "primary",
+      "purpose": "CKP-0..4 coordinator"
+    },
+    "forge-discovery": {
+      "model": "gemini-3-flash",
+      "fallback": "gemini-3-flash",
+      "mode": "subagent",
+      "purpose": "Context map / CKP-0"
+    },
+    "forge-arch": {
+      "model": "gemini-3-pro",
+      "fallback": "gemini-3-flash",
+      "mode": "subagent",
+      "purpose": "Spec + STRIDE analysis"
+    },
+    "forge-plan": {
+      "model": "gemini-3-pro",
+      "fallback": "gemini-3-flash",
+      "mode": "subagent",
+      "purpose": "Plan decomposition and checklist"
+    },
+    "forge-dev": {
+      "model": "gemini-3-pro",
+      "fallback": "gemini-3-flash",
+      "mode": "subagent",
+      "purpose": "Implementation and tests"
+    },
+    "forge-verify": {
+      "model": "gemini-3-pro",
+      "fallback": "gemini-3-flash",
+      "mode": "subagent",
+      "purpose": "Audit and verify-report"
+    },
+    "forge-memory": {
+      "model": "gemini-3-flash",
+      "fallback": "gemini-3-flash",
+      "mode": "subagent",
+      "purpose": "Session closure and memory"
+    },
+    "forge-teacher": {
+      "model": "gemini-3-flash",
+      "fallback": "gemini-3-flash",
+      "mode": "subagent",
+      "purpose": "Explanations and teaching"
+    },
+    "default": {
+      "model": "gemini-3-flash",
+      "fallback": "gemini-3-flash",
+      "mode": "primary",
+      "purpose": "Default for unknown agents"
+    }
+  }
+}

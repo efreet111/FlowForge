@@ -1,0 +1,144 @@
+{
+  "$schema": "https://flowforge.dev/schemas/agent-models-v1.json",
+  "provider": {
+    "id": "cursor-budget",
+    "name": "Cursor (Budget Tier — Pro $20/mo)",
+    "docs_url": "https://cursor.com/docs/models-and-pricing",
+    "models": [
+      "gpt-5-mini",
+      "gpt-5.1-codex-mini",
+      "gpt-5.4-mini-medium",
+      "gpt-5.3-codex",
+      "kimi-k2.7-code",
+      "gemini-3-flash",
+      "composer-2.5-fast",
+      "claude-4.5-haiku-thinking",
+      "claude-4.5-sonnet-thinking",
+      "claude-4.6-opus-high-thinking",
+      "claude-4-sonnet"
+    ]
+  },
+  "active_tier": "budget",
+  "tiers": {
+    "budget": {
+      "description": "Budget tier for daily development (Pro $20/mo, API pool)",
+      "cost_policy": "Discovery/Memory → cheapest ($0.25/1M). Dev → code-specialized mini. Arch/Plan/Verify → Kimi K2.7 Code.",
+      "agents": {
+        "forge-orchestrator": {
+          "model": "gpt-5-mini",
+          "fallback": "gemini-3-flash"
+        },
+        "forge-discovery": {
+          "model": "gpt-5-mini",
+          "fallback": "gemini-3-flash"
+        },
+        "forge-arch": {
+          "model": "kimi-k2.7-code",
+          "fallback": "gpt-5.4-mini-medium"
+        },
+        "forge-plan": {
+          "model": "kimi-k2.7-code",
+          "fallback": "gpt-5.4-mini-medium"
+        },
+        "forge-dev": {
+          "model": "gpt-5.1-codex-mini",
+          "fallback": "composer-2.5-fast"
+        },
+        "forge-verify": {
+          "model": "kimi-k2.7-code",
+          "fallback": "claude-4.5-haiku-thinking"
+        },
+        "forge-memory": {
+          "model": "gpt-5-mini",
+          "fallback": "gemini-3-flash"
+        },
+        "forge-teacher": {
+          "model": "gpt-5-mini",
+          "fallback": "gemini-3-flash"
+        },
+        "default": {
+          "model": "gpt-5-mini",
+          "fallback": "gemini-3-flash"
+        }
+      }
+    },
+    "quality": {
+      "description": "Quality tier for critical releases — upgrade when API budget allows",
+      "cost_policy": "Arch/Plan → Sonnet thinking. Dev → Codex full. Verify → Opus.",
+      "agents": {
+        "forge-arch": {
+          "model": "claude-4.5-sonnet-thinking",
+          "fallback": "kimi-k2.7-code"
+        },
+        "forge-plan": {
+          "model": "claude-4.5-sonnet-thinking",
+          "fallback": "kimi-k2.7-code"
+        },
+        "forge-dev": {
+          "model": "gpt-5.3-codex",
+          "fallback": "gpt-5.1-codex-mini"
+        },
+        "forge-verify": {
+          "model": "claude-4.6-opus-high-thinking",
+          "fallback": "claude-4-sonnet"
+        }
+      }
+    }
+  },
+  "agents": {
+    "forge-orchestrator": {
+      "model": "gpt-5-mini",
+      "fallback": "gemini-3-flash",
+      "mode": "primary",
+      "purpose": "CKP-0..4 coordinator"
+    },
+    "forge-discovery": {
+      "model": "gpt-5-mini",
+      "fallback": "gemini-3-flash",
+      "mode": "subagent",
+      "purpose": "Context map / CKP-0"
+    },
+    "forge-arch": {
+      "model": "kimi-k2.7-code",
+      "fallback": "gpt-5.4-mini-medium",
+      "mode": "subagent",
+      "purpose": "Spec + STRIDE analysis"
+    },
+    "forge-plan": {
+      "model": "kimi-k2.7-code",
+      "fallback": "gpt-5.4-mini-medium",
+      "mode": "subagent",
+      "purpose": "Plan decomposition and checklist"
+    },
+    "forge-dev": {
+      "model": "gpt-5.1-codex-mini",
+      "fallback": "composer-2.5-fast",
+      "mode": "subagent",
+      "purpose": "Implementation and tests"
+    },
+    "forge-verify": {
+      "model": "kimi-k2.7-code",
+      "fallback": "claude-4.5-haiku-thinking",
+      "mode": "subagent",
+      "purpose": "Audit and verify-report"
+    },
+    "forge-memory": {
+      "model": "gpt-5-mini",
+      "fallback": "gemini-3-flash",
+      "mode": "subagent",
+      "purpose": "Session closure and memory"
+    },
+    "forge-teacher": {
+      "model": "gpt-5-mini",
+      "fallback": "gemini-3-flash",
+      "mode": "subagent",
+      "purpose": "Explanations and teaching"
+    },
+    "default": {
+      "model": "gpt-5-mini",
+      "fallback": "gemini-3-flash",
+      "mode": "primary",
+      "purpose": "Default for unknown agents"
+    }
+  }
+}

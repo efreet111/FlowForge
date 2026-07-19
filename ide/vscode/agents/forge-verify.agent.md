@@ -3,7 +3,7 @@ user-invocable: true
 description: FlowForge Verify — Phase 3b. Audits code against spec.md line by line. Always writes verify-report.md; on failure writes rework_ticket.md.
 name: forge-verify
 tools: ['search/codebase', 'terminal']
-model: ['claude-sonnet-4-20250514', 'gpt-5.2']
+model: ['gpt-4o']
 handoffs:
   - label: Close Feature
     agent: forge-memory

@@ -3,7 +3,7 @@ user-invocable: true
 description: FlowForge Dev — Fase 3a. Implementa código siguiendo plan.md con Ralph Wiggum Loop auto-corrección.
 name: forge-dev
 tools: ['search/codebase', 'terminal', 'edit']
-model: ['claude-sonnet-4-20250514', 'gpt-5.2']
+model: ['gpt-4o']
 handoffs:
   - label: Verify
     agent: forge-verify

@@ -2,31 +2,45 @@
 """Compile skills/*/SKILL.md into ide/cursor/agents/forge-*.md for Cursor (no manual @skills)."""
 from __future__ import annotations
 
+import json
 import re
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SKILLS = ROOT / "skills"
 OUT = ROOT / "ide" / "cursor" / "agents"
+CONFIG = ROOT / "ide" / "cursor" / "config" / "agent-models.json"
 
-MODELS = {
-    # Budget tier — sync with ide/cursor/rules/model-assignments.mdc
-    # Pricing ref: https://cursor.com/docs/models-and-pricing
-    "forge-discovery": "gpt-5-mini",
-    "forge-arch": "kimi-k2.7-code",
-    "forge-plan": "kimi-k2.7-code",
-    "forge-dev": "gpt-5.1-codex-mini",
-    "forge-verify": "kimi-k2.7-code",
-    "forge-memory": "gpt-5-mini",
-}
+
+def load_models() -> dict[str, str]:
+    """Load agent→model mapping from canonical JSON config."""
+    if not CONFIG.exists():
+        print(f"ERROR: {CONFIG} not found. Cannot determine model assignments.", file=sys.stderr)
+        sys.exit(1)
+    try:
+        data = json.loads(CONFIG.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, OSError) as exc:
+        print(f"ERROR: Failed to read {CONFIG}: {exc}", file=sys.stderr)
+        sys.exit(1)
+    return {
+        k: v["model"]
+        for k, v in data["agents"].items()
+        if k != "default"
+    }
+
+
+MODELS = load_models()
 
 DESCRIPTIONS = {
+    "forge-orchestrator": "FlowForge orchestrator: 6 phases, 5 checkpoints. Coordinates flow; does not implement product code.",
     "forge-discovery": "FlowForge phase 0: discovery and CKP-0. Invoked by orchestrator.",
     "forge-arch": "FlowForge phase 1: spec.md and GWT. Invoked after discovery.",
     "forge-plan": "FlowForge phase 2: plan.md. Invoked via /flow-plan.",
     "forge-dev": "FlowForge phase 3: implementation. Invoked via /flow-dev.",
     "forge-verify": "FlowForge phase 3b: audit. Invoked via /flow-verify.",
     "forge-memory": "FlowForge phase 4: close and CKP-4. Invoked via /flow-close.",
+    "forge-teacher": "FlowForge teacher: Socratic explanations. Toggleable via .flowforge.json.",
 }
 
 PREAMBLE = """You are the **{name}** subagent of FlowForge. You are an **EXECUTOR**: do the work in this context window.

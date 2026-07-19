@@ -4,7 +4,7 @@ description: FlowForge Orchestrator — 6 fases, 5 checkpoints. Coordina el fluj
 name: FlowForge Orchestrator
 tools: ['agent', 'search/codebase', 'search/usages', 'web/fetch', 'terminal']
 agents: ['forge-discovery', 'forge-arch', 'forge-plan', 'forge-dev', 'forge-verify', 'forge-memory']
-model: ['claude-sonnet-4-20250514', 'gpt-5.2']
+model: ['gpt-4o']
 handoffs:
   - label: Start Discovery
     agent: forge-discovery
