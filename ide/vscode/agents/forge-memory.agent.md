@@ -3,7 +3,7 @@ user-invocable: true
 description: FlowForge Memory — Fase 4. Cierra la feature, persiste aprendizajes, verifica pruebas manuales (PM-*).
 name: forge-memory
 tools: ['search/codebase', 'terminal']
-model: ['claude-sonnet-4-20250514', 'gpt-5.2']
+model: ['gpt-4o']
 handoffs: []
 ---
 # forge-memory — Phase 4: Memory Agent

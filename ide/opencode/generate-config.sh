@@ -7,6 +7,7 @@ command -v envsubst >/dev/null 2>&1 || { echo "envsubst no disponible" >&2; exit
 FF_REPO="${1:?Usage: generate-config.sh <FLOWFORGE_REPO>}"
 FF_REPO="${FF_REPO//\\//}"
 TEMPLATES="$FF_REPO/ide/opencode/templates"
+CONFIG_DIR="$FF_REPO/ide/opencode/config"
 LIB_DIR="$FF_REPO/ide/opencode/lib"
 
 OC_DIR="$HOME/.config/opencode"
@@ -29,9 +30,9 @@ USER="${USER:-$(whoami)}"
 export FLOWFORGE_REPO="$FF_REPO" HOME USER FLOWFORGE_ENGRAM_BIN="$HOME/.local/bin/engram"
 
 json="$(envsubst < "$TEMPLATES/opencode.json.tpl")"
-AGENTS="flowforge forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher"
+AGENTS="forge-orchestrator forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher"
 for agent in $AGENTS; do
-  model="$(jq -r ".agents[\"$agent\"].model" "$TEMPLATES/agent-models.json")"
+  model="$(jq -r ".agents[\"$agent\"].model" "$CONFIG_DIR/agent-models.json")"
   json="$(printf '%s' "$json" | jq --arg agent "$agent" --arg model "opencode-zen/$model" '.agent[$agent].model = $model')"
 done
 
@@ -74,10 +75,10 @@ cat <<'EOF' > "$tmp_rules"
 EOF
 
 for agent in $AGENTS default; do
-  model="$(jq -r ".agents[\"$agent\"].model" "$TEMPLATES/agent-models.json")"
-  fallback="$(jq -r ".agents[\"$agent\"].fallback" "$TEMPLATES/agent-models.json")"
-  mode="$(jq -r ".agents[\"$agent\"].mode" "$TEMPLATES/agent-models.json")"
-  purpose="$(jq -r ".agents[\"$agent\"].purpose" "$TEMPLATES/agent-models.json")"
+  model="$(jq -r ".agents[\"$agent\"].model" "$CONFIG_DIR/agent-models.json")"
+  fallback="$(jq -r ".agents[\"$agent\"].fallback" "$CONFIG_DIR/agent-models.json")"
+  mode="$(jq -r ".agents[\"$agent\"].mode" "$CONFIG_DIR/agent-models.json")"
+  purpose="$(jq -r ".agents[\"$agent\"].purpose" "$CONFIG_DIR/agent-models.json")"
   echo "| $agent | opencode-zen/$model | opencode-zen/$fallback | $mode | $purpose |" >> "$tmp_rules"
 done
 

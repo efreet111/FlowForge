@@ -3,7 +3,7 @@ user-invocable: true
 description: FlowForge Arch — Fase 1. Escribe spec.md con RF/RNF, STRIDE security, Given-When-Then y pruebas manuales.
 name: forge-arch
 tools: ['search/codebase', 'web/fetch', 'terminal']
-model: ['claude-sonnet-4-20250514', 'gpt-5.2']
+model: ['gpt-4o']
 handoffs:
   - label: Create Plan
     agent: forge-plan

@@ -3,7 +3,7 @@ user-invocable: true
 description: FlowForge Plan — Fase 2. Descompone spec.md en tareas atómicas con contratos y patrones de diseño.
 name: forge-plan
 tools: ['search/codebase', 'terminal']
-model: ['claude-sonnet-4-20250514', 'gpt-5.2']
+model: ['gpt-4o']
 handoffs:
   - label: Implement
     agent: forge-dev
