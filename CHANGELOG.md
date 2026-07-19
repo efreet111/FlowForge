@@ -7,6 +7,7 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 ## [Unreleased]
 
 ### Added
+- **ADR-012 — IDE-specific model config via canonical JSON**: 4 JSON files (`ide/*/config/agent-models.json`) as single source of truth for agent-to-model mappings. Antigravity corrected to Gemini models, VS Code to gpt-4o. CI validator at `scripts/validate-agent-models.sh`. See [`docs/decisions/ADR-012-ide-specific-model-config.md`](docs/decisions/ADR-012-ide-specific-model-config.md).
 - **ADR-008**: matriz canónica IDE × ruta global × ruta proyecto × detección (`docs/decisions/ADR-008-ide-installer-path-matrix.md`).
 - **ADR-007 — FlowDoc v2.0 migration** (absorbs branch `FlowDocsv2Adoption`): migrate project templates from FlowDoc v1.1 → v2.0. HU template expanded with GWT scenarios (Happy Path, Edge Cases, Error Cases), Owner & Timeline, Technical Debt, and 🧪 Ref test links. `flowdoc-ciclo.md` removed from artifact table (deprecated upstream in v2.0). Range-binned folder structure adopted (`docs/tasks/HU-001-HU-099/`). `.flowforge.json` version pin moved from concatenated string (`flowdoc@1.1`) to split keys (`docs_framework` + `docs_framework_version` + `upstream`). Adoption levels reduced from L1–L4 to L1–L3 (L4 split into L3 + post-cycle review). See [`docs/decisions/ADR-007-flowdocs-v2-absorption.md`](docs/decisions/ADR-007-flowdocs-v2-absorption.md) and [`docs/decisions/ADR-004-flowdoc-integration.md`](docs/decisions/ADR-004-flowdoc-integration.md).
 
