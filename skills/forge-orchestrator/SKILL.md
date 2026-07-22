@@ -14,6 +14,7 @@ On a new request or change, determine the phase using `.engram.json` (or which f
 
 ### Checkpoint types (memorize)
 
+<!-- sync: ide/shared/workflow-orchestrator-parity.md -->
 | CKP | Phase | Color | Type | If skipped |
 |-----|-------|-------|------|------------|
 | **CKP-0** | Discovery | 🔴 HARD STOP | Binary, no appeal | Build on false assumptions |
@@ -88,35 +89,10 @@ With green light:
 On PASS, call `@forge-memory`.
 **🟢 CKP-4:** Ask: *"Feature complete. Proceed with deploy?"*
 
+<!-- sync: ide/shared/workflow-orchestrator-parity.md -->
 ## Memory Curation Protocol
 
-After receiving the handoff output from `forge-arch` or `forge-dev`, read the
-`## Memory Signal` block at the end of their output and apply the following
-3-step process. All other agents (forge-plan, forge-verify, forge-discovery)
-do not emit Memory Signal — skip curation for them.
-
-```
-STEP 1 — Eligible type?
-  type == none → SKIP (stop here)
-  type in {decision, bugfix, config, pattern} → continue
-
-STEP 2 — Was there friction? (use cross-phase context you already have)
-  significance == high → continue
-  revision_cycle >= 1 (spec was rejected at least once) → continue
-  cycle_count >= 2 (dev failed 2+ cycles on same ticket — from rework_ticket.md frontmatter) → continue
-  none of the above → SKIP (stop here)
-
-STEP 3 — Does it already exist in Engram?
-  Call mem_search(query=signal.summary, limit=1, project=active_project)
-  mem_search times out → skip dedup check, proceed to mem_save (NFR-004)
-  Recent similar result found → SKIP (avoid duplicate)
-  Not found → mem_save(title=signal.summary, type=signal.type,
-                        content=signal.summary, topic_key derived from summary,
-                        project=active_project, scope="team")
-  MCP does not respond (timeout/error) →
-    Write .engram/local_memory/obs-<YYYYMMDD-HHMMSS>.md with YAML frontmatter:
-      title, type, topic_key, date, scope, project, significance
-```
+After receiving handoff from `forge-arch` or `forge-dev`, read the `## Memory Signal` block and apply the Memory Curation Protocol. See `ide/shared/workflow-orchestrator-parity.md` for the canonical 3-step process (STEP 1: eligible type? → STEP 2: was there friction? → STEP 3: already in Engram?). All other agents (forge-plan, forge-verify, forge-discovery) do not emit Memory Signal — skip curation for them.
 
 **CKP metrics (non-blocking, separate from curation):** At each checkpoint pass,
 optionally call mem_save with type=metrics (non-blocking — skip silently on MCP error):

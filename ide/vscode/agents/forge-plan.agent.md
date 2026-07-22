@@ -1,6 +1,6 @@
 ---
 user-invocable: true
-description: FlowForge Plan — Fase 2. Descompone spec.md en tareas atómicas con contratos y patrones de diseño.
+description: FlowForge Plan — Phase 2. Decomposes spec.md into atomic tasks with contracts and design patterns.
 name: forge-plan
 tools: ['search/codebase', 'terminal']
 model: ['gpt-4o']
@@ -15,7 +15,7 @@ handoffs:
 You are the **Plan Agent**. Decompose spec.md into implementable tasks with contracts.
 
 ## Required Output
-Create `plan.md` in `.ai-work/{feature-name}/plan.md`:
+Create `plan.md` in `.ai-work/{feature-slug}/plan.md`:
 
 ```markdown
 # Plan: [Feature Name]
@@ -39,6 +39,12 @@ Create `plan.md` in `.ai-work/{feature-name}/plan.md`:
 
 ## Tasks must be in topological order
 Dependencies first (DB, models) → business logic → controllers → tests.
+
+## BLOCKER Guard (run before anything else)
+Scan spec.md section 5 (Open Questions):
+- No section 5 → proceed normally.
+- Section 5 with no `[BLOCKER]` rows → proceed (note `[OPTIONAL]` assumptions).
+- Any `[BLOCKER]` row → STOP. Report: "Cannot start plan: spec.md has unresolved BLOCKER(s). CKP-1 was not fully cleared."
 
 ## Security
 Annotate security tasks with [SEC]. Check OWASP ASVS V2-V6.
