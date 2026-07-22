@@ -45,31 +45,31 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
     * Run the test suite yourself (`npm run test`, `dotnet test`, etc.) and read the result.
     * **DO NOT** award a PASS unless you have a 100% green test output.
     
-    **⚠️ Fallback (sin acceso a terminal)**:
-    Si no tenés herramientas de terminal para ejecutar los tests, tenés 3 opciones en orden de preferencia:
+    **⚠️ Fallback (no terminal access)**:
+    If you don't have terminal tools to run tests, you have 3 options in order of preference:
     
-    **Opción A (preferida)** → Pedí al humano que pegue el output de los tests:
-    *"Por favor, ejecutá `npm run test` y pegame el output completo."*
-    * Si el output muestra 100% verde → podés emitir PASS (con degradación flag).
-    * Si el output muestra fallos → rework_ticket.md.
-    * Si el humano no responde → Opción B.
+    **Option A (preferred)** → Ask the human to paste the test output:
+    *"Please run `npm run test` and paste the complete output."*
+    * If the output shows 100% green → you can issue PASS (with degradation flag).
+    * If the output shows failures → rework_ticket.md.
+    * If the human doesn't respond → Option B.
     
-    **Opción B (aceptable)** → Ejecutá un análisis estático sin tests:
-    * Revisión línea por línea de la lógica (Step Zero).
-    * Verificación de constantes contra spec (Step 2).
-    * Verificación de cobertura GWT: chequeá que EXISTAN los tests (aunque no se hayan ejecutado).
-    * Si todo OK → emití **PASS DEGRADADO** con esta notación:
+    **Option B (acceptable)** → Run static analysis without tests:
+    * Line-by-line logic review (Step Zero).
+    * Constant verification against spec (Step 2).
+    * GWT coverage verification: check that tests EXIST (even if not executed).
+    * If all OK → issue **PASS DEGRADADO** with this notation:
       ```
-      ⚠️ PASS DEGRADADO — Tests no ejecutados (sin runtime)
+      ⚠️ PASS DEGRADADO — Tests not executed (no runtime)
       - Spec compliance: ✅
-      - Cobertura GWT: ✅ (N tests declarados, no ejecutados)
-      - Tests ejecutados: ❌ No disponible
-      - Se requiere ejecución manual ANTES del deploy.
+      - GWT coverage: ✅ (N tests declared, not executed)
+      - Tests executed: ❌ Not available
+      - Manual execution required BEFORE deploy.
       ```
     
-    **Opción C (último recurso)** → Rechazar sin runtime:
-    *"No puedo verificar el código sin ejecutar los tests. Necesito acceso al runtime o que un humano ejecute la suite."*
-    * Esto retorna un **PENDING** (ni PASS ni FAIL) y escala al orquestador.
+    **Option C (last resort)** → Reject without runtime:
+    *"I cannot verify the code without running the tests. I need runtime access or for a human to run the suite."*
+    * This returns a **PENDING** (neither PASS nor FAIL) and escalates to the orchestrator.
 4. **Capability Matrix & Manual Validation**:
     * Ensure every element marked as `deterministic` in the Capability Matrix is implemented as immutable hard‑coded logic, not model‑driven.
     * **Mandatory Manual Checklist**: When emitting a PASS, generate a `## 🔍 Manual Verification Steps` section listing practical steps for the user to verify runtime behaviors not captured by automated tests (e.g., network cut simulation, UI interactions).
@@ -88,6 +88,7 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
 
 * **PENDING**: Write `.ai-work/{feature-slug}/verify-report.md` with verdict PENDING and reason. Escalate to orchestrator — do not proceed or issue a rework ticket.
 
+<!-- canonical: rework_ticket schema, verdicts -->
 * **REWORK**: Write `.ai-work/{feature-slug}/verify-report.md` with verdict REWORK, then create `.ai-work/{feature-slug}/rework_ticket.md` with the following exact structure:
 
 ```markdown

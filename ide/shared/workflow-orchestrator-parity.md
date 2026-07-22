@@ -17,6 +17,32 @@ Folder: `.ai-work/{feature-slug}/` (kebab-case, no `FLOW-` prefix).
 | `revision_cycle.md` | orchestrator | CKP-1/CKP-2 rejections (max 3) |
 | `summary.md` | forge-memory | Only when PM-* are complete |
 
+## revision_cycle.md template
+
+When the human rejects spec (CKP-1) or plan (CKP-2), the orchestrator creates `.ai-work/{feature-slug}/revision_cycle.md`:
+
+```yaml
+---
+phase: spec | plan
+cycle_count: [1-3]
+max_cycles: 3
+rejection_reason: "[human's reason for rejection]"
+---
+
+# Revision Cycle — {feature-slug}
+
+## Cycle N (of 3)
+- **Phase:** spec | plan
+- **Rejection reason:** [reason]
+- **Changes requested:** [summary]
+- **Resubmitted at:** [timestamp]
+```
+
+**Rules:**
+- Max 3 revision cycles per checkpoint.
+- At cycle_count = 3 without approval → ESCALATE to human. Do NOT attempt a 4th revision.
+- Each cycle increments `cycle_count` and appends a new `## Cycle N` section (don't overwrite prior cycles).
+
 ## Natural-language intent
 
 | Signals | Action |

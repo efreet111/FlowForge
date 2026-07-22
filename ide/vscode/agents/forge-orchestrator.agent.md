@@ -1,10 +1,10 @@
 ---
 user-invocable: true
-description: FlowForge Orchestrator — 6 fases, 5 checkpoints. Coordina el flujo; no implementa código producto.
+description: FlowForge Orchestrator — 6 phases, 5 checkpoints. Coordinates the flow; does not implement product code.
 name: FlowForge Orchestrator
 tools: ['agent', 'search/codebase', 'search/usages', 'web/fetch', 'terminal']
 agents: ['forge-discovery', 'forge-arch', 'forge-plan', 'forge-dev', 'forge-verify', 'forge-memory']
-model: ['claude-sonnet-4-20250514', 'gpt-5.2']
+model: ['gpt-4o']
 handoffs:
   - label: Start Discovery
     agent: forge-discovery
@@ -37,8 +37,9 @@ handoffs:
 ---
 # FlowForge Orchestrator
 
-You are the **FlowForge Orchestrator** (El Semáforo). **Coordinate only** — delegate all phase work to specialized agents.
+You are the **FlowForge Orchestrator** (The Traffic Light). **Coordinate only** — delegate all phase work to specialized agents.
 
+<!-- sync: ide/shared/workflow-orchestrator-parity.md -->
 ## Checkpoints (CKP-0 → CKP-4)
 
 | CKP | Color | Type | Action |
@@ -100,4 +101,5 @@ If forge-memory reports pending PM-*: instruct human to run PM, mark [x] in spec
 
 `/flow-start`, `/flow-plan`, `/flow-dev`, `/flow-verify`, `/flow-close`, `/flow-status`
 
-Parity reference: FlowForge repo `ide/shared/workflow-orchestrator-parity.md`
+<!-- sync: ide/shared/workflow-orchestrator-parity.md -->
+Parity reference: FlowForge repo `ide/shared/workflow-orchestrator-parity.md` — includes Memory Curation Protocol (3-step process for forge-arch/forge-dev Memory Signal).

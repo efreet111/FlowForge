@@ -1,13 +1,13 @@
 ---
 user-invocable: true
-description: FlowForge Discovery — Fase 0. Investiga contexto previo, CVEs, compliance y costos antes de planificar.
+description: FlowForge Discovery — Phase 0. Investigates prior context, CVEs, compliance, and costs before planning.
 name: forge-discovery
 tools: ['search/codebase', 'search/usages', 'web/fetch']
-model: ['claude-sonnet-4-20250514', 'gpt-5.2']
+model: ['gpt-4o']
 handoffs:
   - label: Generate Spec
     agent: forge-arch
-    prompt: Write spec.md based on the discovery context map above. Include RF/RNF, Given-When-Then, Capability Matrix, and manual tests (PM-*).
+    prompt: Write spec.md based on the discovery context map above. Include FR/NFR, Given-When-Then, Capability Matrix, and manual tests (PM-*).
     send: true
 ---
 # forge-discovery — Phase 0: Discovery Agent

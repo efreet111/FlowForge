@@ -1,0 +1,102 @@
+{
+  "$schema": "https://flowforge.dev/schemas/agent-models-v1.json",
+  "provider": {
+    "id": "opencode-zen",
+    "name": "OpenCode Zen (Free Tier)",
+    "docs_url": "https://opencode.ai/docs/models",
+    "api": "https://opencode.ai/zen/v1",
+    "npm": "@ai-sdk/openai-compatible",
+    "models": [
+      "big-pickle",
+      "deepseek-v4-flash-free",
+      "mimo-v2.5-free",
+      "mimo-v2-pro-free",
+      "north-mini-code-free",
+      "nemotron-3-ultra-free",
+      "nemotron-3-super-free",
+      "minimax-m2.5-free"
+    ]
+  },
+  "active_tier": "budget",
+  "tiers": {
+    "budget": {
+      "description": "Free / low-cost tier for daily development",
+      "cost_policy": "Discovery/Memory → cheapest. Dev → code-specialized. Arch/Plan/Verify → strongest free model.",
+      "agents": {
+        "forge-orchestrator": { "model": "big-pickle", "fallback": "big-pickle" },
+        "forge-discovery": { "model": "deepseek-v4-flash-free", "fallback": "deepseek-v4-flash-free" },
+        "forge-arch": { "model": "big-pickle", "fallback": "big-pickle" },
+        "forge-plan": { "model": "big-pickle", "fallback": "big-pickle" },
+        "forge-dev": { "model": "big-pickle", "fallback": "big-pickle" },
+        "forge-verify": { "model": "minimax-m2.5-free", "fallback": "minimax-m2.5-free" },
+        "forge-memory": { "model": "deepseek-v4-flash-free", "fallback": "deepseek-v4-flash-free" },
+        "forge-teacher": { "model": "deepseek-v4-flash-free", "fallback": "deepseek-v4-flash-free" },
+        "default": { "model": "big-pickle", "fallback": "big-pickle" }
+      }
+    },
+    "quality": {
+      "description": "Premium tier for critical releases — overrides budget assignments",
+      "cost_policy": "Upgrade to strongest available free models for release-critical work.",
+      "agents": {
+        "forge-arch": { "model": "minimax-m2.5-free", "fallback": "big-pickle" },
+        "forge-verify": { "model": "minimax-m2.5-free", "fallback": "big-pickle" }
+      }
+    }
+  },
+  "agents": {
+    "forge-orchestrator": {
+      "model": "big-pickle",
+      "fallback": "big-pickle",
+      "mode": "primary",
+      "purpose": "CKP-0..4 coordinator"
+    },
+    "forge-discovery": {
+      "model": "deepseek-v4-flash-free",
+      "fallback": "deepseek-v4-flash-free",
+      "mode": "subagent",
+      "purpose": "Context map / CKP-0"
+    },
+    "forge-arch": {
+      "model": "big-pickle",
+      "fallback": "big-pickle",
+      "mode": "subagent",
+      "purpose": "Spec + STRIDE analysis"
+    },
+    "forge-plan": {
+      "model": "big-pickle",
+      "fallback": "big-pickle",
+      "mode": "subagent",
+      "purpose": "Plan decomposition and checklist"
+    },
+    "forge-dev": {
+      "model": "big-pickle",
+      "fallback": "big-pickle",
+      "mode": "subagent",
+      "purpose": "Implementation and tests"
+    },
+    "forge-verify": {
+      "model": "minimax-m2.5-free",
+      "fallback": "minimax-m2.5-free",
+      "mode": "subagent",
+      "purpose": "Audit and verify-report"
+    },
+    "forge-memory": {
+      "model": "deepseek-v4-flash-free",
+      "fallback": "deepseek-v4-flash-free",
+      "mode": "subagent",
+      "purpose": "Session closure and memory"
+    },
+    "forge-teacher": {
+      "model": "deepseek-v4-flash-free",
+      "fallback": "deepseek-v4-flash-free",
+      "mode": "subagent",
+      "purpose": "Explanations and teaching"
+    },
+    "default": {
+      "model": "big-pickle",
+      "fallback": "big-pickle",
+      "mode": "primary",
+      "purpose": "Default for unknown agents"
+    }
+  }
+}
