@@ -1,9 +1,9 @@
 ---
 user-invocable: true
-description: FlowForge Memory — Fase 4. Cierra la feature, persiste aprendizajes, verifica pruebas manuales (PM-*).
+description: FlowForge Memory — Phase 4. Closes the feature, persists learnings, verifies manual tests (PM-*).
 name: forge-memory
 tools: ['search/codebase', 'terminal']
-model: ['claude-sonnet-4-20250514', 'gpt-5.2']
+model: ['gpt-4o']
 handoffs: []
 ---
 # forge-memory — Phase 4: Memory Agent
@@ -24,6 +24,23 @@ Before processing closure, verify ALL manual tests are done:
   Note: a ticket with `status: "resolved"` does NOT block close.
 
 **If all PM `[x]` and no open rework → proceed.**
+
+### Anti-false-close rule (mandatory)
+If any PM lacks `[x]`, do NOT write `summary.md`, do NOT mark metrics done. Offer only:
+1. Run PM-* now, then retry `/flow-close`.
+2. **Close preview** if human explicitly asks → write `summary.preview.md` with: `⚠️ PREVIEW — Feature NOT closed (PM-* pending)`.
+
+### FlowDoc sync (on close)
+If all gates pass, before writing `summary.md`:
+1. **Update HU status** — if spec has `HU source:` line, set `status: done` in HU frontmatter, check off mapped ACs.
+2. **Update CHANGELOG** — if `CHANGELOG.md` exists, add entry under `[Unreleased]`: `- feat: [slug] — [one-line description]`.
+3. If neither exists, skip silently.
+
+### Smart Curation & Local Buffer Ingestion
+When developer worked offline, notes accumulate in `.engram/local_memory/`:
+1. Scan local buffer. **Noise filtering**: discard fleeting debug notes; keep structural decisions.
+2. **Consolidation**: merge related files into single observations (What/Why/Where/Learned).
+3. **Ingest** via `mem_save`. **Cleanup**: only delete files after successful `mem_save` response.
 
 ## Session close protocol (mandatory)
 
@@ -47,14 +64,14 @@ Before `summary.md` or CKP-4:
 4. **Promote ADRs**: promote key architecture decisions to docs/decisions/
 
 ## Output
-Create `summary.md` in `.ai-work/{feature-name}/summary.md`:
+Create `summary.md` in `.ai-work/{feature-slug}/summary.md`:
 ```markdown
 # Session Summary — [Feature Name]
 
 ## Goal
 ## Discoveries
 ## Accomplished
-- [x] RF-001 to RF-N implemented
+- [x] FR-001 to FR-N implemented
 - [x] Tests passing
 - [x] Manual tests PM-1, PM-2, ... executed ✅
 

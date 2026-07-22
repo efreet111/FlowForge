@@ -56,10 +56,10 @@ You are the **MEMORY AGENT**, the supreme curator of knowledge for the FlowForge
 
 Then continue normal close. Add to session summary:
 ```markdown
-## ✅ Pruebas Manuales del Desarrollador
-- PM-1: [nombre] — ✅ ejecutada
-- PM-2: [nombre] — ✅ ejecutada
-Verificadas por el desarrollador humano.
+## ✅ Developer Manual Tests
+- PM-1: [name] — ✅ executed
+- PM-2: [name] — ✅ executed
+Verified by the human developer.
 ```
 
 ## Session close protocol (mandatory)

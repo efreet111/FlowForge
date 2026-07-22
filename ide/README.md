@@ -94,12 +94,47 @@ cp ide/cursor/commands/*.md ~/.cursor/commands/
 | Component | OpenCode | Cursor | Antigravity | VS Code |
 |-----------|----------|--------|-------------|---------|
 | Workflow orchestrator | `agents/flowforge.md` + MCP in `opencode.json` | `rules/workflow.mdc` | `rules/workflow.md` | copilot-instructions + agents |
-| Model assignments | inline in `agents/*.md` frontmatter | `rules/model-assignments.mdc` | `rules/model-assignments.md` | embedded |
+| Model assignments | `config/agent-models.json` → inline in agents | `config/agent-models.json` → `rules/model-assignments.mdc` | `config/agent-models.json` → `rules/model-assignments.md` | `config/agent-models.json` → frontmatter |
 | Git safety | `permission.bash` in opencode.json | `rules/git-sin-push.mdc` | `rules/git-sin-push.md` | embedded |
 | Agent instructions | compiled `agents/forge-*.md` | `agents/forge-*.md` | via workflow | `.github/agents/*.agent.md` |
 | Shared parity doc | `flowforge/shared/...` | ref in workflow | in rules | `{file:../shared/...}` |
 | Slash commands | rules / chat | `.cursor/commands/flow-*.md` | `workflows/flow-*.md` | chat + agents |
 | MCP (Engram) | native engram MCP | project MCP config | project MCP | project MCP |
+
+## Model configuration
+
+Each IDE has a canonical `config/agent-models.json` file that is the single source of truth for agent-to-model mappings. All consumers (installer scripts, agent compilers, rule generators) read from this file.
+
+| IDE | Canonical file | Provider | Default tier |
+|-----|---------------|----------|--------------|
+| OpenCode | `ide/opencode/config/agent-models.json` | opencode-zen | budget (free) |
+| Cursor | `ide/cursor/config/agent-models.json` | cursor-budget | budget (Pro $20) |
+| Antigravity | `ide/antigravity/config/agent-models.json` | antigravity-gemini | budget |
+| VS Code | `ide/vscode/config/agent-models.json` | vscode-copilot | budget (free) |
+
+### JSON schema
+
+All files follow the same schema (`$schema: https://flowforge.dev/schemas/agent-models-v1.json`):
+
+- `provider` — id, name, docs_url, and `models` allowlist
+- `agents` — per-agent assignment: model, fallback, mode, purpose (9 keys: `forge-orchestrator`, `forge-discovery`, `forge-arch`, `forge-plan`, `forge-dev`, `forge-verify`, `forge-memory`, `forge-teacher`, `default`)
+- `tiers` (optional) — named tier overrides (e.g., `budget`, `quality`)
+- `active_tier` — which tier is active by default
+
+### How to customize
+
+1. Edit the `agents` block in your IDE's `config/agent-models.json`
+2. Ensure model values exist in the `provider.models` allowlist
+3. Run `bash scripts/validate-agent-models.sh` to validate
+4. Re-run the installer or recompile agents
+
+### Validation
+
+CI runs `scripts/validate-agent-models.sh` to check all 4 JSON files for:
+- Valid JSON syntax
+- `$schema` field present
+- All 9 agent keys present
+- Every model/fallback reference exists in `provider.models`
 
 ## OpenCode detail
 
