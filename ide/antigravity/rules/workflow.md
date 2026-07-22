@@ -1,3 +1,8 @@
+---
+alwaysApply: true
+description: FlowForge orchestrator checkpoints and phase delegation for Antigravity.
+---
+
 # FlowForge — Workflow Orchestrator (Antigravity)
 
 <!-- Install as: {repo}/.agents/rules/workflow.md -->

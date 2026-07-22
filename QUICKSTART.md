@@ -62,7 +62,7 @@ FlowForge writes agents into the directories each IDE expects. After running any
 | IDE | Global agents | Project agents | Notes |
 |-----|---------------|----------------|-------|
 | **Cursor** | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` | MCP configured in `~/.cursor/mcp.json`. |
-| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/`, `.opencode/commands/` | Skills en `{repo}/skills/` (no copiados). Ver [ADR-009](docs/decisions/ADR-009-opencode-antigravity-customizations.md). |
+| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/`, `.opencode/commands/` | Skills en `{repo}/skills/` (no copiados). Ver [ADR-011](docs/decisions/ADR-011-opencode-antigravity-customizations.md). |
 | **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detected via `github.copilot*`. |
 | **Kilo Code** | `~/.config/kilo/agents/*.md` (same bundle as OpenCode) | `.kilo/agents/*.md` (duplicated) | Detected via `kilocode.*`. |
 | **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `workflows/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `.agents/skills/` | Google Antigravity (not Claude Desktop). |
@@ -310,5 +310,6 @@ Direct `@forge-*` invocation (legacy) bypasses checkpoints and Memory Curation �
 | **`/flow-close` not in autocomplete** | Run `ide/install.ps1 -ProjectPath <repo>`; or type `/flow-close` as plain text — it is not a Cursor built-in |
 | **Used `/forge-memory` by mistake** | Use `/flow-close` (command) — `forge-memory` is the agent name, not a slash command |
 | **No `@skills` manual load** | Use compiled agents (Cursor) or IDE packs from `ide/install` |
+| **`/flow-*` missing in Antigravity picker** | Reload/restart Antigravity first (required after install). Then verify `~/.gemini/config/global_workflows/` has 7 files with YAML `description:` frontmatter; run `flowforge doctor` |
 
 > **Problems?** Open an issue: https://github.com/efreet111/FlowForge

@@ -6,6 +6,8 @@ on:
     paths:
       - "src/FlowForge.Installer/**"
       - "install/**"
+      - "ide/**"
+      - "scripts/validate-antigravity-pack.sh"
       - ".github/workflows/test-installer.yml"
   pull_request:
     branches: [main]
@@ -63,6 +65,13 @@ jobs:
           echo "$OUTPUT"
           echo "$OUTPUT" | grep -qi "FlowForge Doctor" || (echo "FAIL: doctor no arrancó"; exit 1)
 
+      - name: Validate Antigravity source pack
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          chmod +x scripts/validate-antigravity-pack.sh
+          bash scripts/validate-antigravity-pack.sh "${{ github.workspace }}"
+
   # ── Happy path completo (Linux) ─────────────────────────────────────────────
   install-linux:
     name: Happy Path Install (Linux)
@@ -94,7 +103,7 @@ jobs:
           mkdir -p ~/.cursor ~/.vscode/extensions/github.copilot-1.0.0 \
             ~/.vscode/extensions/kilocode.kilo-code-1.0.0 \
             ~/.config/opencode ~/.copilot/agents ~/.copilot/instructions \
-            ~/.config/kilo/agents ~/.gemini/config/rules ~/.gemini/config/workflows ~/.gemini \
+            ~/.config/kilo/agents ~/.gemini/config/rules ~/.gemini/config/global_workflows ~/.gemini \
             ~/.local/bin
 
       - name: Instalar flowforge binary
@@ -164,9 +173,15 @@ jobs:
           RULES_COUNT=$(find ~/.gemini/config/rules -name "*.md" 2>/dev/null | wc -l)
           echo "Antigravity rules: $RULES_COUNT"
           test "$RULES_COUNT" -gt 0 || (echo "FAIL: no Antigravity rules"; exit 1)
-          WF_COUNT=$(find ~/.gemini/config/workflows -name "*.md" 2>/dev/null | wc -l)
+          WF_COUNT=$(find ~/.gemini/config/global_workflows -name "flow-*.md" 2>/dev/null | wc -l)
           echo "Antigravity workflows: $WF_COUNT"
-          test "$WF_COUNT" -gt 0 || (echo "FAIL: no Antigravity workflows"; exit 1)
+          test "$WF_COUNT" -eq 7 || (echo "FAIL: expected 7 Antigravity workflows, got $WF_COUNT"; exit 1)
+          for f in ~/.gemini/config/global_workflows/flow-*.md; do
+            head -1 "$f" | grep -q '^---$' || (echo "FAIL: $(basename "$f") missing frontmatter"; exit 1)
+            grep -m1 '^description:' "$f" >/dev/null || (echo "FAIL: $(basename "$f") missing description:"; exit 1)
+          done
+          echo "PASS: all workflows have frontmatter"
+          test -f ~/.gemini/config/skills/forge-discovery/SKILL.md && echo "PASS: forge-discovery skill" || (echo "FAIL: forge-discovery skill missing"; exit 1)
           test ! -f ~/.gemini/antigravity/AGENTS.md && echo "PASS: legacy antigravity pack absent" || (echo "FAIL: legacy antigravity pack still present"; exit 1)
 
       - name: Verificar — flowforge doctor
@@ -286,6 +301,32 @@ jobs:
           $kiloCount = (Get-ChildItem -Path $kiloAgents -Filter "*.md" -ErrorAction SilentlyContinue).Count
           Write-Output "Kilo agents: $kiloCount"
           if ($kiloCount -eq 0) { Write-Error "FAIL: no kilo agents"; exit 1 }
+
+      - name: Verificar — Antigravity (Windows)
+        shell: pwsh
+        run: |
+          $config = "$env:USERPROFILE\.gemini\config"
+          if (-not (Test-Path "$config\AGENTS.md")) { Write-Error "FAIL: Antigravity AGENTS.md missing"; exit 1 }
+          $wfCount = (Get-ChildItem -Path "$config\global_workflows" -Filter "flow-*.md" -ErrorAction SilentlyContinue).Count
+          Write-Output "Antigravity workflows: $wfCount"
+          if ($wfCount -ne 7) { Write-Error "FAIL: expected 7 workflows, got $wfCount"; exit 1 }
+          foreach ($f in Get-ChildItem -Path "$config\global_workflows" -Filter "flow-*.md") {
+            $head = Get-Content $f.FullName -TotalCount 1
+            if ($head -ne "---") { Write-Error "FAIL: $($f.Name) missing frontmatter"; exit 1 }
+            $content = Get-Content $f.FullName -Raw
+            if ($content -notmatch '(?m)^description:') { Write-Error "FAIL: $($f.Name) missing description:"; exit 1 }
+          }
+          Write-Output "PASS: all workflows have frontmatter"
+          $skill = "$config\skills\forge-discovery\SKILL.md"
+          if (-not (Test-Path $skill)) { Write-Error "FAIL: forge-discovery skill missing"; exit 1 }
+          Write-Output "PASS: forge-discovery skill"
+          $legacy = "$env:USERPROFILE\.gemini\antigravity\AGENTS.md"
+          $legacyLocal = "$env:LOCALAPPDATA\Google\Gemini\antigravity\AGENTS.md"
+          if ((Test-Path $legacy) -or (Test-Path $legacyLocal)) {
+            Write-Error "FAIL: legacy antigravity pack still present"
+            exit 1
+          }
+          Write-Output "PASS: legacy antigravity pack absent"
 
       - name: Verificar — flowforge doctor (Windows)
         shell: pwsh

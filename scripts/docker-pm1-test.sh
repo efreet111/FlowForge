@@ -41,7 +41,10 @@ for dir in ~/.cursor ~/.config/opencode ~/.copilot/agents ~/.config/kilo/agents 
     if [ -d "$dir" ]; then
         pass "Dir IDE existe: $dir"
     else
-        fail "Dir IDE falta: $dir (el auto-detect no lo detectará)"
+        # Not a hard failure: the installer creates these dirs during install
+        # (auto-detect handles missing dirs). Post-install PM-1-4* checks verify
+        # the actual installation result.
+        warn "Dir IDE no existe pre-install: $dir (el installer lo creará)"
     fi
 done
 
@@ -179,11 +182,27 @@ else
     warn "PM-1-4e: Antigravity rules no encontrados"
 fi
 
-ANTI_WF=$(find "$HOME/.gemini/config/workflows" -name "*.md" 2>/dev/null | wc -l)
-if [ "$ANTI_WF" -gt 0 ]; then
+ANTI_WF=$(find "$HOME/.gemini/config/global_workflows" -name "flow-*.md" 2>/dev/null | wc -l)
+if [ "$ANTI_WF" -eq 7 ]; then
     pass "PM-1-4f: Antigravity workflows instalados ($ANTI_WF archivos)"
+    fm_fail=0
+    for f in "$HOME/.gemini/config/global_workflows"/flow-*.md; do
+        head -1 "$f" | grep -q '^---$' || fm_fail=1
+        grep -m1 '^description:' "$f" >/dev/null || fm_fail=1
+    done
+    if [ "$fm_fail" -eq 0 ]; then
+        pass "PM-1-4f-b: Antigravity workflows con frontmatter valido"
+    else
+        fail "PM-1-4f-b: Antigravity workflows sin frontmatter description:"
+    fi
 else
-    warn "PM-1-4f: Antigravity workflows no encontrados"
+    fail "PM-1-4f: Antigravity workflows count=$ANTI_WF (expected 7)"
+fi
+
+if [ -f "$HOME/.gemini/config/skills/forge-discovery/SKILL.md" ]; then
+    pass "PM-1-4h: forge-discovery skill presente en config/skills/"
+else
+    fail "PM-1-4h: forge-discovery skill NO encontrado en config/skills/"
 fi
 
 if [ -f "$HOME/.gemini/antigravity/AGENTS.md" ]; then

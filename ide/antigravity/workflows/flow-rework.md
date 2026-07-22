@@ -1,3 +1,7 @@
+---
+description: Intake de bug — rework_ticket y delegacion a forge-dev
+---
+
 # /flow-rework — Bug report → ticket → dev
 
 When the human reports a failure, regression, or "esto no cumple":

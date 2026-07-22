@@ -1,3 +1,7 @@
+---
+description: Fase Verify — auditoria de implementacion vs spec
+---
+
 # /flow-verify — Audit implementation
 
 1. Delegate to **forge-verify** with paths to `spec.md`, `plan.md`, and codebase.

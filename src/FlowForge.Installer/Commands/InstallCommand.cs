@@ -21,6 +21,11 @@ public sealed class InstallCommand(InstallerContext ctx)
         ?? typeof(InstallCommand).Assembly.GetName().Version?.ToString()
         ?? "dev";
 
+    /// <summary>
+    /// -y / --yes: omitir confirmaciones (non-interactive)
+    /// --no-engram: omitir instalación de engram-dotnet
+    /// --no-flowforge: omitir instalación de skills FlowForge
+    /// </summary>
     [Command("")]
     public async Task RunAsync(
         bool yes = false,
@@ -31,8 +36,8 @@ public sealed class InstallCommand(InstallerContext ctx)
         bool jsonOnly = false,
         bool allowSymlink = false,
         bool noSudo = false,
-        string? serverUrl = null
-    )
+        string? serverUrl = null,
+        string provider = "opencode-zen")
     {
         AnsiConsole.Write(new Rule($"[bold blue]FlowForge Stack Installer[/] [grey]v{FlowForgeModule.InstallerVersion}[/]").LeftJustified());
         AnsiConsole.WriteLine();
@@ -44,6 +49,13 @@ public sealed class InstallCommand(InstallerContext ctx)
         // because it correctly detects whether prompts can actually be rendered.
         var canShowPrompts = AnsiConsole.Profile.Capabilities.Interactive;
         var isHeadless = yes || !canShowPrompts;
+
+        var normalizedProvider = (provider ?? string.Empty).Trim().ToLowerInvariant();
+        if (normalizedProvider != "opencode-zen" && normalizedProvider != "opencode-go")
+        {
+            AnsiConsole.MarkupLine("[red]✗[/] --provider debe ser 'opencode-zen' o 'opencode-go'.");
+            return;
+        }
 
         var sudoUser = Environment.GetEnvironmentVariable("SUDO_USER");
         if (noSudo && !string.IsNullOrEmpty(sudoUser))
@@ -226,7 +238,7 @@ public sealed class InstallCommand(InstallerContext ctx)
         if (installFlowForge)
         {
             var module = new FlowForgeModule(ctx);
-            module.Install(selectedIdes, forceFree, dryRun, jsonOnly, allowSymlink, noSudo);
+            module.Install(selectedIdes, normalizedProvider, forceFree, dryRun, jsonOnly, allowSymlink, noSudo);
         }
 
         // ── 6. Guardar config ─────────────────────────────────────────────────
