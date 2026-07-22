@@ -1,3 +1,7 @@
+---
+description: Fase Memory y cierre (CKP-4 deploy gate)
+---
+
 # /flow-close — Memory + deploy gate
 
 1. Delegate to **forge-memory**.

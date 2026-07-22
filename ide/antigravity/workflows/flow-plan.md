@@ -1,3 +1,7 @@
+---
+description: Fase Plan (CKP-2) — plan.md desde spec aprobado
+---
+
 # /flow-plan — Technical plan
 
 **Prerequisite**: Human-approved `spec.md` in `.ai-work/{feature-slug}/`.

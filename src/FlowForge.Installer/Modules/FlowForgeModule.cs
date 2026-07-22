@@ -19,6 +19,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
 
     public void Install(
         List<string> selectedIdes,
+        string provider,
         bool forceFree = false,
         bool dryRun = false,
         bool jsonOnly = false,
@@ -49,7 +50,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         InstallSharedParity(home, ffRepo);
 
         foreach (var ide in selectedIdes)
-            InstallForIde(ide, home, ffRepo, forceFree, dryRun, jsonOnly, allowSymlink, noSudo);
+            InstallForIde(ide, home, ffRepo, provider, forceFree, dryRun, jsonOnly, allowSymlink, noSudo);
     }
 
     void InstallSharedParity(string home, string ffRepo)
@@ -110,6 +111,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         string ide,
         string home,
         string ffRepo,
+        string provider,
         bool forceFree,
         bool dryRun,
         bool jsonOnly,
@@ -122,7 +124,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
                 InstallCursor(home, ffRepo);
                 break;
             case "opencode":
-                InstallOpenCode(ffRepo, home, forceFree, dryRun, jsonOnly, allowSymlink, noSudo);
+                InstallOpenCode(ffRepo, home, provider, forceFree, dryRun, jsonOnly, allowSymlink, noSudo);
                 break;
             case "vs code":
                 InstallVsCode(ffRepo);
@@ -157,6 +159,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
     void InstallOpenCode(
         string ffRepo,
         string home,
+        string provider,
         bool forceFree = false,
         bool dryRun = false,
         bool jsonOnly = false,
@@ -196,7 +199,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
 
         var preHash = File.Exists(configPath) ? ComputeSha256(configPath) : null;
 
-        var configGen = new OpenCodeConfigGenerator(ffRepo, forceFree, dryRun, allowSymlink);
+        var configGen = new OpenCodeConfigGenerator(ffRepo, provider, forceFree, dryRun, allowSymlink);
         var result = configGen.GenerateOrMerge(
             configPath,
             templatesDir,
@@ -209,15 +212,16 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         if (!dryRun)
         {
             var rulesPath = Path.Combine(rulesDest, "model-assignments.md");
-            var modelGen = new ModelAssignmentsGenerator(agentModelsPath, rulesPath);
+            var modelGen = new ModelAssignmentsGenerator(agentModelsPath, rulesPath, provider);
             modelGen.Generate(configPath);
             modifiedFiles.Add(configPath);
             modifiedFiles.Add(rulesPath);
 
             if (!jsonOnly)
             {
-                var manifest = JsonSerializer.Deserialize<OpenCodeConfigGenerator.AgentModelsManifest>(
-                    File.ReadAllText(agentModelsPath))
+                var manifest = JsonSerializer.Deserialize(
+                    File.ReadAllText(agentModelsPath),
+                    OpenCodeJsonContext.Default.AgentModelsManifest)
                     ?? throw new InvalidOperationException("agent-models.json inválido.");
 
                 var patcher = new AgentFrontmatterPatcher();
@@ -229,10 +233,11 @@ public sealed class FlowForgeModule(InstallerContext ctx)
                         var agentName = Path.GetFileNameWithoutExtension(templateAgent);
                         var dest = Path.Combine(agentsDest, $"{agentName}.md");
                         File.Copy(templateAgent, dest, overwrite: true);
-                        if (manifest.Agents.TryGetValue(agentName, out var entry))
-                            patcher.Patch(dest, entry.Model.StartsWith("opencode-zen/")
-                                ? entry.Model
-                                : $"opencode-zen/{entry.Model}");
+                        if (manifest.Agents.ContainsKey(agentName))
+                        {
+                            var resolved = manifest.ResolveAgentModel(agentName, provider);
+                            patcher.Patch(dest, resolved);
+                        }
                         modifiedFiles.Add(dest);
                     }
                 }
@@ -284,6 +289,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         EnsureDirectoryWithBackup(PathHelper.AntigravityRules);
         EnsureDirectoryWithBackup(PathHelper.AntigravityWorkflows);
         EnsureDirectoryWithBackup(PathHelper.AntigravitySkills);
+        MigrateLegacyWorkflowsDir();
 
         var workspaceAgents = PathHelper.AntigravityWorkspaceAgents;
         EnsureDirectoryWithBackup(Path.Combine(workspaceAgents, "rules"));
@@ -310,7 +316,33 @@ public sealed class FlowForgeModule(InstallerContext ctx)
             File.Copy(workflowRule, Path.Combine(PathHelper.HomeDir, ".gemini", "GEMINI.md"), overwrite: true);
 
         CleanupLegacyAntigravityPack();
-        AnsiConsole.MarkupLine("  [green]✓[/] Antigravity → [grey]~/.gemini/config/ (AGENTS + rules + workflows + skills)[/]");
+        AnsiConsole.MarkupLine("  [green]✓[/] Antigravity → [grey]~/.gemini/config/ (AGENTS + rules + global_workflows + skills)[/]");
+    }
+
+    static void MigrateLegacyWorkflowsDir()
+    {
+        var legacyDir = PathHelper.AntigravityLegacyWorkflowsDir;
+        if (!Directory.Exists(legacyDir))
+            return;
+
+        var targetDir = PathHelper.AntigravityWorkflows;
+        Directory.CreateDirectory(targetDir);
+
+        foreach (var file in Directory.GetFiles(legacyDir, "flow-*.md"))
+        {
+            var dest = Path.Combine(targetDir, Path.GetFileName(file));
+            if (File.Exists(dest) && File.GetLastWriteTimeUtc(dest) >= File.GetLastWriteTimeUtc(file))
+                continue;
+
+            try
+            {
+                File.Copy(file, dest, overwrite: true);
+            }
+            catch
+            {
+                /* best-effort */
+            }
+        }
     }
 
     static void CleanupLegacyAntigravityPack()

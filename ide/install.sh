@@ -9,7 +9,21 @@
 
 set -euo pipefail
 
-PROJECT_PATH="${1:-}"
+PROJECT_PATH=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --ide)
+      shift 2
+      ;;
+    --yes|--no-engram)
+      shift
+      ;;
+    *)
+      PROJECT_PATH="$1"
+      shift
+      ;;
+  esac
+done
 
 # ── Locate FlowForge repo ─────────────────────────────────────────────────
 if [ -z "${FLOWFORGE_REPO:-}" ]; then
@@ -30,6 +44,26 @@ IDE_DIR="$FLOWFORGE_REPO/ide"
 BACKUP_DIR="${HOME}/.flowforge-backups/$(date +%Y%m%d-%H%M%S)"
 GLOBAL_SHARED="${HOME}/.flowforge/shared"
 INSTALLED=0
+AGENT_MODELS_JSON="$IDE_DIR/opencode/templates/agent-models.json"
+OPENCODE_TEMPLATE="$IDE_DIR/opencode/templates/opencode.json.tpl"
+PROVIDER="${FLOWFORGE_PROVIDER:-opencode-zen}"
+if command -v jq >/dev/null 2>&1 && [ -f "$OPENCODE_TEMPLATE" ]; then
+  if ! jq -e --arg provider "$PROVIDER" '.provider[$provider]' "$OPENCODE_TEMPLATE" >/dev/null 2>&1; then
+    if jq -e '.provider["opencode-zen"]' "$OPENCODE_TEMPLATE" >/dev/null 2>&1; then
+      PROVIDER="opencode-zen"
+    else
+      PROVIDER="$(jq -r '.provider | keys[0] // \"opencode-zen\"' "$OPENCODE_TEMPLATE" 2>/dev/null || echo "opencode-zen")"
+    fi
+  fi
+fi
+format_model_reference() {
+  local raw="$1"
+  if [[ "$raw" == */* ]]; then
+    printf '%s' "$raw"
+  else
+    printf '%s/%s' "$PROVIDER" "$raw"
+  fi
+}
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -134,14 +168,30 @@ generate_antigravity_model_assignments() {
   mv "$tmp_rules" "${dest}/model-assignments.md"
 }
 
+migrate_legacy_antigravity_workflows() {
+  local legacy="${HOME}/.gemini/config/workflows"
+  local target="${HOME}/.gemini/config/global_workflows"
+  [ -d "$legacy" ] || return 0
+  mkdir -p "$target"
+  for f in "$legacy"/flow-*.md; do
+    [ -f "$f" ] || continue
+    local dest="$target/$(basename "$f")"
+    if [ ! -f "$dest" ] || [ "$f" -nt "$dest" ]; then
+      cp -f "$f" "$dest"
+    fi
+  done
+>>>>>>> origin/main
+}
+
 install_antigravity_global() {
   local cfg="${HOME}/.gemini/config"
-  mkdir -p "$cfg/rules" "$cfg/workflows" "$cfg/skills"
+  mkdir -p "$cfg/rules" "$cfg/global_workflows" "$cfg/skills"
   mkdir -p "$cfg/.agents/rules" "$cfg/.agents/workflows" "$cfg/.agents/skills"
+  migrate_legacy_antigravity_workflows
   cp "$IDE_DIR/antigravity/AGENTS.md" "$cfg/" 2>/dev/null || true
   cp "$IDE_DIR/antigravity/AGENTS.md" "$cfg/.agents/" 2>/dev/null || true
   cp "$IDE_DIR/antigravity/rules/"*.md "$cfg/rules/" 2>/dev/null || true
-  cp "$IDE_DIR/antigravity/workflows/"*.md "$cfg/workflows/" 2>/dev/null || true
+  cp "$IDE_DIR/antigravity/workflows/"*.md "$cfg/global_workflows/" 2>/dev/null || true
   cp "$IDE_DIR/antigravity/rules/"*.md "$cfg/.agents/rules/" 2>/dev/null || true
   cp "$IDE_DIR/antigravity/workflows/"*.md "$cfg/.agents/workflows/" 2>/dev/null || true
   install_antigravity_skills "$cfg/skills"
@@ -326,7 +376,7 @@ fi
 if [ -d "${HOME}/.gemini" ]; then
   echo -e "${GREEN}[OK] Antigravity detectado${NC}"
   install_antigravity_global
-  echo -e "  ${GREEN}OK${NC} ~/.gemini/config/ (AGENTS + rules + workflows + skills)"
+  echo -e "  ${GREEN}OK${NC} ~/.gemini/config/ (AGENTS + rules + global_workflows + skills)"
   INSTALLED=1
 fi
 
