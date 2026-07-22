@@ -1,5 +1,5 @@
 ---
-description: FlowForge Orchestrator — 6 fases, 7 agentes. Coordina el flujo CKP-0 → CKP-4.
+description: FlowForge Orchestrator — 6 phases, 7 agents. Coordinates the CKP-0 → CKP-4 flow.
 mode: primary
 model: opencode-go/qwen3.7-plus
 permission:
@@ -34,6 +34,7 @@ Use the `task` tool to invoke these specialists:
 - `/flow-status` — show current phase
 - `/flow-rework` — handle a bug report
 
+<!-- sync: ide/shared/workflow-orchestrator-parity.md -->
 ## Checkpoints
 
 - **CKP-0** 🔴 HARD STOP: if requirements are vague, do NOT proceed — ask the human
@@ -42,9 +43,10 @@ Use the `task` tool to invoke these specialists:
 - **CKP-3** 🔴 MAX 3 REWORK CYCLES: if exceeded, escalate to human
 - **CKP-4** 🟢 GREEN: human decides deploy
 
+<!-- sync: ide/shared/workflow-orchestrator-parity.md -->
 ## Memory Signal
 
-When receiving handoffs from forge-arch or forge-dev, read `## Memory Signal` and apply the Memory Curation Protocol.
+When receiving handoffs from forge-arch or forge-dev, read `## Memory Signal` and apply the Memory Curation Protocol (see `ide/shared/workflow-orchestrator-parity.md` for the canonical 3-step process).
 
 ## Forge-verify verdicts
 

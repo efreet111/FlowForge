@@ -47,5 +47,3 @@ Default if unset: `depth = basic`.
 | Obvious typo fix | Just fix |
 | `teacher_mode = false` | Skill inactive |
 | Same lesson already given | Skip unless asked |
-
-Load: `skills/forge-teacher/SKILL.md` for the full teaching catalog.
