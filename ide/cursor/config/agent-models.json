@@ -87,56 +87,56 @@
   },
   "agents": {
     "forge-orchestrator": {
-      "model": "gpt-5-mini",
-      "fallback": "gemini-3-flash",
+      "model": { "cursor-budget": "gpt-5-mini" },
+      "fallback": { "cursor-budget": "gemini-3-flash" },
       "mode": "primary",
       "purpose": "CKP-0..4 coordinator"
     },
     "forge-discovery": {
-      "model": "gpt-5-mini",
-      "fallback": "gemini-3-flash",
+      "model": { "cursor-budget": "gpt-5-mini" },
+      "fallback": { "cursor-budget": "gemini-3-flash" },
       "mode": "subagent",
       "purpose": "Context map / CKP-0"
     },
     "forge-arch": {
-      "model": "kimi-k2.7-code",
-      "fallback": "gpt-5.4-mini-medium",
+      "model": { "cursor-budget": "kimi-k2.7-code" },
+      "fallback": { "cursor-budget": "gpt-5.4-mini-medium" },
       "mode": "subagent",
       "purpose": "Spec + STRIDE analysis"
     },
     "forge-plan": {
-      "model": "kimi-k2.7-code",
-      "fallback": "gpt-5.4-mini-medium",
+      "model": { "cursor-budget": "kimi-k2.7-code" },
+      "fallback": { "cursor-budget": "gpt-5.4-mini-medium" },
       "mode": "subagent",
       "purpose": "Plan decomposition and checklist"
     },
     "forge-dev": {
-      "model": "gpt-5.1-codex-mini",
-      "fallback": "composer-2.5-fast",
+      "model": { "cursor-budget": "gpt-5.1-codex-mini" },
+      "fallback": { "cursor-budget": "composer-2.5-fast" },
       "mode": "subagent",
       "purpose": "Implementation and tests"
     },
     "forge-verify": {
-      "model": "kimi-k2.7-code",
-      "fallback": "claude-4.5-haiku-thinking",
+      "model": { "cursor-budget": "kimi-k2.7-code" },
+      "fallback": { "cursor-budget": "claude-4.5-haiku-thinking" },
       "mode": "subagent",
       "purpose": "Audit and verify-report"
     },
     "forge-memory": {
-      "model": "gpt-5-mini",
-      "fallback": "gemini-3-flash",
+      "model": { "cursor-budget": "gpt-5-mini" },
+      "fallback": { "cursor-budget": "gemini-3-flash" },
       "mode": "subagent",
       "purpose": "Session closure and memory"
     },
     "forge-teacher": {
-      "model": "gpt-5-mini",
-      "fallback": "gemini-3-flash",
+      "model": { "cursor-budget": "gpt-5-mini" },
+      "fallback": { "cursor-budget": "gemini-3-flash" },
       "mode": "subagent",
       "purpose": "Explanations and teaching"
     },
     "default": {
-      "model": "gpt-5-mini",
-      "fallback": "gemini-3-flash",
+      "model": { "cursor-budget": "gpt-5-mini" },
+      "fallback": { "cursor-budget": "gemini-3-flash" },
       "mode": "primary",
       "purpose": "Default for unknown agents"
     }

@@ -28,56 +28,56 @@
   },
   "agents": {
     "forge-orchestrator": {
-      "model": "gpt-4o",
-      "fallback": "gpt-4o",
+      "model": { "vscode-copilot": "gpt-4o" },
+      "fallback": { "vscode-copilot": "gpt-4o" },
       "mode": "primary",
       "purpose": "CKP-0..4 coordinator"
     },
     "forge-discovery": {
-      "model": "gpt-4o",
-      "fallback": "gpt-4o",
+      "model": { "vscode-copilot": "gpt-4o" },
+      "fallback": { "vscode-copilot": "gpt-4o" },
       "mode": "subagent",
       "purpose": "Context map / CKP-0"
     },
     "forge-arch": {
-      "model": "gpt-4o",
-      "fallback": "gpt-4o",
+      "model": { "vscode-copilot": "gpt-4o" },
+      "fallback": { "vscode-copilot": "gpt-4o" },
       "mode": "subagent",
       "purpose": "Spec + STRIDE analysis"
     },
     "forge-plan": {
-      "model": "gpt-4o",
-      "fallback": "gpt-4o",
+      "model": { "vscode-copilot": "gpt-4o" },
+      "fallback": { "vscode-copilot": "gpt-4o" },
       "mode": "subagent",
       "purpose": "Plan decomposition and checklist"
     },
     "forge-dev": {
-      "model": "gpt-4o",
-      "fallback": "gpt-4o",
+      "model": { "vscode-copilot": "gpt-4o" },
+      "fallback": { "vscode-copilot": "gpt-4o" },
       "mode": "subagent",
       "purpose": "Implementation and tests"
     },
     "forge-verify": {
-      "model": "gpt-4o",
-      "fallback": "gpt-4o",
+      "model": { "vscode-copilot": "gpt-4o" },
+      "fallback": { "vscode-copilot": "gpt-4o" },
       "mode": "subagent",
       "purpose": "Audit and verify-report"
     },
     "forge-memory": {
-      "model": "gpt-4o",
-      "fallback": "gpt-4o",
+      "model": { "vscode-copilot": "gpt-4o" },
+      "fallback": { "vscode-copilot": "gpt-4o" },
       "mode": "subagent",
       "purpose": "Session closure and memory"
     },
     "forge-teacher": {
-      "model": "gpt-4o",
-      "fallback": "gpt-4o",
+      "model": { "vscode-copilot": "gpt-4o" },
+      "fallback": { "vscode-copilot": "gpt-4o" },
       "mode": "subagent",
       "purpose": "Explanations and teaching"
     },
     "default": {
-      "model": "gpt-4o",
-      "fallback": "gpt-4o",
+      "model": { "vscode-copilot": "gpt-4o" },
+      "fallback": { "vscode-copilot": "gpt-4o" },
       "mode": "primary",
       "purpose": "Default for unknown agents"
     }

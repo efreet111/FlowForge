@@ -29,56 +29,56 @@
   },
   "agents": {
     "forge-orchestrator": {
-      "model": "gemini-3-pro",
-      "fallback": "gemini-3-flash",
+      "model": { "antigravity-gemini": "gemini-3-pro" },
+      "fallback": { "antigravity-gemini": "gemini-3-flash" },
       "mode": "primary",
       "purpose": "CKP-0..4 coordinator"
     },
     "forge-discovery": {
-      "model": "gemini-3-flash",
-      "fallback": "gemini-3-flash",
+      "model": { "antigravity-gemini": "gemini-3-flash" },
+      "fallback": { "antigravity-gemini": "gemini-3-flash" },
       "mode": "subagent",
       "purpose": "Context map / CKP-0"
     },
     "forge-arch": {
-      "model": "gemini-3-pro",
-      "fallback": "gemini-3-flash",
+      "model": { "antigravity-gemini": "gemini-3-pro" },
+      "fallback": { "antigravity-gemini": "gemini-3-flash" },
       "mode": "subagent",
       "purpose": "Spec + STRIDE analysis"
     },
     "forge-plan": {
-      "model": "gemini-3-pro",
-      "fallback": "gemini-3-flash",
+      "model": { "antigravity-gemini": "gemini-3-pro" },
+      "fallback": { "antigravity-gemini": "gemini-3-flash" },
       "mode": "subagent",
       "purpose": "Plan decomposition and checklist"
     },
     "forge-dev": {
-      "model": "gemini-3-pro",
-      "fallback": "gemini-3-flash",
+      "model": { "antigravity-gemini": "gemini-3-pro" },
+      "fallback": { "antigravity-gemini": "gemini-3-flash" },
       "mode": "subagent",
       "purpose": "Implementation and tests"
     },
     "forge-verify": {
-      "model": "gemini-3-pro",
-      "fallback": "gemini-3-flash",
+      "model": { "antigravity-gemini": "gemini-3-pro" },
+      "fallback": { "antigravity-gemini": "gemini-3-flash" },
       "mode": "subagent",
       "purpose": "Audit and verify-report"
     },
     "forge-memory": {
-      "model": "gemini-3-flash",
-      "fallback": "gemini-3-flash",
+      "model": { "antigravity-gemini": "gemini-3-flash" },
+      "fallback": { "antigravity-gemini": "gemini-3-flash" },
       "mode": "subagent",
       "purpose": "Session closure and memory"
     },
     "forge-teacher": {
-      "model": "gemini-3-flash",
-      "fallback": "gemini-3-flash",
+      "model": { "antigravity-gemini": "gemini-3-flash" },
+      "fallback": { "antigravity-gemini": "gemini-3-flash" },
       "mode": "subagent",
       "purpose": "Explanations and teaching"
     },
     "default": {
-      "model": "gemini-3-flash",
-      "fallback": "gemini-3-flash",
+      "model": { "antigravity-gemini": "gemini-3-flash" },
+      "fallback": { "antigravity-gemini": "gemini-3-flash" },
       "mode": "primary",
       "purpose": "Default for unknown agents"
     }

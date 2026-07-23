@@ -39,7 +39,7 @@ public sealed class FlowForgeRepoLocator(InstallerLogger log)
     }
 
     static bool RepoHasOpenCodeTemplates(string repo) =>
-        File.Exists(Path.Combine(repo, "ide", "opencode", "templates", "agent-models.json"));
+        File.Exists(Path.Combine(repo, "ide", "opencode", "config", "agent-models.json"));
 
     /// <summary>Localiza el repo o clona a ~/.flowforge/cache/FlowForge.</summary>
     public bool EnsureAvailable(out string? repoPath)
