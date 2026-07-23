@@ -175,7 +175,8 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         EnsureDirectoryWithBackup(rulesDest);
 
         var templatesDir = Path.Combine(ffRepo, "ide", "opencode", "templates");
-        var agentModelsPath = Path.Combine(templatesDir, "agent-models.json");
+        var configDir = Path.Combine(ffRepo, "ide", "opencode", "config");
+        var agentModelsPath = Path.Combine(configDir, "agent-models.json");
         var managedPathsPath = Path.Combine(templatesDir, "managed-paths.json");
         var configJsonc = Path.Combine(opencodeDir, "opencode.jsonc");
         var configJson = Path.Combine(opencodeDir, "opencode.json");

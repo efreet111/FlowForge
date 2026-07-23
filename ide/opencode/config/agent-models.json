@@ -45,56 +45,56 @@
   },
   "agents": {
     "forge-orchestrator": {
-      "model": "big-pickle",
-      "fallback": "big-pickle",
+      "model": { "opencode-zen": "big-pickle", "opencode-go": "qwen3.7-plus" },
+      "fallback": { "opencode-zen": "big-pickle" },
       "mode": "primary",
       "purpose": "CKP-0..4 coordinator"
     },
     "forge-discovery": {
-      "model": "deepseek-v4-flash-free",
-      "fallback": "deepseek-v4-flash-free",
+      "model": { "opencode-zen": "deepseek-v4-flash-free", "opencode-go": "deepseek-v4-flash" },
+      "fallback": { "opencode-zen": "deepseek-v4-flash-free" },
       "mode": "subagent",
       "purpose": "Context map / CKP-0"
     },
     "forge-arch": {
-      "model": "big-pickle",
-      "fallback": "big-pickle",
+      "model": { "opencode-zen": "big-pickle", "opencode-go": "mimo-v2.5-pro" },
+      "fallback": { "opencode-zen": "big-pickle" },
       "mode": "subagent",
       "purpose": "Spec + STRIDE analysis"
     },
     "forge-plan": {
-      "model": "big-pickle",
-      "fallback": "big-pickle",
+      "model": { "opencode-zen": "big-pickle", "opencode-go": "qwen3.7-plus" },
+      "fallback": { "opencode-zen": "big-pickle" },
       "mode": "subagent",
       "purpose": "Plan decomposition and checklist"
     },
     "forge-dev": {
-      "model": "big-pickle",
-      "fallback": "big-pickle",
+      "model": { "opencode-zen": "big-pickle", "opencode-go": "minimax-m3" },
+      "fallback": { "opencode-zen": "big-pickle" },
       "mode": "subagent",
       "purpose": "Implementation and tests"
     },
     "forge-verify": {
-      "model": "minimax-m2.5-free",
-      "fallback": "minimax-m2.5-free",
+      "model": { "opencode-zen": "minimax-m2.5-free", "opencode-go": "deepseek-v4-pro" },
+      "fallback": { "opencode-zen": "minimax-m2.5-free" },
       "mode": "subagent",
       "purpose": "Audit and verify-report"
     },
     "forge-memory": {
-      "model": "deepseek-v4-flash-free",
-      "fallback": "deepseek-v4-flash-free",
+      "model": { "opencode-zen": "deepseek-v4-flash-free", "opencode-go": "qwen3.7-plus" },
+      "fallback": { "opencode-zen": "deepseek-v4-flash-free" },
       "mode": "subagent",
       "purpose": "Session closure and memory"
     },
     "forge-teacher": {
-      "model": "deepseek-v4-flash-free",
-      "fallback": "deepseek-v4-flash-free",
+      "model": { "opencode-zen": "deepseek-v4-flash-free", "opencode-go": "qwen3.7-plus" },
+      "fallback": { "opencode-zen": "deepseek-v4-flash-free" },
       "mode": "subagent",
       "purpose": "Explanations and teaching"
     },
     "default": {
-      "model": "big-pickle",
-      "fallback": "big-pickle",
+      "model": { "opencode-zen": "big-pickle" },
+      "fallback": { "opencode-zen": "big-pickle" },
       "mode": "primary",
       "purpose": "Default for unknown agents"
     }
