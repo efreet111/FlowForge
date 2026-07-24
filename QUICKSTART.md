@@ -10,15 +10,19 @@
 
 FlowForge has **two installers** — pick one:
 
-| | Stack installer (`curl \| bash`) | IDE installer (`curl \| bash`) |
+| | Stack installer (`install/install.sh`) | IDE installer (`ide/install.sh`) |
 |---|--------------------------------------|----------------------------------|
 | **Installs** | `flowforge` CLI + `engram-dotnet` + IDE agents | IDE agents only |
-| **Runs wizard** | ✅ Yes (`flowforge install --yes`) | ❌ No |
-| **Best for** | First-time setup, full stack | Adding agents to existing project |
+| **Interactive menus** | ✅ Yes (without `--yes` flag) | ❌ No (always automatic) |
+| **Best for** | First-time setup, full stack | Quick refresh, CI/CD, already have engram |
 | **Requires** | Internet (downloads binaries) | `git` in PATH |
 
 > **Already have flowforge?** Run `flowforge install --yes` directly.
 > Use `--yes` for non-interactive mode (CI/CD, Docker, scripts).
+
+**Quick rule:**
+- First time? → Use **Stack installer**
+- Already have flowforge + engram, just want to update agents? → Use **IDE installer**
 
 ### Stack installer (full setup)
 

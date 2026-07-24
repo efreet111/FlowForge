@@ -30,13 +30,19 @@ FlowForge is an **Agentic SDLC methodology** for small and mid-size teams (2–2
 
 ### Stack installer (full setup) {#stack-installer-full-setup}
 
-> **Recommended for most users.** Downloads the `flowforge` CLI (AOT binary), verifies SHA-256, and launches the **install wizard** (`flowforge install --yes`):
-> - Downloads `engram-dotnet` (persistent memory server)
-> - Installs FlowForge IDE agents (skills, rules, `/flow-*` commands)
-> - Auto-detects installed IDEs (Cursor, OpenCode, VS Code)
-> - Configures MCP for sync (if `ENGRAM_SERVER_URL` is set)
-> 
-> After this step, run **`flowforge init <project-path>`** to set up FlowDoc and per-project files.
+> **Recommended for most users.** Downloads the `flowforge` CLI (AOT binary), verifies SHA-256, and launches the **install wizard**.
+
+**What it does:**
+- Downloads `engram-dotnet` (persistent memory server)
+- Installs FlowForge IDE agents (skills, rules, `/flow-*` commands)
+- Auto-detects installed IDEs (Cursor, OpenCode, VS Code)
+- Configures MCP for sync (if `ENGRAM_SERVER_URL` is set)
+
+**Interactive vs Non-interactive:**
+- **Interactive** (default): Shows menus to select components (engram/FlowForge), mode (local/sync), and IDEs
+- **Non-interactive** (`--yes` flag): Uses sensible defaults, auto-detects IDEs, no prompts
+
+After this step, run **`flowforge init <project-path>`** to set up FlowDoc and per-project files.
 
 **Linux/macOS:**
 
@@ -59,7 +65,12 @@ Installs to `%LOCALAPPDATA%\Programs\FlowForge\` (Windows) or `~/.local/bin/flow
 
 ### IDE install (agents only) {#ide-install-agents-only}
 
-> **Lightweight — no wizard.** Copies agents, rules, and `/flow-*` commands into detected IDEs (Cursor, OpenCode, VS Code). Prints a console summary. Does **not** install the `flowforge` CLI or `engram-dotnet` binary. Use this if you already have engram configured or only need the methodology packs.
+> **Lightweight — no wizard, no prompts.** Pure bash/PowerShell script that automatically:
+> - Detects installed IDEs
+> - Copies agents, rules, and `/flow-*` commands
+> - Prints a console summary
+> 
+> **Does NOT install** the `flowforge` CLI or `engram-dotnet` binary. Use this if you already have engram configured or only need the methodology packs.
 
 **Linux/macOS:**
 
@@ -72,6 +83,21 @@ curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install
 ```powershell
 iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
 ```
+
+### Which installer should I use? {#which-installer}
+
+| Feature | Stack installer (`install/install.sh`) | IDE installer (`ide/install.sh`) |
+|---------|----------------------------------------|----------------------------------|
+| **Language** | C# binary (downloaded) + bash bootstrap | Pure bash/PowerShell |
+| **Interactive menus** | ✅ Yes (without `--yes` flag) | ❌ No (always automatic) |
+| **Installs engram-dotnet** | ✅ Yes | ❌ No |
+| **Installs flowforge CLI** | ✅ Yes | ❌ No |
+| **Installs IDE agents** | ✅ Yes | ✅ Yes |
+| **Use case** | First-time setup, full installation | Quick refresh, CI/CD, already have engram |
+
+**Quick rule:**
+- First time? → Use **Stack installer** (`install/install.sh`)
+- Already have flowforge + engram, just want to update agents? → Use **IDE installer** (`ide/install.sh`)
 
 ### Local clone {#local-clone}
 

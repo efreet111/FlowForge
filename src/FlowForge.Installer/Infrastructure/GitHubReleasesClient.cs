@@ -84,6 +84,7 @@ public sealed class GitHubReleasesClient
 
     /// <summary>
     /// engram-dotnet v1.3.0+ may publish release notes without assets; skip empty releases.
+    /// Also verifies that native SQLite libraries are present (required for engram to work).
     /// </summary>
     async Task<string?> GetLatestEngramVersionAsync(string channel, CancellationToken ct)
     {
@@ -91,7 +92,9 @@ public sealed class GitHubReleasesClient
         if (releases == null || releases.Length == 0)
             return null;
 
-        var assetName = GetEngramAssetName();
+        var engramAsset = GetEngramAssetName();
+        var nativeLibAsset = GetNativeLibAssetName();
+        
         foreach (var release in releases)
         {
             if (release.Draft)
@@ -106,13 +109,21 @@ public sealed class GitHubReleasesClient
             if (!matchesChannel)
                 continue;
 
-            if (await ReleaseAssetExistsAsync(release.TagName, assetName, ct))
+            // Verify both the engram binary AND the native SQLite library exist
+            var engramExists = await ReleaseAssetExistsAsync(release.TagName, engramAsset, ct);
+            var nativeLibExists = await ReleaseAssetExistsAsync(release.TagName, nativeLibAsset, ct);
+            
+            if (engramExists && nativeLibExists)
             {
-                _log.Info($"engram-dotnet: usando {release.TagName} ({assetName} disponible)");
+                _log.Info($"engram-dotnet: usando {release.TagName} ({engramAsset} + {nativeLibAsset} disponibles)");
                 return release.TagName;
             }
 
-            _log.Warn($"engram-dotnet: omitiendo {release.TagName} — asset {assetName} no publicado");
+            var missingAssets = new List<string>();
+            if (!engramExists) missingAssets.Add(engramAsset);
+            if (!nativeLibExists) missingAssets.Add(nativeLibAsset);
+            
+            _log.Warn($"engram-dotnet: omitiendo {release.TagName} — faltan assets: {string.Join(", ", missingAssets)}");
         }
 
         return null;
@@ -173,6 +184,9 @@ public sealed class GitHubReleasesClient
 
     static string GetEngramAssetName() =>
         OperatingSystem.IsWindows() ? "engram-win-x64.exe" : "engram-linux-x64";
+
+    static string GetNativeLibAssetName() =>
+        OperatingSystem.IsWindows() ? "e_sqlite3.dll" : "libe_sqlite3.so";
 
     /// <summary>
     /// Descarga un asset y verifica SHA-256 contra el checksum publicado en GitHub Releases.
