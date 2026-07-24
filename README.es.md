@@ -30,12 +30,19 @@ FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños 
 
 ### Stack installer (setup completo) {#stack-installer-setup-completo}
 
-> **Recomendado para la mayoría de usuarios.** Descarga el CLI `flowforge` (binario AOT), verifica SHA-256 y ejecuta el **wizard de instalación** (`flowforge install --yes`):
-> - Descarga `engram-dotnet` (servidor de memoria persistente)
-> - Instala agentes FlowForge en los IDEs detectados (Cursor, OpenCode, VS Code)
-> - Configura MCP para sync (si `ENGRAM_SERVER_URL` está definido)
-> 
-> Luego de este paso, ejecutá **`flowforge init <ruta-del-proyecto>`** para configurar FlowDoc.
+> **Recomendado para la mayoría de usuarios.** Descarga el CLI `flowforge` (binario AOT), verifica SHA-256 y ejecuta el **wizard de instalación**.
+
+**Qué hace:**
+- Descarga `engram-dotnet` (servidor de memoria persistente)
+- Instala agentes FlowForge en los IDEs (skills, reglas, comandos `/flow-*`)
+- Detecta automáticamente los IDEs instalados (Cursor, OpenCode, VS Code)
+- Configura MCP para sync (si `ENGRAM_SERVER_URL` está definido)
+
+**Interactivo vs No-interactivo:**
+- **Interactivo** (por defecto): Muestra menús para seleccionar componentes (engram/FlowForge), modo (local/sync) e IDEs
+- **No-interactivo** (flag `--yes`): Usa valores por defecto, detecta IDEs automáticamente, sin preguntas
+
+Luego de este paso, ejecutá **`flowforge init <ruta-del-proyecto>`** para configurar FlowDoc.
 
 **Linux/macOS:**
 
@@ -58,7 +65,12 @@ Instala en `%LOCALAPPDATA%\Programs\FlowForge\` (Windows) o `~/.local/bin/flowfo
 
 ### Instalación IDE (solo agentes) {#instalacion-ide-solo-agentes}
 
-> **Liviano — sin wizard.** Copia agentes, reglas y comandos `/flow-*` a los IDEs detectados (Cursor, OpenCode, VS Code). Muestra un resumen en consola. **No** instala el CLI `flowforge` ni el binario `engram-dotnet`. Usalo si ya tenés engram configurado o solo necesitás los packs de metodología.
+> **Liviano — sin wizard, sin preguntas.** Script bash/PowerShell puro que automáticamente:
+> - Detecta IDEs instalados
+> - Copia agentes, reglas y comandos `/flow-*`
+> - Muestra un resumen en consola
+> 
+> **NO instala** el CLI `flowforge` ni el binario `engram-dotnet`. Usalo si ya tenés engram configurado o solo necesitás los packs de metodología.
 
 > **OpenCode** ahora genera `opencode.json` completo (provider `opencode-zen`, 8 modelos gratis, `mcp.engram` local) y el doctor valida el schema + PII. El warning de entrenamiento aparece en consola. Más detalles en `docs/opencode-installer.md` y la política de PII en `docs/PII-POLICY.md`.
 
@@ -73,6 +85,21 @@ curl -sSL https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install
 ```powershell
 iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercontent.com/efreet111/FlowForge/main/ide/install.ps1'))
 ```
+
+### ¿Qué instalador debo usar? {#que-instalador-debo-usar}
+
+| Característica | Stack installer (`install/install.sh`) | IDE installer (`ide/install.sh`) |
+|----------------|----------------------------------------|----------------------------------|
+| **Lenguaje** | Binario C# (descargado) + bootstrap bash | bash/PowerShell puro |
+| **Menús interactivos** | ✅ Sí (sin flag `--yes`) | ❌ No (siempre automático) |
+| **Instala engram-dotnet** | ✅ Sí | ❌ No |
+| **Instala CLI flowforge** | ✅ Sí | ❌ No |
+| **Instala agentes IDE** | ✅ Sí | ✅ Sí |
+| **Caso de uso** | Primera instalación, setup completo | Refresco rápido, CI/CD, ya tenés engram |
+
+**Regla rápida:**
+- ¿Primera vez? → Usá **Stack installer** (`install/install.sh`)
+- ¿Ya tenés flowforge + engram, solo querés actualizar agentes? → Usá **IDE installer** (`ide/install.sh`)
 
 ### Clone local {#clone-local}
 
