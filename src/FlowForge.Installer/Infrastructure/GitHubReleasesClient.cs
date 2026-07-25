@@ -15,24 +15,41 @@ public sealed class GitHubReleasesClient
 
     readonly HttpClient _http;
     readonly InstallerLogger _log;
+    readonly int _apiTimeoutSeconds;
     readonly int _downloadTimeoutSeconds;
 
     /// <summary>
     /// Inicializa el cliente con timeouts configurables.
+    /// Nota: No configuramos HttpClient.Timeout globalmente porque afecta descargas grandes.
+    /// En su lugar, usamos CancellationTokenSource con timeout por operación.
     /// </summary>
     public GitHubReleasesClient(HttpClient http, InstallerLogger log, int downloadTimeoutSeconds = 300)
     {
         _http = http;
         _log  = log;
-        var apiTimeoutSeconds = ParseTimeoutEnv("FLOWFORGE_API_TIMEOUT_SECONDS", 30);
-        _http.Timeout = TimeSpan.FromSeconds(apiTimeoutSeconds);
+        _apiTimeoutSeconds = ParseTimeoutEnv("FLOWFORGE_API_TIMEOUT_SECONDS", 30);
         _downloadTimeoutSeconds = Math.Max(1, ParseTimeoutEnv("FLOWFORGE_DOWNLOAD_TIMEOUT_SECONDS", downloadTimeoutSeconds));
+        
+        // No set _http.Timeout globally — it causes issues with large downloads
+        // where the initial connection/redirect takes time. Instead, we use
+        // per-operation CancellationTokenSource timeouts.
+        _http.Timeout = Timeout.InfiniteTimeSpan;
     }
 
     static int ParseTimeoutEnv(string envName, int fallback)
     {
         var raw = Environment.GetEnvironmentVariable(envName);
         return int.TryParse(raw, out var value) && value > 0 ? value : fallback;
+    }
+
+    /// <summary>
+    /// Creates a linked CancellationTokenSource that combines the caller's token
+    /// with an API timeout. Use this for API calls (not downloads).
+    /// </summary>
+    CancellationTokenSource CreateApiTimeoutCts(CancellationToken callerToken)
+    {
+        var timeoutCts = new CancellationTokenSource(TimeSpan.FromSeconds(_apiTimeoutSeconds));
+        return CancellationTokenSource.CreateLinkedTokenSource(callerToken, timeoutCts.Token);
     }
 
     /// <summary>
@@ -52,10 +69,11 @@ public sealed class GitHubReleasesClient
                 req.Headers.Add("User-Agent", "flowforge-installer/0.1.0");
                 req.Headers.Add("Accept", "application/vnd.github+json");
 
-                using var resp = await _http.SendAsync(req, ct);
+                using var apiCts = CreateApiTimeoutCts(ct);
+                using var resp = await _http.SendAsync(req, apiCts.Token);
                 resp.EnsureSuccessStatusCode();
 
-                var content = await resp.Content.ReadAsStringAsync(ct);
+                var content = await resp.Content.ReadAsStringAsync(apiCts.Token);
                 var release = JsonSerializer.Deserialize(content, GitHubJsonContext.Default.GitHubRelease);
                 return release?.TagName;
             }
@@ -136,10 +154,11 @@ public sealed class GitHubReleasesClient
         req.Headers.Add("User-Agent", "flowforge-installer/0.1.0");
         req.Headers.Add("Accept", "application/vnd.github+json");
 
-        using var resp = await _http.SendAsync(req, ct);
+        using var apiCts = CreateApiTimeoutCts(ct);
+        using var resp = await _http.SendAsync(req, apiCts.Token);
         resp.EnsureSuccessStatusCode();
 
-        var content = await resp.Content.ReadAsStringAsync(ct);
+        var content = await resp.Content.ReadAsStringAsync(apiCts.Token);
         return JsonSerializer.Deserialize(content, GitHubJsonContext.Default.GitHubReleaseArray);
     }
 
@@ -148,7 +167,8 @@ public sealed class GitHubReleasesClient
         var url = $"https://github.com/{EngramRepo}/releases/download/{version}/{assetName}";
         using var req = new HttpRequestMessage(HttpMethod.Head, url);
         req.Headers.Add("User-Agent", "flowforge-installer/0.1.0");
-        using var resp = await _http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+        using var apiCts = CreateApiTimeoutCts(ct);
+        using var resp = await _http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, apiCts.Token);
         return resp.IsSuccessStatusCode;
     }
 
@@ -267,9 +287,10 @@ public sealed class GitHubReleasesClient
         {
             using var req = new HttpRequestMessage(HttpMethod.Get, url);
             req.Headers.Add("User-Agent", "flowforge-installer/0.1.0");
-            using var resp = await _http.SendAsync(req, ct);
+            using var apiCts = CreateApiTimeoutCts(ct);
+            using var resp = await _http.SendAsync(req, apiCts.Token);
             if (!resp.IsSuccessStatusCode) return null;
-            var content = await resp.Content.ReadAsStringAsync(ct);
+            var content = await resp.Content.ReadAsStringAsync(apiCts.Token);
             return content.Split(new char[] { ' ', '\t', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).FirstOrDefault();
         }
         catch
