@@ -10,9 +10,12 @@ The `main` branch is protected. **Direct push to main is not allowed.** All chan
 ## Branch Protection Rules
 
 - **Required PRs**: All changes must be submitted via Pull Request
-- **Required status checks**: 
-  - `OpenCode Smoke` — validates OpenCode configuration
-  - `Test Installer` — validates installer in Docker environment
+- **Required status checks** (5 checks must pass):
+  - `Build & Smoke (ubuntu-latest)` — builds installer on Linux
+  - `Build & Smoke (windows-latest)` — builds installer on Windows
+  - `Happy Path Install (Linux)` — full installer test in Docker
+  - `Happy Path Install (Windows)` — full installer test on Windows
+  - `smoke` — OpenCode configuration validation
 - **Enforce admins**: Even repository admins must use PRs
 - **Strict mode**: Branch must be up-to-date before merging
 
