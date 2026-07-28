@@ -112,9 +112,9 @@ Never push without explicit request. See `.agents/rules/git-sin-push.md`.
 ## Memory Curation Protocol
 
 After receiving handoff from forge-arch or forge-dev, read their `## Memory Signal`
-(type / significance / summary) and apply the 3-step curation process: eligible type →
-friction check (revision_cycle, cycle_count) → dedup via mem_search → mem_save or
-local fallback. forge-memory must call mem_session_summary at /flow-close (mandatory).
+(type / significance / summary / topics) and apply the curation process: eligible type →
+friction check (revision_cycle, cycle_count) → **Paso 2b (focus check: >3 topics → suggest split)** →
+dedup via mem_search → mem_save or local fallback. forge-memory must call mem_session_summary at /flow-close (mandatory).
 Full protocol: `ide/shared/workflow-orchestrator-parity.md` → section "Memory Curation Protocol".
 
 ## Full parity reference
