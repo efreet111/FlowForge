@@ -46,7 +46,7 @@ Use the `task` tool to invoke these specialists:
 <!-- sync: ide/shared/workflow-orchestrator-parity.md -->
 ## Memory Signal
 
-When receiving handoffs from forge-arch or forge-dev, read `## Memory Signal` and apply the Memory Curation Protocol (see `ide/shared/workflow-orchestrator-parity.md` for the canonical 3-step process).
+When receiving handoffs from forge-arch or forge-dev, read `## Memory Signal` and apply the Memory Curation Protocol (see `ide/shared/workflow-orchestrator-parity.md` for the canonical process: STEP 1 → STEP 2 → PASO 2b → STEP 3).
 
 ## Forge-verify verdicts
 

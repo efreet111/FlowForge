@@ -32,7 +32,8 @@ At the end of your handoff output, always include a `## Memory Signal` block:
 ## Memory Signal
 - type: bugfix | config | pattern | none
 - significance: high | low
-- summary: "One line describing what happened"
+- summary: "Título específico y buscable (no 'bug fix' o 'update')"
+- topics: [tema1, tema2]   # OPTIONAL — orchestrator treats missing as single-topic
 ```
 
 Rules for the signal:
@@ -42,6 +43,11 @@ Rules for the signal:
 - `type: none` — routine implementation following the plan with no surprises.
 - `significance: high` — took multiple attempts, or is a non-obvious gotcha.
 - `significance: low` — worth mentioning but not critical.
+- `topics` — OPTIONAL list of distinct themes covered. If absent, orchestrator defaults to single-topic behavior.
+- **Title specificity**: summary must be specific and searchable. Pattern: "What was the problem/change + what was the resolution/outcome".
+  - ❌ "Bug fix" → ✅ "JWT refresh token rotation prevents replay attacks"
+  - ❌ "Update" → ✅ "Removed title from idx_obs_dedupe to prevent B-tree overflow"
+  - ❌ "Config" → ✅ "PostgreSQL connection pool set to 100 for production load"
 - **Do NOT call `mem_save` directly** — emit the signal and let the orchestrator decide.
 
 ## Rework mode (open ticket)
