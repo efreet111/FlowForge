@@ -65,6 +65,37 @@ capability_matrix:
 ---
 # Spec: [Feature name]
 
+## 0. Executive Summary
+
+**Mandatory section.** Always generated, regardless of spec length. 15-20 lines maximum. Generated AFTER writing sections 1-5 to ensure accuracy.
+
+Format:
+```markdown
+## 0. Executive Summary
+
+**Objective**: [1 line — what the feature solves]
+
+**Scope**:
+- In: [3-5 bullet points]
+- Out: [2-3 bullet points]
+
+**Functional Requirements**:
+| ID | Name | Description |
+|----|------|-------------|
+| FR-001 | [name] | [1-line description] |
+| FR-002 | [name] | [1-line description] |
+
+**Key Decisions**: [2-3 architectural decisions made]
+
+**Risks**: [2-3 identified risks with mitigations]
+```
+
+Rules:
+- Always present as section 0, before Objective (section 1).
+- No GWT scenarios in summary — only high-level overview.
+- Summary must accurately reflect the full spec content.
+- Generate summary AFTER writing all other sections (sections 1-5).
+
 ## 1. Objective and scope
 [What it solves and what is out of scope]
 
