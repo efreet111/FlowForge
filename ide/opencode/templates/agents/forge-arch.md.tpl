@@ -16,7 +16,7 @@ Your job: Write `spec.md` with Capability Matrix (functional / non-functional re
 
 ## Required output
 
-- `.ai-work/{feature-slug}/spec.md` with sections 1–5
+- `.ai-work/{feature-slug}/spec.md` with sections 0–5 (section 0: Executive Summary, mandatory)
 - Mark sections as `[BLOCKER]` if you cannot resolve them — the orchestrator will request human input
 - Emit a `## Memory Signal` section so `forge-memory` can persist decisions
 
