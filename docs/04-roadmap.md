@@ -264,7 +264,7 @@ Deterministic checks that run on every PR. No LLM required. **Implemented in `op
 | Test | What it checks | Where to add |
 |------|---------------|-------------|
 | SKILL.md completeness | Required sections present in all 7 core skills | CI script |
-| `spec.md` schema | Sections 1–4 present; OQ-* rows have valid tag if section 5 exists | CI script |
+| `spec.md` schema | Sections 0–4 present (section 0: Executive Summary); OQ-* rows have valid tag if section 5 exists | CI script |
 | `plan.md` schema | Sections 1–4 present | CI script |
 | `.flowforge.json` validity | Valid JSON + required `paths.*` fields | CI script |
 | `flow-init` smoke | Script runs without error on a temp dir, produces expected files | `opencode-smoke.yml` |
@@ -278,7 +278,7 @@ Use a judge LLM to evaluate agent output against golden examples. Inherits the `
 |------|-------|--------|
 | CKP-1 BLOCKER gate | spec.md with `[BLOCKER]` row + "adelante" | Response does NOT invoke forge-plan; lists the blocker |
 | CKP-0 vague req | "improve performance" (no context) | Response asks for clarification, does NOT produce spec |
-| forge-arch output | Context Map from CRUD example | Output has sections 1–4, PM-* with ≥2 items, Capability Matrix |
+| forge-arch output | Context Map from CRUD example | Output has sections 0–4 (section 0: Executive Summary), PM-* with ≥2 items, Capability Matrix |
 | forge-verify pass/fail | Known passing spec+code pair | Verdict is PASS |
 | forge-verify fail | Known failing pair (missing FR) | Verdict is FAIL, rework ticket produced |
 

@@ -92,7 +92,27 @@ On PASS, call `@forge-memory`.
 <!-- sync: ide/shared/workflow-orchestrator-parity.md -->
 ## Memory Curation Protocol
 
-After receiving handoff from `forge-arch` or `forge-dev`, read the `## Memory Signal` block and apply the Memory Curation Protocol. See `ide/shared/workflow-orchestrator-parity.md` for the canonical 3-step process (STEP 1: eligible type? → STEP 2: was there friction? → STEP 3: already in Engram?). All other agents (forge-plan, forge-verify, forge-discovery) do not emit Memory Signal — skip curation for them.
+After receiving handoff from `forge-arch` or `forge-dev`, read the `## Memory Signal` block and apply the Memory Curation Protocol. See `ide/shared/workflow-orchestrator-parity.md` for the canonical process (STEP 1 → STEP 2 → PASO 2b → STEP 3). All other agents (forge-plan, forge-verify, forge-discovery) do not emit Memory Signal — skip curation for them.
+
+### Paso 2b — ¿Está enfocado?
+
+After STEP 2 (friction check) and before STEP 3 (dedup), evaluate whether the observation is focused on a single topic:
+
+```
+PASO 2b — ¿Está enfocado?
+  Leer topics[] del Memory Signal (si existe)
+  Analizar contenido para contar temas distintos (LLM single-pass)
+  SI > 3 temas:
+    → SUGERIR división con lista numerada de temas
+    → SI agente confirma split: guardar cada tema por separado
+    → SI agente confirma single: proceder (humano override)
+  SI ≤ 3 temas:
+    → CONTINUAR al PASO 3
+  SI análisis falla:
+    → Non-blocking: continuar al PASO 3 sin sugerencia
+```
+
+**Backward compatibility**: If `topics` field is absent from the Memory Signal, treat as single-topic and use content text for analysis. Missing `topics` is valid — do not block.
 
 **CKP metrics (non-blocking, separate from curation):** At each checkpoint pass,
 optionally call mem_save with type=metrics (non-blocking — skip silently on MCP error):

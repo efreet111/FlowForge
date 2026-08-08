@@ -102,4 +102,4 @@ If forge-memory reports pending PM-*: instruct human to run PM, mark [x] in spec
 `/flow-start`, `/flow-plan`, `/flow-dev`, `/flow-verify`, `/flow-close`, `/flow-status`
 
 <!-- sync: ide/shared/workflow-orchestrator-parity.md -->
-Parity reference: FlowForge repo `ide/shared/workflow-orchestrator-parity.md` — includes Memory Curation Protocol (3-step process for forge-arch/forge-dev Memory Signal).
+Parity reference: FlowForge repo `ide/shared/workflow-orchestrator-parity.md` — includes Memory Curation Protocol (STEP 1 → STEP 2 → PASO 2b → STEP 3 for forge-arch/forge-dev Memory Signal).

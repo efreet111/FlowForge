@@ -113,12 +113,40 @@ When the developer works **offline** (no DB), notes accumulate as individual mar
    * Discard fleeting debugging notes (console prints, temporary test snippets).
    * Identify high‑value items: structural decisions, complex bug fixes, new patterns.
 3. **Consolidation & Compression**:
-   * If multiple files describe the same bug, merge them into a **single high‑quality observation** with the canonical format:
-     - **What**: definitive resolution or decision.
-     - **Why**: reasoning behind the choice.
-     - **Where**: affected files/components.
-     - **Learned**: key technical lesson or gotcha.
-4. **Organised Ingestion**: Save the synthesized observation to `engram‑dotnet` via `mem_save`, specifying `scope` (`team` for shared knowledge, `personal` for local use) and the appropriate `topic_key`.
+    * If multiple files describe the same bug, merge them into a **single high‑quality observation** with the canonical format:
+      - **What**: definitive resolution or decision.
+      - **Why**: reasoning behind the choice.
+      - **Where**: affected files/components.
+      - **Learned**: key technical lesson or gotcha.
+4. **Observation Quality Checklist**:
+
+    Antes de guardar, verificar:
+    - [ ] Enfocado en UN tema (no 3+ temas mezclados)
+    - [ ] Título específico (no "bug fix" o "update")
+    - [ ] Estructura completa (What/Why/Where/Learned)
+    - [ ] Lección o decisión actionable
+    - [ ] Tamaño apropiado para el tipo:
+      - decision: 500-1500 chars ideal (máx 2000)
+      - bugfix: 800-2000 chars ideal (máx 3000)
+      - pattern: 1000-2500 chars ideal (máx 3000)
+      - config: 3000-8000 chars aceptable (máx 5000)
+      - session_summary: 2000-5000 chars ideal (máx 8000)
+
+    **Title specificity rule**:
+    | ❌ Generic (rejected) | ✅ Specific (accepted) |
+    |-----------------------|------------------------|
+    | "Bug fix" | "JWT refresh token rotation prevents replay attacks" |
+    | "Update" | "Removed title from idx_obs_dedupe to prevent B-tree overflow" |
+    | "Change" | "Switched from sessions to JWT for stateless auth" |
+    | "Config" | "PostgreSQL connection pool set to 100 for production load" |
+    | "Fix" | "NullReferenceException in AuthMiddleware when token is expired" |
+
+    Si cubre múltiples temas → dividir en observaciones separadas.
+    Si algún check no se puede evaluar → "Quality analysis incomplete", proceed without blocking.
+
+    Applies to both mid-session and session-close processing — run checklist before EVERY `mem_save` call.
+
+5. **Organised Ingestion**: Save the synthesized observation to `engram‑dotnet` via `mem_save`, specifying `scope` (`team` for shared knowledge, `personal` for local use) and the appropriate `topic_key`.
 5. **Buffer Cleanup**: Only after `mem_save` returns a successful response (observation ID present in result), delete the corresponding temporary markdown files to avoid duplication in future cycles. If `mem_save` fails or returns no ID, **keep the file** — do not delete unconfirmed observations.
 
 ---
