@@ -25,6 +25,14 @@ Create `.ai-work/{feature-slug}/spec.md` (use `mkdir -p` first) with this struct
 ```markdown
 # Spec: [Feature Name]
 
+## 0. Executive Summary
+**Mandatory.** 15-20 lines. Generated AFTER sections 1-5.
+- Objective: [1 line]
+- Scope: In/Out [3-5 bullet points]
+- FRs table: ID, Name, Description (no GWT)
+- Key Decisions: [2-3 decisions]
+- Risks: [2-3 risks with mitigations]
+
 ## 1. Objective and Scope
 [What it solves and what is out of scope]
 

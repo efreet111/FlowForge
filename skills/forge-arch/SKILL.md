@@ -39,13 +39,19 @@ Memory protocol:
 ## Memory Signal
 - type: decision | none
 - significance: high | low
-- summary: "One line describing the key decision made"
+- summary: "Título específico y buscable (no 'bug fix' o 'update')"
+- topics: [tema1, tema2]   # OPTIONAL — orchestrator treats missing as single-topic
 ```
 
 Rules for the signal:
 - Use `type: none` if no architecture decision was made (routine spec with no trade-offs).
 - Use `significance: high` for decisions that establish new patterns or were contested
   (e.g. revision_cycle >= 1). Use `significance: low` for everything else.
+- `topics` — OPTIONAL list of distinct themes covered. If absent, orchestrator defaults to single-topic behavior.
+- **Title specificity**: summary must be specific and searchable. Pattern: "What was the problem/change + what was the resolution/outcome".
+  - ❌ "Bug fix" → ✅ "JWT refresh token rotation prevents replay attacks"
+  - ❌ "Change" → ✅ "Switched from sessions to JWT for stateless auth"
+  - ❌ "Config" → ✅ "PostgreSQL connection pool set to 100 for production load"
 - **Do NOT call `mem_save` directly** — emit the signal and let the orchestrator decide.
 
 Required `spec.md` structure:
@@ -58,6 +64,37 @@ capability_matrix:
     - [Hard business rule or validation]
 ---
 # Spec: [Feature name]
+
+## 0. Executive Summary
+
+**Mandatory section.** Always generated, regardless of spec length. 15-20 lines maximum. Generated AFTER writing sections 1-5 to ensure accuracy.
+
+Format:
+```markdown
+## 0. Executive Summary
+
+**Objective**: [1 line — what the feature solves]
+
+**Scope**:
+- In: [3-5 bullet points]
+- Out: [2-3 bullet points]
+
+**Functional Requirements**:
+| ID | Name | Description |
+|----|------|-------------|
+| FR-001 | [name] | [1-line description] |
+| FR-002 | [name] | [1-line description] |
+
+**Key Decisions**: [2-3 architectural decisions made]
+
+**Risks**: [2-3 identified risks with mitigations]
+```
+
+Rules:
+- Always present as section 0, before Objective (section 1).
+- No GWT scenarios in summary — only high-level overview.
+- Summary must accurately reflect the full spec content.
+- Generate summary AFTER writing all other sections (sections 1-5).
 
 ## 1. Objective and scope
 [What it solves and what is out of scope]

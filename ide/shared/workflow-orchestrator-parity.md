@@ -94,7 +94,7 @@ or `forge-dev`. No other agents emit Memory Signal.
 - summary: "One line describing what occurred"
 ```
 
-### Orchestrator 3-step process
+### Orchestrator process
 
 ```
 STEP 1 — Eligible type?
@@ -106,6 +106,20 @@ STEP 2 — Was there friction?
   revision_cycle >= 1 → continue
   cycle_count >= 2 (from rework_ticket.md frontmatter) → continue
   none → SKIP
+
+PASO 2b — ¿Está enfocado?
+  Leer topics[] del Memory Signal (si existe)
+  Analizar contenido para contar temas distintos (LLM single-pass)
+  SI > 3 temas:
+    → SUGERIR división con lista numerada de temas
+    → SI agente confirma split: guardar cada tema por separado
+    → SI agente confirma single: proceder (humano override)
+  SI ≤ 3 temas:
+    → CONTINUAR al PASO 3
+  SI análisis falla:
+    → Non-blocking: continuar al PASO 3 sin sugerencia
+
+  Backward compatibility: missing topics[] → single-topic default, use content for analysis.
 
 STEP 3 — Already in Engram?
   mem_search(query=summary, limit=1) → recent match → SKIP
