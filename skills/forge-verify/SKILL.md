@@ -37,11 +37,17 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
 1. **Step Zero – Line‑by‑Line Inspection**:
    * Read the modified files line by line.
    * Look for obvious logical errors: missing returns, empty blocks, undeclared variables, or stray debug prints (e.g., `print("hello")`). Any such debug code results in an automatic failure.
-2. **Constant & Test Case Matching**:
+2. **Step 1 – Constant & Test Case Matching**:
    * Cross‑check code values against the `spec.md`. If the spec says "Default priority: MEDIUM", ensure the code reflects exactly that. Any deviation (e.g., "LOW" or a different case) is an immediate failure.
    * Verify that each Given‑When‑Then scenario in `spec.md` is covered by a unit test in the test suite.
    * **Context Map check**: Read `.ai-work/{feature-slug}/context-map.md`. If the section `## Reusable Patterns Found` is missing or empty (no entry and no negative-result line), issue **REWORK** immediately — discovery was incomplete. This is a mechanical CKP-0 violation reported at verify time.
-3. **Test Execution Check (No Green Output = No PASS)**:
+3. **Step 2 – Assertion/Oracle Validation (NEW)**:
+   * Validate that test assertion expected values match spec constants.
+   * For each test assertion, extract the expected value and check if it appears in `spec.md` constants.
+   * If expected value NOT in spec → flag with "⚠️ Assertion uses value not in spec. Verify this is intentional."
+   * If expected value is implementation-derived (e.g., computed from code) → warn with "⚠️ Assertion may be testing implementation, not spec."
+   * This is ADVISORY (WARN), not blocking. Log findings but do not fail on this step alone.
+4. **Step 3 – Test Execution Check (No Green Output = No PASS)**:
     * Run the test suite yourself (`npm run test`, `dotnet test`, etc.) and read the result.
     * **DO NOT** award a PASS unless you have a 100% green test output.
     
@@ -56,7 +62,7 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
     
     **Option B (acceptable)** → Run static analysis without tests:
     * Line-by-line logic review (Step Zero).
-    * Constant verification against spec (Step 2).
+    * Constant verification against spec (Step 1).
     * GWT coverage verification: check that tests EXIST (even if not executed).
     * If all OK → issue **PASS DEGRADADO** with this notation:
       ```
@@ -67,13 +73,24 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
       - Manual execution required BEFORE deploy.
       ```
     
-    **Option C (last resort)** → Reject without runtime:
-    *"I cannot verify the code without running the tests. I need runtime access or for a human to run the suite."*
-    * This returns a **PENDING** (neither PASS nor FAIL) and escalates to the orchestrator.
-4. **Capability Matrix & Manual Validation**:
-    * Ensure every element marked as `deterministic` in the Capability Matrix is implemented as immutable hard‑coded logic, not model‑driven.
-    * **Mandatory Manual Checklist**: When emitting a PASS, generate a `## 🔍 Manual Verification Steps` section listing practical steps for the user to verify runtime behaviors not captured by automated tests (e.g., network cut simulation, UI interactions).
-5. **Developer Manual Tests PM-* (DO NOT EVALUATE)**:
+     **Option C (last resort)** → Reject without runtime:
+     *"I cannot verify the code without running the tests. I need runtime access or for a human to run the suite."*
+     * This returns a **PENDING** (neither PASS nor FAIL) and escalates to the orchestrator.
+5. **Step 3.5 – Coverage Gate on git diff (NEW)**:
+   * After test execution passes, run coverage on files in `git diff HEAD`.
+   * Use appropriate coverage tool per language:
+     - .NET: coverlet (via `dotnet test --collect:"XPlat Code Coverage"`)
+     - JS/TS: istanbul/nyc or built-in coverage (vitest, jest --coverage)
+     - Python: `pytest --cov` with coverage.py
+   * Calculate coverage percentage for diff lines only.
+   * If coverage ≥80% → gate passes, proceed to verdict.
+   * If coverage <80% AND affected lines ≥5 → **REWORK**: "Coverage gate failed: <X>% of diff lines covered (<80% threshold). <Y> lines affected."
+   * If coverage <80% AND affected lines <5 → **PASS_DEGRADADO**: "Coverage below 80% but only <Y> lines affected. Verify tests cover all modified logic."
+   * If coverage tools unavailable → Fall back to mental mutation checklist (forge-dev/testing lines 105-143) as a gate. Issue **PASS_DEGRADADO** with note: "Coverage tools unavailable — mental mutation checklist used. Developer must demonstrate checklist completion."
+6. **Step 4 – Capability Matrix & Manual Validation**:
+   * Ensure every element marked as `deterministic` in the Capability Matrix is implemented as immutable hard‑coded logic, not model‑driven.
+   * **Mandatory Manual Checklist**: When emitting a PASS, generate a `## 🔍 Manual Verification Steps` section listing practical steps for the user to verify runtime behaviors not captured by automated tests (e.g., network cut simulation, UI interactions).
+7. **Step 5 – Developer Manual Tests PM-* (DO NOT EVALUATE)**:
     * The section `## 4. Developer manual tests (PM-*)` in `spec.md` contains tests the **HUMAN** must execute. Do NOT evaluate them.
     * Your verdict applies ONLY to FR/NFR and automated tests (Layer A).
     * In your report, add a note: `## Pending Manual Tests: The developer must run PM-* from spec.md before /flow-close.`
