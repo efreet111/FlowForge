@@ -1,8 +1,8 @@
 # ADR-015 — Test Quality Gates for forge-verify
 
-> **Status**: Proposed (P0 accepted, P1 pending baseline data)  
+> **Status**: **Accepted — P0 shipped** in PR #22 (`775c678`, 2026-08-07); PM-1..PM-5 manual validation deferred as technical debt (requires real project context + coverage tooling); P1 pending baseline data  
 > **Date**: 2026-08-06  
-> **Updated**: 2026-08-07 (discovery revealed mutation testing alone insufficient — P0: assertion validation + coverage gate first)  
+> **Updated**: 2026-08-07 (discovery revealed mutation testing alone insufficient — P0: assertion validation + coverage gate first; P0 shipped, validation deferred)  
 > **Feature**: `test-quality-gates` (NS-10)  
 > **Deciders**: Engineering (FlowForge methodology team)  
 > **Links**: [`NS-10`](../backlog/NS-10-mutation-testing.md) · [`skills/forge-verify/SKILL.md`](../../skills/forge-verify/SKILL.md) · [`skills/forge-dev/testing/SKILL.md`](../../skills/forge-dev/testing/SKILL.md)
