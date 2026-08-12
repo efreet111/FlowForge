@@ -1,4 +1,5 @@
 using FlowForge.Installer.Infrastructure;
+using FlowForge.Installer.Update;
 using Spectre.Console;
 
 namespace FlowForge.Installer.Commands;
@@ -14,6 +15,8 @@ public static class StatusCommand
     public static void Run(InstallerContext ctx)
     {
         var cfg = ctx.Store.Load();
+        var registry = new ComponentRegistry(ctx.Store);
+        var versions = registry.GetAllVersions();
 
         AnsiConsole.Write(new Rule("[bold blue]FlowForge[/]").LeftJustified());
         AnsiConsole.MarkupLine($"  Versión: [bold]v{InstallerVersion}[/]  |  Canal: [cyan]{cfg.Channel}[/]");
@@ -38,15 +41,24 @@ public static class StatusCommand
             ff?.Installed == true ? ff.Version : "-"
         );
 
+        var flowdoc = cfg.Components.FlowDoc;
         table.AddRow(
             "FlowDoc",
-            cfg.FlowDoc.Enabled ? "[green]habilitado[/]" : "[grey]deshabilitado[/]",
-            "-"
+            flowdoc?.Installed == true ? "[green]instalado[/]" : (cfg.FlowDoc.Enabled ? "[green]habilitado[/]" : "[grey]deshabilitado[/]"),
+            flowdoc?.Installed == true ? flowdoc.Version : (cfg.FlowDoc.Enabled ? "-" : "-")
+        );
+
+        var installer = cfg.Components.Installer;
+        table.AddRow(
+            "Installer",
+            installer?.Installed == true ? "[green]instalado[/]" : "[green]activo[/]",
+            installer?.Installed == true ? installer.Version : InstallerVersion
         );
 
         AnsiConsole.Write(table);
         AnsiConsole.WriteLine();
         AnsiConsole.MarkupLine("[grey]Para instalar: [/][bold]flowforge install[/]");
         AnsiConsole.MarkupLine("[grey]Para actualizar: [/][bold]flowforge update[/]");
+        AnsiConsole.MarkupLine("[grey]Para actualizar un componente: [/][bold]flowforge update --component engram[/]");
     }
 }
