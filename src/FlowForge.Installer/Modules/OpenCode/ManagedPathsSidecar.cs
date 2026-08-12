@@ -6,7 +6,19 @@ public sealed class ManagedPathsSidecar
 {
     static readonly string[] LegacyDefaults = { "mcp.engram" };
 
-    public string Path => FlowForge.Installer.Infrastructure.PathHelper.OpenCodeSidecarPath;
+    /// <summary>Default constructor — uses the OpenCode sidecar path.</summary>
+    public ManagedPathsSidecar()
+        : this(FlowForge.Installer.Infrastructure.PathHelper.OpenCodeSidecarPath)
+    {
+    }
+
+    /// <summary>Constructor with custom path (task 8.2).</summary>
+    public ManagedPathsSidecar(string customPath)
+    {
+        Path = customPath ?? throw new ArgumentNullException(nameof(customPath));
+    }
+
+    public string Path { get; }
 
     public string[] ReadManagedPaths()
     {
