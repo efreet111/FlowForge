@@ -1,14 +1,20 @@
 ---
 feature: flowforge-update-mechanism
 status: closed
-date: 2026-08-12
+date: 2026-08-13
 ckp4: 🟢 green
 rework_cycles: 2
+pr: 24
+pr_status: merged
+merge_commit: c7bb9c6
+checks: "5/5 passed"
 pm_status: "PM-1 ✅ PM-3 ✅ PM-4 ✅ PM-5 ✅ | PM-2 ⏸️ DEFERRED (minor tech debt)"
 adrs: [ADR-016, ADR-017]
 ---
 
 # Session Summary — `flowforge update --component` (Update Mechanism)
+
+> 🔀 **PR #24: [feat(installer): component-based update mechanism with surgical MCP merge](https://github.com/efreet111/FlowForge/pull/24)** — **MERGED** into `main` (`c7bb9c6`, 2026-08-13), **5/5 CI checks passed**. Feature delivered; session closed at CKP-4 🟢.
 
 ## 1. Executive Summary
 
@@ -106,6 +112,7 @@ Verificadas por el desarrollador humano (2026-08-12).
 
 ## 7. Relevant Files
 
+- **PR #24** — https://github.com/efreet111/FlowForge/pull/24 (**MERGED** `c7bb9c6`, 5/5 checks)
 - `.ai-work/flowforge-update-mechanism/context-map.md` — discovery (319 líneas)
 - `.ai-work/flowforge-update-mechanism/spec.md` — spec + PM-* (PM-2 marcado deferido)
 - `.ai-work/flowforge-update-mechanism/plan.md` — plan (753 líneas)
@@ -121,14 +128,17 @@ Verificadas por el desarrollador humano (2026-08-12).
 
 - **type**: decision
 - **significance**: high
-- **summary**: "Update mechanism por componente con merge quirúrgico de MCP configs, backup/rollback, detección de agentes modificados, y sidecar managed-paths generalizado — basado en ~80% de código reusable del installer existente"
-- **topics**: installer, update-mechanism, mcp-merge, rollback, sidecar, managed-vs-user, component-granularity, agent-detection
+- **summary**: "Update mechanism feature complete, PR #24 merged into main (5/5 CI checks passed), session closed — CKP-4 GREEN"
+- **topics**: installer, update-mechanism, pr-created, session-closed
 
 ## 9. Close Status
 
-**CKP-4: 🟢 GREEN** — todos los gates pasaron:
+**CKP-4: 🟢 GREEN** — todos los gates pasaron y el feature está **entregado**:
+- **PR #24 MERGED** (`c7bb9c6`, 2026-08-13) — 5/5 CI checks passed, branch `feat/flowforge-update-mechanism` deleted upstream
 - PM-1, PM-3, PM-4, PM-5 ✅ (PM-2 diferido con aprobación explícita del humano)
 - Rework tickets: 0 abiertos (ambos cerrados/resueltos)
 - ADRs promovidos: ADR-016, ADR-017
-- Memoria subida a Engram (decision + session summary + metrics)
+- Memoria persistida (session summary + decision + metrics)
 - Changelog actualizado
+
+**Deploy decision**: feature ya está en `main`. Siguiente paso humano: release/empaquetado del próximo tag (el binario con `flowforge update` sale con el próximo release de FlowForge).
