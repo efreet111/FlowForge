@@ -23,6 +23,18 @@ public static class PathHelper
     public static string OpenCodeSidecarPath =>
         Path.Combine(HomeDir, ".config", "opencode", ".flowforge-managed.json");
 
+    public static string CursorSidecarPath =>
+        Path.Combine(HomeDir, ".cursor", ".flowforge-managed.json");
+
+    public static string AntigravitySidecarPath =>
+        Path.Combine(HomeDir, ".gemini", "config", ".flowforge-managed.json");
+
+    public static string VsCodeSidecarPath =>
+        Path.Combine(HomeDir, ".copilot", ".flowforge-managed.json");
+
+    public static string KiloSidecarPath =>
+        Path.Combine(HomeDir, ".config", "kilo", ".flowforge-managed.json");
+
     public static string OpenCodeTemplatesDir(string ffRepo)
     {
         if (!string.IsNullOrWhiteSpace(ffRepo))

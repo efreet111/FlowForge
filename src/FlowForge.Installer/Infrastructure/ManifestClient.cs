@@ -103,6 +103,31 @@ public sealed class ManifestClient(HttpClient http, InstallerLogger log)
         return null;
     }
 
+    /// <summary>
+    /// Verifica si todas las versiones instaladas son compatibles con el manifest.
+    /// Returns null if all compatible, error message if any component is incompatible.
+    /// </summary>
+    public static string? CheckCrossComponentCompatibility(
+        RemoteManifest manifest,
+        Dictionary<string, string?> installedComponents)
+    {
+        // Check engram-dotnet
+        if (installedComponents.TryGetValue("engram", out var engramVersion) && engramVersion != null)
+        {
+            var engramError = CheckEngramCompatibility(manifest, engramVersion);
+            if (engramError != null) return engramError;
+        }
+
+        // Check installer
+        if (installedComponents.TryGetValue("installer", out var installerVersion) && installerVersion != null)
+        {
+            var installerError = CheckInstallerCompatibility(manifest, installerVersion);
+            if (installerError != null) return installerError;
+        }
+
+        return null;
+    }
+
     // ── Parser YAML mínimo (sin dependencia externa para mantener AOT simple) ──
 
     static RemoteManifest ParseYaml(string yaml)
