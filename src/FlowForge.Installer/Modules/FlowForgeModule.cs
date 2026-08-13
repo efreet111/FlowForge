@@ -15,7 +15,7 @@ namespace FlowForge.Installer.Modules;
 /// </summary>
 public sealed class FlowForgeModule(InstallerContext ctx)
 {
-    public const string InstallerVersion = "0.1.0-alpha.6";
+    public const string InstallerVersion = "0.1.0-alpha.13";
 
     public void Install(
         List<string> selectedIdes,
@@ -614,5 +614,186 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         Directory.CreateDirectory(destDir);
         foreach (var f in Directory.GetFiles(srcDir, pattern))
             File.Copy(f, Path.Combine(destDir, Path.GetFileName(f)), overwrite: true);
+    }
+
+    /// <summary>
+    /// Copies skills/agents/commands from the cache repo to the IDE destination (task 10.3).
+    /// Reusable from the update path. Returns the list of managed file paths (for sidecar).
+    /// </summary>
+    public static IReadOnlyList<string> CopySkillsForIde(string ide, string homeDir, string cacheRepo)
+    {
+        var managedPaths = new List<string>();
+        var ideLower = ide.ToLowerInvariant();
+
+        switch (ideLower)
+        {
+            case "cursor":
+                managedPaths.AddRange(CopyCursorSkills(homeDir, cacheRepo));
+                break;
+            case "opencode":
+                managedPaths.AddRange(CopyOpenCodeSkills(homeDir, cacheRepo));
+                break;
+            case "antigravity":
+                managedPaths.AddRange(CopyAntigravitySkills(homeDir, cacheRepo));
+                break;
+            case "vs code" or "vscode" or "copilot":
+                managedPaths.AddRange(CopyVsCodeSkills(homeDir, cacheRepo));
+                break;
+            case "kilo":
+                managedPaths.AddRange(CopyKiloSkills(homeDir, cacheRepo));
+                break;
+        }
+
+        return managedPaths;
+    }
+
+    static List<string> CopyCursorSkills(string homeDir, string cacheRepo)
+    {
+        var managed = new List<string>();
+        var cursorDir = Path.Combine(homeDir, ".cursor");
+        var ideDir = Path.Combine(cacheRepo, "ide", "cursor");
+        if (!Directory.Exists(ideDir)) return managed;
+
+        var rulesDest = Path.Combine(cursorDir, "rules");
+        CopyGlobTracked(Path.Combine(ideDir, "rules"), rulesDest, "*.mdc", managed);
+
+        var agentsDest = Path.Combine(cursorDir, "agents");
+        CopyGlobTracked(Path.Combine(ideDir, "agents"), agentsDest, "forge-*.md", managed);
+
+        var commandsDest = Path.Combine(cursorDir, "commands");
+        CopyGlobTracked(Path.Combine(ideDir, "commands"), commandsDest, "*.md", managed);
+
+        return managed;
+    }
+
+    static List<string> CopyOpenCodeSkills(string homeDir, string cacheRepo)
+    {
+        var managed = new List<string>();
+        var opencodeDir = Path.Combine(homeDir, ".config", "opencode");
+
+        var agentsDest = Path.Combine(opencodeDir, "agents");
+        CopyGlobTracked(Path.Combine(cacheRepo, "ide", "opencode", "agents"), agentsDest, "*.md", managed);
+
+        var commandsDest = Path.Combine(opencodeDir, "commands");
+        CopyGlobTracked(Path.Combine(cacheRepo, "ide", "opencode", "commands"), commandsDest, "*.md", managed);
+
+        return managed;
+    }
+
+    static List<string> CopyAntigravitySkills(string homeDir, string cacheRepo)
+    {
+        var managed = new List<string>();
+        var configDir = Path.Combine(homeDir, ".gemini", "config");
+        var ideDir = Path.Combine(cacheRepo, "ide", "antigravity");
+        if (!Directory.Exists(ideDir)) return managed;
+
+        var rulesDest = Path.Combine(configDir, "rules");
+        CopyGlobTracked(Path.Combine(ideDir, "rules"), rulesDest, "*.md", managed);
+
+        var workflowsDest = Path.Combine(configDir, "global_workflows");
+        CopyGlobTracked(Path.Combine(ideDir, "workflows"), workflowsDest, "*.md", managed);
+
+        // Skills (symlink or copy)
+        var skillsDest = Path.Combine(configDir, "skills");
+        CopyAntigravitySkillsTracked(skillsDest, cacheRepo, managed);
+
+        return managed;
+    }
+
+    static List<string> CopyVsCodeSkills(string homeDir, string cacheRepo)
+    {
+        var managed = new List<string>();
+        var copilotAgents = Path.Combine(homeDir, ".copilot", "agents");
+        CopyGlobTracked(Path.Combine(cacheRepo, "ide", "vscode", "agents"), copilotAgents, "*.agent.md", managed);
+
+        var copilotInstructions = Path.Combine(homeDir, ".copilot", "instructions");
+        var instructionsDest = Path.Combine(copilotInstructions, "flowforge.instructions.md");
+        var copilotSrc = Path.Combine(cacheRepo, "ide", "vscode", "copilot-instructions.md");
+        if (File.Exists(copilotSrc))
+        {
+            Directory.CreateDirectory(copilotInstructions);
+            WriteUserCopilotInstructionsTo(copilotSrc, instructionsDest);
+            managed.Add(instructionsDest);
+        }
+
+        return managed;
+    }
+
+    static List<string> CopyKiloSkills(string homeDir, string cacheRepo)
+    {
+        var managed = new List<string>();
+        var kiloAgents = Path.Combine(homeDir, ".config", "kilo", "agents");
+        CopyGlobTracked(Path.Combine(cacheRepo, "ide", "opencode", "agents"), kiloAgents, "*.md", managed);
+        return managed;
+    }
+
+    static void CopyGlobTracked(string srcDir, string destDir, string pattern, List<string> tracked)
+    {
+        if (!Directory.Exists(srcDir)) return;
+        Directory.CreateDirectory(destDir);
+        foreach (var f in Directory.GetFiles(srcDir, pattern))
+        {
+            var dest = Path.Combine(destDir, Path.GetFileName(f));
+            File.Copy(f, dest, overwrite: true);
+            tracked.Add(dest);
+        }
+    }
+
+    static void CopyAntigravitySkillsTracked(string destDir, string ffRepo, List<string> tracked)
+    {
+        var skillsSrc = Path.Combine(ffRepo, "skills");
+        if (!Directory.Exists(skillsSrc)) return;
+
+        Directory.CreateDirectory(destDir);
+        foreach (var skillDir in Directory.GetDirectories(skillsSrc, "forge-*"))
+        {
+            var name = Path.GetFileName(skillDir);
+            var target = Path.Combine(destDir, name);
+            if (Directory.Exists(target) || File.Exists(target))
+            {
+                try { Directory.Delete(target, recursive: true); } catch { /* best-effort */ }
+            }
+
+            try
+            {
+                Directory.CreateSymbolicLink(target, skillDir);
+                tracked.Add(target);
+            }
+            catch
+            {
+                CopyDirectoryRecursiveTracked(skillDir, target, tracked);
+            }
+        }
+    }
+
+    static void CopyDirectoryRecursiveTracked(string source, string destination, List<string> tracked)
+    {
+        if (!Directory.Exists(source)) return;
+        Directory.CreateDirectory(destination);
+        foreach (var directory in Directory.GetDirectories(source, "*", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(source, directory);
+            Directory.CreateDirectory(Path.Combine(destination, relative));
+        }
+        foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
+        {
+            var relative = Path.GetRelativePath(source, file);
+            var destFile = Path.Combine(destination, relative);
+            Directory.CreateDirectory(Path.GetDirectoryName(destFile)!);
+            File.Copy(file, destFile, overwrite: true);
+            tracked.Add(destFile);
+        }
+    }
+
+    static void WriteUserCopilotInstructionsTo(string srcPath, string destPath)
+    {
+        var body = File.ReadAllText(srcPath).TrimStart();
+        if (body.StartsWith("---", StringComparison.Ordinal))
+        {
+            File.WriteAllText(destPath, body + Environment.NewLine);
+            return;
+        }
+        File.WriteAllText(destPath,
+            $"---{Environment.NewLine}applyTo: '**'{Environment.NewLine}---{Environment.NewLine}{body}{Environment.NewLine}");
     }
 }

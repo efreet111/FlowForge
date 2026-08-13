@@ -21,6 +21,9 @@ public sealed class InstallerConfig
 
     [JsonPropertyName("components")]
     public ComponentsConfig Components { get; set; } = new();
+
+    [JsonPropertyName("last_cache_refresh")]
+    public string? LastCacheRefresh { get; set; }
 }
 
 public sealed class FlowDocConfig
@@ -59,6 +62,36 @@ public sealed class ComponentsConfig
 
     [JsonPropertyName("flowforge")]
     public FlowForgeComponentEntry? FlowForge { get; set; }
+
+    [JsonPropertyName("flowdoc")]
+    public FlowDocEntry? FlowDoc { get; set; }
+
+    [JsonPropertyName("installer")]
+    public InstallerEntry? Installer { get; set; }
+}
+
+public sealed class FlowDocEntry
+{
+    [JsonPropertyName("installed")]
+    public bool Installed { get; set; }
+
+    [JsonPropertyName("version")]
+    public string Version { get; set; } = "";
+
+    [JsonPropertyName("project_path")]
+    public string ProjectPath { get; set; } = "";
+}
+
+public sealed class InstallerEntry
+{
+    [JsonPropertyName("installed")]
+    public bool Installed { get; set; }
+
+    [JsonPropertyName("version")]
+    public string Version { get; set; } = "";
+
+    [JsonPropertyName("binary")]
+    public string Binary { get; set; } = "";
 }
 
 public sealed class ComponentEntry
@@ -94,6 +127,8 @@ public sealed class FlowForgeComponentEntry
 [JsonSerializable(typeof(ComponentsConfig))]
 [JsonSerializable(typeof(ComponentEntry))]
 [JsonSerializable(typeof(FlowForgeComponentEntry))]
+[JsonSerializable(typeof(FlowDocEntry))]
+[JsonSerializable(typeof(InstallerEntry))]
 public partial class InstallerJsonContext : JsonSerializerContext { }
 
 // ── MCP config models (AOT-safe) ──────────────────────────────────────────────

@@ -113,6 +113,12 @@ public sealed class EngramModule(InstallerContext ctx)
         ctx.Log.Info($"EngramModule.Install: completado {version}");
     }
 
+    /// <summary>Downloads engram binary to a temp path without overwriting the installed binary (task 10.2).</summary>
+    public async Task<bool> DownloadEngramToTempAsync(string version, string tempPath, CancellationToken ct = default)
+    {
+        return await ctx.GitHub.DownloadEngramAsync(version, tempPath, ct);
+    }
+
     public async Task UpdateAsync(string newVersion)
     {
         AnsiConsole.MarkupLine($"Actualizando engram-dotnet a [bold]{newVersion}[/]...");
