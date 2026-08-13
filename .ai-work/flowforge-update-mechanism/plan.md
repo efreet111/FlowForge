@@ -631,15 +631,16 @@ public static string KiloSidecarPath =>
 - [x] **12.1** [REGRESSION] Re-run `InstallerBaselineTests` to verify no regression
   - Size: **S**
 - [ ] **12.2** [REGRESSION] Manual test PM-1: Happy path update all components
-  - Size: **S**
+   - Size: **S**
 - [ ] **12.3** [REGRESSION] Manual test PM-2: Rollback on broken binary
-  - Size: **S**
+   - Size: **S**
 - [ ] **12.4** [REGRESSION] Manual test PM-3: MCP merge preserves existing servers
-  - Size: **S**
-- [ ] **12.5** [REGRESSION] Manual test PM-4: User-modified agent detection
-  - Size: **S**
+   - Size: **S**
+- [x] **12.5** [REGRESSION] Manual test PM-4: User-modified agent detection
+   - Fixed: `BackupModifiedFiles` now actually copies files; interactive prompt added for non-`--yes` case; user-visible feedback shown for each modified file
+   - Size: **S**
 - [ ] **12.6** [REGRESSION] Manual test PM-5: Cache git refresh
-  - Size: **S**
+   - Size: **S**
 - [x] **12.7** Run full test suite (`dotnet test`) — all green required
   - Size: **S**
 
@@ -686,7 +687,7 @@ public static string KiloSidecarPath =>
 - [ ] `flowforge update --component flowforge-skills` updates skills for detected IDEs
 - [ ] `flowforge update --component all` follows topological order
 - [ ] MCP merge preserves existing servers (PM-3)
-- [ ] User-modified agents detected and handled (PM-4)
+- [x] User-modified agents detected and handled (PM-4) — fixed in rework cycle 2
 - [ ] Cache git refresh works (PM-5)
 - [ ] Rollback works on broken binary (PM-2)
 - [x] Idempotent: re-running same update is a no-op (FR-007)
