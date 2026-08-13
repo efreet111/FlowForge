@@ -174,6 +174,8 @@ Add two quality gates:
 
 ## 4. Developer manual tests (PM-*)
 
+> ⚠️ **Deferred - requires development context** (human decision, 2026-08-07): PM-1..PM-5 cannot be executed without additional development work — they require a real project context, installed coverage tools (coverlet/istanbul/`--cov`), and crafted test scenarios. Feature closed with merge (PR #22) as deliverable; PM-* tracked as technical debt. Run these before the next feature that uses the forge-verify gates, then flip the checkboxes to `[x]`.
+
 | ID | Case / flow | Steps (summary) | Expected result | [x] |
 |----|-------------|-----------------|-----------------|-----|
 | PM-1 | Assertion validation catches wrong value | 1. Write test with expected value NOT in spec<br>2. Run forge-verify<br>3. Check assertion validation flag | forge-verify flags assertion with "value not in spec" | [ ] |
