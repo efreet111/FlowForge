@@ -1,9 +1,9 @@
 # NS-10: Test Quality Gates for forge-verify
 
-> **Status:** Proposed  
+> **Status:** **P0 Implemented** (shipped in PR #22, 2026-08-07); PM-1..PM-5 manual validation deferred as technical debt; P1 mutation testing pending baseline data  
 > **Priority:** P0 — High (prevents false-positive tests, improves test quality)  
 > **Created:** 2026-08-06  
-> **Updated:** 2026-08-07 (discovery revealed mutation testing alone is insufficient — added P0 assertion validation + coverage gate)  
+> **Updated:** 2026-08-07 (P0 assertion validation + coverage gate shipped in PR #22; PM-* validation deferred)  
 > **Related:** User report of tests passing with incorrect expected values, forge-dev-testing mental mutation checklist (lines 105-143)  
 > **ADR:** [`ADR-015`](../decisions/ADR-015-mutation-testing.md)
 
