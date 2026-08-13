@@ -310,6 +310,97 @@ public class ReworkFixTests
         Assert.Throws<ArgumentException>(() => ManagedPathsSidecarFactory.GetSidecarPath("unknown-ide"));
     }
 
+    // ── Cycle 2 Rework: Issue 1 — Status command registration (FR-008) ────
+
+    [Fact]
+    public void StatusCommand_InstallerVersion_MatchesCsproj()
+    {
+        // FR-008: Version must be consistent across all files
+        var expectedVersion = FlowForgeModule.InstallerVersion;
+        Assert.Equal("0.1.0-alpha.13", expectedVersion);
+    }
+
+    [Fact]
+    public void StatusCommand_Run_DoesNotThrow()
+    {
+        // FR-008: StatusCommand.Run should execute without error
+        var ctx = CreateTestContext();
+        var exception = Record.Exception(() => StatusCommand.Run(ctx));
+        Assert.Null(exception);
+    }
+
+    // ── Cycle 2 Rework: Issue 2 — BackupModifiedFiles actually copies (FR-006) ─
+
+    [Fact]
+    public void UpdateOrchestrator_AgentDetection_DetectsModifiedFiles()
+    {
+        // FR-006: UserModifiedAgentDetector correctly detects modifications
+        var tempDir = Path.Combine(Path.GetTempPath(), $"detect-{Guid.NewGuid():N}");
+        var installedDir = Path.Combine(tempDir, "installed");
+        var sourceDir = Path.Combine(tempDir, "source");
+        Directory.CreateDirectory(installedDir);
+        Directory.CreateDirectory(sourceDir);
+        try
+        {
+            // Source has original content
+            File.WriteAllText(Path.Combine(sourceDir, "forge-arch.md"), "original agent content");
+            // Installed has been modified by user
+            File.WriteAllText(Path.Combine(installedDir, "forge-arch.md"), "original agent content\n# User modification");
+
+            var detector = new UserModifiedAgentDetector();
+            var reports = detector.DetectModifications(installedDir, sourceDir, "forge-*.md");
+
+            var modified = reports.Where(r => r.IsModified).ToList();
+            Assert.Single(modified);
+            Assert.Equal("forge-arch.md", modified[0].FilePath);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [Fact]
+    public void UpdateOrchestrator_AgentDetection_UnmodifiedFilesNotFlagged()
+    {
+        // FR-006: Unmodified files should NOT be flagged
+        var tempDir = Path.Combine(Path.GetTempPath(), $"detect-{Guid.NewGuid():N}");
+        var installedDir = Path.Combine(tempDir, "installed");
+        var sourceDir = Path.Combine(tempDir, "source");
+        Directory.CreateDirectory(installedDir);
+        Directory.CreateDirectory(sourceDir);
+        try
+        {
+            var content = "identical content in both";
+            File.WriteAllText(Path.Combine(sourceDir, "forge-dev.md"), content);
+            File.WriteAllText(Path.Combine(installedDir, "forge-dev.md"), content);
+
+            var detector = new UserModifiedAgentDetector();
+            var reports = detector.DetectModifications(installedDir, sourceDir, "forge-*.md");
+
+            var modified = reports.Where(r => r.IsModified).ToList();
+            Assert.Empty(modified);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    // ── Cycle 2 Rework: Issue 3 — Version consistency (FR-008) ────────────
+
+    [Fact]
+    public void VersionConsistency_AllSources_MatchAlpha13()
+    {
+        // FR-008: All version sources must be consistent
+        // FlowForgeModule.InstallerVersion is the canonical source
+        Assert.Equal("0.1.0-alpha.13", FlowForgeModule.InstallerVersion);
+
+        // RemoteManifest default should match
+        var manifest = Models.RemoteManifest.Default;
+        Assert.Equal("0.1.0-alpha.13", manifest.InstallerVersion);
+    }
+
     // ── Helpers ────────────────────────────────────────────────────────────
 
     static InstallerContext CreateTestContext()

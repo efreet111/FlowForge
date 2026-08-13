@@ -285,29 +285,66 @@ public sealed class UpdateOrchestrator
                 var agentDirs = GetAgentDirsForIde(ide, home, cachePath);
                 foreach (var (installedDir, sourceDir, pattern) in agentDirs)
                 {
+                    _ctx.Log.Info($"UpdateSkills: checking for modified agents in {ide} ({installedDir} vs {sourceDir})...");
                     var reports = _agentDetector.DetectModifications(installedDir, sourceDir, pattern);
                     var modifiedFiles = reports.Where(r => r.IsModified).ToList();
+                    _ctx.Log.Info($"UpdateSkills: found {modifiedFiles.Count} modified file(s) in {ide}");
 
                     if (modifiedFiles.Count > 0)
                     {
-                        _ctx.Log.Info($"UpdateSkills: {modifiedFiles.Count} user-modified file(s) detected in {ide}");
+                        // Show user-visible feedback for each modified file
+                        foreach (var mf in modifiedFiles)
+                        {
+                            AnsiConsole.MarkupLine($"  [yellow]⚠[/] {mf.FilePath} fue modificado por el usuario");
+                        }
 
                         if (options.Force)
                         {
                             // --force: overwrite without backup
-                            _ctx.Log.Info($"UpdateSkills: --force flag, overwriting {modifiedFiles.Count} modified file(s)");
+                            _ctx.Log.Info($"UpdateSkills: --force flag, overwriting {modifiedFiles.Count} modified file(s) without backup");
+                            AnsiConsole.MarkupLine($"  [grey]⋯ --force: sobrescribiendo sin backup[/]");
                         }
                         else if (options.Yes)
                         {
                             // --yes: auto-backup + overwrite
                             _ctx.Log.Info($"UpdateSkills: --yes flag, auto-backup + overwrite {modifiedFiles.Count} modified file(s)");
-                            BackupModifiedFiles(modifiedFiles, ide);
+                            var backupPath = BackupModifiedFiles(modifiedFiles, installedDir, ide);
+                            if (backupPath != null)
+                                AnsiConsole.MarkupLine($"  [green]✓[/] Backup creado en {backupPath}");
                         }
                         else
                         {
-                            // Interactive: for now, auto-backup + overwrite (non-interactive context)
-                            _ctx.Log.Info($"UpdateSkills: non-interactive, auto-backup + overwrite {modifiedFiles.Count} modified file(s)");
-                            BackupModifiedFiles(modifiedFiles, ide);
+                            // Interactive: prompt user for action
+                            var choice = AnsiConsole.Prompt(
+                                new Spectre.Console.SelectionPrompt<string>()
+                                    .Title($"[yellow]{modifiedFiles.Count} archivo(s) modificado(s). ¿Qué hacer?[/]")
+                                    .AddChoices(new[] {
+                                        "[B]ackup + overwrite (recomendado)",
+                                        "[O]verwrite sin backup",
+                                        "[S]kip (no sobrescribir)"
+                                    }));
+
+                            if (choice.StartsWith("[S]"))
+                            {
+                                // Skip: don't copy files for this IDE
+                                _ctx.Log.Info($"UpdateSkills: user chose Skip for {ide}");
+                                AnsiConsole.MarkupLine($"  [yellow]⊘[/] {ide} → omitido (archivos del usuario preservados)");
+                                continue; // Skip to next IDE
+                            }
+                            else if (choice.StartsWith("[O]"))
+                            {
+                                // Overwrite without backup
+                                _ctx.Log.Info($"UpdateSkills: user chose Overwrite without backup for {ide}");
+                                AnsiConsole.MarkupLine($"  [grey]⋯[/] Sobrescribiendo sin backup[/]");
+                            }
+                            else
+                            {
+                                // Backup + overwrite (default/recommended)
+                                _ctx.Log.Info($"UpdateSkills: user chose Backup + Overwrite for {ide}");
+                                var backupPath = BackupModifiedFiles(modifiedFiles, installedDir, ide);
+                                if (backupPath != null)
+                                    AnsiConsole.MarkupLine($"  [green]✓[/] Backup creado en {backupPath}");
+                            }
                         }
                     }
                 }
@@ -400,24 +437,45 @@ public sealed class UpdateOrchestrator
 
     /// <summary>
     /// Backs up user-modified files before overwriting.
+    /// Copies each modified file to a timestamped backup directory.
+    /// Returns the backup directory path, or null on failure.
     /// </summary>
-    void BackupModifiedFiles(List<ModifiedFileReport> modifiedFiles, string ide)
+    string? BackupModifiedFiles(List<ModifiedFileReport> modifiedFiles, string installedDir, string ide)
     {
         try
         {
             var backupDir = Path.Combine(PathHelper.FlowForgeBackupDir, $"skills-{ide}-{DateTime.UtcNow:yyyyMMdd-HHmmss}");
             Directory.CreateDirectory(backupDir);
 
+            var backedUpCount = 0;
             foreach (var report in modifiedFiles)
             {
-                // report.FilePath is relative — we need to find the actual installed file
-                // For simplicity, we log the modification; actual backup is best-effort
-                _ctx.Log.Info($"UpdateSkills: modified file detected: {report.FilePath}");
+                // report.FilePath is relative to installedDir
+                var sourceFile = Path.Combine(installedDir, report.FilePath);
+                if (!File.Exists(sourceFile))
+                {
+                    _ctx.Log.Warn($"UpdateSkills: modified file not found for backup: {sourceFile}");
+                    continue;
+                }
+
+                // Preserve relative directory structure in backup
+                var destFile = Path.Combine(backupDir, report.FilePath);
+                var destDir = Path.GetDirectoryName(destFile);
+                if (destDir != null)
+                    Directory.CreateDirectory(destDir);
+
+                File.Copy(sourceFile, destFile, overwrite: true);
+                backedUpCount++;
+                _ctx.Log.Info($"UpdateSkills: backed up {report.FilePath} → {destFile}");
             }
+
+            _ctx.Log.Info($"UpdateSkills: backup complete — {backedUpCount} file(s) → {backupDir}");
+            return backupDir;
         }
         catch (Exception ex)
         {
             _ctx.Log.Warn($"UpdateSkills: backup of modified files failed: {ex.Message}");
+            return null;
         }
     }
 

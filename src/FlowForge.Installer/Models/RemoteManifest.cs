@@ -10,7 +10,7 @@ namespace FlowForge.Installer.Models;
 public sealed class RemoteManifest
 {
     /// <summary>Versión del manifest (coincide con la última release del installer).</summary>
-    public string InstallerVersion { get; set; } = "0.1.0-alpha.6";
+    public string InstallerVersion { get; set; } = "0.1.0-alpha.13";
 
     /// <summary>
     /// Versión mínima de engram-dotnet compatible con este installer.
@@ -30,7 +30,7 @@ public sealed class RemoteManifest
     /// </summary>
     public static RemoteManifest Default => new()
     {
-        InstallerVersion      = "0.1.0-alpha.6",
+        InstallerVersion      = "0.1.0-alpha.13",
         RequiresEngramDotnet  = ">=0.3.0",
         RequiresInstaller     = ">=0.1.0-alpha.6",
         IsRemote              = false,
