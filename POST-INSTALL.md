@@ -36,7 +36,51 @@ ACTUAL=$(sha256sum ~/.local/bin/engram | awk '{print $1}')
 [[ "$EXPECTED" == "$ACTUAL" ]] && echo "OK" || echo "MISMATCH"
 ```
 
-> **ENG-454 (planned)**: `flowforge update` will automate this.
+> **✅ Implemented in v0.1.0-alpha.13**: Use `flowforge update --component engram` to update automatically with backup and rollback support.
+
+---
+
+## 1b. Update components (v0.1.0-alpha.13+)
+
+FlowForge supports granular component updates. Check current status:
+
+```bash
+flowforge status
+```
+
+**Expected output:**
+
+```
+── FlowForge ───────────────────────────────────────────────────────────────────
+  Versión: v0.1.0-alpha.13  |  Canal: stable
+
+  engram-dotnet   instalado    v1.3.0
+  FlowForge       instalado    2026.08.13
+  FlowDoc         habilitado   -
+  Installer       activo       0.1.0-alpha.13
+```
+
+**Update individual components:**
+
+```bash
+# Update only engram-dotnet binary
+flowforge update --component engram
+
+# Update only FlowForge skills/agents for your IDEs
+flowforge update --component flowforge-skills
+
+# Update all components
+flowforge update --component all
+```
+
+**Features:**
+- ✅ Backup + automatic rollback if health-check fails
+- ✅ Surgical MCP merge (preserves your other MCP servers in Cursor/Antigravity)
+- ✅ User-modified agent detection (SHA-256 comparison with Skip/Backup/Overwrite options)
+- ✅ Git cache refresh with fallback
+- ✅ Process check before binary swap
+
+See [ADR-016](docs/decisions/ADR-016-update-mechanism-by-component.md) for architectural details.
 
 ---
 
@@ -173,7 +217,7 @@ Expected: a row with the saved content appears.
 | `DllNotFoundException` at startup | Missing `libe_sqlite3.so` | Install libsqlite3 system package |
 | `error: No se pudo conectar al servidor` from `engram sync status` | `engram serve` not running, or wrong port | Run `engram serve` or set `ENGRAM_SERVER_URL` |
 | `Mutation transport failed with status 501` every 30ms in logs | Self-loop (no `ENGRAM_SERVER_URL` set) — **fixed in v0.4.0+**, warning should appear instead | Update binary (step 1) or set `ENGRAM_SYNC_ENABLED=false` |
-| Stale binary after FlowForge update | FlowForge does not auto-update engram-dotnet (ENG-454) | Manual update via step 1, or wait for `flowforge update` |
+| Stale binary after FlowForge update | Component update available | Run `flowforge update --component engram` (v0.1.0-alpha.13+) or manual update via step 1 |
 | Memory not visible from team | Server not running, or different `ENGRAM_USER` | Check `engram doctor` and verify `ENGRAM_USER` matches |
 
 ---

@@ -91,6 +91,64 @@ There is **no** official `/forge-memory`, `/forge-dev`, etc. Legacy docs and IDE
 
 Install Cursor command files: `ide/install.ps1 -ProjectPath <repo>` then Reload Window. Commands work as plain chat text even without autocomplete.
 
+### CLI Commands (flowforge binary)
+
+The `flowforge` CLI provides system-level commands for installation, updates, and diagnostics:
+
+| Command | Purpose | Example |
+|---------|---------|---------|
+| `flowforge install` | Install full stack (engram + FlowForge agents) | `flowforge install --yes` |
+| `flowforge status` | Show installed components and versions | `flowforge status` |
+| `flowforge update` | Update components with backup + rollback | `flowforge update --component engram` |
+| `flowforge doctor` | Diagnose installation issues | `flowforge doctor` |
+| `flowforge init` | Initialize FlowDoc in a project | `flowforge init ~/projects/my-app` |
+| `flowforge config` | Manage configuration | `flowforge config get` |
+| `flowforge uninstall` | Remove FlowForge installation | `flowforge uninstall` |
+
+#### `flowforge status` (v0.1.0-alpha.13+)
+
+Shows the current state of all installed components:
+
+```bash
+$ flowforge status
+
+── FlowForge ───────────────────────────────────────────────────────────────────
+  Versión: v0.1.0-alpha.13  |  Canal: stable
+
+  engram-dotnet   instalado    v1.3.0
+  FlowForge       instalado    2026.08.13
+  FlowDoc         habilitado   -
+  Installer       activo       0.1.0-alpha.13
+```
+
+#### `flowforge update` (v0.1.0-alpha.13+)
+
+Granular component updates with backup and automatic rollback:
+
+```bash
+# Update specific components
+flowforge update --component engram           # engram-dotnet binary only
+flowforge update --component flowforge-skills # FlowForge skills/agents for IDEs
+flowforge update --component all              # all components
+
+# Non-interactive mode
+flowforge update --component all --yes
+
+# Force overwrite without backup
+flowforge update --component flowforge-skills --force
+```
+
+**Features:**
+- Backup created before binary swap (retention: 5 backups per component)
+- Health-check validates new binary before commit
+- Automatic rollback if health-check fails
+- Surgical MCP merge (preserves other MCP servers in Cursor/Antigravity)
+- User-modified agent detection (SHA-256 comparison)
+- Git cache refresh with fallback to fresh clone
+- Process check before binary swap
+
+See [ADR-016](decisions/ADR-016-update-mechanism-by-component.md) for architectural details.
+
 ---
 
 ## PART 2: Agents and skills catalog
