@@ -76,6 +76,52 @@ FlowForge escribe los agentes en los directorios que cada IDE realmente lee. Des
 
 `flowforge doctor`, `ide/install.sh` e `ide/install.ps1` respetan esta matriz; consultá [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md) para la estructura canónica.
 
+## 1b. Verificar estado y actualizar componentes (v0.1.0-alpha.13+)
+
+Después de la instalación, verificá que todo esté funcionando:
+
+```bash
+# Ver estado de todos los componentes
+flowforge status
+```
+
+**Salida esperada:**
+
+```
+── FlowForge ───────────────────────────────────────────────────────────────────
+  Versión: v0.1.0-alpha.13  |  Canal: stable
+
+  engram-dotnet   instalado    v1.3.0
+  FlowForge       instalado    2026.08.13
+  FlowDoc         habilitado   -
+  Installer       activo       0.1.0-alpha.13
+```
+
+**Actualizar componentes cuando sea necesario:**
+
+```bash
+# Actualizar solo binario engram-dotnet (con backup + rollback)
+flowforge update --component engram
+
+# Actualizar solo skills/agentes FlowForge para tus IDEs
+flowforge update --component flowforge-skills
+
+# Actualizar todos los componentes a la vez
+flowforge update --component all
+
+# Modo no interactivo (auto-confirmar)
+flowforge update --component all --yes
+```
+
+**Qué sucede durante la actualización:**
+- ✅ Backup creado antes del swap de binarios
+- ✅ Health-check valida el nuevo binario
+- ✅ Rollback automático si falla la actualización
+- ✅ Configs MCP mergeadas quirúrgicamente (tus otros servidores MCP preservados)
+- ✅ Agentes modificados detectados (comparación SHA-256)
+
+Ver [ADR-016](docs/decisions/ADR-016-update-mechanism-by-component.md) para más detalles.
+
 ## 2. Inicializar un proyecto {#inicializar-un-proyecto}
 
 Luego de instalar el Stack, ejecutá `flowforge init` dentro de cada repositorio donde quieras el setup completo por proyecto:

@@ -142,6 +142,32 @@ Después: Reload Window en el IDE, agente **`flowforge`** (o reglas FlowForge), 
 
 Guía completa: [`QUICKSTART.es.md`](QUICKSTART.es.md).
 
+### Actualización de componentes (v0.1.0-alpha.13+) {#actualizacion-componentes}
+
+FlowForge soporta actualizaciones granulares por componente con backup y rollback automático:
+
+```bash
+# Ver estado actual de todos los componentes
+flowforge status
+
+# Actualizar componentes específicos
+flowforge update --component engram           # Solo binario engram-dotnet
+flowforge update --component flowforge-skills # Skills/agentes FlowForge para tus IDEs
+flowforge update --component all              # Todos los componentes
+
+# Actualizar con auto-confirmación (no interactivo)
+flowforge update --component all --yes
+```
+
+**Características clave:**
+- **Backup + rollback**: Backup automático antes del swap de binarios, validación con health-check, rollback si falla la actualización
+- **Merge quirúrgico de MCP**: Preserva tus otros servidores MCP en configs de Cursor/Antigravity (corrige 2 bugs de pérdida de datos)
+- **Detección de agentes modificados**: Comparación SHA-256 con opciones Skip/Backup+Overwrite/Overwrite
+- **Refresh de cache git**: `git pull` automático con fallback a clone fresco
+- **Verificación de procesos**: Detecta procesos engram corriendo antes del swap de binarios
+
+Ver [ADR-016](docs/decisions/ADR-016-update-mechanism-by-component.md) para detalles arquitectónicos.
+
 ## Metodología
 
 ```

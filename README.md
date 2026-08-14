@@ -140,6 +140,32 @@ Then: reload your IDE, select the **flowforge** orchestrator (or enable FlowForg
 
 Full walkthrough: [`QUICKSTART.md`](QUICKSTART.md).
 
+### Updating components (v0.1.0-alpha.13+) {#updating-components}
+
+FlowForge supports granular component updates with backup and automatic rollback:
+
+```bash
+# Check current status of all components
+flowforge status
+
+# Update specific components
+flowforge update --component engram           # Update engram-dotnet binary only
+flowforge update --component flowforge-skills # Update FlowForge skills/agents for your IDEs
+flowforge update --component all              # Update all components
+
+# Update with auto-confirmation (non-interactive)
+flowforge update --component all --yes
+```
+
+**Key features:**
+- **Backup + rollback**: Automatic backup before binary swap, health-check validation, rollback if update fails
+- **Surgical MCP merge**: Preserves your other MCP servers in Cursor/Antigravity configs (fixes 2 data-loss bugs)
+- **User-modified agent detection**: SHA-256 comparison with Skip/Backup+Overwrite/Overwrite options
+- **Git cache refresh**: Automatic `git pull` with fallback to fresh clone
+- **Process check**: Detects running engram processes before binary swap
+
+See [ADR-016](docs/decisions/ADR-016-update-mechanism-by-component.md) for architectural details.
+
 ## Methodology (5 phases, 5 checkpoints)
 
 ```
