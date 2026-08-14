@@ -1,8 +1,8 @@
 ---
-title: "Session close — flowforge-update-mechanism (CKP-4 GREEN)"
+title: "Session close — flowforge-update-mechanism (CKP-4 GREEN, PR #24 MERGED)"
 type: "session_summary"
 topic_key: "installer/update-mechanism"
-date: "2026-08-12"
+date: "2026-08-13"
 scope: "team"
 project: "team/flowforge"
 ---
@@ -23,15 +23,17 @@ Close feature `flowforge-update-mechanism`: extend `flowforge update` from an in
 - 2 rework cycles resolved (cycle 1: stub + structured logging; cycle 2: status command, agent detection prompt, version consistency).
 - PM-1/PM-3/PM-4/PM-5 PASSED (human-verified). PM-2 (rollback broken binary) **deferred as minor technical debt** — requires complex simulation; rollback covered by unit tests (`BackupManagerTests`, `UpdateOrchestratorTests`).
 - ADRs promoted: ADR-016 (update mechanism by component), ADR-017 (installer protection policy).
+- **PR #24 created → MERGED** into `main` (`c7bb9c6`, 2026-08-13) with 5/5 CI checks passed; feature branch deleted upstream. Full PR description documents architecture, testing (95/112 unit + 25/25 exhaustive), deferred items.
 - Engram observations saved: decision (#97), session summary (#98), metrics (#99). Retention prune: 0 observations past TTL.
 
 ## Next Steps
-- **CKP-4 deploy decision** by human (orchestrator).
+- **Release/packaging**: feature is on `main`; next human step is cutting the next FlowForge release tag so `flowforge update` ships in the binary.
 - **PM-2 follow-up**: simulate broken-binary release if a real rollback regression is suspected; unit coverage is the safeguard meanwhile.
 - **OQ-1** (`flowforge update --self`) post-MVP; bootstrap `curl | bash` remains the installer update path.
-- Commit closure artifacts (summary.md, spec.md PM-2 note, ADR-016/017, CHANGELOG entry, `.engram/local_memory/*`) when orchestrator authorizes — git-sin-push rule.
+- Local artifact updates (this summary + obs) committed locally on `feat/flowforge-update-mechanism` (git-sin-push: no push without explicit request).
 
 ## Relevant Files
+- **PR #24** — https://github.com/efreet111/FlowForge/pull/24 (merged `c7bb9c6`, 5/5 checks)
 - `.ai-work/flowforge-update-mechanism/{context-map,spec,plan,verify-report,summary,installer-baseline}.md`
 - `src/FlowForge.Installer/Update/*.cs` — 10 modules new.
 - `tests/FlowForge.Installer.Tests/Update/*.cs` — 9 test files new.
