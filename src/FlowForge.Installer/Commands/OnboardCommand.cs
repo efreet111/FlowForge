@@ -205,32 +205,38 @@ public sealed class OnboardCommand(InstallerContext ctx)
 
     Task<(bool, string?)> CheckConfigAsync()
     {
+        return Task.FromResult(CheckConfig(PathHelper.ConfigFile, _ctx.Store));
+    }
+
+    /// <summary>
+    /// FR-002: Validates config file existence, parseability, and sync.user presence.
+    /// Extracted as internal for testability (no behavior change).
+    /// </summary>
+    internal static (bool Passed, string? Hint) CheckConfig(string configFile, ConfigStore store)
+    {
         // FR-002: ConfigStore.Load() returns defaults on missing/corrupt config (never throws).
         // We must explicitly check that sync.user is non-empty (not just falling back to Environment.UserName).
-        var configFile = PathHelper.ConfigFile;
         if (!File.Exists(configFile))
         {
-            return Task.FromResult<(bool, string?)>((false,
-                "Config file missing. Run `flowforge install` or `flowforge config` to set sync.user."));
+            return (false, "Config file missing. Run `flowforge install` or `flowforge config` to set sync.user.");
         }
 
         try
         {
-            var config = _ctx.Store.Load();
+            var config = store.Load();
             var user = config.Sync?.User;
 
             // sync.user must be explicitly set — we do NOT fall back to ENGRAM_USER or Environment.UserName here
             if (string.IsNullOrWhiteSpace(user))
             {
-                return Task.FromResult<(bool, string?)>((false,
-                    "sync.user is empty. Run `flowforge install` or `flowforge config` to set sync.user."));
+                return (false, "sync.user is empty. Run `flowforge install` or `flowforge config` to set sync.user.");
             }
 
-            return Task.FromResult((true, (string?)null));
+            return (true, null);
         }
         catch
         {
-            return Task.FromResult((false, (string?)"Config unreadable. Run `flowforge install` or `flowforge config`."));
+            return (false, "Config unreadable. Run `flowforge install` or `flowforge config`.");
         }
     }
 
@@ -263,8 +269,9 @@ public sealed class OnboardCommand(InstallerContext ctx)
     /// <summary>
     /// NFR-001: Reads API timeout from FLOWFORGE_API_TIMEOUT_SECONDS environment variable.
     /// Defaults to 30 seconds if not set or invalid.
+    /// Made internal for testability (no behavior change).
     /// </summary>
-    static int GetApiTimeoutSeconds()
+    internal static int GetApiTimeoutSeconds()
     {
         var envValue = Environment.GetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS");
         if (!string.IsNullOrEmpty(envValue) && int.TryParse(envValue, out var seconds) && seconds > 0)
