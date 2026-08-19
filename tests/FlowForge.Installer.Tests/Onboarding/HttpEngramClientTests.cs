@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
+using FlowForge.Installer.Commands;
 using FlowForge.Installer.Onboarding;
 using Xunit;
 
@@ -189,6 +190,74 @@ public class HttpEngramClientTests
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             return _handler(request);
+        }
+    }
+
+    // ── NFR-001: FLOWFORGE_API_TIMEOUT_SECONDS env var tests ────────────────
+
+    [Fact] // NFR-001 — valid env var is honored
+    public void GetApiTimeoutSeconds_ValidEnvVar_ReturnsEnvValue()
+    {
+        var previous = Environment.GetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS");
+        try
+        {
+            Environment.SetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS", "5");
+            var result = OnboardCommand.GetApiTimeoutSeconds();
+            Assert.Equal(5, result);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS", previous);
+        }
+    }
+
+    [Fact] // NFR-001 — absent env var returns default 30
+    public void GetApiTimeoutSeconds_NoEnvVar_ReturnsDefault30()
+    {
+        var previous = Environment.GetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS");
+        try
+        {
+            Environment.SetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS", null);
+            var result = OnboardCommand.GetApiTimeoutSeconds();
+            Assert.Equal(30, result);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS", previous);
+        }
+    }
+
+    [Fact] // NFR-001 — non-numeric env var returns default 30
+    public void GetApiTimeoutSeconds_NonNumericEnvVar_ReturnsDefault30()
+    {
+        var previous = Environment.GetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS");
+        try
+        {
+            Environment.SetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS", "not-a-number");
+            var result = OnboardCommand.GetApiTimeoutSeconds();
+            Assert.Equal(30, result);
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS", previous);
+        }
+    }
+
+    [Fact] // NFR-001 — zero/negative env var returns default 30
+    public void GetApiTimeoutSeconds_ZeroOrNegativeEnvVar_ReturnsDefault30()
+    {
+        var previous = Environment.GetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS");
+        try
+        {
+            Environment.SetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS", "0");
+            Assert.Equal(30, OnboardCommand.GetApiTimeoutSeconds());
+
+            Environment.SetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS", "-5");
+            Assert.Equal(30, OnboardCommand.GetApiTimeoutSeconds());
+        }
+        finally
+        {
+            Environment.SetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS", previous);
         }
     }
 }
