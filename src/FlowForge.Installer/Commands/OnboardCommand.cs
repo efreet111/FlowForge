@@ -34,9 +34,15 @@ public sealed class OnboardCommand(InstallerContext ctx)
             if (!preCheckResult)
                 return 2;
 
+            // ── Resolve user identity FIRST (FR-014: --user is display-only) ──
+            var config = _ctx.Store.Load();
+            var engramUser = ResolveUserIdentity(config);
+            var displayUser = user ?? engramUser;
+
             // ── Resolve project (FR-003, FR-015) ──────────────────────────────
+            // Pass resolved identity (from config), NOT the --user flag, for personal-scope namespacing
             var workingDir = Directory.GetCurrentDirectory();
-            var resolution = ProjectResolver.Resolve(project, scope, user, workingDir);
+            var resolution = ProjectResolver.Resolve(project, scope, engramUser, workingDir);
 
             if (resolution.IsAmbiguous)
             {
@@ -57,15 +63,10 @@ public sealed class OnboardCommand(InstallerContext ctx)
                     .Title("Multiple projects detected. Select one:")
                     .AddChoices(resolution.AvailableProjects ?? []);
                 var selected = AnsiConsole.Prompt(prompt);
-                resolution = ProjectResolver.Resolve(selected, scope, user, workingDir);
+                resolution = ProjectResolver.Resolve(selected, scope, engramUser, workingDir);
             }
 
             AnsiConsole.MarkupLine($"[grey]Project:[/] {Markup.Escape(resolution.NamespacedProject)} [grey](source: {resolution.Source})[/]");
-
-            // ── Resolve user identity (FR-014) ────────────────────────────────
-            var config = _ctx.Store.Load();
-            var engramUser = ResolveUserIdentity(config);
-            var displayUser = user ?? engramUser;
 
             // ── Select client: HTTP-first, CLI fallback (FR-013) ──────────────
             var useHttp = ShouldUseHttp(config);
@@ -74,7 +75,9 @@ public sealed class OnboardCommand(InstallerContext ctx)
             if (useHttp)
             {
                 var remoteUrl = config.Sync?.RemoteUrl ?? "";
-                var http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+                // NFR-001: Read timeout from environment variable (default 30s)
+                var timeoutSeconds = GetApiTimeoutSeconds();
+                var http = new HttpClient { Timeout = TimeSpan.FromSeconds(timeoutSeconds) };
                 var httpClient = new HttpEngramClient(http, remoteUrl, engramUser, ownsHttpClient: true);
 
                 // Health check
@@ -86,20 +89,28 @@ public sealed class OnboardCommand(InstallerContext ctx)
                 }
                 else
                 {
-                    AnsiConsole.MarkupLine("[yellow]Sync server unreachable, falling back to local CLI...[/]");
+                    AnsiConsole.MarkupLine("[yellow]Sync server unreachable, usando memorias locales...[/]");
                     httpClient.Dispose();
                     client = CreateCliClient();
                 }
             }
             else
             {
-                AnsiConsole.MarkupLine("[grey]Using local CLI (sync.mode=local)[/]");
+                AnsiConsole.MarkupLine("[grey]Using local CLI (sync.mode=local) — usando memorias locales[/]");
                 client = CreateCliClient();
             }
 
             // ── Aggregate briefing (FR-004 to FR-008) ─────────────────────────
+            // NFR-005: When --output is set without --scope, force scope=team to prevent
+            // personal memories from leaking into the exported file.
+            var effectiveScope = scope;
+            if (!string.IsNullOrEmpty(output) && string.IsNullOrEmpty(scope))
+            {
+                effectiveScope = "team";
+            }
+
             var aggregator = new BriefingAggregator(client);
-            var data = await aggregator.AggregateAsync(resolution.NamespacedProject, scope, limit).ConfigureAwait(false);
+            var data = await aggregator.AggregateAsync(resolution.NamespacedProject, effectiveScope, limit).ConfigureAwait(false);
 
             // ── Empty-memory path (FR-012) ────────────────────────────────────
             if (!data.HasData)
@@ -122,6 +133,9 @@ public sealed class OnboardCommand(InstallerContext ctx)
             var interactive = !noInteractive;
             var renderer = new BriefingRenderer(client, interactive);
             await renderer.RenderAsync(data, displayUser).ConfigureAwait(false);
+
+            // ── Audit-trail log (T5) ──────────────────────────────────────────
+            _ctx.Log.Info($"onboard: generated briefing for project={resolution.NamespacedProject} user={displayUser} scope={effectiveScope ?? "team"} timestamp={DateTime.UtcNow:O}");
 
             // ── Export (FR-011, NFR-005) ──────────────────────────────────────
             if (!string.IsNullOrEmpty(output))
@@ -191,16 +205,26 @@ public sealed class OnboardCommand(InstallerContext ctx)
 
     Task<(bool, string?)> CheckConfigAsync()
     {
+        // FR-002: ConfigStore.Load() returns defaults on missing/corrupt config (never throws).
+        // We must explicitly check that sync.user is non-empty (not just falling back to Environment.UserName).
+        var configFile = PathHelper.ConfigFile;
+        if (!File.Exists(configFile))
+        {
+            return Task.FromResult<(bool, string?)>((false,
+                "Config file missing. Run `flowforge install` or `flowforge config` to set sync.user."));
+        }
+
         try
         {
             var config = _ctx.Store.Load();
-            // Config is readable if we got here (Load returns defaults on failure)
-            // Check if sync.user or ENGRAM_USER is resolvable
             var user = config.Sync?.User;
-            if (string.IsNullOrEmpty(user))
-                user = Environment.GetEnvironmentVariable("ENGRAM_USER");
-            if (string.IsNullOrEmpty(user))
-                user = Environment.UserName;
+
+            // sync.user must be explicitly set — we do NOT fall back to ENGRAM_USER or Environment.UserName here
+            if (string.IsNullOrWhiteSpace(user))
+            {
+                return Task.FromResult<(bool, string?)>((false,
+                    "sync.user is empty. Run `flowforge install` or `flowforge config` to set sync.user."));
+            }
 
             return Task.FromResult((true, (string?)null));
         }
@@ -234,5 +258,17 @@ public sealed class OnboardCommand(InstallerContext ctx)
     static CliEngramClient CreateCliClient()
     {
         return new CliEngramClient(PathHelper.EngramBinary);
+    }
+
+    /// <summary>
+    /// NFR-001: Reads API timeout from FLOWFORGE_API_TIMEOUT_SECONDS environment variable.
+    /// Defaults to 30 seconds if not set or invalid.
+    /// </summary>
+    static int GetApiTimeoutSeconds()
+    {
+        var envValue = Environment.GetEnvironmentVariable("FLOWFORGE_API_TIMEOUT_SECONDS");
+        if (!string.IsNullOrEmpty(envValue) && int.TryParse(envValue, out var seconds) && seconds > 0)
+            return seconds;
+        return 30; // default
     }
 }

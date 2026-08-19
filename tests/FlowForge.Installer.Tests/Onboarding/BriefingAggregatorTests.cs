@@ -95,6 +95,49 @@ public class BriefingAggregatorTests
         Assert.DoesNotContain(mock.SearchCalls, c => c.Type == "convention");
     }
 
+    [Fact] // FR-007 — Blockers search must use type=bugfix or type=manual (NOT null)
+    public async Task BlockersSearch_UsesTypeBugfixAndManual_NotNull()
+    {
+        var mock = new MockEngramClient();
+        var aggregator = new BriefingAggregator(mock);
+        await aggregator.AggregateAsync("team/ff", "team", 10);
+
+        // FR-007: Blockers must search with type="bugfix" and type="manual"
+        Assert.Contains(mock.SearchCalls, c => c.Type == "bugfix");
+        Assert.Contains(mock.SearchCalls, c => c.Type == "manual");
+        // Must NOT use null (all types) for blockers
+        var blockerCalls = mock.SearchCalls.Where(c =>
+            c.Query.Contains("blocker") || c.Query.Contains("bug") || c.Query.Contains("gotcha"));
+        Assert.All(blockerCalls, c => Assert.NotNull(c.Type));
+        Assert.DoesNotContain(mock.SearchCalls, c =>
+            (c.Query.Contains("blocker") || c.Query.Contains("bug")) && c.Type == null);
+    }
+
+    [Fact] // FR-007 — Blockers combines bugfix + manual results
+    public async Task BlockersCombined_DeduplicatesById()
+    {
+        var bugfixResult = new EngramSearchResult(10, "bugfix", "Bug A", "Preview", "2026-08-01", "team/ff", "team", 0.9);
+        var manualResult = new EngramSearchResult(10, "manual", "Bug A (manual)", "Preview", "2026-08-01", "team/ff", "team", 0.8);
+        var manualResult2 = new EngramSearchResult(20, "manual", "Manual B", "Preview", "2026-08-01", "team/ff", "team", 0.7);
+
+        var mock = new MockEngramClient
+        {
+            SearchResults = new Dictionary<string, IReadOnlyList<EngramSearchResult>>
+            {
+                ["bugfix"] = [bugfixResult],
+                ["manual"] = [manualResult, manualResult2],
+            },
+        };
+
+        var aggregator = new BriefingAggregator(mock);
+        var data = await aggregator.AggregateAsync("team/ff", "team", 10);
+
+        // Should have 2 blockers (ID 10 deduplicated, ID 20 from manual)
+        Assert.Equal(2, data.Blockers.Count);
+        Assert.Contains(data.Blockers, b => b.Id == 10);
+        Assert.Contains(data.Blockers, b => b.Id == 20);
+    }
+
     // ── Mock IEngramClient ────────────────────────────────────────────────────
 
     sealed class MockEngramClient : IEngramClient

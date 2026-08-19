@@ -16,7 +16,9 @@ public sealed record ProjectResolution(
 
 /// <summary>
 /// Resolves project name via .flowforge.json → engram.project, with --project override.
-/// Applies namespacing: team/{project} for team scope, {user}/{project} for personal.
+/// Applies namespacing: team/{project} for team scope, {identity}/{project} for personal.
+/// Note: --user flag is display-only (FR-014). Personal-scope namespace uses the resolved
+/// identity from config (sync.user → ENGRAM_USER), NOT the --user flag.
 /// </summary>
 public static class ProjectResolver
 {
@@ -25,18 +27,18 @@ public static class ProjectResolver
     /// </summary>
     /// <param name="cliProjectOverride">Value from --project flag (highest priority).</param>
     /// <param name="scope">"team" or "personal" (determines namespace prefix).</param>
-    /// <param name="user">User handle for personal scope namespacing.</param>
+    /// <param name="identity">Resolved user identity from config (sync.user → ENGRAM_USER). Used for personal-scope namespacing. NOT the --user flag.</param>
     /// <param name="workingDir">Current working directory for auto-detection.</param>
     public static ProjectResolution Resolve(
         string? cliProjectOverride,
         string? scope,
-        string? user,
+        string? identity,
         string workingDir)
     {
         // 1. CLI override has highest priority
         if (!string.IsNullOrWhiteSpace(cliProjectOverride))
         {
-            var namespaced = ApplyNamespace(cliProjectOverride, scope, user);
+            var namespaced = ApplyNamespace(cliProjectOverride, scope, identity);
             return new ProjectResolution(cliProjectOverride, namespaced, "cli-arg", false, null);
         }
 
@@ -50,7 +52,7 @@ public static class ProjectResolver
                 var config = JsonSerializer.Deserialize(json, FlowForgeProjectJsonContext.Default.FlowForgeProjectConfig);
                 if (!string.IsNullOrWhiteSpace(config?.Engram?.Project))
                 {
-                    var namespaced = ApplyNamespace(config.Engram.Project, scope, user);
+                    var namespaced = ApplyNamespace(config.Engram.Project, scope, identity);
                     return new ProjectResolution(config.Engram.Project, namespaced, "flowforge.json", false, null);
                 }
             }
@@ -64,7 +66,7 @@ public static class ProjectResolver
         var gitProjectName = DetectFromGit(workingDir);
         if (!string.IsNullOrWhiteSpace(gitProjectName))
         {
-            var namespaced = ApplyNamespace(gitProjectName, scope, user);
+            var namespaced = ApplyNamespace(gitProjectName, scope, identity);
             return new ProjectResolution(gitProjectName, namespaced, "git", false, null);
         }
 
@@ -74,7 +76,7 @@ public static class ProjectResolver
         {
             return new ProjectResolution(
                 childProjects[0],
-                ApplyNamespace(childProjects[0], scope, user),
+                ApplyNamespace(childProjects[0], scope, identity),
                 "ambiguous",
                 true,
                 childProjects);
@@ -82,22 +84,26 @@ public static class ProjectResolver
 
         if (childProjects.Count == 1)
         {
-            var namespaced = ApplyNamespace(childProjects[0], scope, user);
+            var namespaced = ApplyNamespace(childProjects[0], scope, identity);
             return new ProjectResolution(childProjects[0], namespaced, "git-child", false, null);
         }
 
         // 5. Fallback: directory name
         var dirName = Path.GetFileName(workingDir) ?? "unknown";
-        var ns = ApplyNamespace(dirName, scope, user);
+        var ns = ApplyNamespace(dirName, scope, identity);
         return new ProjectResolution(dirName, ns, "directory", false, null);
     }
 
-    static string ApplyNamespace(string project, string? scope, string? user)
+    /// <summary>
+    /// Applies namespace based on scope. For personal scope, uses the resolved identity
+    /// (from config), NOT the --user flag (FR-014: --user is display-only).
+    /// </summary>
+    static string ApplyNamespace(string project, string? scope, string? identity)
     {
-        if (string.Equals(scope, "personal", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(user))
-            return $"{user}/{project}";
+        if (string.Equals(scope, "personal", StringComparison.OrdinalIgnoreCase) && !string.IsNullOrWhiteSpace(identity))
+            return $"{identity}/{project}";
 
-        // Default: team scope
+        // Default: team scope (also used when personal scope has no identity — falls back to team)
         return $"team/{project}";
     }
 

@@ -48,19 +48,27 @@ public sealed class BriefingAggregator
         var patternsTask = SafeSearchAsync(
             "convention OR naming OR style OR workflow",
             "pattern", project, scope, limit, ct);
-        var blockersTask = SafeSearchAsync(
+        // FR-007: Blockers search must use type=bugfix and type=manual (not null/all types)
+        var blockersBugfixTask = SafeSearchAsync(
             "blocker OR gotcha OR issue OR bug OR workaround",
-            null, project, scope, limit, ct); // search across all types (bugfix/manual)
+            "bugfix", project, scope, limit, ct);
+        var blockersManualTask = SafeSearchAsync(
+            "blocker OR gotcha OR issue OR bug OR workaround",
+            "manual", project, scope, limit, ct);
         var statsTask = SafeGetStatsAsync(ct);
 
-        await Task.WhenAll(contextTask, decisionsTask, patternsTask, blockersTask, statsTask)
+        await Task.WhenAll(contextTask, decisionsTask, patternsTask, blockersBugfixTask, blockersManualTask, statsTask)
             .ConfigureAwait(false);
 
         var recentActivity = await contextTask.ConfigureAwait(false);
         var decisions = await decisionsTask.ConfigureAwait(false);
         var patterns = await patternsTask.ConfigureAwait(false);
-        var blockers = await blockersTask.ConfigureAwait(false);
+        var blockersBugfix = await blockersBugfixTask.ConfigureAwait(false);
+        var blockersManual = await blockersManualTask.ConfigureAwait(false);
         var stats = await statsTask.ConfigureAwait(false);
+
+        // Combine bugfix + manual blockers, deduplicating by ID
+        var blockers = CombineBlockers(blockersBugfix, blockersManual);
 
         var hasData = !string.IsNullOrWhiteSpace(recentActivity)
             || decisions.Count > 0
@@ -97,5 +105,28 @@ public sealed class BriefingAggregator
     {
         try { return await _client.GetStatsAsync(ct).ConfigureAwait(false); }
         catch { return null; }
+    }
+
+    /// <summary>
+    /// Combines bugfix and manual blocker results, deduplicating by ID.
+    /// </summary>
+    static IReadOnlyList<EngramSearchResult> CombineBlockers(
+        IReadOnlyList<EngramSearchResult> bugfix,
+        IReadOnlyList<EngramSearchResult> manual)
+    {
+        if (bugfix.Count == 0) return manual;
+        if (manual.Count == 0) return bugfix;
+
+        var seen = new HashSet<long>();
+        var combined = new List<EngramSearchResult>();
+        foreach (var r in bugfix)
+        {
+            if (seen.Add(r.Id)) combined.Add(r);
+        }
+        foreach (var r in manual)
+        {
+            if (seen.Add(r.Id)) combined.Add(r);
+        }
+        return combined;
     }
 }

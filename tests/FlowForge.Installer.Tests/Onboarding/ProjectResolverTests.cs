@@ -54,10 +54,33 @@ public class ProjectResolverTests : IDisposable
     }
 
     [Fact] // FR-015
-    public void PersonalScope_AppliesUserNamespace()
+    public void PersonalScope_AppliesIdentityNamespace()
     {
+        // FR-014: --user flag is display-only. The resolver receives the resolved identity
+        // (from config), NOT the --user flag.
         var result = ProjectResolver.Resolve("flowforge", "personal", "victor", _tempDir);
         Assert.Equal("victor/flowforge", result.NamespacedProject);
+    }
+
+    [Fact] // FR-014 — --user flag must NOT influence namespacing
+    public void PersonalScope_WithNullIdentity_FallsBackToTeamNamespace()
+    {
+        // When identity is null/empty (no config user), personal scope falls back to team
+        var result = ProjectResolver.Resolve("flowforge", "personal", null, _tempDir);
+        Assert.Equal("team/flowforge", result.NamespacedProject);
+    }
+
+    [Fact] // FR-014 — Verify identity parameter is used, not --user flag
+    public void PersonalScope_UsesIdentityParameter_NotUserFlag()
+    {
+        // The resolver should use the identity parameter (from config), not a --user flag.
+        // If identity="alice" is passed, namespace should be "alice/flowforge" regardless of --user.
+        var result = ProjectResolver.Resolve("flowforge", "personal", "alice", _tempDir);
+        Assert.Equal("alice/flowforge", result.NamespacedProject);
+
+        // Even if a different "display user" would be shown, the namespace uses identity
+        var result2 = ProjectResolver.Resolve("flowforge", "personal", "bob", _tempDir);
+        Assert.Equal("bob/flowforge", result2.NamespacedProject);
     }
 
     [Fact] // FR-015
