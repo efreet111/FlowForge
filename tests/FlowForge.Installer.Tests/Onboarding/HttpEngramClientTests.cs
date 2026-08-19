@@ -124,6 +124,22 @@ public class HttpEngramClientTests
         await Assert.ThrowsAnyAsync<OperationCanceledException>(() => client.GetStatsAsync());
     }
 
+    [Fact] // NFR-001 — Configurable timeout via constructor
+    public async Task ConfigurableTimeout_RespectsCallerTimeout()
+    {
+        var handler = new MockHandler(async _ =>
+        {
+            await Task.Delay(TimeSpan.FromSeconds(5));
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        });
+        // Caller sets a 100ms timeout
+        using var http = new HttpClient(handler) { Timeout = TimeSpan.FromMilliseconds(100) };
+        using var client = new HttpEngramClient(http, "https://engram.test", "user@test");
+
+        // GetStatsAsync propagates the timeout exception (unlike HealthCheckAsync which catches)
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => client.GetStatsAsync());
+    }
+
     [Fact] // FR-010
     public async Task GetObservation_ReturnsFullContent()
     {

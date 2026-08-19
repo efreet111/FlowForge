@@ -118,11 +118,21 @@ public sealed class BriefingRenderer
     {
         while (true)
         {
-            AnsiConsole.MarkupLine("[grey]Type a number to drill down, Enter to exit:[/]");
+            AnsiConsole.MarkupLine("[grey]Type a number to drill down, <number>t for timeline, Enter to exit:[/]");
             var input = Console.ReadLine()?.Trim();
 
             if (string.IsNullOrEmpty(input))
                 break;
+
+            // Check for timeline drill-down: "{number}t" (e.g., "1t", "5t")
+            if (input.EndsWith("t", StringComparison.OrdinalIgnoreCase)
+                && int.TryParse(input[..^1], out var timelineIndex)
+                && timelineIndex >= 1 && timelineIndex <= allItems.Count)
+            {
+                var item = allItems[timelineIndex - 1];
+                await ShowTimelineAsync(item).ConfigureAwait(false);
+                continue;
+            }
 
             if (!int.TryParse(input, out var index) || index < 1 || index > allItems.Count)
             {
@@ -130,8 +140,8 @@ public sealed class BriefingRenderer
                 continue;
             }
 
-            var item = allItems[index - 1];
-            await ShowObservationAsync(item).ConfigureAwait(false);
+            var selectedItem = allItems[index - 1];
+            await ShowObservationAsync(selectedItem).ConfigureAwait(false);
         }
     }
 
@@ -154,6 +164,35 @@ public sealed class BriefingRenderer
             else
             {
                 AnsiConsole.MarkupLine("[yellow]Could not retrieve full content.[/]");
+            }
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]Error:[/] {Markup.Escape(ex.Message)}");
+        }
+
+        AnsiConsole.WriteLine();
+    }
+
+    /// <summary>
+    /// FR-010: Shows timeline around an observation (drill-down via mem_timeline).
+    /// </summary>
+    async Task ShowTimelineAsync(EngramSearchResult item)
+    {
+        AnsiConsole.WriteLine();
+        AnsiConsole.MarkupLine($"[bold]Timeline around #{item.Id}[/] — [grey]{Markup.Escape(item.Title)}[/]");
+        AnsiConsole.MarkupLine("[grey]────────────────────────────────────────[/]");
+
+        try
+        {
+            var timeline = await _client.GetTimelineAsync(item.Id, before: 5, after: 5).ConfigureAwait(false);
+            if (!string.IsNullOrWhiteSpace(timeline))
+            {
+                AnsiConsole.WriteLine(Markup.Escape(timeline));
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[yellow]No timeline data available for this observation.[/]");
             }
         }
         catch (Exception ex)

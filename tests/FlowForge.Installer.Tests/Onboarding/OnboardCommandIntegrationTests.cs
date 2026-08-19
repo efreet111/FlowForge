@@ -130,6 +130,58 @@ public class OnboardCommandIntegrationTests
         }
     }
 
+    [Fact] // NFR-005/T6 — Default export filters out personal-scope items
+    public async Task Export_DefaultScope_FiltersOutPersonalItems()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), $"ff-export-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(tempDir);
+        try
+        {
+            // Simulate wide-read data with mixed scopes
+            var data = new BriefingData(
+                Project: "team/flowforge",
+                Scope: null, // default scope (wide-read)
+                Stats: new EngramStats(10, 20, 5, ["ff"], "postgres"),
+                RecentActivity: "# Recent\n- Activity",
+                Decisions: [
+                    new EngramSearchResult(1, "decision", "Team Decision", "Preview", "2026-08-01", "team/ff", "team", 0.9),
+                    new EngramSearchResult(2, "decision", "Personal Decision", "Preview", "2026-08-01", "user/ff", "personal", 0.8),
+                ],
+                Patterns: [
+                    new EngramSearchResult(3, "pattern", "Team Pattern", "Preview", "2026-08-01", "team/ff", "team", 0.7),
+                    new EngramSearchResult(4, "pattern", "Personal Pattern", "Preview", "2026-08-01", "user/ff", "personal", 0.6),
+                ],
+                Blockers: [
+                    new EngramSearchResult(5, "bugfix", "Team Bug", "Preview", "2026-08-01", "team/ff", "team", 0.5),
+                    new EngramSearchResult(6, "manual", "Personal Note", "Preview", "2026-08-01", "user/ff", "personal", 0.4),
+                ],
+                HasData: true);
+
+            var outputPath = Path.Combine(tempDir, "ONBOARDING.md");
+            var exporter = new MarkdownExporter();
+            var result = await exporter.ExportAsync(data, outputPath, "testuser");
+
+            Assert.True(result);
+            Assert.True(File.Exists(outputPath));
+
+            var content = File.ReadAllText(outputPath);
+            // Team-scope items should be present
+            Assert.Contains("Team Decision", content);
+            Assert.Contains("Team Pattern", content);
+            Assert.Contains("Team Bug", content);
+            // Personal-scope items must NOT be present
+            Assert.DoesNotContain("Personal Decision", content);
+            Assert.DoesNotContain("Personal Pattern", content);
+            Assert.DoesNotContain("Personal Note", content);
+            // Scope header should say "team"
+            Assert.Contains("Scope: team", content);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
     // ── Mock IEngramClient ────────────────────────────────────────────────────
 
     sealed class MockEngramClient : IEngramClient

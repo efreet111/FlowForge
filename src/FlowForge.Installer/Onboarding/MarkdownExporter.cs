@@ -11,6 +11,7 @@ public sealed class MarkdownExporter
 {
     /// <summary>
     /// Exports the briefing data to a markdown file.
+    /// NFR-005: Filters to team scope only. Personal-scope items never reach the file.
     /// </summary>
     /// <param name="data">Aggregated briefing data.</param>
     /// <param name="outputPath">Target file path.</param>
@@ -19,10 +20,9 @@ public sealed class MarkdownExporter
     /// <returns>True if export succeeded, false if warned and skipped.</returns>
     public Task<bool> ExportAsync(BriefingData data, string outputPath, string? displayUser, CancellationToken ct = default)
     {
-        // Warn if personal scope combined with output
+        // NFR-005: Block export if scope is explicitly "personal"
         if (string.Equals(data.Scope, "personal", StringComparison.OrdinalIgnoreCase))
         {
-            // Personal scope should not be exported (NFR-005)
             return Task.FromResult(false);
         }
 
@@ -33,8 +33,7 @@ public sealed class MarkdownExporter
         if (!string.IsNullOrEmpty(displayUser))
             sb.AppendLine($"> For: {displayUser}");
         sb.AppendLine($"> Project: {data.Project}");
-        if (!string.IsNullOrEmpty(data.Scope))
-            sb.AppendLine($"> Scope: {data.Scope}");
+        sb.AppendLine("> Scope: team");
         sb.AppendLine();
 
         // Stats
@@ -50,7 +49,7 @@ public sealed class MarkdownExporter
             sb.AppendLine();
         }
 
-        // Recent Activity
+        // Recent Activity (filter to team scope only — NFR-005)
         if (!string.IsNullOrWhiteSpace(data.RecentActivity))
         {
             sb.AppendLine("## Recent Activity");
@@ -59,12 +58,13 @@ public sealed class MarkdownExporter
             sb.AppendLine();
         }
 
-        // Key Decisions
-        if (data.Decisions.Count > 0)
+        // Key Decisions (filter to team scope only)
+        var teamDecisions = FilterToTeamScope(data.Decisions);
+        if (teamDecisions.Count > 0)
         {
             sb.AppendLine("## Key Architectural Decisions");
             sb.AppendLine();
-            foreach (var d in data.Decisions)
+            foreach (var d in teamDecisions)
             {
                 sb.AppendLine($"- **#{d.Id}** [{d.Type}] {d.Title}");
                 if (!string.IsNullOrWhiteSpace(d.Preview))
@@ -73,12 +73,13 @@ public sealed class MarkdownExporter
             sb.AppendLine();
         }
 
-        // Conventions / Patterns
-        if (data.Patterns.Count > 0)
+        // Conventions / Patterns (filter to team scope only)
+        var teamPatterns = FilterToTeamScope(data.Patterns);
+        if (teamPatterns.Count > 0)
         {
             sb.AppendLine("## Conventions & Patterns");
             sb.AppendLine();
-            foreach (var p in data.Patterns)
+            foreach (var p in teamPatterns)
             {
                 sb.AppendLine($"- **#{p.Id}** [{p.Type}] {p.Title}");
                 if (!string.IsNullOrWhiteSpace(p.Preview))
@@ -87,12 +88,13 @@ public sealed class MarkdownExporter
             sb.AppendLine();
         }
 
-        // Blockers / Gotchas
-        if (data.Blockers.Count > 0)
+        // Blockers / Gotchas (filter to team scope only)
+        var teamBlockers = FilterToTeamScope(data.Blockers);
+        if (teamBlockers.Count > 0)
         {
             sb.AppendLine("## Known Blockers / Gotchas");
             sb.AppendLine();
-            foreach (var b in data.Blockers)
+            foreach (var b in teamBlockers)
             {
                 sb.AppendLine($"- **#{b.Id}** [{b.Type}] {b.Title}");
                 if (!string.IsNullOrWhiteSpace(b.Preview))
@@ -128,5 +130,19 @@ public sealed class MarkdownExporter
         }
 
         return Task.FromResult(true);
+    }
+
+    /// <summary>
+    /// Filters search results to team scope only (NFR-005).
+    /// Items with scope=null are treated as team scope (default).
+    /// Items with scope="personal" are excluded.
+    /// </summary>
+    static IReadOnlyList<EngramSearchResult> FilterToTeamScope(IReadOnlyList<EngramSearchResult> items)
+    {
+        if (items.Count == 0) return items;
+        return items.Where(r =>
+            string.IsNullOrEmpty(r.Scope) ||
+            !string.Equals(r.Scope, "personal", StringComparison.OrdinalIgnoreCase)
+        ).ToList();
     }
 }
