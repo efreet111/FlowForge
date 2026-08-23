@@ -87,10 +87,11 @@ public sealed class HttpEngramClient : IEngramClient, IDisposable
         resp.EnsureSuccessStatusCode();
 
         var json = await resp.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
-        var searchResp = JsonSerializer.Deserialize(json, OnboardingJsonContext.Default.EngramSearchResponse);
-        if (searchResp?.Results is null) return Array.Empty<EngramSearchResult>();
+        // Server returns array directly: [ { "observation": {...}, "rank": 0.075 } ]
+        var searchResults = JsonSerializer.Deserialize(json, OnboardingJsonContext.Default.IReadOnlyListEngramSearchResultItem);
+        if (searchResults is null) return Array.Empty<EngramSearchResult>();
 
-        return searchResp.Results.Select(r => new EngramSearchResult(
+        return searchResults.Select(r => new EngramSearchResult(
             r.Observation.Id,
             r.Observation.Type,
             r.Observation.Title,

@@ -275,10 +275,10 @@ When scope is team, the resolved project name is namespaced to `team/{project}` 
 
 | ID | Case / flow | Steps (summary) | Expected result | [x] |
 |----|-------------|-----------------|-----------------|-----|
-| PM-1 | Happy path (team sync) | 1. `flowforge onboard --project flowforge` in the FlowForge repo with engram sync configured<br>2. Read the interactive briefing | Briefing shows Recent Activity, Key Decisions (type=decision), Conventions/Patterns (type=pattern) from `team/flowforge` (14 obs), with timestamps; exit 0 | [ ] |
-| PM-2 | Error path (no engram) | 1. Temporarily rename `~/.local/bin/engram`<br>2. Run `flowforge onboard`<br>3. Restore the binary | Pre-check "engram binary ✗ FAIL" with hint "Instalá con `flowforge install`"; exit code 2 | [ ] |
-| PM-3 | Edge case (ambiguous/no memories) | 1. `cd` into a dir with ≥2 child git repos (or a fresh empty project)<br>2. Run `flowforge onboard` | Ambiguity prompt lists `available_projects` (or empty-memory guidance if no data); no crash; exit 0/1 per FR-003/FR-012 | [ ] |
-| PM-4 | Export + drill-down | 1. `flowforge onboard --output ONBOARDING.md --project flowforge`<br>2. Run again without `--output` and type an item number | `ONBOARDING.md` written atomically with generated timestamp, team scope only; drill-down shows full observation content via `mem_get_observation` | [ ] |
+| PM-1 | Happy path (team sync) | 1. `flowforge onboard --project flowforge` in the FlowForge repo with engram sync configured<br>2. Read the interactive briefing | Briefing shows Recent Activity, Key Decisions (type=decision), Conventions/Patterns (type=pattern) from `team/flowforge` (14 obs), with timestamps; exit 0 | [x] |
+| PM-2 | Error path (no engram) | 1. Temporarily rename `~/.local/bin/engram`<br>2. Run `flowforge onboard`<br>3. Restore the binary | Pre-check "engram binary ✗ FAIL" with hint "Instalá con `flowforge install`"; exit code 2 | [x] |
+| PM-3 | Edge case (ambiguous/no memories) | 1. `cd` into a dir with ≥2 child git repos (or a fresh empty project)<br>2. Run `flowforge onboard` | Ambiguity prompt lists `available_projects` (or empty-memory guidance if no data); no crash; exit 0/1 per FR-003/FR-012 | [x] |
+| PM-4 | Export + drill-down | 1. `flowforge onboard --output ONBOARDING.md --project flowforge`<br>2. Run again without `--output` and type an item number | `ONBOARDING.md` written atomically with generated timestamp, team scope only; drill-down shows full observation content via `mem_get_observation` | [x] |
 
 ## 5. Open questions for human (OQ-*)
 

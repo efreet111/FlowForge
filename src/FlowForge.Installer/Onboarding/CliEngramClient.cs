@@ -221,7 +221,7 @@ public sealed partial class CliEngramClient : IEngramClient
         // Simple parser: look for key: value lines
         string type = "unknown", title = "", content = "", project = "", createdAt = "";
         string? scope = null, topicKey = null;
-        long? sessionId = null;
+        string? sessionId = null;
         long id = expectedId;
 
         var lines = output.Split('\n');
@@ -254,7 +254,8 @@ public sealed partial class CliEngramClient : IEngramClient
                 createdAt = line["Created:".Length..].Trim();
             else if (line.StartsWith("Session:", StringComparison.OrdinalIgnoreCase))
             {
-                if (long.TryParse(line["Session:".Length..].Trim(), out var sid))
+                var sid = line["Session:".Length..].Trim();
+                if (!string.IsNullOrEmpty(sid))
                     sessionId = sid;
             }
             else if (line.StartsWith("Content:", StringComparison.OrdinalIgnoreCase))
