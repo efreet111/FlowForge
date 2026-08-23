@@ -62,7 +62,7 @@ public class BriefingRendererTests
         // Arrange
         var mockClient = new TrackingMockEngramClient
         {
-            ObservationResult = new EngramObservation(42, "decision", "Use AOT", "Full content", "team/ff", "team", "aot", "2026-08-01", 1),
+            ObservationResult = new EngramObservation(42, "decision", "Use AOT", "Full content", "team/ff", "team", "aot", "2026-08-01", "session-1"),
         };
 
         var renderer = new BriefingRenderer(mockClient, interactive: true);

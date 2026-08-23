@@ -39,7 +39,7 @@ public sealed record EngramObservation(
     string? Scope,
     string? TopicKey,
     string CreatedAt,
-    long? SessionId);
+    string? SessionId);
 
 // ── HTTP response wrappers (match EngramServer JSON shape) ────────────────────
 
@@ -59,28 +59,28 @@ public sealed record EngramSearchResponse(IReadOnlyList<EngramSearchResultItem> 
 public sealed record EngramSearchResultItem(EngramObservationDto Observation, double Rank);
 
 /// <summary>
-/// DTO for the observation nested in search results.
+/// DTO for the observation nested in search results (server uses snake_case).
 /// </summary>
 public sealed record EngramObservationDto(
-    long Id,
-    string Type,
-    string Title,
-    string Content,
-    string Project,
-    string? Scope,
-    string? TopicKey,
-    string CreatedAt,
-    long? SessionId);
+    [property: JsonPropertyName("id")] long Id,
+    [property: JsonPropertyName("type")] string Type,
+    [property: JsonPropertyName("title")] string Title,
+    [property: JsonPropertyName("content")] string Content,
+    [property: JsonPropertyName("project")] string Project,
+    [property: JsonPropertyName("scope")] string? Scope,
+    [property: JsonPropertyName("topic_key")] string? TopicKey,
+    [property: JsonPropertyName("created_at")] string CreatedAt,
+    [property: JsonPropertyName("session_id")] string? SessionId);
 
 /// <summary>
-/// Response from GET /stats.
+/// Response from GET /stats (server uses snake_case).
 /// </summary>
 public sealed record EngramStatsResponse(
-    int TotalSessions,
-    int TotalObservations,
-    int TotalPrompts,
-    IReadOnlyList<string> Projects,
-    string Backend);
+    [property: JsonPropertyName("total_sessions")] int TotalSessions,
+    [property: JsonPropertyName("total_observations")] int TotalObservations,
+    [property: JsonPropertyName("total_prompts")] int TotalPrompts,
+    [property: JsonPropertyName("projects")] IReadOnlyList<string> Projects,
+    [property: JsonPropertyName("backend")] string Backend);
 
 // ── Source-generated JSON context (AOT-safe, no reflection) ───────────────────
 

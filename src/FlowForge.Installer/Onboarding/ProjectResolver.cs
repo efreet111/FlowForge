@@ -118,7 +118,7 @@ public static class ProjectResolver
             // Try to read the remote origin URL to extract project name
             var configPath = Path.Combine(gitDir, "config");
             if (!File.Exists(configPath))
-                return Path.GetFileName(workingDir);
+                return null; // No remote configured, let child detection handle it
 
             var content = File.ReadAllText(configPath);
             // Look for url = ... under [remote "origin"]

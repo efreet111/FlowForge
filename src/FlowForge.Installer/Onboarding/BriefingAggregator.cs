@@ -44,17 +44,13 @@ public sealed class BriefingAggregator
 
         // Run all queries in parallel for performance
         var contextTask = SafeGetContextAsync(project, scope, ct);
-        var decisionsTask = SafeSearchAsync("", "decision", project, scope, limit, ct);
-        var patternsTask = SafeSearchAsync(
-            "convention OR naming OR style OR workflow",
-            "pattern", project, scope, limit, ct);
+        // FR-005: Use type name as query (server requires non-empty q, FTS5 doesn't support "*" wildcard reliably)
+        var decisionsTask = SafeSearchAsync("decision", "decision", project, scope, limit, ct);
+        // FR-006: Use type name for patterns (conventions are stored as type=pattern)
+        var patternsTask = SafeSearchAsync("pattern", "pattern", project, scope, limit, ct);
         // FR-007: Blockers search must use type=bugfix and type=manual (not null/all types)
-        var blockersBugfixTask = SafeSearchAsync(
-            "blocker OR gotcha OR issue OR bug OR workaround",
-            "bugfix", project, scope, limit, ct);
-        var blockersManualTask = SafeSearchAsync(
-            "blocker OR gotcha OR issue OR bug OR workaround",
-            "manual", project, scope, limit, ct);
+        var blockersBugfixTask = SafeSearchAsync("bugfix", "bugfix", project, scope, limit, ct);
+        var blockersManualTask = SafeSearchAsync("manual", "manual", project, scope, limit, ct);
         var statsTask = SafeGetStatsAsync(ct);
 
         await Task.WhenAll(contextTask, decisionsTask, patternsTask, blockersBugfixTask, blockersManualTask, statsTask)

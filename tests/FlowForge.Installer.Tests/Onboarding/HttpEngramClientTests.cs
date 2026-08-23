@@ -39,25 +39,24 @@ public class HttpEngramClientTests
     [Fact] // FR-013, NFR-001
     public async Task Search_WithTypeFilter_ParsesResults()
     {
+        // Server returns array directly (not wrapped in {"results": [...]})
         var responseJson = """
-        {
-            "results": [
-                {
-                    "observation": {
-                        "id": 97,
-                        "type": "decision",
-                        "title": "Use AOT compilation",
-                        "content": "We decided to use AOT for performance.",
-                        "project": "team/flowforge",
-                        "scope": "team",
-                        "topicKey": "aot",
-                        "createdAt": "2026-08-01T10:00:00Z",
-                        "sessionId": 1
-                    },
-                    "rank": 0.95
-                }
-            ]
-        }
+        [
+            {
+                "observation": {
+                    "id": 97,
+                    "type": "decision",
+                    "title": "Use AOT compilation",
+                    "content": "We decided to use AOT for performance.",
+                    "project": "team/flowforge",
+                    "scope": "team",
+                    "topic_key": "aot",
+                    "created_at": "2026-08-01T10:00:00Z",
+                    "session_id": "manual-save-team/flowforge"
+                },
+                "rank": 0.95
+            }
+        ]
         """;
 
         var handler = new MockHandler(req =>
@@ -73,7 +72,7 @@ public class HttpEngramClientTests
         using var http = new HttpClient(handler);
         using var client = new HttpEngramClient(http, "https://engram.test", "user@test");
 
-        var results = await client.SearchAsync("", "decision", "team/flowforge", "team", 10);
+        var results = await client.SearchAsync("decision", "decision", "team/flowforge", "team", 10);
 
         Assert.Single(results);
         Assert.Equal(97, results[0].Id);
@@ -84,11 +83,12 @@ public class HttpEngramClientTests
     [Fact] // FR-008
     public async Task Stats_ParsesCorrectly()
     {
+        // Server returns snake_case property names
         var responseJson = """
         {
-            "totalSessions": 45,
-            "totalObservations": 65,
-            "totalPrompts": 23,
+            "total_sessions": 45,
+            "total_observations": 65,
+            "total_prompts": 23,
             "projects": ["flowforge", "other"],
             "backend": "postgres"
         }
@@ -144,6 +144,7 @@ public class HttpEngramClientTests
     [Fact] // FR-010
     public async Task GetObservation_ReturnsFullContent()
     {
+        // Server returns snake_case property names; session_id is a string
         var responseJson = """
         {
             "id": 97,
@@ -152,9 +153,9 @@ public class HttpEngramClientTests
             "content": "Full content of the decision.",
             "project": "team/flowforge",
             "scope": "team",
-            "topicKey": "aot",
-            "createdAt": "2026-08-01T10:00:00Z",
-            "sessionId": 1
+            "topic_key": "aot",
+            "created_at": "2026-08-01T10:00:00Z",
+            "session_id": "manual-save-team/flowforge"
         }
         """;
 
