@@ -163,8 +163,38 @@ Identity for API calls comes from ~/.engram/config.json (sync.user -> ENGRAM_USE
 
 ---
 
+## Closure Actions (2026-08-23)
+
+### Memory Persistence
+- **11 observations** manually uploaded to remote server (IDs 768-778)
+- Session created: `manual-save-flowforge`
+- Observations include: session summary, 4 decisions, 3 patterns, 1 learning, 1 config, 1 metrics
+- **Issue discovered**: SyncManager does not auto-push after server startup (requires ENGRAM_SERVER_URL env var)
+
+### Follow-up Created
+- **HU-058** created in engram-dotnet repo: "Sync automático después de levantar servidor"
+- **ENG-488**: Documents the sync auto-push problem discovered during FF-003
+- **Priority**: P1 (important for team adoption)
+- **Effort**: M (4-8 hours)
+- **Location**: `engram-dotnet/docs/tasks/HU-001-HU-099/HU-058-sync-auto-push.md`
+
+### Root Cause of Sync Issue
+1. SyncManager does not read `remote_url` from config.json
+2. Requires environment variable `ENGRAM_SERVER_URL`
+3. No automatic trigger to push observations after server startup
+4. Projects must be manually enrolled (auto-enroll feature exists but not working correctly)
+
+### Workaround
+```bash
+export ENGRAM_SERVER_URL="http://192.168.0.178:7437"
+engram sync enroll --project flowforge
+# Observations will sync after this
+```
+
+---
+
 ## Memory Signal
 
 - **type**: decision
 - **significance**: high
-- **summary**: FF-003 complete: 51 tests pass, 4/4 manual tests verified, verdict PASS after 2 rework cycles. Key decisions: FF-003 vs ENG-485 boundary, HTTP-first with CLI fallback, CLI command for v1, user identity from config. 8 reusable patterns extracted. Lessons: config validation must check field values, --user is display-only, --output must filter to team scope, blockers search uses type=bugfix/manual, mem_timeline drill-down must be wired, env-var timeout must be read. Security: Markup.Escape(), team scope default, --user display-only. AOT-safe, ADR-017 compliant. Future work: AI agent awareness (OQ-4) - update AGENTS.md + create forge-onboarding skill.
+- **summary**: FF-003 complete: 51 tests pass, 4/4 manual tests verified, verdict PASS after 2 rework cycles. Key decisions: FF-003 vs ENG-485 boundary, HTTP-first with CLI fallback, CLI command for v1, user identity from config. 8 reusable patterns extracted. Lessons: config validation must check field values, --user is display-only, --output must filter to team scope, blockers search uses type=bugfix/manual, mem_timeline drill-down must be wired, env-var timeout must be read. Security: Markup.Escape(), team scope default, --user display-only. AOT-safe, ADR-017 compliant. Future work: AI agent awareness (OQ-4) - update AGENTS.md + create forge-onboarding skill. Sync issue documented in HU-058 (ENG-488) in engram-dotnet repo.
