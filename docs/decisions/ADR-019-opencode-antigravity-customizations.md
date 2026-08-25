@@ -1,4 +1,4 @@
-# ADR-011: OpenCode commands y Antigravity customizations (rutas reales)
+# ADR-019: OpenCode commands y Antigravity customizations (rutas reales)
 
 > **Status**: Accepted  
 > **Date**: 2026-07-04  

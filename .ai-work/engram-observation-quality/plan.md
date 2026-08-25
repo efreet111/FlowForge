@@ -2,7 +2,7 @@
 
 > **Feature slug**: `engram-observation-quality`
 > **Spec**: [spec.md](./spec.md)
-> **ADR**: [ADR-013](../../docs/decisions/ADR-013-memory-observation-quality.md)
+> **ADR**: [ADR-020](../../docs/decisions/ADR-020-memory-observation-quality.md)
 > **Context map**: [context-map.md](./context-map.md)
 > **Status**: Ready for implementation
 
