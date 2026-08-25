@@ -73,7 +73,7 @@ Comparación con otros IDEs:
 | **Antigravity** | Symlinks en `~/.gemini/config/skills/forge-*` |
 | **OpenCode** | Solo referencia textual; archivo en `{repo}/skills/` |
 
-Documentación completa: [`docs/decisions/ADR-009-opencode-antigravity-customizations.md`](../../docs/decisions/ADR-009-opencode-antigravity-customizations.md).
+Documentación completa: [`docs/decisions/ADR-019-opencode-antigravity-customizations.md`](../../docs/decisions/ADR-019-opencode-antigravity-customizations.md).
 
 ### Referencias MCP / file (legacy)
 

@@ -1,4 +1,4 @@
-# ADR-013 — Memory Observation Quality: Focus Over Size
+# ADR-020 — Memory Observation Quality: Focus Over Size
 
 > **Status**: Proposed
 > **Date**: 2026-07-25

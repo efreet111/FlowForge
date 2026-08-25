@@ -75,7 +75,7 @@ Los workflows **requieren frontmatter YAML** con `description:` en **una sola l�
 2. Si `/` no lista comandos `flow-*`: reload primero; luego `flowforge doctor` o `scripts/validate-antigravity-pack.sh` en el repo.
 3. Para MCP/Engram completo usá `flowforge install` (no solo `ide/install.ps1`).
 
-Ver [`docs/decisions/ADR-011-opencode-antigravity-customizations.md`](../../docs/decisions/ADR-011-opencode-antigravity-customizations.md) y [`ADR-008`](../../docs/decisions/ADR-008-ide-installer-path-matrix.md).
+Ver [`docs/decisions/ADR-019-opencode-antigravity-customizations.md`](../../docs/decisions/ADR-019-opencode-antigravity-customizations.md) y [`ADR-008`](../../docs/decisions/ADR-008-ide-installer-path-matrix.md).
 
 ## Documentación
 

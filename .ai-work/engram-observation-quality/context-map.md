@@ -1,16 +1,16 @@
 # Context Map: Memory Observation Quality (engram-observation-quality)
 
 > **Phase 0 — Discovery (forge-discovery)**
-> **ADR**: ADR-013 Memory Observation Quality: Focus Over Size
+> **ADR**: ADR-020 Memory Observation Quality: Focus Over Size
 > **Feature slug**: `engram-observation-quality`
 > **Date**: 2026-07-25
 > **Status**: Proposed → Context mapping complete
 
 ---
 
-## 1. Specification Summary (from ADR-013)
+## 1. Specification Summary (from ADR-020)
 
-ADR-013 addresses the root cause of **ENG-475** (PostgreSQL `idx_obs_dedupe` B-tree overflow). The technical fix (removing `title` from the index, PR #22) resolved the crash symptom, but the deeper problem remains: **the Memory Curation Protocol lacks guidance on WHAT and HOW agents should save observations**, resulting in oversized, multi-topic entries.
+ADR-020 addresses the root cause of **ENG-475** (PostgreSQL `idx_obs_dedupe` B-tree overflow). The technical fix (removing `title` from the index, PR #22) resolved the crash symptom, but the deeper problem remains: **the Memory Curation Protocol lacks guidance on WHAT and HOW agents should save observations**, resulting in oversized, multi-topic entries.
 
 ### Decision: Opción B — Quality gates + Splitting
 
@@ -64,12 +64,12 @@ ADR-013 addresses the root cause of **ENG-475** (PostgreSQL `idx_obs_dedupe` B-t
 ### ADR-001 — Memory Curation Protocol (2026-05-30)
 - **Path**: `docs/decisions/ADR-001-memory-curation-protocol.md`
 - **Topic key**: `architecture/memory-curation-protocol`
-- **Relevance**: ADR-013 is a direct extension of ADR-001. ADR-001 established:
+- **Relevance**: ADR-020 is a direct extension of ADR-001. ADR-001 established:
   - The **Memory Signal** contract (3 fields: type, significance, summary)
   - The **3-step curation** process (eligible type → friction → dedup)
   - Orchestrator-centric decision model (only forge-arch and forge-dev emit signals)
   - `mem_session_summary` as mandatory safety net
-- **What ADR-001 is missing** (ADR-013 fills):
+- **What ADR-001 is missing** (ADR-020 fills):
   - No focus verification (multi-topic detection)
   - No length guidance by observation type
   - No title specificity validation
@@ -90,7 +90,7 @@ ADR-013 addresses the root cause of **ENG-475** (PostgreSQL `idx_obs_dedupe` B-t
 ## 4. FlowDoc Context
 
 - **PRD**: `docs/PRD.md` — not checked (project uses FlowDoc v2.0, but this ADR was created directly)
-- **HU referenced**: None — ADR-013 was proposed directly from ENG-475 incident analysis
+- **HU referenced**: None — ADR-020 was proposed directly from ENG-475 incident analysis
 - **docs_framework**: `flowdoc` v2.0 (per `docs/20-flowdoc-ecosystem.md`)
 
 ---
@@ -100,10 +100,10 @@ ADR-013 addresses the root cause of **ENG-475** (PostgreSQL `idx_obs_dedupe` B-t
 | Topic | Key | ADR/Feature |
 |-------|-----|-------------|
 | Memory Curation Protocol | `architecture/memory-curation-protocol` | ADR-001 |
-| Memory Observation Quality | `architecture/memory-observation-quality` | ADR-013 (this) |
+| Memory Observation Quality | `architecture/memory-observation-quality` | ADR-020 (this) |
 | PostgreSQL Dedup Index Fix | N/A (bug, not topic) | ENG-475, PR #22 |
 
-ADR-013 **extends** the existing Memory Curation Protocol epic. No new epic needed.
+ADR-020 **extends** the existing Memory Curation Protocol epic. No new epic needed.
 
 ---
 
@@ -113,7 +113,7 @@ ADR-013 **extends** the existing Memory Curation Protocol epic. No new epic need
 - **File**: `src/Engram.Store/SqliteStore.cs` (lines 591-592, 754-755, 985-986)
 - **What**: SqliteStore truncates content to `MaxObservationLength` (`100_000` chars) before inserting, appending `"... [truncated]"`. This is called in `AddObservationAsync`, `UpdateObservationAsync`, and `AddPromptAsync`.
 - **Can clone for**: PostgresStore currently does NOT truncate content in `AddObservationAsync` (line 545-638). The same truncation pattern should be applied to PostgresStore for P1 consistency.
-- **Gap**: SqliteStore truncates at 100K chars but never warns the agent. ADR-013 P2 wants a warning at 5K chars, which is a separate concern.
+- **Gap**: SqliteStore truncates at 100K chars but never warns the agent. ADR-020 P2 wants a warning at 5K chars, which is a separate concern.
 
 ### Pattern 2: Truncation warning in mem_save (EXTEND)
 - **File**: `src/Engram.Mcp/EngramTools.cs` (lines 198, 242-243)
@@ -123,7 +123,7 @@ ADR-013 **extends** the existing Memory Curation Protocol epic. No new epic need
 ### Pattern 3: Memory Signal in forge-arch and forge-dev (ADAPT)
 - **Files**: `skills/forge-arch/SKILL.md` (lines 32-49), `skills/forge-dev/SKILL.md` (lines 27-46)
 - **What**: Both agents emit a `## Memory Signal` block at the end of handoff with type/significance/summary. The orquestador reads this signal.
-- **Can adapt for**: ADR-013 Section 2 proposes adding a `topics` field to the Memory Signal. The structural pattern (YAML-like block in markdown handoff) is already established — just add a new field.
+- **Can adapt for**: ADR-020 Section 2 proposes adding a `topics` field to the Memory Signal. The structural pattern (YAML-like block in markdown handoff) is already established — just add a new field.
 
 ### Pattern 4: Dedup query scans title in WHERE clause (INFORM)
 - **File**: `src/Engram.Store/PostgresStore.cs` (line 585), `SqliteStore.cs` (line 651)
@@ -140,7 +140,7 @@ ADR-013 **extends** the existing Memory Curation Protocol epic. No new epic need
 
 ### FlowForge (`/mnt/.../FlowForge/`)
 
-| File | Current state | Change needed | ADR-013 § |
+| File | Current state | Change needed | ADR-020 § |
 |------|--------------|---------------|-----------|
 | `skills/forge-orchestrator/SKILL.md` | Has Memory Curation Protocol (3 steps) | Add **Paso 2b — Focus Check** after Step 2 | §1 (Specification.1) |
 | `skills/forge-dev/SKILL.md` | Has Memory Signal (type/significance/summary) | Add `topics` field to Memory Signal | §2 (Specification.2) |
@@ -205,11 +205,11 @@ ADR-013 **extends** the existing Memory Curation Protocol epic. No new epic need
 
 ## 10. Recommendations for forge-arch
 
-1. **Treat ADR-013 as canonical spec input** — the ADR is unusually detailed (includes exact code specs, test scenarios, and file paths). Use it directly as the spec source.
+1. **Treat ADR-020 as canonical spec input** — the ADR is unusually detailed (includes exact code specs, test scenarios, and file paths). Use it directly as the spec source.
 2. **Create 3 FRs** (one per phase) or 12 FRs (one per deliverable) — Phase 1 (protocol), Phase 2 (defensive), Phase 3 (tests).
 3. **The `topics` field in Memory Signal is `[OPTIONAL]` by design** — orchestrator should handle missing `topics` gracefully (treat as single topic).
-4. **Quality Checklist in forge-memory should be a "suggest, don't enforce" pattern** — matching the ADR-013 philosophy.
-5. **Consider whether IDE adapter propagation is in scope** for this feature. ADR-013 lists it in Phase 1 item 5, but the actual adapters may be thin enough that skill changes propagate automatically.
+4. **Quality Checklist in forge-memory should be a "suggest, don't enforce" pattern** — matching the ADR-020 philosophy.
+5. **Consider whether IDE adapter propagation is in scope** for this feature. ADR-020 lists it in Phase 1 item 5, but the actual adapters may be thin enough that skill changes propagate automatically.
 
 ---
 

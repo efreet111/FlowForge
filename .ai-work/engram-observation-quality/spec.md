@@ -19,7 +19,7 @@ capability_matrix:
 ---
 # Spec: Memory Observation Quality
 
-> **ADR source**: [ADR-013 — Memory Observation Quality: Focus Over Size](../../docs/decisions/ADR-013-memory-observation-quality.md)
+> **ADR source**: [ADR-020 — Memory Observation Quality: Focus Over Size](../../docs/decisions/ADR-020-memory-observation-quality.md)
 > **Incident**: ENG-475 — PostgreSQL `idx_obs_dedupe` B-tree index overflow
 > **Extends**: [ADR-001 — Orchestrator Memory Curation Protocol](../../docs/decisions/ADR-001-memory-curation-protocol.md)
 > **Context map**: [context-map.md](./context-map.md)
@@ -156,7 +156,7 @@ Si cubre múltiples temas → dividir en observaciones separadas.
 
 - **Scenario A — forge-memory validates observation quality before saving**:
   **Given** `forge-memory` is processing a local buffer observation or a handoff from another agent
-  **When** about to call `mem_save` for a `decision`-type observation of 1800 chars with a specific title "ADR-013 quality gates adopted for memory curation"
+  **When** about to call `mem_save` for a `decision`-type observation of 1800 chars with a specific title "ADR-020 quality gates adopted for memory curation"
   **Then** `forge-memory` runs the Quality Checklist: focus ✓ (single topic), specificity ✓ (specific title), structure ✓ (What/Why/Where/Learned), size ✓ (1800 within 500-2000 range). All items pass. Proceed to `mem_save`.
 
 - **Scenario B — Observation fails checklist — suggest improvements**:
@@ -193,7 +193,7 @@ Define and enforce a rule that observation titles must be specific enough for ef
   **Then** the system flags it as non-specific and suggests a replacement following the pattern: "What was the problem/change + what was the resolution/outcome". Example: instead of "Bug fix", use "JWT token refresh now rotates with each use to prevent replay"
 
 - **Scenario B — Specific title passes validation**:
-  **Given** an agent emits `summary: "ADR-013 quality gates adopted for memory curation protocol"`
+  **Given** an agent emits `summary: "ADR-020 quality gates adopted for memory curation protocol"`
   **When** title specificity is checked
   **Then** the title is accepted (specific, descriptive, searchable); no warning is emitted
 
@@ -376,8 +376,8 @@ Mark `[x]` after manual execution before `/flow-close`.
 
 | ID | Tag | Question | Default / Assumption |
 |----|-----|---------|---------------------|
-| OQ-1 | [OPTIONAL] | **IDE adapter propagation** — ADR-013 lists "Actualizar IDE adapters (Cursor, OpenCode, VS Code, Antigravity)" as Phase 1 item 5. Do the adapters require explicit updates to their `ide/{adapter}/` files, or does the `ide/shared/workflow-orchestrator-parity.md` mechanism auto-propagate? | Assumed: Skill changes in `skills/` are the canonical source. Adapters that reference the parity file auto-propagate. adapters with static copies (if any) are updated in a separate thin propagation PR. This spec assumes only `skills/` changes are in scope for Phase 1. |
-| OQ-2 | [OPTIONAL] | **Semantic topic counting method** — ADR-013 says "análisis semántico o ## headers." Should the orchestrator use a deterministic approach (counting markdown `## ` headers) as a first pass before LLM-based semantic analysis, or rely solely on LLM analysis? | Assumed: The LLM performs a single-pass analysis (not two-stage). If content has structured `## What`, `## Why`, `## Where`, `## Learned` headers, the LLM counts those as distinct sections. If content is unstructured, the LLM performs semantic topic clustering. The implementation is a single prompt, not a pipeline. |
+| OQ-1 | [OPTIONAL] | **IDE adapter propagation** — ADR-020 lists "Actualizar IDE adapters (Cursor, OpenCode, VS Code, Antigravity)" as Phase 1 item 5. Do the adapters require explicit updates to their `ide/{adapter}/` files, or does the `ide/shared/workflow-orchestrator-parity.md` mechanism auto-propagate? | Assumed: Skill changes in `skills/` are the canonical source. Adapters that reference the parity file auto-propagate. adapters with static copies (if any) are updated in a separate thin propagation PR. This spec assumes only `skills/` changes are in scope for Phase 1. |
+| OQ-2 | [OPTIONAL] | **Semantic topic counting method** — ADR-020 says "análisis semántico o ## headers." Should the orchestrator use a deterministic approach (counting markdown `## ` headers) as a first pass before LLM-based semantic analysis, or rely solely on LLM analysis? | Assumed: The LLM performs a single-pass analysis (not two-stage). If content has structured `## What`, `## Why`, `## Where`, `## Learned` headers, the LLM counts those as distinct sections. If content is unstructured, the LLM performs semantic topic clustering. The implementation is a single prompt, not a pipeline. |
 | OQ-3 | [FOLLOW-UP] | **Metrics on splitting adherence** — Should we track how often agents accept vs. reject splitting suggestions, to measure protocol effectiveness over time? | Out of v1 scope. Can be captured via `mem_retention_stats` or a future `mem_quality_metrics` tool. |
 
 ---
@@ -386,5 +386,5 @@ Mark `[x]` after manual execution before `/flow-close`.
 
 - type: decision
 - significance: high
-- summary: "ADR-013 Observation Quality gates adopted: focus check (Paso 2b), expanded Memory Signal with topics field, Quality Checklist in forge-memory, title specificity rules, type-specific size guidelines, plus P0/P1/P2 defensive fixes in engram-dotnet"
+- summary: "ADR-020 Observation Quality gates adopted: focus check (Paso 2b), expanded Memory Signal with topics field, Quality Checklist in forge-memory, title specificity rules, type-specific size guidelines, plus P0/P1/P2 defensive fixes in engram-dotnet"
 - topics: [memory-curation-protocol, observation-quality, engram-dotnet, adr-013]
