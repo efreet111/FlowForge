@@ -165,7 +165,7 @@ FlowForge pins the FlowDoc version in `.flowforge.json` using split keys:
   "docs_framework_version": "2.0",
   "upstream": {
     "repo": "https://github.com/crhistianmdz/FlowDocs",
-    "status": "private"
+    "status": "public"
   }
 }
 ```

@@ -14,7 +14,7 @@
 The documentation templates and structural conventions adopted in this ADR are adapted from:
 
 > **FlowDoc** by Cristian M. (`crhistianmdz`)  
-> Repository: `https://github.com/crhistianmdz/FlowDocs` (private as of 2026-06-18)  
+> Repository: `https://github.com/crhistianmdz/FlowDocs` (public)  
 > Version referenced: **FlowDoc v2.0** (2026-06-05 — original v1.1 superseded 2026-07-08)  
 > License: MIT  
 
@@ -137,7 +137,7 @@ FlowForge declares the upstream documentation framework and its version through 
   "docs_framework_version": "2.0",
   "upstream": {
     "repo": "https://github.com/crhistianmdz/FlowDocs",
-    "status": "private"
+    "status": "public"
   }
 }
 ```

@@ -76,7 +76,7 @@ If a flowdoc skill is unavailable: report the error with skill name + expected p
 
 ### Negative
 
-- **Manual drift detection**: No auto-sync with upstream FlowDocs (private repo). Version pins require manual updates when Crhistian releases new skill versions (OQ-5, deferred).
+- **Manual drift detection**: No auto-sync with upstream FlowDocs (public repo). Version pins require manual updates when Crhistian releases new skill versions (OQ-5, deferred).
 - **User-scope dependency**: Skills live in `~/.config/opencode/skills/` (not vendored). New team members must install skills separately (documented as environment prerequisite).
 - **Two-cycle complexity**: The direct vs. delegated invocation model adds cognitive load. Mitigated by clear documentation in `AGENTS.md` and this ADR.
 
