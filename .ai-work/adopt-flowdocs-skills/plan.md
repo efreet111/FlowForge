@@ -1,7 +1,7 @@
 # Plan: Adopt FlowDocs skills para documentación
 
 > **spec**: `.ai-work/adopt-flowdocs-skills/spec.md`
-> **HU**: `docs/tasks/HU-021-adopt-flowdocs-skills.md`
+> **HU**: `docs/tasks/HU-001-HU-099/HU-021.md`
 > **context-map**: `.ai-work/adopt-flowdocs-skills/context-map.md`
 > **Pre-flight**: OQ-1 [BLOCKER] ✓ resolved (range-bins). No unresolved blockers.
 
@@ -354,7 +354,7 @@ This is the runtime contract between forge-orchestrator and flowdoc skills:
 
 ### Phase 2: Structure (depends on T-002 for directory consistency)
 
-- [ ] **T-003** — Create `docs/tasks/HU-001-HU-099/` and migrate 3 flat HUs [FR-008]
+- [x] **T-003** — Create `docs/tasks/HU-001-HU-099/` and migrate 3 flat HUs [FR-008]
 
 ### Phase 3: Contracts & Documentation (depends on T-003 for path references)
 
@@ -362,7 +362,7 @@ This is the runtime contract between forge-orchestrator and flowdoc skills:
 - [x] **T-005** — Add FlowDocs Skills section to `AGENTS.md` [FR-001, FR-006]
 - [x] **T-006** — Pin skill versions in `docs/20-flowdoc-ecosystem.md` [NFR-001]
 - [x] **T-007** — Create `docs/decisions/ADR-018-flowdocs-skills-adoption.md` [FR-010]
-- [ ] **T-008** — Update `docs/11-orchestrator-delegation-protocol.md` [FR-002, FR-003, FR-006]
+- [x] **T-008** — Update `docs/11-orchestrator-delegation-protocol.md` [FR-002, FR-003, FR-006]
 
 ### Phase 4: Audit (depends on Phase 3 — needs AGENTS.md + ADR in place)
 
