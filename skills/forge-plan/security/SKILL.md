@@ -4,6 +4,10 @@ description: >
   Specialized Plan Agent skill for secure-by-design architecture and OWASP ASVS 
   patterns in plan.md. Trigger: any plan that includes endpoints, data access, 
   or user input handling.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-plan-security — Secure-by-Design Architecture

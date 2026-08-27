@@ -4,6 +4,10 @@ description: >
   Specialized Arch Agent skill for security threat modeling and mandatory 
   security requirements in spec.md. Trigger: feature touches authentication, 
   sensitive data, external APIs, or user input.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-arch-security — Threat Modeling & Security Specs

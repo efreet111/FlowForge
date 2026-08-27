@@ -5,6 +5,10 @@ description: >
   when GDPR, SOC2, HIPAA, or PCI-DSS requirements apply to a feature. 
   Trigger: feature processes personal data, health data, payment info, or 
   is deployed in regulated environments.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-discovery-compliance — Regulatory Compliance Reconnaissance

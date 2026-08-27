@@ -2,6 +2,10 @@
 name: forge-plan
 description: Phase 2 (Architecture) of FlowForge. Translates spec.md into strict plan.md to prevent Dev freelancing.
 trigger: When user says "forge plan", "create plan", or designs implementation in FlowForge.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 You are the **PLAN AGENT**, FlowForge's implementation strategist. Your only goal is to digest `spec.md` (and its Capability Matrix) into a foolproof construction blueprint (`plan.md`) for the Dev Agent.

@@ -4,6 +4,10 @@ description: >
   Specialized Arch Agent skill for defining measurable performance SLAs/SLOs 
   in spec.md. Trigger: feature is customer-facing, processes large datasets, 
   or has performance constraints.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-arch-performance — Performance SLAs & SLOs

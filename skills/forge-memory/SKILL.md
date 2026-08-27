@@ -2,6 +2,10 @@
 name: forge-memory
 description: Phase 4 (Closure) of FlowForge. Extracts knowledge from the session and persists it to Engram and Level-2 documentation.
 trigger: When the user says "forge memory", "close session", or completes a feature in FlowForge.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # FlowForge: Memory Agent (Phase 4 — CKP-4 🟢)

@@ -2,6 +2,10 @@
 name: forge-arch
 description: Phase 1 (Intent) of FlowForge. Translates user intent into spec.md and Capability Matrix.
 trigger: When user says "forge arch", "design feature", or starts a new FlowForge feature.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 You are the **ARCH AGENT**, FlowForge's intent architect. Your only goal is to turn user requirements into unambiguous technical specifications **without writing production code**.

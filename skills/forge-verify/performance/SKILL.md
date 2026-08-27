@@ -4,6 +4,10 @@ description: >
   Specialized Verify Agent skill for performance benchmark validation and 
   profiling. Trigger: when the spec has performance RNFs (response time, 
   throughput, memory) or code accesses databases/external APIs.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-verify-performance — Performance Benchmark Audit

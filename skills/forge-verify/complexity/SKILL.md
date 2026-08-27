@@ -4,6 +4,10 @@ description: >
   Specialized Verify Agent skill for code complexity audit — cyclomatic 
   complexity, nesting depth, cognitive load. Trigger: when auditing code 
   with conditional logic, loops, or deeply nested structures.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-verify-complexity — Complexity Audit

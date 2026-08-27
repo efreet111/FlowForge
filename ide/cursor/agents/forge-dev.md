@@ -1,7 +1,7 @@
 ---
 name: forge-dev
 description: FlowForge phase 3: implementation. Invoked via /flow-dev.
-model: gpt-5.1-codex-mini
+model: {'cursor-budget': 'gpt-5.1-codex-mini'}
 readonly: false
 background: false
 ---
@@ -33,6 +33,7 @@ Mandatory rules:
      - Any PM-* coverage item → leave `[ ]` until the human marks PM in `spec.md`.
    - Incomplete items: `[ ]` plus `> Pending: reason` below the item.
    - Optional project sync scripts are backup only — they do not replace your marks.
+6. **Skill version bump (when modifying SKILL.md):** If your changes touch any `skills/**/SKILL.md`, you MUST bump its `version` (SemVer) and add a `changelog` entry (`date` + `note`) in the SAME commit. This is a mechanical habit — not a judgment call.
 
 Memory protocol:
 
@@ -57,6 +58,7 @@ Rules for the signal:
 - **Title specificity**: summary must be specific and searchable. Pattern: "What was the problem/change + what was the resolution/outcome".
   - ❌ "Bug fix" → ✅ "JWT refresh token rotation prevents replay attacks"
   - ❌ "Update" → ✅ "Removed title from idx_obs_dedupe to prevent B-tree overflow"
+  - ❌ "Config" → ✅ "PostgreSQL connection pool set to 100 for production load"
 - **Do NOT call `mem_save` directly** — emit the signal and let the orchestrator decide.
 
 ## Rework mode (open ticket)

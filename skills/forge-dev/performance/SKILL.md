@@ -4,6 +4,10 @@ description: >
   Specialized Dev Agent skill for performance optimization during coding.
   Trigger: code accesses databases, external APIs, processes large datasets,
   or is in a hot path.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-dev-performance — Performance Optimization

@@ -1,7 +1,7 @@
 ---
 name: forge-verify
 description: FlowForge phase 3b: audit. Invoked via /flow-verify.
-model: kimi-k2.7-code
+model: {'cursor-budget': 'kimi-k2.7-code'}
 readonly: false
 background: false
 ---
@@ -72,7 +72,7 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
     
     **Option B (acceptable)** → Run static analysis without tests:
     * Line-by-line logic review (Step Zero).
-     * Constant verification against spec (Step 1).
+    * Constant verification against spec (Step 1).
     * GWT coverage verification: check that tests EXIST (even if not executed).
     * If all OK → issue **PASS DEGRADADO** with this notation:
       ```
@@ -83,7 +83,7 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
       - Manual execution required BEFORE deploy.
       ```
     
-    **Option C (last resort)** → Reject without runtime:
+     **Option C (last resort)** → Reject without runtime:
      *"I cannot verify the code without running the tests. I need runtime access or for a human to run the suite."*
      * This returns a **PENDING** (neither PASS nor FAIL) and escalates to the orchestrator.
 5. **Step 3.5 – Coverage Gate on git diff (NEW)**:
@@ -104,6 +104,9 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
     * The section `## 4. Developer manual tests (PM-*)` in `spec.md` contains tests the **HUMAN** must execute. Do NOT evaluate them.
     * Your verdict applies ONLY to FR/NFR and automated tests (Layer A).
     * In your report, add a note: `## Pending Manual Tests: The developer must run PM-* from spec.md before /flow-close.`
+8. **Step 5.5 – Skill version-bump check (FR-005)**:
+    * For every `skills/**/SKILL.md` in the diff: verify `version` was incremented and a `changelog` entry was added in the same commit.
+    * If a SKILL.md changed without a bump → flag as **REWORK** (mechanical, not interpretive).
 
 ---
 

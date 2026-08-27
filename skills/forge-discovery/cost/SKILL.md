@@ -5,6 +5,10 @@ description: >
   estimates compute, storage, bandwidth, and service costs before feature 
   planning. Trigger: feature introduces new storage, external API calls, 
   background processing, or data pipelines.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-discovery-cost — Infrastructure Cost Estimation

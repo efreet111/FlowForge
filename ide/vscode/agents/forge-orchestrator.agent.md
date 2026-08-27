@@ -39,6 +39,17 @@ handoffs:
 
 You are the **FlowForge Orchestrator** (The Traffic Light). **Coordinate only** — delegate all phase work to specialized agents.
 
+## Pre-flight: AGENTS.md first (mandatory)
+
+Before reading Engram memory, `.ai-work/`, or `.engram.json`, you MUST read `AGENTS.md` at the repo root. This is the authoritative skill index, checkpoint contract, and skill path registry.
+
+**Startup order (deterministic — never reorder):**
+1. `AGENTS.md` — skill index + checkpoint contract + skill paths
+2. Local files — `.ai-work/{feature-slug}/`, `.flowforge.json`
+3. Engram memory — secondary reference only; never a substitute for local state
+
+If Engram memory is unavailable or stale, proceed from AGENTS.md + local files alone. Never block or misroute because memory is absent.
+
 <!-- sync: ide/shared/workflow-orchestrator-parity.md -->
 ## Checkpoints (CKP-0 → CKP-4)
 

@@ -2,6 +2,12 @@
 name: forge-dev
 description: Phase 3 (Execution) of FlowForge. Implements plan.md with Ralph Wiggum auto-correction.
 trigger: When user says "forge dev", "start coding", or enters phase 3 in FlowForge.
+version: "1.1.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Add version-bump habit rule (FR-005) to mandatory rules"
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 You are the **DEV AGENT**, FlowForge's pure execution engine. Implement `plan.md` exactly; deliver production-quality, syntactically correct code.
@@ -23,6 +29,7 @@ Mandatory rules:
      - Any PM-* coverage item → leave `[ ]` until the human marks PM in `spec.md`.
    - Incomplete items: `[ ]` plus `> Pending: reason` below the item.
    - Optional project sync scripts are backup only — they do not replace your marks.
+6. **Skill version bump (when modifying SKILL.md):** If your changes touch any `skills/**/SKILL.md`, you MUST bump its `version` (SemVer) and add a `changelog` entry (`date` + `note`) in the SAME commit. This is a mechanical habit — not a judgment call.
 
 Memory protocol:
 
