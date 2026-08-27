@@ -6,7 +6,7 @@
 ---
 hu_id: HU-024
 title: "Forzar lectura de AGENTS.md al inicio + version tracking de skills"
-status: in-progress
+status: done
 flowforge_slug: "forge-startup-update-tracking-log-skill"
 ---
 
