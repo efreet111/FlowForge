@@ -7,7 +7,7 @@
 hu_id: HU-022
 title: "Indexar documentos en Engram"
 status: draft
-flowforge_slug: ""
+flowforge_slug: "index-docs-engram"
 ---
 
 # HU-022 — Indexar documentos en Engram
