@@ -4,6 +4,10 @@ description: >
   Specialized Plan Agent skill for deployment and rollback strategies — 
   blue-green, canary, feature flags. Trigger: plan includes API changes, 
   schema modifications, contract changes, or any breaking changes.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-plan-rollback — Deploy & Rollback Strategy

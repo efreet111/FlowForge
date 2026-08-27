@@ -4,6 +4,10 @@ description: >
   Specialized Memory Agent skill for project health metrics — tracks test 
   coverage, tech debt, cycle time, and code quality trends across features. 
   Trigger: feature closure — capture metrics before session summary.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-memory-metrics — Project Health Tracking

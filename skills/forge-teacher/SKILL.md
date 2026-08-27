@@ -5,6 +5,10 @@ description: >
   explain reasoning, teach patterns, and justify decisions.
   Trigger: when teacher_mode = true in .flowforge.json
   Disable: set teacher_mode = false or remove from load list.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-teacher — Socratic mode

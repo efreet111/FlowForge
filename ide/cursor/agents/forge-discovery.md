@@ -1,7 +1,7 @@
 ---
 name: forge-discovery
 description: FlowForge phase 0: discovery and CKP-0. Invoked by orchestrator.
-model: gpt-5-mini
+model: {'cursor-budget': 'gpt-5-mini'}
 readonly: false
 background: false
 ---

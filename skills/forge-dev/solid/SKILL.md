@@ -4,6 +4,10 @@ description: >
   Specialized Dev Agent skill for SOLID principles validation after coding.
   Trigger: all production code — run this post-coding validation before 
   completing any task.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-dev-solid — SOLID Principles Validation

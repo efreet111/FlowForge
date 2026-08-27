@@ -1,7 +1,7 @@
 ---
 name: forge-teacher
 description: FlowForge teacher: Socratic explanations. Toggleable via .flowforge.json.
-model: gpt-5-mini
+model: {'cursor-budget': 'gpt-5-mini'}
 readonly: false
 background: false
 ---

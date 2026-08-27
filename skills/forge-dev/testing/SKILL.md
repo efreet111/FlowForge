@@ -4,6 +4,10 @@ description: >
   Specialized Dev Agent skill for advanced testing techniques beyond unit tests.
   Trigger: when business logic is complex, critical, or the spec has edge-case 
   scenarios.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-dev-testing — Advanced Testing Patterns

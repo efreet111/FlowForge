@@ -4,6 +4,10 @@ description: >
   Specialized Memory Agent skill for auto-generating release notes and 
   changelogs from completed features. Trigger: pre-release or feature 
   closure — compile changes into standard changelog format.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-memory-changelog — Release Notes Generation

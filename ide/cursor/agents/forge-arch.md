@@ -1,7 +1,7 @@
 ---
 name: forge-arch
 description: FlowForge phase 1: spec.md and GWT. Invoked after discovery.
-model: kimi-k2.7-code
+model: {'cursor-budget': 'kimi-k2.7-code'}
 readonly: false
 background: false
 ---
@@ -59,6 +59,7 @@ Rules for the signal:
   (e.g. revision_cycle >= 1). Use `significance: low` for everything else.
 - `topics` — OPTIONAL list of distinct themes covered. If absent, orchestrator defaults to single-topic behavior.
 - **Title specificity**: summary must be specific and searchable. Pattern: "What was the problem/change + what was the resolution/outcome".
+  - ❌ "Bug fix" → ✅ "JWT refresh token rotation prevents replay attacks"
   - ❌ "Change" → ✅ "Switched from sessions to JWT for stateless auth"
   - ❌ "Config" → ✅ "PostgreSQL connection pool set to 100 for production load"
 - **Do NOT call `mem_save` directly** — emit the signal and let the orchestrator decide.

@@ -3,6 +3,10 @@ name: forge-arch-a11y
 description: >
   Specialized Arch Agent skill for accessibility (WCAG) requirements in 
   spec.md. Trigger: feature includes UI components that users interact with.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-arch-a11y — Accessibility Requirements
