@@ -6,7 +6,7 @@
 ---
 hu_id: HU-021
 title: "Adopt FlowDocs skills para documentación"
-status: in-progress
+status: done
 flowforge_slug: "adopt-flowdocs-skills"
 ---
 
