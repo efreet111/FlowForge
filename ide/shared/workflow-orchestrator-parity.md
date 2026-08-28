@@ -3,6 +3,17 @@
 > Shared source: include or copy into Cursor, Antigravity, VS Code, and OpenCode.
 > The orchestrator **coordinates**; it does not implement product code except as listed below.
 
+## Pre-flight: AGENTS.md first (mandatory)
+
+Before reading Engram memory, `.ai-work/`, or `.engram.json`, you MUST read `AGENTS.md` at the repo root. This is the authoritative skill index, checkpoint contract, and skill path registry.
+
+**Startup order (deterministic — never reorder):**
+1. `AGENTS.md` — skill index + checkpoint contract + skill paths
+2. Local files — `.ai-work/{feature-slug}/`, `.flowforge.json`
+3. Engram memory — secondary reference only; never a substitute for local state
+
+If Engram memory is unavailable or stale, proceed from AGENTS.md + local files alone. Never block or misroute because memory is absent.
+
 ## Artifacts (per feature)
 
 Folder: `.ai-work/{feature-slug}/` (kebab-case, no `FLOW-` prefix).

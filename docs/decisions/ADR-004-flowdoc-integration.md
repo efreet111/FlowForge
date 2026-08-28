@@ -5,7 +5,7 @@
 > **Last updated**: 2026-07-08 (v2.0 migration)  
 > **Feature**: `flowdoc-integration` (roadmap items **5–6** — `flow-init` + `.flowforge.json`)  
 > **Deciders**: FlowForge methodology team  
-> **Links**: [`docs/21-flowdoc-integration-proposal.md`](../21-flowdoc-integration-proposal.md) · [`ADR-002`](ADR-002-scaffold-doc-policy.md) · [`04-roadmap.md`](../04-roadmap.md) items 5–6 · [`docs/20-flowdoc-ecosystem.md`](../20-flowdoc-ecosystem.md)
+> **Links**: [`docs/archive/21-flowdoc-integration-proposal.archived.md`](../archive/21-flowdoc-integration-proposal.archived.md) · [`ADR-002`](ADR-002-scaffold-doc-policy.md) · [`04-roadmap.md`](../04-roadmap.md) items 5–6 · [`docs/20-flowdoc-ecosystem.md`](../20-flowdoc-ecosystem.md)
 
 ---
 
@@ -14,7 +14,7 @@
 The documentation templates and structural conventions adopted in this ADR are adapted from:
 
 > **FlowDoc** by Cristian M. (`crhistianmdz`)  
-> Repository: `https://github.com/crhistianmdz/FlowDocs` (private as of 2026-06-18)  
+> Repository: `https://github.com/crhistianmdz/FlowDocs` (public)  
 > Version referenced: **FlowDoc v2.0** (2026-06-05 — original v1.1 superseded 2026-07-08)  
 > License: MIT  
 
@@ -137,7 +137,7 @@ FlowForge declares the upstream documentation framework and its version through 
   "docs_framework_version": "2.0",
   "upstream": {
     "repo": "https://github.com/crhistianmdz/FlowDocs",
-    "status": "private"
+    "status": "public"
   }
 }
 ```
@@ -246,7 +246,7 @@ The following improvements have been identified for FlowDoc upstream (from propo
 - [ADR-001 — Memory Curation Protocol](ADR-001-memory-curation-protocol.md)
 - [ADR-002 — Scaffold documentation policy](ADR-002-scaffold-doc-policy.md)
 - [ADR-003 — Pattern Search Mandate](ADR-003-pattern-search-mandate.md)
-- [docs/21-flowdoc-integration-proposal.md](../21-flowdoc-integration-proposal.md) — full analysis and discussion document
+- [docs/archive/21-flowdoc-integration-proposal.archived.md](../archive/21-flowdoc-integration-proposal.archived.md) — full analysis and discussion document (v1.1 era)
 - [docs/20-flowdoc-ecosystem.md](../20-flowdoc-ecosystem.md) — adopter guide (generated from this ADR)
 - Roadmap items **5** (Project template), **6** (`.flowforge.json` schema)
 
@@ -254,7 +254,7 @@ The following improvements have been identified for FlowDoc upstream (from propo
 
 ## Status history
 
-- **2026-06-14**: Draft proposal created (`docs/21-flowdoc-integration-proposal.md`)
+- **2026-06-14**: Draft proposal created (`docs/archive/21-flowdoc-integration-proposal.archived.md`)
 - **2026-06-18**: ADR-004 written and accepted — v1.1 implementation begins
 - **2026-07-08**: v2.0 migration completed — HU template replaced with detailed v2.0 template (GWT scenarios, Owner & Timeline, Technical Debt); range-binned folder structure adopted (ADR-005); `flowdoc-ciclo.md` removed from artifact table (deprecated in v2.0); `.flowforge.json` updated to split keys format (`docs_framework` + `docs_framework_version` + `upstream`); ADR-004 rewritten to document v2.0 changes, FlowForge additions, and non-adopted elements
 - **2026-07-08**: Migration gap closure (ADR-007) — original branch `FlowDocsv2Adoption` updated `.flowforge.json` (project root) but missed 5 parallel surfaces: the project template, the C# installer `InitCommand.cs`, the shell scripts `flow-init.sh` / `flow-init.ps1`, the Spanish `QUICKSTART.es.md`, and the example HU file. ADR-007 (Full Absorb) closed these gaps so the public release ships a coherent v2.0 across all consumer surfaces. UX fixes applied to example HU (`status: draft`, empty `flowforge_slug`, placeholder content).

@@ -97,7 +97,8 @@ To implement this HU:
 
 ```bash
 # Start the feature cycle
-/flow-start HU-NNN-slug
+/flow-start slug
+# HU file: HU-NNN-slug.md (range-binned)
 ```
 
 - `flowforge_slug` is set by forge-arch when `.ai-work/{slug}/` is created

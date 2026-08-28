@@ -4,11 +4,9 @@
   "docs_framework_version": "2.0",
   "upstream": {
     "repo": "https://github.com/crhistianmdz/FlowDocs",
-    "status": "private"
+    "status": "public"
   },
   "engram": {
     "project": "flowforge"
-  },
-  "docs_framework": "flowdoc",
-  "docs_framework_version": "2.0"
+  }
 }

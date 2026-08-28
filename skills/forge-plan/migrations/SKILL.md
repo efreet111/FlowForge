@@ -4,6 +4,10 @@ description: >
   Specialized Plan Agent skill for database migration strategies — zero-downtime 
   deployments, schema evolution, rollback scripts. Trigger: plan includes new or 
   modified database schemas.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-plan-migrations — Database Migration Strategy

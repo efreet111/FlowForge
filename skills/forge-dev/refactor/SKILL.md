@@ -4,6 +4,10 @@ description: >
   Specialized Dev Agent skill for safe refactoring — Martin Fowler's catalog, 
   code smell detection, and test-preserving transformations. Trigger: during 
   the Ralph Wiggum loop when the code has structural issues or code smells.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-dev-refactor — Safe Refactoring Catalog

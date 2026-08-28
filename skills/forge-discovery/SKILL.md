@@ -1,3 +1,12 @@
+---
+name: forge-discovery
+description: "Phase 0 (Discovery) of FlowForge. Explores memories, maps requirements, and produces context-map.md."
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
+---
+
 # Forge Discovery Skill (English)
 
 ## Trigger / Context

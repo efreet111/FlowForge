@@ -5,6 +5,10 @@ description: >
   links ADRs, decisions, and patterns across multiple repositories. 
   Trigger: multi-repo projects or when architectural decisions affect 
   multiple services.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-memory-knowledge — Cross-Project Knowledge Graph

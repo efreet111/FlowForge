@@ -4,6 +4,10 @@ description: >
   Specialized Dev Agent skill for OWASP Top 10 prevention during coding.
   Trigger: code handles user input, forms, queries, authentication, file 
   uploads, or external API calls.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-dev-security — OWASP Top 10 Prevention

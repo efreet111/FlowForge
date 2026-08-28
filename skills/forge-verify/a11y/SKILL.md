@@ -4,6 +4,10 @@ description: >
   Specialized Verify Agent skill for WCAG accessibility audit during 
   verification. Trigger: UI features — verifies aria attributes, keyboard 
   navigation, color contrast, focus management.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-verify-a11y — Accessibility Audit
