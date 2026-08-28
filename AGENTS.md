@@ -44,6 +44,7 @@ The orchestrator enforces 5 control points. Learn the difference:
 | `forge-dev` | 3 | Inner Loop | When writing product code, fixing syntax errors, or running unit tests. | [`skills/forge-dev/SKILL.md`](skills/forge-dev/SKILL.md) |
 | `forge-verify` | 3 | CKP‑3 🔴 | Auditing implementation (LLM-as-Judge & traceability) or generating rework tickets. | [`skills/forge-verify/SKILL.md`](skills/forge-verify/SKILL.md) |
 | `forge-memory` | 4 | CKP‑4 🟢 | Session closure (smart synthesis, database upload, ADR promotion, retention cleanup). | [`skills/forge-memory/SKILL.md`](skills/forge-memory/SKILL.md) |
+| `forge-index-docs` | On-demand | — | Index FlowDoc docs (PRD, ADR, RFC, API, DB) into Engram. Trigger: "index docs", "indexar documentos", "backfill engram", "drift-check docs". | [`skills/forge-index-docs/SKILL.md`](skills/forge-index-docs/SKILL.md) |
 
 ---
 
