@@ -25,6 +25,10 @@
     <InformationalVersion>0.1.0-alpha.13</InformationalVersion>
   </PropertyGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="FlowForge.Installer.Tests" />
+  </ItemGroup>
+
   <!-- Self-contained publish targets for CI -->
   <PropertyGroup Condition="'$(RuntimeIdentifier)' != ''">
     <SelfContained>true</SelfContained>
