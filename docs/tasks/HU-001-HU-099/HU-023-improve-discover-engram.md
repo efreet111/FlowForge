@@ -6,7 +6,7 @@
 ---
 hu_id: HU-023
 title: "Mejorar discover con Engram y docs indexados"
-status: in-progress
+status: done
 flowforge_slug: "improve-discover-engram"
 ---
 
@@ -22,12 +22,12 @@ flowforge_slug: "improve-discover-engram"
 
 ## Acceptance Criteria (business-level)
 
-- [ ] AC-1: El discover busca en Engram primero: referencias a PRD, ADRs, RFCs, API docs, DB docs
-- [ ] AC-2: Si Engram tiene contenido relevante, el discover lo usa como contexto sin leer archivos adicionales
-- [ ] AC-3: Si Engram no tiene suficiente información, el discover lee SOLO los archivos necesarios de docs/
-- [ ] AC-4: Si no encuentra información ni en Engram ni en docs/, el requerimiento se trata como completamente nuevo
-- [ ] AC-5: El discover respeta las decisiones ya documentadas en ADRs (no las ignora)
-- [ ] AC-6: El flujo de búsqueda optimiza el consumo de tokens
+- [x] AC-1: El discover busca en Engram primero: referencias a PRD, ADRs, RFCs, API docs, DB docs — verificado vía PM-1
+- [x] AC-2: Si Engram tiene contenido relevante, el discover lo usa como contexto sin leer archivos adicionales — verificado vía PM-1
+- [x] AC-3: Si Engram no tiene suficiente información, el discover lee SOLO los archivos necesarios de docs/ — verificado vía PM-2
+- [x] AC-4: Si no encuentra información ni en Engram ni en docs/, el requerimiento se trata como completamente nuevo — verificado vía PM-3
+- [x] AC-5: El discover respeta las decisiones ya documentadas en ADRs (no las ignora) — verificado vía PM-4
+- [x] AC-6: El flujo de búsqueda optimiza el consumo de tokens — verificado vía PM-1/PM-2
 
 ---
 
