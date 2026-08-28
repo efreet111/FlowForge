@@ -104,6 +104,7 @@ The `flowforge` CLI provides system-level commands for installation, updates, an
 | `flowforge init` | Initialize FlowDoc in a project | `flowforge init ~/projects/my-app` |
 | `flowforge config` | Manage configuration | `flowforge config get` |
 | `flowforge uninstall` | Remove FlowForge installation | `flowforge uninstall` |
+| `flowforge onboard` | First-day onboarding briefing from engram memories | `flowforge onboard --project flowforge` |
 
 #### `flowforge status` (v0.1.0-alpha.13+)
 
@@ -148,6 +149,57 @@ flowforge update --component flowforge-skills --force
 - Process check before binary swap
 
 See [ADR-016](decisions/ADR-016-update-mechanism-by-component.md) for architectural details.
+
+#### `flowforge onboard` (v0.1.0-alpha.14+)
+
+First-day onboarding briefing from engram memories. Generates a comprehensive overview of the project's decisions, patterns, and blockers to accelerate onboarding for new team members or developers returning after a break.
+
+```bash
+# Interactive briefing (detects project from .flowforge.json or git)
+flowforge onboard
+
+# Specify project explicitly
+flowforge onboard --project flowforge
+
+# Export to ONBOARDING.md for the team
+flowforge onboard --project flowforge --output ONBOARDING.md
+
+# CI-safe mode (no interactive prompts)
+flowforge onboard --no-interactive --limit 5
+```
+
+**What it shows:**
+- **Recent Activity** — Last 5 sessions and 20 observations from the project
+- **Key Architectural Decisions** — Top 10 decisions (`type=decision`)
+- **Team Conventions & Patterns** — Reusable patterns (`type=pattern`)
+- **Known Blockers / Gotchas** — Issues to avoid (`type=bugfix` / `type=manual`)
+
+**Features:**
+- HTTP-first integration with engram sync server (CLI fallback if server unavailable)
+- Interactive drill-down into specific decisions/patterns
+- Timeline view for context around observations
+- Atomic export to ONBOARDING.md (team scope only, no personal memories)
+- Pre-flight checks with actionable hints if prerequisites are missing
+
+**Flags:**
+- `--project <name>` — Override project name (bypasses auto-detection)
+- `--user <handle>` — Display-only user name in briefing header
+- `--scope team|personal` — Memory scope (default: team)
+- `--output <path>` — Export briefing to markdown file
+- `--limit <n>` — Max items per section (1..20, default: 10)
+- `--no-interactive` — CI-safe mode (no drill-down prompts)
+
+**Exit codes:**
+- `0` — Success
+- `1` — Runtime error (ambiguous project in non-interactive mode)
+- `2` — Pre-check failure (engram binary missing, config unreadable)
+
+**Prerequisites:**
+1. engram installed (`flowforge install`)
+2. sync configured (`~/.engram/config.json` with `sync.user`)
+3. memories captured (project must have decisions/patterns in engram)
+
+See [installer-baseline.md](installer-baseline.md) for the complete command reference.
 
 ---
 
