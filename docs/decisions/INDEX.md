@@ -24,6 +24,7 @@
 | ADR-018 | FlowDocs skills adoption & delegation protocol | Accepted | 2026-08-25 | adopt-flowdocs-skills |
 | ADR-019 | OpenCode Antigravity customizations | Accepted | 2026-08-25 | (renumbered from ADR-011 duplicate) |
 | ADR-020 | Memory observation quality | Accepted | 2026-08-25 | (renumbered from ADR-013 duplicate) |
+| ADR-021 | Document indexing in Engram: topic_key namespace & upsert protocol | Accepted | 2026-08-28 | index-docs-engram |
 
 ---
 
