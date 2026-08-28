@@ -6,7 +6,7 @@
 ---
 hu_id: HU-023
 title: "Mejorar discover con Engram y docs indexados"
-status: draft
+status: in-progress
 flowforge_slug: "improve-discover-engram"
 ---
 
