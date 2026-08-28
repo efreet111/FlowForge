@@ -4,6 +4,10 @@ description: >
   Specialized Arch Agent skill for Domain-Driven Design — bounded contexts, 
   ubiquitous language, aggregates, domain events. Trigger: feature involves 
   complex business logic, multiple teams, or evolving domain models.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-arch-domain — Domain-Driven Design

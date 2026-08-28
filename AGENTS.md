@@ -96,6 +96,42 @@ Load these on-demand when the context demands domain expertise. The core skills 
 
 ---
 
+## 📚 FlowDocs Skills (Documentation Layer)
+
+> These 9 skills live in `~/.config/opencode/skills/` (user scope, NOT vendored in repo).
+> Versions pinned in [`docs/20-flowdoc-ecosystem.md`](docs/20-flowdoc-ecosystem.md).
+> **Two independent cycles**: `flowdoc-hu` (HUs, direct invocation) vs `flowdoc-assist` (base docs).
+> Base context mapping contract: [`.ai-work/adopt-flowdocs-skills/base-context-mapping.md`](.ai-work/adopt-flowdocs-skills/base-context-mapping.md).
+
+### Invocation protocol
+
+| Trigger | Skill | Cycle | Output path |
+|---------|-------|-------|-------------|
+| Create/update HU | `flowdoc-hu` | Direct (forge-orchestrator → flowdoc-hu) | `docs/tasks/HU-001-HU-099/HU-NNN.md` |
+| Create PRD | `flowdoc-assist` → `flowdoc-prd` | Delegated (forge-orchestrator → flowdoc-assist) | `docs/PRD.md` |
+| Create product ADR | `flowdoc-assist` → `flowdoc-adr` | Delegated | `docs/architecture/adr/` |
+| Create RFC | `flowdoc-assist` → `flowdoc-rfc` | Delegated | `docs/architecture/rfc/` |
+| Document API | `flowdoc-assist` → `flowdoc-api` | Delegated | `docs/endpoints.md` |
+| Document DB | `flowdoc-assist` → `flowdoc-db` | Delegated | `docs/schema.md` |
+| Audit docs | `flowdoc-assist` → `flowdoc-review` | Delegated | Read-only report |
+| Discover project | `flowdoc-assist` → `flowdoc-discover` | Delegated | Base context |
+
+### Degradation (skill unavailable)
+
+If a flowdoc skill is not installed or not responding:
+1. Report the error with the skill name and expected path
+2. Suggest remediation: install (`opencode skills install flowdoc-{name}`), skip, or standalone mode
+3. NEVER fail silently
+
+### Key rules
+
+- `flowdoc-hu` is NEVER invoked via `flowdoc-assist` — it's a direct call from `forge-orchestrator`
+- `flowdoc-assist` coordinates ONLY base docs (discover/prd/adr/rfc/api/db/review) — NOT HUs
+- HU cycle is independent of base docs cycle; forge-orchestrator is the hub connecting both
+- `.atl/skill-registry.md` is auto-generated — do NOT edit manually
+
+---
+
 ## 🎯 Onboarding Detection (When to suggest `flowforge onboard`)
 
 **Context**: The `flowforge onboard` command generates a first-day briefing from engram memories (decisions, patterns, blockers). AI agents should suggest it when appropriate.

@@ -1,7 +1,7 @@
 ---
 name: forge-plan
 description: FlowForge phase 2: plan.md. Invoked via /flow-plan.
-model: kimi-k2.7-code
+model: {'cursor-budget': 'kimi-k2.7-code'}
 readonly: false
 background: false
 ---

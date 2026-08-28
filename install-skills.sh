@@ -95,8 +95,32 @@ for label in "${!DESTINATIONS[@]}"; do
     fi
 done
 
-# ── Step 3: Permissions & summary ───────────────────────
-echo -e "\n${CYAN}[3/3] Configurando permisos...${NC}"
+# ── Step 3: FlowDocs upstream skills ────────────────────
+echo -e "\n${CYAN}[3/4] Instalando FlowDocs skills (upstream)...${NC}"
+
+FLOWDOC_REPO="https://github.com/crhistianmdz/FlowDocs.git"
+FLOWDOC_TMP="/tmp/flowdocs-$(date +%s)"
+FLOWDOC_DEST="$HOME/.config/opencode/skills"
+
+# Clone latest (depth=1 for speed)
+git clone "$FLOWDOC_REPO" "$FLOWDOC_TMP" --depth=1 2>/dev/null
+if [ $? -eq 0 ]; then
+    # Copy only the skills directory
+    cp -r "$FLOWDOC_TMP/skills/"* "$FLOWDOC_DEST/" 2>/dev/null
+    if [ $? -eq 0 ]; then
+        FLOWDOC_COUNT=$(find "$FLOWDOC_TMP/skills" -name "SKILL.md" | wc -l)
+        echo -e "   - ${GREEN}OK${NC} FlowDocs upstream: ${FLOWDOC_COUNT} skills instaladas."
+    else
+        echo -e "   - ${YELLOW}WARN${NC} FlowDocs skills copiadas con errores."
+    fi
+    rm -rf "$FLOWDOC_TMP"
+else
+    echo -e "   - ${RED}FAILED${NC} FlowDocs: error al clonar (sin internet?). Prosiguiendo..."
+    rm -rf "$FLOWDOC_TMP" 2>/dev/null
+fi
+
+# ── Step 4: Permissions & summary ───────────────────────
+echo -e "\n${CYAN}[4/4] Configurando permisos...${NC}"
 chmod +x ./install-skills.sh
 
 echo -e "\n${GREEN}====================================================${NC}"
@@ -134,6 +158,11 @@ echo -e "   - Cost:      forge-discovery-cost"
 echo -e "   - Changelog: forge-memory-changelog"
 echo -e "   - Knowledge: forge-memory-knowledge"
 echo -e "   - Metrics:   forge-memory-metrics"
+echo ""
+echo -e "  ${CYAN}FlowDocs Skills (upstream, ~/.config/opencode/skills):${NC}"
+echo -e "   - Documentación: flowdoc-assist, flowdoc-hu, flowdoc-prd,"
+echo -e "                flowdoc-adr, flowdoc-rfc, flowdoc-api,"
+echo -e "                flowdoc-db, flowdoc-discover, flowdoc-review"
 echo ""
 
 if [ "$FAILED" -gt 0 ]; then

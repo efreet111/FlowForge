@@ -4,6 +4,10 @@ description: >
   Specialized Plan Agent skill for design pattern selection and architecture 
   decisions. Trigger: when the spec requires structural decisions, reusable 
   components, or cross-cutting concerns.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-plan-patterns — Design Pattern Catalog

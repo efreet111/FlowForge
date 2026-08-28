@@ -8,7 +8,7 @@
 > **Links**: [`FlowDocsv2Adoption` branch](https://github.com/efreet111/FlowForge/tree/FlowDocsv2Adoption) ·
 > [`ADR-004` FlowDoc integration](ADR-004-flowdoc-integration.md) ·
 > [`docs/20-flowdoc-ecosystem.md`](../20-flowdoc-ecosystem.md) ·
-> [FlowDoc upstream](https://github.com/crhistianmdz/FlowDocs) (private)
+> [FlowDoc upstream](https://github.com/crhistianmdz/FlowDocs) (public)
 
 ---
 

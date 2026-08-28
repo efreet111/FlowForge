@@ -2,6 +2,12 @@
 name: forge-verify
 description: Phase 3 (Judgment) of FlowForge. Sentinel Judge that audits code against spec.md and plan.md.
 trigger: When user says "forge verify", "audit code", or advances to phase 3 judgment in FlowForge.
+version: "1.1.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Add skill version-bump audit check (FR-005) to operational rules"
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # FlowForge: Verify Agent (Sentinel Judge)
@@ -94,6 +100,9 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
     * The section `## 4. Developer manual tests (PM-*)` in `spec.md` contains tests the **HUMAN** must execute. Do NOT evaluate them.
     * Your verdict applies ONLY to FR/NFR and automated tests (Layer A).
     * In your report, add a note: `## Pending Manual Tests: The developer must run PM-* from spec.md before /flow-close.`
+8. **Step 5.5 – Skill version-bump check (FR-005)**:
+    * For every `skills/**/SKILL.md` in the diff: verify `version` was incremented and a `changelog` entry was added in the same commit.
+    * If a SKILL.md changed without a bump → flag as **REWORK** (mechanical, not interpretive).
 
 ---
 

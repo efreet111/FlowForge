@@ -4,6 +4,10 @@ description: >
   Specialized Verify Agent skill for SAST (Static Analysis Security Testing) 
   and OWASP audit during verification. Trigger: always during the verify phase 
   when auditing code against spec.md.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-verify-security — SAST & OWASP Audit

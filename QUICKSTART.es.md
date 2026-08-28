@@ -66,7 +66,7 @@ FlowForge escribe los agentes en los directorios que cada IDE realmente lee. Des
 | IDE | Agentes globales | Agentes por proyecto | Notas |
 |-----|------------------|----------------------|-------|
 | **Cursor** | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` | MCP en `~/.cursor/mcp.json`. |
-| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/`, `.opencode/commands/` | Skills en `{repo}/skills/` (no copiados). Ver [ADR-011](docs/decisions/ADR-011-opencode-antigravity-customizations.md). |
+| **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/`, `.opencode/commands/` | Skills en `{repo}/skills/` (no copiados). Ver [ADR-019](docs/decisions/ADR-019-opencode-antigravity-customizations.md). |
 
 > El instalador OpenCode ahora genera `opencode.json` completo con el provider `opencode-zen` (8 modelos gratis), registra el sidecar y se valida con `flowforge doctor`. El warning sobre entrenamiento aparece en consola y la política de placeholders está en `docs/PII-POLICY.md`.
 | **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detectado por `github.copilot*`. |

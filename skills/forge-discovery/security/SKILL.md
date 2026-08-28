@@ -5,6 +5,10 @@ description: >
   CVEs, vulnerable dependency history, and security advisories before feature 
   planning. Trigger: feature touches auth, encryption, external APIs, or 
   introduces new dependencies.
+version: "1.0.0"
+changelog:
+  - date: "2026-08-27"
+    note: "Initial tracked version"
 ---
 
 # forge-discovery-security — Security Reconnaissance

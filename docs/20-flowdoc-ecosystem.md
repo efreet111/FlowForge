@@ -94,6 +94,27 @@ FlowForge and FlowDoc serve different purposes and must not be confused:
 
 ---
 
+## FlowDoc Skills — Version Pins
+
+> Skills live in `~/.config/opencode/skills/` (user scope). Versions are tracked here for drift detection.
+> See [ADR-018](decisions/ADR-018-flowdocs-skills-adoption.md) for the adoption decision.
+
+| Skill | Version | Path | Notes |
+|-------|---------|------|-------|
+| `flowdoc-assist` | v3.1 | `~/.config/opencode/skills/flowdoc-assist/SKILL.md` | Orquestador de docs base |
+| `flowdoc-hu` | v1.1 | `~/.config/opencode/skills/flowdoc-hu/SKILL.md` | HUs (invocación directa) |
+| `flowdoc-adr` | — | `~/.config/opencode/skills/flowdoc-adr/SKILL.md` | ADRs de producto |
+| `flowdoc-api` | — | `~/.config/opencode/skills/flowdoc-api/SKILL.md` | API endpoint docs |
+| `flowdoc-db` | — | `~/.config/opencode/skills/flowdoc-db/SKILL.md` | DB schema docs |
+| `flowdoc-discover` | — | `~/.config/opencode/skills/flowdoc-discover/SKILL.md` | Project discovery |
+| `flowdoc-prd` | — | `~/.config/opencode/skills/flowdoc-prd/SKILL.md` | PRD creation |
+| `flowdoc-review` | — | `~/.config/opencode/skills/flowdoc-review/SKILL.md` | Doc audit |
+| `flowdoc-rfc` | — | `~/.config/opencode/skills/flowdoc-rfc/SKILL.md` | RFC creation |
+
+> **Drift detection**: When upstream FlowDocs updates a skill, compare the version here against the installed version. If drift is detected, review the changelog and update this table + re-run `flowdoc-review` to validate template compatibility.
+
+---
+
 ## Adoption levels: combined matrix
 
 FlowDoc v2.0 defines L1–L3. FlowForge adds CKPs. Here is how they map:
@@ -144,7 +165,7 @@ FlowForge pins the FlowDoc version in `.flowforge.json` using split keys:
   "docs_framework_version": "2.0",
   "upstream": {
     "repo": "https://github.com/crhistianmdz/FlowDocs",
-    "status": "private"
+    "status": "public"
   }
 }
 ```
