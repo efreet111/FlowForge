@@ -6,7 +6,7 @@
 ---
 hu_id: HU-022
 title: "Indexar documentos en Engram"
-status: draft
+status: done
 flowforge_slug: "index-docs-engram"
 ---
 
@@ -22,14 +22,14 @@ flowforge_slug: "index-docs-engram"
 
 ## Acceptance Criteria (business-level)
 
-- [ ] AC-1: PRD.md está indexado en Engram con referencia y contenido clave
-- [ ] AC-2: Todos los ADRs en `docs/architecture/adr/` están indexados en Engram
-- [ ] AC-3: Todos los RFCs en `docs/architecture/rfc/` están indexados en Engram
-- [ ] AC-4: Documentación de API (`docs/api/`) indexada con metadata relevante
-- [ ] AC-5: Documentación de DB (`docs/database/`) indexada con metadata relevante
-- [ ] AC-6: HU (User Stories) no se indexan en este paso (el flujo /flow-start ya guarda la referencia)
-- [ ] AC-7: Cuando un documento se actualiza, su index en Engram se actualiza automáticamente
-- [ ] AC-8: Existe un mecanismo para indexar documentos existentes que aún no están en Engram
+- [x] AC-1: PRD.md está indexado en Engram con referencia y contenido clave
+- [x] AC-2: Todos los ADRs en `docs/architecture/adr/` están indexados en Engram
+- [x] AC-3: Todos los RFCs en `docs/architecture/rfc/` están indexados en Engram
+- [x] AC-4: Documentación de API (`docs/api/`) indexada con metadata relevante
+- [x] AC-5: Documentación de DB (`docs/database/`) indexada con metadata relevante
+- [x] AC-6: HU (User Stories) no se indexan en este paso (el flujo /flow-start ya guarda la referencia)
+- [x] AC-7: Cuando un documento se actualiza, su index en Engram se actualiza automáticamente
+- [x] AC-8: Existe un mecanismo para indexar documentos existentes que aún no están en Engram
 
 ---
 
@@ -37,37 +37,37 @@ flowforge_slug: "index-docs-engram"
 
 ### Happy Path
 
-- [ ] **[Indexar PRD]**
+- [x] **[Indexar PRD]**
   **GIVEN** un proyecto con FlowDoc configurado
   **WHEN** se ejecuta la indexación de documentos
   **THEN** el PRD.md está indexado en Engram con referencia y contenido clave
   **🧪 Ref**: `docs/PRD.md`
 
-- [ ] **[Indexar ADRs]**
+- [x] **[Indexar ADRs]**
   **GIVEN** múltiples ADRs en `docs/architecture/adr/`
   **WHEN** se ejecuta la indexación
   **THEN** cada ADR está indexado con: título, decisión principal, contexto resumido, y path
   **🧪 Ref**: `docs/architecture/adr/*.md`
 
-- [ ] **[Indexar RFCs]**
+- [x] **[Indexar RFCs]**
   **GIVEN** RFCs en `docs/architecture/rfc/`
   **WHEN** se ejecuta la indexación
   **THEN** cada RFC está indexado con: título, estado, tema en discusión, y path
   **🧪 Ref**: `docs/architecture/rfc/*.md`
 
-- [ ] **[Indexar API docs]**
+- [x] **[Indexar API docs]**
   **GIVEN** documentación de API en `docs/api/`
   **WHEN** se ejecuta la indexación
   **THEN** cada endpoint/contrato está indexado con metadata (nombre, método, path)
   **🧪 Ref**: `docs/api/*.md`
 
-- [ ] **[Indexar DB docs]**
+- [x] **[Indexar DB docs]**
   **GIVEN** documentación de base de datos en `docs/database/`
   **WHEN** se ejecuta la indexación
   **THEN** cada schema/tabla está indexado con metadata relevante
   **🧪 Ref**: `docs/database/*.md`
 
-- [ ] **[Actualización automática]**
+- [x] **[Actualización automática]**
   **GIVEN** un documento ya indexado en Engram
   **WHEN** el documento se actualiza en el filesystem
   **THEN** el index en Engram se actualiza automáticamente
@@ -75,13 +75,13 @@ flowforge_slug: "index-docs-engram"
 
 ### Edge Cases
 
-- [ ] **[Documento sin indexar existente]**
+- [x] **[Documento sin indexar existente]**
   **GIVEN** un proyecto con documentos FlowDoc pero sin indexación en Engram
   **WHEN** un agente necesita información
   **THEN** existe un mecanismo para indexar esos documentos bajo demanda
   **🧪 Ref**: `flowdoc-discover/SKILL.md`
 
-- [ ] **[Documento indexado pero modificado]**
+- [x] **[Documento indexado pero modificado]**
   **GIVEN** un documento indexado que fue modificado sin actualizar el index
   **WHEN** se consulta Engram
   **THEN** se detecta la discrepancia y se sugiere re-indexar
@@ -89,7 +89,7 @@ flowforge_slug: "index-docs-engram"
 
 ### Error Cases
 
-- [ ] **[Documento no encontrado]**
+- [x] **[Documento no encontrado]**
   **GIVEN** Engram tiene una referencia a un documento
   **WHEN** se intenta leer el documento
   **THEN** se reporta el error y se sugiere remover o re-indexar la referencia
@@ -160,15 +160,15 @@ Probablemente se necesite crear una skill de FlowForge para manejar la indexaci�
 
 ## Definition of Done
 
-- [ ] Mecanismo de indexación implementado
-- [ ] PRD indexado y verificable
-- [ ] ADRs indexados y verificables
-- [ ] RFCs indexados y verificables
-- [ ] API docs indexados y verificables
-- [ ] DB docs indexados y verificables
-- [ ] HUs NO indexadas (verificado que no se indexan)
-- [ ] Actualización automática funcional
-- [ ] Documentación del proceso de indexación
+- [x] Mecanismo de indexación implementado
+- [x] PRD indexado y verificable
+- [x] ADRs indexados y verificables
+- [x] RFCs indexados y verificables
+- [x] API docs indexados y verificables
+- [x] DB docs indexados y verificables
+- [x] HUs NO indexadas (verificado que no se indexan)
+- [x] Actualización automática funcional
+- [x] Documentación del proceso de indexación
 
 ---
 
