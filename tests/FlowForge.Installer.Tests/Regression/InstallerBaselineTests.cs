@@ -2,6 +2,8 @@ using System.Net;
 using System.Net.Http;
 using FlowForge.Installer.Infrastructure;
 using FlowForge.Installer.Models;
+using FlowForge.Installer.Modules.OpenCode;
+using FlowForge.Installer.Update;
 using Xunit;
 
 namespace FlowForge.Installer.Tests.Regression;
@@ -244,6 +246,132 @@ public class InstallerBaselineTests
             Assert.Contains("info message", content);
             Assert.Contains("warn message", content);
             Assert.Contains("error message", content);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    // ── HU-025: AGENTS.md merge regression tests (ADR-017) ─────────────────
+
+    [Fact]
+    public void InstallOpenCode_AgentsMdMerge_DoesNotBreakExistingSidecar()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), $"flowforge-baseline-{Guid.NewGuid():N}");
+        var opencodeDir = Path.Combine(tempDir, "opencode");
+        Directory.CreateDirectory(opencodeDir);
+        try
+        {
+            // Create a sidecar file (simulating existing managed state)
+            var sidecarPath = Path.Combine(opencodeDir, ".flowforge-managed.json");
+            var sidecarContent = """{"managedFiles":["agents/forge-dev.md","commands/flow.md"]}""";
+            File.WriteAllText(sidecarPath, sidecarContent);
+
+            // Create an AGENTS.md with Engram Protocol
+            var agentsMdPath = Path.Combine(opencodeDir, "AGENTS.md");
+            File.WriteAllText(agentsMdPath, """
+                <!-- gentle-ai:engram-protocol -->
+                ## Engram Protocol
+                Content.
+                <!-- /gentle-ai:engram-protocol -->
+                """);
+
+            // Run the merger
+            var log = new InstallerLogger(Path.Combine(tempDir, "install.log"));
+            var backupManager = new BackupManager(log, Path.Combine(tempDir, "backups"));
+            var atomicWriter = new AtomicWriter();
+            var merger = new AgentsMdMerger(log, backupManager, atomicWriter);
+            var result = merger.Merge(agentsMdPath, opencodeDir, autoConfirm: true);
+
+            Assert.True(result.Success);
+
+            // Sidecar must be byte-identical (merger doesn't touch it)
+            var sidecarAfter = File.ReadAllText(sidecarPath);
+            Assert.Equal(sidecarContent, sidecarAfter);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [Fact]
+    public void InstallOpenCode_AgentsMdMerge_PreservesExistingConfig()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), $"flowforge-baseline-{Guid.NewGuid():N}");
+        var opencodeDir = Path.Combine(tempDir, "opencode");
+        Directory.CreateDirectory(opencodeDir);
+        try
+        {
+            // Create an opencode.json config (simulating existing config)
+            var configPath = Path.Combine(opencodeDir, "opencode.json");
+            var configContent = """{"mcpServers":{"engram":{"type":"stdio","command":"/usr/local/bin/engram"}}}""";
+            File.WriteAllText(configPath, configContent);
+
+            // Create an AGENTS.md with Engram Protocol
+            var agentsMdPath = Path.Combine(opencodeDir, "AGENTS.md");
+            File.WriteAllText(agentsMdPath, """
+                <!-- gentle-ai:engram-protocol -->
+                ## Engram Protocol
+                Content.
+                <!-- /gentle-ai:engram-protocol -->
+                """);
+
+            // Run the merger
+            var log = new InstallerLogger(Path.Combine(tempDir, "install.log"));
+            var backupManager = new BackupManager(log, Path.Combine(tempDir, "backups"));
+            var atomicWriter = new AtomicWriter();
+            var merger = new AgentsMdMerger(log, backupManager, atomicWriter);
+            var result = merger.Merge(agentsMdPath, opencodeDir, autoConfirm: true);
+
+            Assert.True(result.Success);
+
+            // Config must be byte-identical (merger doesn't touch it)
+            var configAfter = File.ReadAllText(configPath);
+            Assert.Equal(configContent, configAfter);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [Fact]
+    public void InstallOpenCode_AgentsMdMerge_DoesNotBreakExistingAgentFiles()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), $"flowforge-baseline-{Guid.NewGuid():N}");
+        var opencodeDir = Path.Combine(tempDir, "opencode");
+        var agentsDir = Path.Combine(opencodeDir, "agents");
+        Directory.CreateDirectory(agentsDir);
+        try
+        {
+            // Create existing agent files (simulating installed agents)
+            var agentFile = Path.Combine(agentsDir, "forge-dev.md");
+            var agentContent = "---\nname: forge-dev\n---\n# Dev Agent\nDo things.";
+            File.WriteAllText(agentFile, agentContent);
+
+            // Create an AGENTS.md with Engram Protocol
+            var agentsMdPath = Path.Combine(opencodeDir, "AGENTS.md");
+            File.WriteAllText(agentsMdPath, """
+                <!-- gentle-ai:engram-protocol -->
+                ## Engram Protocol
+                Content.
+                <!-- /gentle-ai:engram-protocol -->
+                """);
+
+            // Run the merger
+            var log = new InstallerLogger(Path.Combine(tempDir, "install.log"));
+            var backupManager = new BackupManager(log, Path.Combine(tempDir, "backups"));
+            var atomicWriter = new AtomicWriter();
+            var merger = new AgentsMdMerger(log, backupManager, atomicWriter);
+            var result = merger.Merge(agentsMdPath, opencodeDir, autoConfirm: true);
+
+            Assert.True(result.Success);
+
+            // Agent files must be byte-identical (merger only touches AGENTS.md)
+            var agentAfter = File.ReadAllText(agentFile);
+            Assert.Equal(agentContent, agentAfter);
         }
         finally
         {

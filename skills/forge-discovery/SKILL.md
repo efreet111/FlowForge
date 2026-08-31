@@ -1,8 +1,10 @@
 ---
 name: forge-discovery
 description: "Phase 0 (Discovery) of FlowForge. Explores memories, maps requirements, and produces context-map.md."
-version: "1.0.0"
+version: "1.1.0"
 changelog:
+  - date: "2026-08-28"
+    note: "HU-023: Reorder flow — document-aware Engram search (step 3), gate of sufficiency replacing unconditional PRD+HUs read (step 3b), new diagnostic sections (ADR contradiction, broken refs, ADR conflict, ambiguous search, new requirement path), updated context-map output format"
   - date: "2026-08-27"
     note: "Initial tracked version"
 ---
@@ -33,27 +35,62 @@ During that spike, the discovery agent realized that `src/Engram.Verification/` 
    - If a `.flowforge.json` exists in the project root, read the `paths` section to know where `PRD.md`, backlog HUs, and `features` (`.ai-work/`) live.
    - If the human references a specific HU (e.g. `HU-042`), locate it under `paths.backlog` and record its path in the Context Map.
 2. **Keyword Extraction** – parse the prompt and extract 3‑5 highly specific technical/business terms (e.g., `auth`, `login`, `jwt`, `performance`, `sqlite`).
-3. **Memory Search (Dual‑Level)**
-   - **Pre-step**: Call `mem_current_project` (no parameters needed) to auto-detect the active project from CWD. Use the returned `project` value in all subsequent memory calls — do not hardcode project names.
-   - **Attempt A: engram-dotnet Engine (Preferred)**
-     - Invoke `mem_search` with the extracted keywords filtered by the current project to get candidate observations.
-     - **CRITICAL**: Results are truncated. For each relevant observation, call `mem_get_observation(id)` to retrieve the full, uncut content.
-   - **Attempt B: Local Fallback**
-     - Use `grep_search` over the `./.engram/local_memory/` directory, searching for the extracted keywords in local Markdown files.
-     - For each matching file, read it fully with `view_file` to extract its YAML FrontMatter and structured content.
-3b. **PRD & HU read (FlowDoc layer)**
-   - **Precondition**: only run when `.flowforge.json` has `docs_framework` set to a non-empty value other than `"none"` (e.g. `"flowdoc"` with `docs_framework_version: "2.0"`). If `docs_framework` is absent, `null`, or `"none"`, skip this step — the project uses FlowForge only (`.ai-work/`), not the FlowDoc documentation layer.
-   - If `docs/PRD.md` (or `paths.prd` from `.flowforge.json`) exists, read the first two sections to understand product context before searching memory.
-   - List the 3 most recent HU files under `paths.backlog` (sorted by filename descending). If the human pointed to a specific HU, read it fully and extract: title, acceptance criteria, and the "As a / I want / So that" fields.
-   - Add a `## FlowDoc context` block to the Context Map:
-     ```markdown
-     ## FlowDoc context
-     - PRD: docs/PRD.md (read: yes/no)
-     - HU referenced: HU-NNN — [title] (path: docs/tasks/HU-NNN-*.md)
-     - HU flowforge_slug: [current value or "unset"]
-     ```
-   - If no `.flowforge.json` and no `docs/PRD.md` exist, skip this step silently (project may not use FlowDoc).
-   - **Custom folder layout**: if the project uses FlowDoc semantics but not the default `docs/` tree, edit `paths` in `.flowforge.json` (keep `docs_framework`) — agents resolve PRD, backlog, ADRs, and RFCs from those paths.
+3. **Memory Search — Document-Aware Engram Search (FR-001, FR-009)**
+    - **Pre-step**: Call `mem_current_project` (no parameters needed) to auto-detect the active project from CWD. Use the returned `project` value in all subsequent memory calls — do not hardcode project names.
+    - **Precondition**: only run when `.flowforge.json` has `docs_framework` set to a non-empty value other than `"none"` (e.g. `"flowdoc"` with `docs_framework_version: "2.0"`). If `docs_framework` is absent, `null`, or `"none"`, skip to step 3-alt (Local Fallback).
+    - **Document-aware query construction**: from the 3-5 keywords extracted in step 2, build queries using the `docs/` namespace. Execute in order; **stop as soon as a query returns results > 0**:
+      1. `mem_search("docs/adr/ {keyword1} {keyword2}")` — ADRs first (most likely to constrain design)
+      2. `mem_search("docs/prd {keyword1}")` — PRD
+      3. `mem_search("docs/rfc/ {keyword1}")` — RFCs
+      4. `mem_search("docs/api/ {keyword1}")` — API docs
+      5. `mem_search("docs/db/ {keyword1}")` — DB docs
+      6. `mem_search("{keyword1} {keyword2} docs/")` — broadest fallback
+    - **CRITICAL**: Results are truncated. For each relevant observation, call `mem_get_observation(id)` to retrieve the full, uncut content. Record the observation `#id` for traceability.
+    - **Fallback — Engram unavailable (FR-009)**: if `mem_search` errors or times out (MCP error), catch the failure and fall back to reading `docs/PRD.md` + relevant docs in `docs/` directly. If `mem_search("docs/")` returns 0 results (empty index), treat the index as absent and use `docs/` as the primary source.
+    - **Local Fallback (Attempt B)**: if Engram is available but yields nothing, use `grep_search` over `./.engram/local_memory/` for the extracted keywords. For each matching file, read it fully to extract its YAML FrontMatter and structured content.
+
+3b. **Gate of Sufficiency + Conditional Reading (FR-002, FR-003)**
+    - **Precondition**: only when step 3 returned results from Engram.
+    - **Deterministic checks** (ALL must pass):
+      1. `results > 0` — at least one observation found
+      2. `topic_key ∈ docs/*` — observation's topic_key matches the `docs/` namespace (e.g., `docs/adr/product/005`, `docs/prd`)
+      3. `Where` path exists on filesystem — verify with a file existence check
+    - **Semantic check (conservative)**:
+      4. The observation's `What`/`Why`/`Learned` covers ≥2 of the requirement's keywords
+      5. If ANY doubt about summary quality → mark INSUFFICIENT (read the file)
+    - **Result**:
+      - **SUFFICIENT**: use the index content as context. Do NOT read files. Record Engram source IDs.
+      - **INSUFFICIENT**: proceed to conditional reading below.
+    - **Conditional reading**: read ONLY the files referenced in the `Where` field of relevant observations. Do NOT read PRD + 3 HUs unconditionally. If a `Where` path does not exist → report as broken reference (see step 3d).
+
+3c. **New Requirement Path (FR-004)**
+    - If step 3 returned 0 results from Engram AND the fallback (local grep / direct docs/ scan) found nothing relevant → classify as **"new" requirement**.
+    - Proceed directly to step 5 (Pattern Search) WITHOUT activating CKP-0.
+    - **Distinction from CKP-0**:
+      - Vague request with no context (e.g., "improve performance") → CKP-0 🔴 hard stop (step 7).
+      - Specific request with no prior info in Engram/docs → "new requirement" path → proceed to step 5.
+    - Record `Requirement classification: new` in the context-map.
+
+3d. **ADR Contradiction Detection (FR-005)**
+    - For each ADR found via Engram (topic_key ∈ `docs/adr/*`), evaluate if its decision **contradicts** the requirement's intent.
+    - **Contradiction**: ADR says "do NOT use X" but requirement asks for X → report in context-map BEFORE proceeding to Phase 1: `ADR-NNN contradicts requirement: {brief description}`.
+    - **Complement**: ADR provides context that supports or is neutral to the requirement → incorporate as context silently, no report needed.
+
+3e. **Broken Reference Reporting (FR-007)**
+    - When a `Where` field points to a non-existent file (detected lazily when attempting to read the path):
+      - Report in context-map: `{path} not found — suggest re-index`
+      - Do NOT auto-delete the observation. Do NOT auto-fix. This is diagnostic only (NFR-004).
+
+3f. **ADR Conflict Detection (FR-008)**
+    - When multiple ADRs on the same topic contradict each other:
+      - Report in context-map: `ADR-NNN vs ADR-MMM on {topic} — manual resolution required`
+    - **Distinction**: observations that are "related" (same topic, different granularity — per ADR-021 Learned) are NOT contradictions. Only report actual conflicting decisions.
+
+3g. **Ambiguous Search Handling (FR-010)**
+    - When `mem_search` returns multiple results from unrelated topics (no dominant `topic_key` cluster):
+      - **Block**: `**BLOCKED: ambiguous results, clarification needed**` — request human clarification via CKP-0 mechanism.
+    - When one dominant candidate exists by `topic_key` but other results are tangentially related:
+      - **Proceed** with the dominant candidate and document the ambiguity in the context-map: `Ambiguity: {brief description}`.
 
 4. **Association Mapping & Narrative Thread**
    - Determine if the new user story belongs to an existing Epic in memory, or inherits architectural constraints from an ongoing topic (check if observations share the same `topic_key`).
@@ -87,17 +124,36 @@ During that spike, the discovery agent realized that `src/Engram.Verification/` 
 
 If valid context exists, produce a concise **Context Map (Discovery)** that serves as the mandatory preface for the Architecture Agent (Phase 1). The map must list:
 
-- Relevant prior observations (from step 3)
+- Relevant prior observations with Engram IDs (from step 3)
 - Associated epics and topic_keys (from step 4)
 - **Reusable Patterns Found** (from step 5) — _mandatory; missing this section is a CKP-0 violation_
-- **FlowDoc context** (from step 3b) — HU referenced, PRD read status
-- Any constraints that must be respected
+- **FlowDoc context** (from steps 3b-3g) — HU referenced, PRD read status, Engram sources, diagnostics
+- Any constraints that must be respected (including ADR contradictions)
+
+### Context Map output format
+
+```markdown
+## FlowDoc context
+- PRD: docs/PRD.md (read: yes/no)
+- HU referenced: HU-NNN — [title] (path: docs/tasks/HU-NNN-*.md)
+- HU flowforge_slug: [current value or "unset"]
+- Engram sources: [#id1, #id2, ...] (topic_keys: docs/adr/product/005, docs/prd)
+- ADR contradictions: [ADR-NNN contradicts requirement: {brief}] | none
+- ADR conflicts: [ADR-NNN vs ADR-MMM on {topic}] | none
+- Broken refs: [{path} not found — suggest re-index] | none
+- Ambiguity: [{brief description}] | none
+- Requirement classification: [existing | new]
+
+## Reusable Patterns Found
+- `src/.../X.cs` (line N): <what it does> → can be cloned / extended / re-used
+- Or: no patterns found. Search terms: [...]. Result: negative.
+```
 
 **Mandatory**: write the Context Map to disk at `.ai-work/{feature-slug}/context-map.md`. Do not only output it inline — the file must exist on disk for the orchestrator and subsequent agents to reference.
 
 **Final line of your response must be one of these exact tokens** (used by the orchestrator to route the flow):
 - `**CLEAR**` — context is sufficient, advance to Phase 1 (forge-arch).
-- `**BLOCKED: [reason]**` — context is insufficient (CKP-0); include a 1-line reason. Orchestrator halts until human clarifies.
+- `**BLOCKED: [reason]**` — context is insufficient (CKP-0) or ambiguous (step 3g); include a 1-line reason. Orchestrator halts until human clarifies.
 
 ---
 
