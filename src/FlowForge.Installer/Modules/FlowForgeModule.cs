@@ -6,6 +6,7 @@ using System.IO;
 using FlowForge.Installer.Commands;
 using FlowForge.Installer.Infrastructure;
 using FlowForge.Installer.Modules.OpenCode;
+using FlowForge.Installer.Update;
 using Spectre.Console;
 
 namespace FlowForge.Installer.Modules;
@@ -246,6 +247,37 @@ public sealed class FlowForgeModule(InstallerContext ctx)
                 var commandsSrc = Path.Combine(ffRepo, "ide", "opencode", "commands");
                 CopyGlob(commandsSrc, commandsDest, "*.md");
                 modifiedFiles.Add(commandsDest);
+            }
+
+            // ── AGENTS.md non-destructive merge (HU-025) ─────────────────────
+            var agentsMdPath = PathHelper.OpenCodeAgentsMd;
+            var merger = new AgentsMdMerger(
+                ctx.Log,
+                new BackupManager(ctx.Log),
+                new AtomicWriter());
+            var mergeResult = merger.Merge(agentsMdPath, opencodeDir, autoConfirm: !dryRun);
+
+            switch (mergeResult.Action)
+            {
+                case MergeAction.Created:
+                    AnsiConsole.MarkupLine($"  [green]✓[/] AGENTS.md → [grey]created with FlowForge pre-flight block[/]");
+                    modifiedFiles.Add(agentsMdPath);
+                    break;
+                case MergeAction.Merged:
+                    AnsiConsole.MarkupLine($"  [green]✓[/] AGENTS.md → [grey]merged (backup: {Path.GetFileName(mergeResult.BackupPath)})[/]");
+                    modifiedFiles.Add(agentsMdPath);
+                    break;
+                case MergeAction.IdempotentNoOp:
+                    AnsiConsole.MarkupLine($"  [grey]⋯[/] AGENTS.md → already up to date");
+                    break;
+                case MergeAction.ConflictReported:
+                    AnsiConsole.MarkupLine($"  [yellow]⚠[/] AGENTS.md → [yellow]conflicts detected, not modified:[/]");
+                    foreach (var conflict in mergeResult.ConflictDescriptions)
+                        AnsiConsole.MarkupLine($"    [yellow]• {Markup.Escape(conflict)}[/]");
+                    break;
+                case MergeAction.Error:
+                    AnsiConsole.MarkupLine($"  [yellow]![/] AGENTS.md → [yellow]{Markup.Escape(mergeResult.Error ?? "unknown error")}[/]");
+                    break;
             }
         }
 

@@ -1,8 +1,8 @@
 ---
 hu_id: HU-025
 title: "OpenCode installer debe actualizar AGENTS.md global sin perder datos"
-status: draft
-flowforge_slug: ""
+status: done
+flowforge_slug: "hu-025"
 ---
 
 # HU-025 — OpenCode installer debe actualizar AGENTS.md global sin perder datos
@@ -123,3 +123,9 @@ To implement this HU:
 ## Technical Debt (if applicable)
 
 - El script `install-skills.sh` actualmente solo copia skills — necesita lógica de merge para AGENTS.md. Ver línea 88.
+
+## Additional Artifacts (out of scope, created for dev/testing)
+
+- `install/dev/install-dev.sh` — script shell para instalación local sin .NET ni GitHub
+- `Dockerfile.test` — contenedor Docker para tests automatizados y validación local
+- ADR-022 — documenta el patrón de merge (marcadores gentle-ai + hash SHA-256)
