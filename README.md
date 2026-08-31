@@ -86,18 +86,21 @@ iex ((New-Object System.Net.WebClient).DownloadString('https://raw.githubusercon
 
 ### Which installer should I use? {#which-installer}
 
-| Feature | Stack installer (`install/install.sh`) | IDE installer (`ide/install.sh`) |
-|---------|----------------------------------------|----------------------------------|
-| **Language** | C# binary (downloaded) + bash bootstrap | Pure bash/PowerShell |
-| **Interactive menus** | ✅ Yes (without `--yes` flag) | ❌ No (always automatic) |
-| **Installs engram-dotnet** | ✅ Yes | ❌ No |
-| **Installs flowforge CLI** | ✅ Yes | ❌ No |
-| **Installs IDE agents** | ✅ Yes | ✅ Yes |
-| **Use case** | First-time setup, full installation | Quick refresh, CI/CD, already have engram |
+| Feature | Stack installer (`install/install.sh`) | IDE installer (`ide/install.sh`) | Dev installer (`install/dev/`) |
+|---------|----------------------------------------|----------------------------------|-------------------------------|
+| **Language** | C# binary (downloaded) + bash bootstrap | Pure bash/PowerShell | Pure bash |
+| **Interactive menus** | ✅ Yes (without `--yes` flag) | ❌ No (always automatic) | ✅ Yes (TUI) |
+| **Installs engram-dotnet** | ✅ Yes | ❌ No | ❌ No |
+| **Installs flowforge CLI** | ✅ Yes | ❌ No | ❌ No |
+| **Installs IDE agents** | ✅ Yes | ✅ Yes | ✅ Yes |
+| **AGENTS.md merge** | ✅ Yes (C#) | ❌ No | ✅ Yes (shell) |
+| **Backup before modify** | ✅ Yes | ❌ No | ✅ Yes |
+| **Use case** | First-time setup, full installation | Quick refresh, CI/CD, already have engram | Local development, testing, no .NET required |
 
 **Quick rule:**
 - First time? → Use **Stack installer** (`install/install.sh`)
 - Already have flowforge + engram, just want to update agents? → Use **IDE installer** (`ide/install.sh`)
+- Contributing or testing locally without .NET? → Use **Dev installer** (`install/dev/install-dev.sh`)
 
 ### Local clone {#local-clone}
 
@@ -106,6 +109,28 @@ git clone https://github.com/efreet111/FlowForge.git
 cd FlowForge
 bash ide/install.sh          # Linux/macOS
 # .\ide\install.ps1          # Windows
+```
+
+### Development installer (no .NET required) {#dev-installer}
+
+For local development and testing without installing .NET or downloading from GitHub:
+
+```bash
+./install/dev/install-dev.sh              # Interactive TUI
+./install/dev/install-dev.sh --ide opencode  # Non-interactive
+```
+
+Supports: OpenCode, Cursor, Antigravity, VS Code. Creates backup before modifying anything.
+
+### Validate with Docker {#docker-test}
+
+Run the full test suite without installing .NET locally:
+
+```bash
+docker build -t flowforge-test .
+docker run --rm flowforge-test                    # all tests
+docker run --rm flowforge-test dotnet build       # just build
+docker run --rm flowforge-test dotnet test --filter "AgentsMdMerger"  # specific tests
 ```
 
 ### Initialize a project (FlowDoc + AGENTS.md) {#initialize-a-project}

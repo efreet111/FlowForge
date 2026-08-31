@@ -23,6 +23,10 @@ public static class PathHelper
     public static string OpenCodeSidecarPath =>
         Path.Combine(HomeDir, ".config", "opencode", ".flowforge-managed.json");
 
+    /// <summary>Canonical path to OpenCode's global AGENTS.md (ADR-019).</summary>
+    public static string OpenCodeAgentsMd =>
+        Path.Combine(HomeDir, ".config", "opencode", "AGENTS.md");
+
     public static string CursorSidecarPath =>
         Path.Combine(HomeDir, ".cursor", ".flowforge-managed.json");
 
