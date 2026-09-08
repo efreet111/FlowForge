@@ -1,9 +1,10 @@
 ---
 hu_id: HU-026
 title: "NS-06 — context-project.md: Proyecto autoconfigurado para nuevos miembros"
-status: draft
+status: done
 category: improvement
-flowforge_slug: "hu-026-context-project"
+flowforge_slug: "ns-06-context-project"
+closed_date: 2026-09-08
 ---
 
 # HU-026 — context-project.md: Proyecto autoconfigurado para nuevos miembros
@@ -12,11 +13,11 @@ flowforge_slug: "hu-026-context-project"
 Como nuevo miembro del equipo, quiero disponer de un documento `ia-work/context-project.md` en el repositorio desde el primer día, para que pueda entender el proyecto sin perder 2-3 días consultando a compañeros o interrogando a Engram.
 
 ## Acceptance Criteria (business-level)
-- [ ] AC-1: El archivo `ia-work/context-project.md` existe en el repositor
-- [ ] AC-2: El documento sigue la plantilla definida: Business Goal, Tech Stack, Architecture Overview, Key Decisions, Team & Roles, Related Projects, Getting Started
-- [ ] AC-3: El documento es versionable (git history) y sobrevive entre sesiones
-- [ ] AC-4: Se actualiza automáticamente tras cambios arquitectónicos mayores
-- [ ] AC-5: La información estructural vive en el archivo; la información operacional de sesión vive en Engram
+- [x] AC-1: El archivo canónico `docs/project-context.md` existe en el repositor (ruta migrada de `ia-work/` → `docs/` por OQ-1, aprobado en CKP-1)
+- [x] AC-2: El documento sigue la plantilla definida: Business Goal, Tech Stack, Architecture Overview, Key Decisions, Team & Roles, Related Projects, Getting Started (PM-1, PM-5)
+- [x] AC-3: El documento es versionable (git history) y sobrevive entre sesiones (FR-003)
+- [ ] AC-4: Se actualiza automáticamente tras cambios arquitectónicos mayores — **PENDIENTE: PM-2 requiere sesión real con ADR promovido (cerrada como PASS_DEGRADADO)**
+- [x] AC-5: La información estructural vive en el archivo; la información operacional de sesión vive en Engram (PM-5)
 
 ## Scenarios (SDD Spec)
 ### Happy Path
@@ -66,10 +67,10 @@ Como nuevo miembro del equipo, quiero disponer de un documento `ia-work/context-
 - **Effort**: S (1 día)
 
 ## Definition of Done
-- [ ] Spec NS-06 completado con: trigger, plantilla exacta, responsable, ubicación
-- [ ] Archivo `ia-work/context-project.md` creado con plantilla populated
-- [ ] Integración con sistema de updates (post-ADR o similar) definida
-- [ ] Documentación deowner actualizada
+- [x] Spec NS-06 completado con: trigger, plantilla exacta, responsable, ubicación (spec.md §5 resuelve Q1–Q8)
+- [x] Archivo canónico `docs/project-context.md` creado con plantilla populated (v0.7, 171 líneas; ruta migrada por OQ-1)
+- [x] Integración con sistema de updates (post-ADR o similar) definida e implementada (hook AC-4 en forge-memory; validación funcional pendiente → PM-2)
+- [x] Documentación de owner actualizada (status: done, closed_date 2026-09-08)
 
 ## FlowForge
 > This section is managed by FlowForge agents. Do not edit manually.
@@ -79,4 +80,5 @@ Como nuevo miembro del equipo, quiero disponer de un documento `ia-work/context-
 ---
 
 ## Technical Debt (if applicable)
-- ⚠️ Spec incompleto: NS-06 necesita definición de trigger, plantilla exacta, y ubicación antes de desarrollo
+- ⚠️ ~~Spec incompleto: NS-06 necesita definición de trigger, plantilla exacta, y ubicación antes de desarrollo~~ → resuelto en spec.md §5 (Q1–Q8)
+- ⏳ **PM-2 (AC-4) pendiente**: validación funcional del auto-update requiere una sesión real que promueva ≥1 ADR. Cierre registrado como PASS_DEGRADADO (2026-09-08). Marcar PM-2 `[x]` en spec.md §4 y AC-4 `[x]` aquí en la próxima sesión.
