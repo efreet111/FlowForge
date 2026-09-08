@@ -2,8 +2,10 @@
 name: forge-index-docs
 description: Index FlowDoc documents (PRD, ADR, RFC, API, DB) into Engram with key content and metadata, enabling fast discover lookups with fewer tokens.
 trigger: "index docs, indexar documentos, backfill engram, drift-check docs"
-version: "1.0.0"
+version: "1.1.0"
 changelog:
+  - date: "2026-09-08"
+    note: "HU-026: Add Project Context doc type (row 7 in discovery table + content model with topic_key docs/context/project)"
   - date: "2026-08-28"
     note: "Initial version — document discovery, content-model, upsert/backfill, drift & broken reference detection"
 ---
@@ -26,6 +28,7 @@ Scan the following paths in order. For each path, if the directory or file does 
 | 4 | `docs/architecture/rfc/*.md` | RFC | `docs/rfc/{id}` |
 | 5 | `docs/api/*.md` | API doc | `docs/api/{file}` |
 | 6 | `docs/database/*.md` | DB doc | `docs/db/{file}` |
+| 7 | `docs/project-context.md` | Project Context | `docs/context/project` |
 
 ### Exclusion list (FR-006 — binary, no exceptions)
 
@@ -125,6 +128,21 @@ content:
   **Where**: docs/database/{file}.md
   **Learned**: [Metadata: count de tablas, relationships si aplica]
 ```
+
+### Project Context (FR-011, NFR-006)
+
+```
+title: "Project Context: {Project Name}"
+type: "decision"
+topic_key: "docs/context/project"
+content:
+  **What**: [Structural overview — tech stack + architecture, 2-3 sentences]
+  **Why**: [Business goal — 1-2 sentences]
+  **Where**: docs/project-context.md
+  **Learned**: [Key decisions count + related projects, 1-2 sentences]
+```
+
+Upsert: idempotent via `topic_key` (existing FR-007 pattern). Re-indexing updates the existing observation in place.
 
 ### Content extraction rules
 

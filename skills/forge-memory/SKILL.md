@@ -2,8 +2,10 @@
 name: forge-memory
 description: Phase 4 (Closure) of FlowForge. Extracts knowledge from the session and persists it to Engram and Level-2 documentation.
 trigger: When the user says "forge memory", "close session", or completes a feature in FlowForge.
-version: "1.0.0"
+version: "1.1.0"
 changelog:
+  - date: "2026-09-08"
+    note: "HU-026: Add AC-4 context-project sync hook (deterministic trigger on ADR promotion or structural change)"
   - date: "2026-08-27"
     note: "Initial tracked version"
 ---
@@ -57,6 +59,18 @@ You are the **MEMORY AGENT**, the supreme curator of knowledge for the FlowForge
    - Add an entry under `[Unreleased]` (or today's date) with a one-line summary of the feature.
    - Format: `- feat: [feature slug] — [one-line description from spec.md §1]`
 3. If neither a HU nor a CHANGELOG exists, skip this step silently.
+4. **Update docs/project-context.md** (AC-4 hook):
+   - **TRIGGER** (deterministic, NFR-002): fire IFF
+     (a) ≥1 ADR promoted/created in this session
+     OR (b) plan.md modified a structural section
+         (Business Goal | Tech Stack | Architecture Overview | Team & Roles | Related Projects)
+   - IF trigger fires:
+     a. Read `docs/project-context.md`
+     b. For each new ADR: append row to Key Decisions table (dedupe by ADR-NNN id) (NFR-003)
+     c. If structural section changed: update that section summary
+     d. Update footer: `> Last updated: <today ISO-8601>`
+     e. Update: `> Methodology version: <read VERSION.md>`
+   - IF trigger does NOT fire: skip silently (no git noise)
 
 Then continue normal close. Add to session summary:
 ```markdown
