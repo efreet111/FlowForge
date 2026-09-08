@@ -3,7 +3,7 @@ hu_id: HU-033
 title: "Code-Aware Dev Agent"
 status: draft
 category: feature
-flowforge_slug: "ff-001-code-aware-dev-agent"
+flowforge_slug: "hu-033-code-aware-dev-agent"
 ---
 
 # HU-033 — Code-Aware Dev Agent

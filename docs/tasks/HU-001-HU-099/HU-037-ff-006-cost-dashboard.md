@@ -3,7 +3,7 @@ hu_id: HU-037
 title: "Cost Dashboard"
 status: draft
 category: feature
-flowforge_slug: "ff-006-cost-dashboard"
+flowforge_slug: "hu-037-cost-dashboard"
 ---
 
 # HU-037 — Cost Dashboard

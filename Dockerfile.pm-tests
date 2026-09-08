@@ -1,0 +1,55 @@
+# FlowForge PM Test Container
+#
+# Usage:
+#   docker build -f Dockerfile.pm-tests -t flowforge-pm-tests .
+#   docker run --rm -it -w /repo flowforge-pm-tests
+#
+# Inside the container, run PM tests manually:
+#   flowforge onboard                                          # PM-1 (happy path)
+#   engram-go search "decision" --type decision --project flowforge --limit 3  # compare Go output
+#   engram-dotnet search "decision" --type decision --project flowforge --limit 3  # compare .NET output
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0
+
+WORKDIR /repo
+
+# Install Go, curl, and other dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Go
+RUN wget -q https://go.dev/dl/go1.22.5.linux-amd64.tar.gz -O /tmp/go.tar.gz \
+    && rm -rf /usr/local/go \
+    && tar -C /usr/local -xzf /tmp/go.tar.gz \
+    && rm /tmp/go.tar.gz
+ENV PATH="/usr/local/go/bin:${PATH}"
+ENV GOPATH="/root/go"
+
+# Install engram Go binary
+RUN go install github.com/Gentleman-Programming/engram/cmd/engram@latest
+RUN ln -sf /root/go/bin/engram /usr/local/bin/engram-go
+
+# Download engram .NET binary and SQLite native library
+RUN curl -sL https://github.com/efreet111/engram-dotnet/releases/download/v1.3.0/engram-linux-x64 -o /usr/local/bin/engram-dotnet \
+    && chmod +x /usr/local/bin/engram-dotnet \
+    && curl -sL https://github.com/efreet111/engram-dotnet/releases/download/v1.3.0/libe_sqlite3.so -o /usr/local/lib/libe_sqlite3.so \
+    && ln -sf /usr/local/lib/libe_sqlite3.so /usr/local/bin/libe_sqlite3.so
+
+# Verify both engram versions work
+RUN ldconfig /usr/local/lib 2>/dev/null || true
+RUN engram-go --version
+RUN engram-dotnet --version
+
+# Copy source
+COPY . /repo
+
+# Build FlowForge CLI
+RUN dotnet build src/FlowForge.Installer/FlowForge.Installer.csproj -c Release --verbosity quiet
+
+# Create .flowforge.json for testing
+RUN echo '{"version":"0.5.0","engram":{"project":"flowforge"}}' > /repo/.flowforge.json
+
+# Entry: interactive shell for manual PM testing
+CMD ["bash", "-i"]

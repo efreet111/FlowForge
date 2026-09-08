@@ -3,7 +3,7 @@ hu_id: HU-030
 title: "Decision Extraction from plan.md"
 status: draft
 category: feature
-flowforge_slug: "ff-002-parte-a-decision-extraction"
+flowforge_slug: "hu-030-decision-extraction"
 ---
 
 # HU-030 — Decision Extraction from plan.md

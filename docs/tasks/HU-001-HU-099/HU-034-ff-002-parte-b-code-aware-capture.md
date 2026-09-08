@@ -3,7 +3,7 @@ hu_id: HU-034
 title: "Code-Aware Capture with file metadata"
 status: draft
 category: feature
-flowforge_slug: "ff-002-parte-b-code-aware-capture"
+flowforge_slug: "hu-034-code-aware-capture"
 ---
 
 # HU-034 — Code-Aware Capture with file metadata

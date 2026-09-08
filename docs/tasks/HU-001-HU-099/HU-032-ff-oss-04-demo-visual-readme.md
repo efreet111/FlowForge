@@ -3,7 +3,7 @@ hu_id: HU-032
 title: "Demo visual en README"
 status: draft
 category: oss
-flowforge_slug: "ff-oss-04-demo-visual-readme"
+flowforge_slug: "hu-032-demo-visual-readme"
 ---
 
 # HU-032 — Demo visual en README

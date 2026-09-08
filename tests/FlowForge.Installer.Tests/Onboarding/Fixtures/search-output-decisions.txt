@@ -1,0 +1,22 @@
+Found 3 memories:
+
+[1] #1 (decision) — Switched to AOT compilation
+    **What**: Replaced JIT with AOT compilation for the installer binary
+    **Why**: AOT produces smaller binaries and faster startup
+    **Where**: src/FlowForge.Installer/FlowForge.Installer.csproj
+    **Learned**: Must use source-gen JSON; no reflection-based serialization
+    2024-01-15 10:30:00 | project: flowforge | scope: project
+
+[2] #2 (decision) — ConsoleAppFramework for CLI routing
+    **What**: Chose ConsoleAppFramework over Spectre.Console.Cli
+    **Why**: AOT-safe, source-generated CLI routing
+    **Where**: src/FlowForge.Installer/Program.cs
+    **Learned**: CAF v5 uses DI container for service resolution
+    2024-01-14 09:15:00 | project: flowforge | scope: project
+
+[3] #3 (decision) — Spectre.Console for visual output
+    **What**: Using Spectre.Console core (NOT Spectre.Console.Cli)
+    **Why**: Visual output without AOT issues
+    **Where**: All commands
+    **Learned**: Spectre.Console.Cli is NOT AOT-safe; use only the core library
+    2024-01-13 14:45:00 | project: flowforge | scope: project
