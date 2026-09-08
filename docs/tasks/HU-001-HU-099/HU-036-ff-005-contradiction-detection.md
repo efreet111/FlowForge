@@ -3,7 +3,7 @@ hu_id: HU-036
 title: "Contradiction Detection in Memory Store"
 status: draft
 category: feature
-flowforge_slug: "ff-005-contradiction-detection"
+flowforge_slug: "hu-036-contradiction-detection"
 ---
 
 # HU-036 — Contradiction Detection in Memory Store

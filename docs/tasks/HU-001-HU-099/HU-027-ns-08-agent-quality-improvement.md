@@ -3,7 +3,7 @@ hu_id: HU-027
 title: "Agent Quality Improvement"
 status: draft
 category: improvement
-flowforge_slug: "ns-08-agent-quality-improvement"
+flowforge_slug: "hu-027-agent-quality-improvement"
 ---
 
 # HU-027 — Agent Quality Improvement

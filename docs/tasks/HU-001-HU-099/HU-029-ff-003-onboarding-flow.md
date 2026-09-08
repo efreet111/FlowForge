@@ -1,9 +1,9 @@
 ---
 hu_id: HU-029
 title: "Onboarding Flow"
-status: draft
+status: done
 category: feature
-flowforge_slug: "ff-003-onboarding-flow"
+flowforge_slug: "hu-029-onboarding-flow"
 ---
 
 # HU-029 — Onboarding Flow
@@ -12,35 +12,35 @@ flowforge_slug: "ff-003-onboarding-flow"
 As a new team member, I want a single onboarding command that retrieves relevant project memories and knowledge so that I can understand the project context and start contributing within 5 minutes.
 
 ## Acceptance Criteria (business-level)
-- [ ] AC-1: `flowforge onboard` command is available and executable
-- [ ] AC-2: Command detects the current project automatically
-- [ ] AC-3: Command retrieves relevant memories from engram server
-- [ ] AC-4: New developer receives a briefing with 3+ relevant decisions before writing code
-- [ ] AC-5: Optional: `--project` flag allows specifying a different project
-- [ ] AC-6: Optional: `--output` flag allows generating ONBOARDING.md
+- [x] AC-1: `flowforge onboard` command is available and executable
+- [x] AC-2: Command detects the current project automatically
+- [x] AC-3: Command retrieves relevant memories from engram server
+- [x] AC-4: New developer receives a briefing with 3+ relevant decisions before writing code
+- [x] AC-5: Optional: `--project` flag allows specifying a different project
+- [x] AC-6: Optional: `--output` flag allows generating ONBOARDING.md
 
 ## Scenarios (SDD Spec)
 ### Happy Path
-- [ ] **[Onboard new developer with project detection]**
+- [x] **[Onboard new developer with project detection]**
   **GIVEN** a developer is in a project directory with an engram server configured
   **WHEN** they run `flowforge onboard`
   **THEN** the command detects the project, retrieves memories, and displays a briefing
   **🧪 Ref**: FF-003
 
-- [ ] **[Onboard with explicit project flag]**
+- [x] **[Onboard with explicit project flag]**
   **GIVEN** a developer wants to preview a different project's onboarding
   **WHEN** they run `flowforge onboard --project "other-project"`
   **THEN** the command retrieves memories for the specified project
   **🧪 Ref**: FF-003
 
 ### Edge Cases
-- [ ] **[No engram server available]**
+- [x] **[No engram server available]**
   **GIVEN** no engram server is detected or reachable
   **WHEN** `flowforge onboard` is run
   **THEN** the command returns a clear error with setup instructions
   **🧪 Ref**: FF-003
 
-- [ ] **[Empty memory state]**
+- [x] **[Empty memory state]**
   **GIVEN** a project has no memories in engram
   **WHEN** `flowforge onboard` is run
   **THEN** the command displays a friendly message and suggests next steps
@@ -78,14 +78,14 @@ flowforge onboard --user "victor@team.dev" [--project "my-project"]
 - **Dependencies**: None (no blockers - uses existing engram tools: mem_context, mem_search, mem_timeline, mem_stats)
 
 ## Definition of Done
-- [ ] `flowforge onboard` command implemented
-- [ ] Project auto-detection works
-- [ ] Memory retrieval (mem_context, mem_search, mem_timeline) integration complete
-- [ ] CLI briefing output displays recent sessions, decisions, conventions, patterns
-- [ ] `--project` flag functional
-- [ ] Optional: ONBOARDING.md generation
-- [ ] Error handling for no engram server scenario
-- [ ] Unit tests for core onboarding logic
+- [x] `flowforge onboard` command implemented
+- [x] Project auto-detection works
+- [x] Memory retrieval (mem_context, mem_search, mem_timeline) integration complete
+- [x] CLI briefing output displays recent sessions, decisions, conventions, patterns
+- [x] `--project` flag functional
+- [x] Optional: ONBOARDING.md generation
+- [x] Error handling for no engram server scenario
+- [x] Unit tests for core onboarding logic
 
 ## FlowForge
 > This section is managed by FlowForge agents. Do not edit manually.

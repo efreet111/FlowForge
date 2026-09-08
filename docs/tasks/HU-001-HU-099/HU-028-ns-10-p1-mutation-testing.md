@@ -3,7 +3,7 @@ hu_id: HU-028
 title: "Mutation Testing Gate (NS-10 P1)"
 status: draft
 category: improvement
-flowforge_slug: "ns-10-p1-mutation-testing"
+flowforge_slug: "hu-028-p1-mutation-testing"
 ---
 
 # HU-028 — Mutation Testing Gate (NS-10 P1)

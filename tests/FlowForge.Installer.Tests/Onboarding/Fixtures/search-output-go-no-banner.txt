@@ -1,0 +1,15 @@
+Found 2 memories:
+
+[1] #3767 (decision) — **ADR-001: Memory Curation Protocol**
+    **What**: Establish mandatory memory curation protocol.
+    **Why**: Agent never called memory tools during sessions.
+    **Where**: skills/forge-orchestrator/SKILL.md
+    **Learned**: Memory tools must be called proactively.
+    2026-09-08 16:27:50 | project: flowforge | scope: personal
+
+[2] #3768 (pattern) — **FTS5 query sanitization**
+    **What**: Wrapped each search term in quotes before passing to FTS5 MATCH.
+    **Why**: Users typing queries like 'fix auth bug' would crash because FTS5 interprets special chars as operators.
+    **Where**: internal/store/store.go — sanitizeFTS() function
+    **Learned**: FTS5 MATCH syntax is NOT the same as LIKE — always sanitize user input.
+    2026-09-08 15:10:22 | project: flowforge | scope: project

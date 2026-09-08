@@ -3,7 +3,7 @@ hu_id: HU-026
 title: "NS-06 — context-project.md: Proyecto autoconfigurado para nuevos miembros"
 status: draft
 category: improvement
-flowforge_slug: "ns-06-context-project"
+flowforge_slug: "hu-026-context-project"
 ---
 
 # HU-026 — context-project.md: Proyecto autoconfigurado para nuevos miembros

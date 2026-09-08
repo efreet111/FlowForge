@@ -1,0 +1,15 @@
+Found 2 memories:
+
+[1] #101 (decision) — JWT auth middleware
+    **What**: Replaced express-session with jsonwebtoken for auth
+    **Why**: Session storage doesn't scale across multiple instances
+    **Where**: src/middleware/auth.ts, src/routes/login.ts
+    **Learned**: Must set httpOnly and secure flags on the cookie, refresh tokens need separate rotation logic
+    2026-09-07 11:00:00 | project: flowforge | scope: project
+
+[2] #102 (pattern) — Database connection pooling
+    **What**: Implemented connection pool with max 100 connections
+    **Why**: Prevents connection exhaustion under load
+    **Where**: src/db/pool.ts
+    **Learned**: Always set idle timeout to prevent stale connections
+    2026-09-06 09:30:00 | project: flowforge | scope: project

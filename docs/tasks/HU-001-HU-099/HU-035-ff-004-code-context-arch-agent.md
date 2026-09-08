@@ -3,7 +3,7 @@ hu_id: HU-035
 title: "Code-Context Arch Agent"
 status: draft
 category: feature
-flowforge_slug: "ff-004-code-context-arch-agent"
+flowforge_slug: "hu-035-code-context-arch-agent"
 ---
 
 # HU-035 — Code-Context Arch Agent

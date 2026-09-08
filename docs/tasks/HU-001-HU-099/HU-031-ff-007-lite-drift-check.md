@@ -3,7 +3,7 @@ hu_id: HU-031
 title: "Drift Health Check - Lite Version"
 status: draft
 category: feature
-flowforge_slug: "ff-007-lite-drift-check"
+flowforge_slug: "hu-031-lite-drift-check"
 ---
 
 # HU-031 — Drift Health Check (Lite Version)
