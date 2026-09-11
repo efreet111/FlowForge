@@ -215,6 +215,8 @@ Shared reference: `ide/shared/workflow-orchestrator-parity.md`.
 
 **CKP-2 🟡**: Stop and ask: *"plan.md generado. ¿Luz verde para codear?"*
 
+**Post-Plan hook (HU-030, opt-in)**: After CKP-2 approval, if `forge.decision_capture.enabled` is `true` in `.flowforge.json`, delegate to `forge-memory` to extract `[DECISION]`/`[CONVENTION]`/capability entries from `plan.md` into engram memories (non-blocking; see `skills/forge-memory/SKILL.md`).
+
 ---
 
 ## `/flow-dev`
