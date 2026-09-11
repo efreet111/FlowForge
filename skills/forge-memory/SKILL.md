@@ -2,8 +2,10 @@
 name: forge-memory
 description: Phase 4 (Closure) of FlowForge. Extracts knowledge from the session and persists it to Engram and Level-2 documentation.
 trigger: When the user says "forge memory", "close session", or completes a feature in FlowForge.
-version: "1.1.0"
+version: "1.2.0"
 changelog:
+  - date: "2026-09-11"
+    note: "HU-030: Add Decision Extraction Procedure (post-Plan hook) — extracts [DECISION]/[CONVENTION]/capability from plan.md into engram memories with feature-slug tagging"
   - date: "2026-09-08"
     note: "HU-026: Add AC-4 context-project sync hook (deterministic trigger on ADR promotion or structural change)"
   - date: "2026-08-27"
@@ -188,6 +190,132 @@ If `engram‑dotnet` is unavailable or `ENGRAM_DB_TYPE=none` is set, switch to a
    ...
    ```
 3. **Physical Promotion**: If the observation defines a new pattern that must govern other agents, write a new ADR file under `docs/decisions/ADR-NNN-*.md` with the pattern and rationale. Do NOT directly edit `AGENTS.md` or skill files — those changes require a dedicated FlowForge cycle with CKP approval.
+
+---
+
+## 🧠 Decision Extraction Procedure (Post-Plan Hook — HU-030)
+
+> **Scope**: Parte A — text extraction only. No code awareness, no file metadata (Parte B deferred to ENG-416, ENG-483).
+> **Trigger**: Invoked by `forge-orchestrator` after CKP-2 approval, before Step 3 (`@forge-dev`).
+> **Constraint**: NEVER throws. NEVER blocks plan finalization or Step 3 invocation.
+
+### Opt-in gate (DET-4)
+
+Before any extraction, check the opt-in flag:
+
+```
+Read .flowforge.json → forge.decision_capture.enabled
+  If false or absent → SKIP extraction silently (no log, no error). Plan proceeds normally.
+  If true → PROCEED with extraction procedure.
+```
+
+The flag defaults to `false`. Capture is **never implicit** (DET-4).
+
+### Feature-slug resolution (DET-2, FR-004)
+
+Before extraction, resolve the feature-slug for traceability:
+
+```
+Read spec.md frontmatter → extract flowforge_slug field
+  If unavailable or empty → LOG warning: "[decision-capture] WARN: Feature-slug unavailable — skipping capture"
+                            SKIP entire capture (no memories saved without traceability).
+  If present → store as {feature-slug} for use in all mem_save calls.
+```
+
+### Extraction algorithm — three-pass line-scan (DEC-2)
+
+Extraction uses a three-pass line-scan over `plan.md`. Each pass is independent; failure in one pass does not affect others.
+
+#### Pass 1: `[DECISION]` extraction
+
+Scan for lines matching the regex: `\[DECISION\]\s+\w+-\d+[:.]`
+
+For each match:
+1. Capture the marker line as the title (e.g., `[DECISION] DEC-1: Choose JWT over session auth`)
+2. Capture subsequent body lines until the next blank line or next `[DECISION]`/`[CONVENTION]` marker
+3. If no `[DECISION]` markers found → no-op for this pass (no error)
+
+#### Pass 2: `[CONVENTION]` extraction
+
+Scan for lines matching the regex: `\[CONVENTION\]\s+\w+-\d+[:.]`
+
+Same body capture logic as Pass 1. If no `[CONVENTION]` markers found → no-op for this pass.
+
+#### Pass 3: Capability matrix extraction
+
+Locate section header matching: `## 3\.\s+Capability Matrix` (or `### .*deterministic` / `### .*ai_reasoning`)
+
+Within the located section, parse markdown table rows:
+1. Skip the header row (`| ID | Rule |` or similar)
+2. Skip the separator row (`|----|------|`)
+3. Each data row (`| DET-1 | Some rule text |`) becomes one capability entry with `{id, rule}` pair
+4. If no capability matrix section found → no-op for this pass
+
+### Secrets redaction pre-processor (CONV-2, RNF-SEC-003)
+
+Before ANY `mem_save` call or log output, scan extracted text against these patterns. Replace matches with `[REDACTED]`:
+
+| Pattern | Regex | Example match |
+|---------|-------|---------------|
+| Bearer token | `Bearer\s+[A-Za-z0-9\-._~+/]+=*` | `Bearer eyJhbG...` |
+| API key assignment | `(?:api[_-]?key\|apikey)\s*[:=]\s*\S+` | `api_key: sk-abc123...` |
+| Generic secret | `(?:password\|secret\|token\|credential)\s*[:=]\s*\S+` | `token: ghp_xxxx...` |
+| AWS access key | `AKIA[0-9A-Z]{16}` | `AKIAIOSFODNN7EXAMPLE` |
+| Base64 blob (≥40 chars) | `[A-Za-z0-9+/]{40,}={0,2}` | Long encoded strings |
+| Private key block | `-----BEGIN.*PRIVATE KEY-----` | PEM headers |
+
+Redaction is applied to both the `content` field AND any log output (NFR-003). This is a **deterministic pre-processor** — not delegated to LLM reasoning (DET-9).
+
+### mem_save call format (CONV-1, FR-004)
+
+For each extracted item, construct a `mem_save` call:
+
+```
+mem_save(
+  title:    "<marker type>: <short title from marker line>",
+  type:     "<mapped type — see type mapping below>",
+  content:  "**What**: <extracted text>\n**Why**: <context from surrounding lines or 'Defined in plan.md for {feature-slug}'>\n**Where**: plan.md (section: <section name>)\n**Learned**: <key takeaway or 'N/A'>",
+  topic_key: "decision-extraction/{feature-slug}/{sanitized-title}",
+  session_id: "plan-capture-{feature-slug}"
+)
+```
+
+**Type mapping (DET-1 + OQ-6 fallback)**:
+
+| Source marker | Primary type | Fallback type (if engram rejects) |
+|---------------|-------------|-----------------------------------|
+| `[DECISION]` | `decision` | `architecture` |
+| `[CONVENTION]` | `convention` | `pattern` |
+| Capability matrix row | `capability` | `architecture` |
+
+If `mem_save` rejects the primary type, retry with the fallback type. If fallback also fails, log the error and continue to the next item.
+
+### Graceful failure handling (DEC-3, DET-6, NFR-001)
+
+Each `mem_save` call is individually wrapped: failure of one item does NOT abort remaining captures.
+
+```
+For each extracted item:
+  TRY:
+    Apply secrets redaction to content
+    Call mem_save(...)
+    On success → increment success counter
+  CATCH:
+    LOG: "[decision-capture] WARN: Failed to save {type} \"{title}\": {reason}"
+    Continue to next item (do NOT abort)
+
+After all items processed:
+  LOG: "[decision-capture] INFO: Captured {n}/{total} items for {feature-slug}"
+```
+
+**Critical constraints**:
+- Secrets are NEVER included in log output (CONV-2 redaction applied before logging)
+- Plan finalization proceeds unconditionally after extraction completes (success or partial failure)
+- Step 3 (`@forge-dev`) invocation is NEVER blocked by extraction results
+
+### Empty-set behavior (DET-5, FR-008)
+
+If all three passes produce zero extractable items → no-op. No `mem_save` calls, no error raised. Log is optional: `"[decision-capture] INFO: No extractable content found in plan.md for {feature-slug}"`.
 
 ---
 

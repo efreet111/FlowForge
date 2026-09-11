@@ -112,6 +112,14 @@ After forge-arch writes `spec.md`, **scan Section 5 (Open Questions)** before as
 
 Do not run `/flow-plan` until CKP-1 is fully cleared.
 
+## Post-Plan hook: Decision Extraction (HU-030, opt-in)
+
+After CKP-2 approval and before Step 3 (`forge-dev`), if `forge.decision_capture.enabled`
+is `true` in `.flowforge.json`, delegate to `forge-memory` to extract `[DECISION]`,
+`[CONVENTION]`, and capability matrix entries from `plan.md` into engram memories tagged
+with the feature-slug. Non-blocking: failures logged, Step 3 proceeds regardless.
+When disabled (default), the hook is invisible. See `skills/forge-memory/SKILL.md`.
+
 ## Rollback cycles (CKP-1/CKP-2)
 
 Human rejects spec/plan → `revision_cycle.md`, max 3 cycles, then escalate.

@@ -1,7 +1,7 @@
 ---
 hu_id: HU-030
 title: "Decision Extraction from plan.md"
-status: draft
+status: in-progress
 category: feature
 flowforge_slug: "hu-030-decision-extraction"
 ---
