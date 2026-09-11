@@ -1,7 +1,7 @@
 ---
 hu_id: HU-031
 title: "Drift Health Check - Lite Version"
-status: draft
+status: done
 category: feature
 flowforge_slug: "hu-031-lite-drift-check"
 ---
@@ -12,45 +12,45 @@ flowforge_slug: "hu-031-lite-drift-check"
 As a developer or team lead, I want the system to detect when actual code structure drifts from the documented plan, so that I can keep plan.md accurate and prevent architectural decay.
 
 ## Acceptance Criteria (business-level)
-- [ ] AC-1: forge-verify detects files in code that are not mentioned in any plan.md task
-- [ ] AC-2: forge-verify flags plan.md tasks not marked [x] after a configurable threshold (default: 14 days)
-- [ ] AC-3: forge-verify prompts the user when drift is detected, offering to update plan or fix code
-- [ ] AC-4: Drift detection runs automatically during the verify phase with no additional flags needed
+- [x] AC-1: forge-verify detects files in code that are not mentioned in any plan.md task
+- [x] AC-2: forge-verify flags plan.md tasks not marked [x] after a configurable threshold (default: 14 days)
+- [x] AC-3: forge-verify prompts the user when drift is detected, offering to update plan or fix code
+- [x] AC-4: Drift detection runs automatically during the verify phase with no additional flags needed
 
 ## Scenarios (SDD Spec)
 ### Happy Path
-- [ ] **[Drift detection on new untracked file]**
+- [x] **[Drift detection on new untracked file]**
   **GIVEN** a new file `src/utils/helper.ts` exists in the codebase
   **WHEN** forge-verify runs and `src/utils/helper.ts` is not referenced in plan.md
   **THEN** a warning is raised: "Code drift detected: src/utils/helper.ts not found in plan.md"
   **🧪 Ref**: TBD
 
-- [ ] **[Stale task detection]**
+- [x] **[Stale task detection]**
   **GIVEN** a task `- [ ] Implement auth middleware` exists in plan.md and was created/modified 15 days ago
   **WHEN** forge-verify runs with default threshold of 14 days
   **THEN** a warning is raised: "Stale task detected: 'Implement auth middleware' not completed after 14 days"
   **🧪 Ref**: TBD
 
-- [ ] **[No drift scenario]**
+- [x] **[No drift scenario]**
   **GIVEN** all code files are referenced in plan.md and all tasks are marked [x] or are recent
   **WHEN** forge-verify runs
   **THEN** no drift warnings are produced
   **🧪 Ref**: TBD
 
 ### Edge Cases
-- [ ] **[Intentionally deferred task]**
+- [x] **[Intentionally deferred task]**
   **GIVEN** a task is marked with a deferral marker (e.g., `deferred: v0.8.0`)
   **WHEN** forge-verify runs
   **THEN** the stale task warning is suppressed for that task
   **🧪 Ref**: TBD
 
-- [ ] **[In-progress task not flagged]**
+- [x] **[In-progress task not flagged]**
   **GIVEN** a task `- [ ] Implement auth middleware` exists in plan.md and is marked `- [x] Implement auth middleware` but has a related PR open
   **WHEN** forge-verify runs
   **THEN** the task is not flagged as stale since it is in progress or completed
   **🧪 Ref**: TBD
 
-- [ ] **[Multiple drift sources]**
+- [x] **[Multiple drift sources]**
   **GIVEN** 3 new files exist and 2 tasks are stale
   **WHEN** forge-verify runs
   **THEN** all 5 issues are reported in a single grouped summary
@@ -79,13 +79,13 @@ As a developer or team lead, I want the system to detect when actual code struct
 - **Dependencies**: None (no blockers for lite version)
 
 ## Definition of Done
-- [ ] forge-verify detects untracked files not in plan.md
-- [ ] forge-verify flags tasks stale after N days (default: 14, configurable)
-- [ ] forge-verify supports deferred task marker to suppress stale warnings
-- [ ] Drift summary is presented to user with prompt to update plan or fix code
-- [ ] Configuration option for threshold days added to .flowforge.json
-- [ ] Unit tests cover drift detection logic
-- [ ] Documentation updated in forge-verify skill
+- [x] forge-verify detects untracked files not in plan.md
+- [x] forge-verify flags tasks stale after N days (default: 14, configurable)
+- [x] forge-verify supports deferred task marker to suppress stale warnings
+- [x] Drift summary is presented to user with prompt to update plan or fix code
+- [x] Configuration option for threshold days added to .flowforge.json
+- [x] Unit tests cover drift detection logic
+- [x] Documentation updated in forge-verify skill
 
 ## FlowForge
 > This section is managed by FlowForge agents. Do not edit manually.
