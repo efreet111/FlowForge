@@ -5,6 +5,8 @@ trigger: When the user says "forge memory", "close session", or completes a feat
 version: "1.2.0"
 changelog:
   - date: "2026-09-11"
+    note: "F-001 fix: Add session bootstrap (mem_session_start) before extraction loop — prevents unknown_session errors in mem_save calls"
+  - date: "2026-09-11"
     note: "HU-030: Add Decision Extraction Procedure (post-Plan hook) — extracts [DECISION]/[CONVENTION]/capability from plan.md into engram memories with feature-slug tagging"
   - date: "2026-09-08"
     note: "HU-026: Add AC-4 context-project sync hook (deterministic trigger on ADR promotion or structural change)"
@@ -266,6 +268,22 @@ Before ANY `mem_save` call or log output, scan extracted text against these patt
 
 Redaction is applied to both the `content` field AND any log output (NFR-003). This is a **deterministic pre-processor** — not delegated to LLM reasoning (DET-9).
 
+### Session bootstrap (F-001)
+
+Before the first `mem_save` call in the extraction loop, register the capture session:
+
+```
+TRY:
+  Call mem_session_start(id: "plan-capture-{feature-slug}")
+  On success → set SESSION_BOOTSTRAPPED = true
+CATCH:
+  LOG: "[decision-capture] WARN: Session bootstrap failed for 'plan-capture-{feature-slug}': {reason}"
+  LOG: "[decision-capture] WARN: Proceeding without session_id — mem_save will use default session"
+  Set SESSION_BOOTSTRAPPED = false
+```
+
+This step is **non-blocking**: if session registration fails, extraction continues without `session_id` traceability. The `topic_key` prefix still provides feature-slug tagging (CONV-1 partial compliance).
+
 ### mem_save call format (CONV-1, FR-004)
 
 For each extracted item, construct a `mem_save` call:
@@ -276,7 +294,7 @@ mem_save(
   type:     "<mapped type — see type mapping below>",
   content:  "**What**: <extracted text>\n**Why**: <context from surrounding lines or 'Defined in plan.md for {feature-slug}'>\n**Where**: plan.md (section: <section name>)\n**Learned**: <key takeaway or 'N/A'>",
   topic_key: "decision-extraction/{feature-slug}/{sanitized-title}",
-  session_id: "plan-capture-{feature-slug}"
+  session_id: "plan-capture-{feature-slug}"   // ONLY if SESSION_BOOTSTRAPPED = true; omit otherwise
 )
 ```
 
@@ -295,9 +313,19 @@ If `mem_save` rejects the primary type, retry with the fallback type. If fallbac
 Each `mem_save` call is individually wrapped: failure of one item does NOT abort remaining captures.
 
 ```
+// Step 0: Bootstrap session (F-001)
+TRY:
+  mem_session_start(id: "plan-capture-{feature-slug}")
+  SESSION_BOOTSTRAPPED = true
+CATCH:
+  LOG: "[decision-capture] WARN: Session bootstrap failed: {reason} — continuing without session_id"
+  SESSION_BOOTSTRAPPED = false
+
+// Step 1: Save each extracted item
 For each extracted item:
   TRY:
     Apply secrets redaction to content
+    Build mem_save params (include session_id ONLY if SESSION_BOOTSTRAPPED = true)
     Call mem_save(...)
     On success → increment success counter
   CATCH:
