@@ -133,6 +133,53 @@ If a flowdoc skill is not installed or not responding:
 
 ---
 
+## 🎯 Onboarding Detection (When to suggest `flowforge onboard`)
+
+**Context**: The `flowforge onboard` command generates a first-day briefing from engram memories (decisions, patterns, blockers). AI agents should suggest it when appropriate.
+
+### Detection Signals
+
+Suggest `flowforge onboard` when you observe any of these signals:
+
+| Signal | Example User Input | Action |
+|--------|-------------------|--------|
+| **New user** | "How do I get started?" / "What should I know?" | Suggest running `flowforge onboard` |
+| **Long break** | User hasn't worked on this project in >7 days | Suggest `flowforge onboard` to refresh context |
+| **Project switch** | User is switching to a different project in the same team | Suggest `flowforge onboard --project <name>` |
+| **No ONBOARDING.md** | No `ONBOARDING.md` exists in the repo | Suggest generating one with `--output` |
+| **Major feature** | User is about to start a large feature | Suggest reviewing decisions first |
+
+### What to Say
+
+**Template response**:
+```
+Before we start, you might want to run `flowforge onboard` to get a briefing
+from the team's memories. It will show you:
+- Recent activity (last sessions and observations)
+- Key architectural decisions (type=decision)
+- Team conventions and patterns (type=pattern)
+- Known blockers and gotchas
+
+Run: flowforge onboard --project <project-name>
+
+Or export to ONBOARDING.md for the team:
+flowforge onboard --project <project-name> --output ONBOARDING.md
+```
+
+### When NOT to Suggest
+
+- User is in the middle of a task (don't interrupt flow)
+- User explicitly says "I know this project" or "skip onboarding"
+- User has run `flowforge onboard` recently (check for recent ONBOARDING.md timestamp)
+- Solo dev working on their own project (less critical, but still useful after breaks)
+
+### Integration with `/flow-start` (Future)
+
+**Current**: Agents manually detect and suggest.
+**Future**: `/flow-start` could automatically check if onboarding is needed and suggest it before proceeding with a new feature.
+
+---
+
 *This file acts as a public contract for IDE-native AI agents (Cursor Composer, Cline, Antigravity, OpenCode) to adhere strictly to the FlowForge methodology.*
 
 ---
