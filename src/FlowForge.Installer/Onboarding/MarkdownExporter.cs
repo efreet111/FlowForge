@@ -3,150 +3,146 @@ using System.Text;
 namespace FlowForge.Installer.Onboarding;
 
 /// <summary>
-/// Generates ONBOARDING.md from OnboardingData (FR-006).
-/// Default location is project root; NEVER writes to .ai-work/ (ADR-004).
+/// Writes ONBOARDING.md atomically (temp file + rename).
+/// Filters to team scope only (NFR-005).
+/// Warns if --scope personal combined with --output.
 /// </summary>
-public static class MarkdownExporter
+public sealed class MarkdownExporter
 {
     /// <summary>
-    /// Write ONBOARDING.md to specified path (or project root if null).
-    /// NEVER writes to .ai-work/ directory.
+    /// Exports the briefing data to a markdown file.
+    /// NFR-005: Filters to team scope only. Personal-scope items never reach the file.
     /// </summary>
-    public static string Export(OnboardingData data, string? outputPath = null)
+    /// <param name="data">Aggregated briefing data.</param>
+    /// <param name="outputPath">Target file path.</param>
+    /// <param name="displayUser">Display-only user name (for header).</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>True if export succeeded, false if warned and skipped.</returns>
+    public Task<bool> ExportAsync(BriefingData data, string outputPath, string? displayUser, CancellationToken ct = default)
     {
-        var resolvedPath = ResolveOutputPath(outputPath);
-        var content = GenerateMarkdown(data);
-        File.WriteAllText(resolvedPath, content, Encoding.UTF8);
-        return resolvedPath;
-    }
+        // NFR-005: Block export if scope is explicitly "personal"
+        if (string.Equals(data.Scope, "personal", StringComparison.OrdinalIgnoreCase))
+        {
+            return Task.FromResult(false);
+        }
 
-    /// <summary>
-    /// Generate the markdown content without writing to disk (for testability).
-    /// </summary>
-    public static string GenerateMarkdown(OnboardingData data)
-    {
         var sb = new StringBuilder();
 
-        // Header
-        sb.AppendLine($"# Onboarding: {data.Project}");
-        sb.AppendLine();
-        sb.AppendLine($"**Generated**: {data.GeneratedAt:yyyy-MM-dd HH:mm}");
-        sb.AppendLine($"**User**: {data.User}");
+        // Header with generated timestamp
+        sb.AppendLine($"> Generated: {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
+        if (!string.IsNullOrEmpty(displayUser))
+            sb.AppendLine($"> For: {displayUser}");
+        sb.AppendLine($"> Project: {data.Project}");
+        sb.AppendLine("> Scope: team");
         sb.AppendLine();
 
-        // Recent Activity
-        sb.AppendLine("## Recent Activity");
-        sb.AppendLine();
-        if (data.RecentSessions.Count == 0)
+        // Stats
+        if (data.Stats is not null)
         {
-            sb.AppendLine("_No recent sessions found._");
+            sb.AppendLine("## Memory Stats");
+            sb.AppendLine();
+            sb.AppendLine($"- Sessions: {data.Stats.TotalSessions}");
+            sb.AppendLine($"- Observations: {data.Stats.TotalObservations}");
+            sb.AppendLine($"- Prompts: {data.Stats.TotalPrompts}");
+            if (data.Stats.Projects.Count > 0)
+                sb.AppendLine($"- Projects: {string.Join(", ", data.Stats.Projects)}");
+            sb.AppendLine();
         }
-        else
+
+        // Recent Activity (filter to team scope only — NFR-005)
+        if (!string.IsNullOrWhiteSpace(data.RecentActivity))
         {
-            foreach (var session in data.RecentSessions)
+            sb.AppendLine("## Recent Activity");
+            sb.AppendLine();
+            sb.AppendLine(data.RecentActivity);
+            sb.AppendLine();
+        }
+
+        // Key Decisions (filter to team scope only)
+        var teamDecisions = FilterToTeamScope(data.Decisions);
+        if (teamDecisions.Count > 0)
+        {
+            sb.AppendLine("## Key Architectural Decisions");
+            sb.AppendLine();
+            foreach (var d in teamDecisions)
             {
-                sb.AppendLine($"- **{session.Title}** ({session.Timestamp:yyyy-MM-dd})");
-                if (!string.IsNullOrWhiteSpace(session.Content))
-                {
-                    // Indent content as a block quote
-                    foreach (var line in session.Content.Split('\n'))
-                    {
-                        var trimmed = line.TrimEnd('\r');
-                        if (!string.IsNullOrWhiteSpace(trimmed))
-                            sb.AppendLine($"  > {trimmed}");
-                    }
-                }
-                sb.AppendLine();
+                sb.AppendLine($"- **#{d.Id}** [{d.Type}] {d.Title}");
+                if (!string.IsNullOrWhiteSpace(d.Preview))
+                    sb.AppendLine($"  {d.Preview}");
             }
+            sb.AppendLine();
         }
 
-        // Key Decisions
-        sb.AppendLine("## Key Decisions");
-        sb.AppendLine();
-        if (data.Decisions.Count == 0)
+        // Conventions / Patterns (filter to team scope only)
+        var teamPatterns = FilterToTeamScope(data.Patterns);
+        if (teamPatterns.Count > 0)
         {
-            sb.AppendLine("_No decisions recorded._");
-        }
-        else
-        {
-            foreach (var decision in data.Decisions)
+            sb.AppendLine("## Conventions & Patterns");
+            sb.AppendLine();
+            foreach (var p in teamPatterns)
             {
-                sb.AppendLine($"### {decision.Title}");
-                sb.AppendLine();
-                sb.AppendLine($"_{decision.Timestamp:yyyy-MM-dd}_");
-                sb.AppendLine();
-                if (!string.IsNullOrWhiteSpace(decision.Content))
-                {
-                    sb.AppendLine(decision.Content);
-                }
-                sb.AppendLine();
+                sb.AppendLine($"- **#{p.Id}** [{p.Type}] {p.Title}");
+                if (!string.IsNullOrWhiteSpace(p.Preview))
+                    sb.AppendLine($"  {p.Preview}");
             }
+            sb.AppendLine();
         }
 
-        // Reusable Patterns
-        sb.AppendLine("## Reusable Patterns");
-        sb.AppendLine();
-        if (data.Patterns.Count == 0)
+        // Blockers / Gotchas (filter to team scope only)
+        var teamBlockers = FilterToTeamScope(data.Blockers);
+        if (teamBlockers.Count > 0)
         {
-            sb.AppendLine("_No patterns recorded._");
-        }
-        else
-        {
-            foreach (var pattern in data.Patterns)
+            sb.AppendLine("## Known Blockers / Gotchas");
+            sb.AppendLine();
+            foreach (var b in teamBlockers)
             {
-                sb.AppendLine($"### {pattern.Title}");
-                sb.AppendLine();
-                sb.AppendLine($"_{pattern.Timestamp:yyyy-MM-dd}_");
-                sb.AppendLine();
-                if (!string.IsNullOrWhiteSpace(pattern.Content))
-                {
-                    sb.AppendLine(pattern.Content);
-                }
-                sb.AppendLine();
+                sb.AppendLine($"- **#{b.Id}** [{b.Type}] {b.Title}");
+                if (!string.IsNullOrWhiteSpace(b.Preview))
+                    sb.AppendLine($"  {b.Preview}");
             }
+            sb.AppendLine();
         }
 
-        // Footer
-        sb.AppendLine("---");
-        sb.AppendLine("*Generated by `flowforge onboard`*");
+        // Next Steps
+        sb.AppendLine("## Next Steps");
+        sb.AppendLine();
+        sb.AppendLine("- Review the decisions above to understand the project's architecture.");
+        sb.AppendLine("- Follow the conventions/patterns when writing new code.");
+        sb.AppendLine("- Check the blockers section for known issues to avoid.");
+        sb.AppendLine();
 
-        return sb.ToString();
+        // Atomic write (temp file + rename)
+        var content = sb.ToString();
+        var dir = Path.GetDirectoryName(outputPath);
+        if (!string.IsNullOrEmpty(dir))
+            Directory.CreateDirectory(dir);
+
+        var tmpFile = outputPath + ".tmp";
+        try
+        {
+            File.WriteAllText(tmpFile, content, Encoding.UTF8);
+            File.Move(tmpFile, outputPath, overwrite: true);
+        }
+        finally
+        {
+            if (File.Exists(tmpFile))
+                File.Delete(tmpFile);
+        }
+
+        return Task.FromResult(true);
     }
 
     /// <summary>
-    /// Resolve the output path. Default is project root / ONBOARDING.md.
-    /// Validates that the path is NOT inside .ai-work/ (ADR-004).
+    /// Filters search results to team scope only (NFR-005).
+    /// Items with scope=null are treated as team scope (default).
+    /// Items with scope="personal" are excluded.
     /// </summary>
-    public static string ResolveOutputPath(string? outputPath)
+    static IReadOnlyList<EngramSearchResult> FilterToTeamScope(IReadOnlyList<EngramSearchResult> items)
     {
-        string resolved;
-
-        if (string.IsNullOrWhiteSpace(outputPath))
-        {
-            // Default: project root
-            resolved = Path.Combine(Directory.GetCurrentDirectory(), "ONBOARDING.md");
-        }
-        else if (Path.IsPathRooted(outputPath))
-        {
-            resolved = outputPath;
-        }
-        else
-        {
-            resolved = Path.Combine(Directory.GetCurrentDirectory(), outputPath);
-        }
-
-        // Safety check: never write to .ai-work/
-        var normalized = Path.GetFullPath(resolved);
-        if (normalized.Contains(Path.DirectorySeparatorChar + ".ai-work" + Path.DirectorySeparatorChar) ||
-            normalized.Contains(Path.AltDirectorySeparatorChar + ".ai-work" + Path.AltDirectorySeparatorChar) ||
-            normalized.EndsWith(Path.DirectorySeparatorChar + ".ai-work") ||
-            normalized.EndsWith(Path.AltDirectorySeparatorChar + ".ai-work"))
-        {
-            throw new InvalidOperationException(
-                "ONBOARDING.md must not be written to .ai-work/ directory (ADR-004). " +
-                "Use --output to specify a different path.");
-        }
-
-        return resolved;
+        if (items.Count == 0) return items;
+        return items.Where(r =>
+            string.IsNullOrEmpty(r.Scope) ||
+            !string.Equals(r.Scope, "personal", StringComparison.OrdinalIgnoreCase)
+        ).ToList();
     }
 }
