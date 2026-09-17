@@ -72,6 +72,22 @@ jobs:
           chmod +x scripts/validate-antigravity-pack.sh
           bash scripts/validate-antigravity-pack.sh "${{ github.workspace }}"
 
+  # ── Unit tests (Linux) ──────────────────────────────────────────────────────
+  unit-tests:
+    name: Unit Tests (FlowForge.Installer.Tests)
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.x"
+
+      - name: Run unit tests
+        run: dotnet test tests/FlowForge.Installer.Tests -c Release --nologo
+
   # ── Happy path completo (Linux) ─────────────────────────────────────────────
   install-linux:
     name: Happy Path Install (Linux)
