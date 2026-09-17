@@ -60,7 +60,7 @@ public sealed class OpenCodeConfigGenerator
         if (paidProviderDetected)
             warnings.Add("Detected paid provider 'opencode-go'. Free-Zen not applied unless --force-free.");
 
-        var merged = MergeManagedPaths(existingNode, templateNode, managedPaths, paidProviderDetected, warnings);
+        var merged = MergeManagedPaths(existingNode ?? new JsonObject(), templateNode, managedPaths, paidProviderDetected, warnings);
 
         var serialized = merged.ToJsonString(new JsonSerializerOptions { WriteIndented = true });
 

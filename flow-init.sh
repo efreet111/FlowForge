@@ -131,6 +131,10 @@ for f in PRD.md DEVELOPMENT.md; do
 done
 echo -e "  ${GREEN}OK${NC} docs/PRD.md + docs/DEVELOPMENT.md"
 
+cp "$TEMPLATES/docs/project-context.md" "$TARGET/docs/project-context.md"
+replace_placeholders "$TARGET/docs/project-context.md"
+echo -e "  ${GREEN}OK${NC} docs/project-context.md"
+
 cp "$TEMPLATES/docs/tasks/HU-001-example.md" "$TARGET/docs/tasks/"
 replace_placeholders "$TARGET/docs/tasks/HU-001-example.md"
 echo -e "  ${GREEN}OK${NC} docs/tasks/HU-001-example.md"

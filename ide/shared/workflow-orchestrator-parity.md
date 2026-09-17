@@ -151,6 +151,16 @@ Not optional. If MCP is unavailable → write `obs-<timestamp>-session-close.md`
 - Instruct: run PM-*, mark `[x]` in `spec.md`, retry `/flow-close`.
 - Only on explicit **"close preview"**: draft `summary.preview.md` with a NOT-CLOSED warning.
 
+## Post-Plan hook: Decision Extraction (HU-030)
+
+After CKP-2 human approval and before Step 3 (`@forge-dev`) invocation, the orchestrator
+checks the opt-in flag `forge.decision_capture.enabled` in `.flowforge.json`. If enabled,
+it delegates to `@forge-memory` to run the **Decision Extraction Procedure** — extracting
+`[DECISION]`, `[CONVENTION]`, and capability matrix entries from `plan.md` into engram
+memories tagged with the feature-slug. The hook is **non-blocking**: extraction failures
+are logged but never prevent Step 3 invocation. When disabled (default), the hook is
+invisible — no log, no delay. See `skills/forge-memory/SKILL.md` for the full procedure.
+
 ## Dev done (definition)
 
 `dev` is not "done" with green tests alone. Requires:

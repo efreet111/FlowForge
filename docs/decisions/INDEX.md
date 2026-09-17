@@ -26,6 +26,9 @@
 | ADR-020 | Memory observation quality | Accepted | 2026-08-25 | (renumbered from ADR-013 duplicate) |
 | ADR-021 | Document indexing in Engram: topic_key namespace & upsert protocol | Accepted | 2026-08-28 | index-docs-engram |
 | ADR-022 | OpenCode AGENTS.md non-destructive merge (managed sections + canonical hash) | Accepted | 2026-08-31 | hu-025 (opencode-agents-merge) |
+| ADR-023 | `flowforge onboard`: engram CLI subprocess bridge + dual Go/.NET text format tolerance | Accepted | 2026-09-08 | hu-029-onboarding-flow |
+| ADR-024 | Agent quality standards: English-only instructions, OpenCode embed-inline, `<!-- sync: -->` drift comments | Accepted | 2026-09-08 | agent-quality-improvement |
+| ADR-025 | Post-Plan hook: decision extraction from plan.md into Engram (3-pass, opt-in, fail-safe) | Accepted | 2026-09-11 | hu-030-decision-extraction |
 
 ---
 

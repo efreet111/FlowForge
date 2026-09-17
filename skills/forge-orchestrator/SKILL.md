@@ -1,8 +1,10 @@
 ---
 name: forge-orchestrator
 description: "Main traffic light. Routes agent sequence, reads FlowForge state, and runs human checkpoints (CKP-0 → CKP-4)."
-version: "1.1.0"
+version: "1.2.0"
 changelog:
+  - date: "2026-09-11"
+    note: "HU-030: Add post-Plan hook step after CKP-2 approval — delegates decision extraction to forge-memory (opt-in, non-blocking)"
   - date: "2026-08-27"
     note: "Add AGENTS.md-first pre-flight rule (FR-001, FR-004)"
   - date: "2026-08-27"
@@ -87,6 +89,31 @@ With human OK, call `@forge-plan` to produce `plan.md` from `spec.md`.
 **🟡 CKP-2:** STOP and ask: *"plan.md is ready. Green light to code?"*
 
 **Plan revision cycle:** Same pattern with `phase: plan` in `revision_cycle.md`.
+
+#### Post-Plan hook: Decision Extraction (HU-030, opt-in)
+
+After human approves plan at CKP-2 and BEFORE Step 3 (`@forge-dev`) invocation, run the
+**Decision Extraction Procedure** (defined in `forge-memory/SKILL.md` → "Decision Extraction
+Procedure (Post-Plan Hook)").
+
+```
+Post-Plan hook:
+  1. Check opt-in flag: .flowforge.json → forge.decision_capture.enabled
+     If false or absent → SKIP silently. Proceed to Step 3.
+  2. Resolve feature-slug from spec.md frontmatter (flowforge_slug field).
+     If unavailable → log warning, skip capture, proceed to Step 3.
+  3. Delegate extraction to @forge-memory:
+     - Input: plan.md path, feature-slug
+     - forge-memory runs 3-pass extraction ([DECISION], [CONVENTION], capability matrix)
+     - Each extracted item → mem_save with feature-slug tagging
+  4. Non-blocking: errors are logged, Step 3 proceeds REGARDLESS of extraction outcome.
+     - If extraction partially fails → log summary, continue to Step 3.
+     - If extraction fully fails → log error, continue to Step 3.
+     - NEVER prevent Step 3 invocation due to extraction failure.
+```
+
+**Constraint**: This hook is **opt-in only** (defaults to `false`). When disabled, the hook
+is invisible — no log, no delay, no behavior change.
 
 ### Step 3: Execution and verification (inner loop) — CKP-3 🔴
 

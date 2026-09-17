@@ -2,8 +2,10 @@
 name: forge-verify
 description: Phase 3 (Judgment) of FlowForge. Sentinel Judge that audits code against spec.md and plan.md.
 trigger: When user says "forge verify", "audit code", or advances to phase 3 judgment in FlowForge.
-version: "1.1.0"
+version: "1.2.0"
 changelog:
+  - date: "2026-09-11"
+    note: "Add drift health check — Step 6 (FR-001 to FR-007, HU-031). Deterministic detection of untracked files and stale tasks integrated into verify workflow."
   - date: "2026-08-27"
     note: "Add skill version-bump audit check (FR-005) to operational rules"
   - date: "2026-08-27"
@@ -103,6 +105,164 @@ The `engram-dotnet` engine provides automatic compliance capabilities. Use them 
 8. **Step 5.5 – Skill version-bump check (FR-005)**:
     * For every `skills/**/SKILL.md` in the diff: verify `version` was incremented and a `changelog` entry was added in the same commit.
     * If a SKILL.md changed without a bump → flag as **REWORK** (mechanical, not interpretive).
+9. **Step 6 — Drift Health Check (FR-001 to FR-007, HU-031)**:
+
+> **When**: Always runs during the verify phase. No opt-in flag required.
+> **What**: Deterministic detection of drift between `plan.md` and the actual codebase structure.
+> **Nature**: Advisory — drift warnings are appended to the verify report but **do not** change the verdict (PASS/REWORK).
+> **Constraint**: Read-only. Never write to, rename, or delete files during drift detection.
+
+#### 6.1 Read Config (FR-006, NFR-004)
+
+Read `.flowforge.json` at the repo root. Look for the key path `verify.drift.threshold_days`.
+
+- **If the key exists and the value is a positive integer** → use it as `threshold_days`.
+- **If the key is absent** → set `threshold_days = 14` (default).
+- **If the value is non-integer, negative, or zero** → set `threshold_days = 14` and emit this warning:
+  ```
+  ⚠️ Invalid drift threshold_days (<value>), using default 14
+  ```
+- **If `.flowforge.json` does not exist** → set `threshold_days = 14`.
+
+Never crash on invalid or missing config.
+
+#### 6.2 Extract Tasks from plan.md (FR-002, FR-005)
+
+Read the `plan.md` file located at `.ai-work/{feature-slug}/plan.md`.
+
+Scan each line. A line is a **task line** if it starts with one of these prefixes (case-sensitive):
+- `- [ ] ` → incomplete task
+- `- [x] ` → completed task
+
+**Skip** any lines inside fenced code blocks (delimited by triple backticks ` ``` `). Track whether you are inside a code fence before matching.
+
+For each task line, extract:
+
+| Field | How to derive |
+|-------|---------------|
+| `content` | Strip the prefix (`- [ ] ` or `- [x] `) and trim whitespace |
+| `completed` | `true` if the line starts with `- [x]`, `false` otherwise |
+| `deferred` | `true` if the line contains the substring `deferred:` (case-insensitive) anywhere |
+| `lineNumber` | 1-indexed line number in `plan.md` |
+
+#### 6.3 Detect Stale Tasks (FR-002, FR-005, FR-006)
+
+Calculate the **plan age** in days:
+
+1. Get the modification time (mtime) of the `plan.md` file.
+2. Compute: `age_days = floor((now - mtime) / 86400)` where `now` is the current timestamp and 86400 = seconds per day.
+
+A task is **stale** when ALL of these are true:
+- `completed == false`
+- `deferred == false`
+- `age_days > threshold_days`
+
+A task is **suppressed** (shown but not counted as stale) when:
+- `completed == false`
+- `deferred == true`
+- `age_days > threshold_days`
+
+Display suppressed tasks with the marker `[SUPPRESSED]` and exclude them from the stale count.
+
+#### 6.4 Extract File Mentions from plan.md (FR-001)
+
+Scan every line of `plan.md` (including lines inside code blocks) for file path references.
+
+**Source 1 — Explicit markers**: Lines starting with `- [NEW]` or `- [MODIFY]`. Extract the file path after the closing bracket:
+```
+- [NEW] src/auth/middleware.ts     →  src/auth/middleware.ts
+- [MODIFY] skills/forge-verify/SKILL.md  →  skills/forge-verify/SKILL.md
+```
+
+**Source 2 — Inline code spans**: Match backtick-wrapped text that looks like a file path. Regex pattern:
+```
+`([a-zA-Z0-9_\-./]+\.[a-zA-Z]{1,5})`
+```
+This captures patterns like `src/utils/helper.ts`, `skills/forge-verify/SKILL.md`, `.flowforge.json`.
+
+**Source 3 — Fenced code blocks**: Scan code block contents for the same file path pattern as Source 2.
+
+**Normalization** (apply to all extracted paths):
+1. Strip leading `./` if present (e.g., `./src/app.ts` → `src/app.ts`)
+2. Normalize path separators to forward slash `/`
+3. Deduplicate the final set
+
+#### 6.5 Detect Untracked Files (FR-001, NFR-005)
+
+**Step A — List repo files**: Use `git ls-files` or a recursive directory listing from the repo root.
+
+**Step B — Apply exclusion list**. Remove any file whose path starts with one of these prefixes or matches these patterns:
+
+| Exclusion | Matches |
+|-----------|---------|
+| `.git/` | Git internals |
+| `node_modules/` | NPM dependencies |
+| `dist/` | Distribution output |
+| `build/` | Build output |
+| `out/` | Output directory |
+| `*.lock` | Lockfiles (any extension) |
+| `package-lock.json` | NPM lockfile |
+| `yarn.lock` | Yarn lockfile |
+| `pnpm-lock.yaml` | pnpm lockfile |
+| `.ai-work/` | FlowForge working directory |
+| `docs/` | Documentation directory |
+
+Additionally, if `.gitignore` exists at the repo root, read it and honor its entries as extra exclusions.
+
+**Step C — Compare**: Compute `untracked = filtered_actual_files - file_mentions`. Any file in the filtered set that is NOT in the extracted file mentions set is "untracked."
+
+#### 6.6 Generate Drift Summary (FR-003, FR-007)
+
+Collect all drift issues. Then apply one of two output formats:
+
+**If drift is detected** (untracked files > 0 OR stale tasks > 0), format this section:
+
+```markdown
+## 🔍 Drift Health Check
+
+> Plan: `.ai-work/{feature-slug}/plan.md`
+> Plan age: {age_days} days (modified {YYYY-MM-DD})
+> Threshold: {threshold_days} days
+
+### Untracked Files ({count})
+- `path/to/file1.ts` — not referenced in plan.md
+- `path/to/file2.ts` — not referenced in plan.md
+
+### Stale Tasks ({count})
+- [ ] Task content 1 — incomplete for {age_days} days
+- [ ] Task content 2 — incomplete for {age_days} days (deferred: v0.8.0) [SUPPRESSED]
+
+### Remediation
+Drift detected. Choose one:
+1. **Update plan.md** — add untracked files to file mentions, mark completed tasks as `[x]`
+2. **Fix code** — remove untracked files, complete or defer stale tasks
+```
+
+**If no drift is detected** (untracked files = 0 AND stale tasks = 0), emit only:
+
+```markdown
+## 🔍 Drift Health Check
+
+> Plan: `.ai-work/{feature-slug}/plan.md`
+> Plan age: {age_days} days (modified {YYYY-MM-DD})
+> Threshold: {threshold_days} days
+
+No drift detected. ✅
+```
+
+**Rules**:
+- If no untracked files: omit the "Untracked Files" subsection entirely (do not show an empty list).
+- If no stale tasks: omit the "Stale Tasks" subsection entirely.
+- Deferred tasks that are suppressed: include them in the Stale Tasks list with `[SUPPRESSED]` marker but do NOT count them in the `({count})` header.
+- The "Remediation" subsection appears ONLY when drift is detected.
+
+#### 6.7 Append to Verify Report (FR-003, FR-004)
+
+Append the drift summary section to `.ai-work/{feature-slug}/verify-report.md`.
+
+- If drift was detected → include the full summary (with untracked files, stale tasks, and remediation prompt) in the warnings area of the report.
+- If no drift → include the "No drift detected. ✅" line only.
+- **Drift warnings are advisory.** They do NOT change the verdict (PASS / PASS_DEGRADADO / PENDING / REWORK). The verdict is determined by Steps 0–5.5 only.
 
 ---
 
