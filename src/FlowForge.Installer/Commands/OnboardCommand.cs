@@ -7,6 +7,8 @@ using Spectre.Console;
 namespace FlowForge.Installer.Commands;
 
 /// <summary>
+/// Entry point for `flowforge onboard` (FR-001).
+/// Orchestrates detection → retrieval → interactive menu → export.
 /// flowforge onboard — First-day briefing command.
 /// Detects project, pre-checks engram, pulls memories, renders briefing.
 /// Exit codes: 0 success, 1 runtime error, 2 pre-check failure.

@@ -1,0 +1,11 @@
+Update available! Current version: 1.16.0 Latest version: 1.17.0
+Please update: https://engram.dev/docs/update
+
+Recent Sessions:
+  Session 1: "Initial project setup" (2024-01-15)
+    Content: Set up FlowForge methodology and created initial ADRs.
+
+  Session 2: "ADR-001 AOT compatibility" (2024-01-14)
+    Content: Decision to use AOT compilation for the installer binary.
+
+Found 2 memories.

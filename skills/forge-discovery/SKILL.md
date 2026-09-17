@@ -1,8 +1,10 @@
 ---
 name: forge-discovery
 description: "Phase 0 (Discovery) of FlowForge. Explores memories, maps requirements, and produces context-map.md."
-version: "1.1.0"
+version: "1.2.0"
 changelog:
+  - date: "2026-09-08"
+    note: "HU-026: Add step 3a-alt context-project fast-path (FR-007 read-if-exists, FR-008 alert-if-absent)"
   - date: "2026-08-28"
     note: "HU-023: Reorder flow — document-aware Engram search (step 3), gate of sufficiency replacing unconditional PRD+HUs read (step 3b), new diagnostic sections (ADR contradiction, broken refs, ADR conflict, ambiguous search, new requirement path), updated context-map output format"
   - date: "2026-08-27"
@@ -48,6 +50,15 @@ During that spike, the discovery agent realized that `src/Engram.Verification/` 
     - **CRITICAL**: Results are truncated. For each relevant observation, call `mem_get_observation(id)` to retrieve the full, uncut content. Record the observation `#id` for traceability.
     - **Fallback — Engram unavailable (FR-009)**: if `mem_search` errors or times out (MCP error), catch the failure and fall back to reading `docs/PRD.md` + relevant docs in `docs/` directly. If `mem_search("docs/")` returns 0 results (empty index), treat the index as absent and use `docs/` as the primary source.
     - **Local Fallback (Attempt B)**: if Engram is available but yields nothing, use `grep_search` over `./.engram/local_memory/` for the extracted keywords. For each matching file, read it fully to extract its YAML FrontMatter and structured content.
+
+3a-alt. **Context-project fast-path (FR-007, FR-008)**:
+     - Check if `docs/project-context.md` exists.
+     - **IF exists**: read as base structural context (tech stack, architecture, key decisions).
+       → Supplements CKP-0 context (reduces Engram queries for basic structure).
+       → Record in context-map: `Context-project: read`.
+     - **IF NOT exists**: emit alert `⚠️ context-project ausente — create docs/project-context.md to enable fast onboarding`.
+       → Record in context-map diagnostics.
+     - **IF exists but unfilled placeholders** (e.g. contains `{{...}}` hints): emit warning `⚠️ context-project incompleto — fill placeholders to improve onboarding quality`.
 
 3b. **Gate of Sufficiency + Conditional Reading (FR-002, FR-003)**
     - **Precondition**: only when step 3 returned results from Engram.
