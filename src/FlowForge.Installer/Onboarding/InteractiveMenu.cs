@@ -60,7 +60,7 @@ public sealed class InteractiveMenu
                     MenuState.DecisionDetail => await ShowDecisionDetailAsync(),
                     MenuState.PatternList => ShowPatternList(),
                     MenuState.PatternDetail => await ShowPatternDetailAsync(),
-                    MenuState.Export => DoExport(),
+                    MenuState.Export => await DoExportAsync(),
                     _ => MenuState.Exit
                 };
             }
@@ -300,12 +300,19 @@ public sealed class InteractiveMenu
 
     // ── State: Export ────────────────────────────────────────────────────────
 
-    private MenuState DoExport()
+    private async Task<MenuState> DoExportAsync()
     {
         try
         {
-            var path = MarkdownExporter.Export(_data, _outputPath);
-            AnsiConsole.MarkupLine($"[green]✓[/] ONBOARDING.md exported to: [bold]{Markup.Escape(path)}[/]");
+            var success = await MarkdownExporter.ExportAsync(_data, _outputPath, displayUser: null);
+            if (success)
+            {
+                AnsiConsole.MarkupLine($"[green]✓[/] ONBOARDING.md exported to: [bold]{Markup.Escape(_outputPath)}[/]");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine($"[yellow]⚠[/] Export skipped (scope is personal)");
+            }
         }
         catch (Exception ex)
         {
