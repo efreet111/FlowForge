@@ -16,4 +16,10 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\FlowForge.Installer\FlowForge.Installer.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\..\README.md" Link="README.md" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\README.es.md" Link="README.es.md" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\install\install.sh" Link="install\install.sh" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="..\..\src\FlowForge.Installer\Commands\InstallCommand.cs" Link="src\FlowForge.Installer\Commands\InstallCommand.cs" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>
