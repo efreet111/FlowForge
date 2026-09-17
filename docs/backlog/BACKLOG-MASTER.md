@@ -29,6 +29,7 @@
 |----|--------|-----------|------------|--------|---------|
 | **HU-027** | Binario busca `templates/agent-models.json` (ruta movida a `config/`) | 🔴 Critical | Symlink manual | 🔥 Hotfix | [HU-027](../tasks/HU-001-HU-099/HU-027-agent-models-path-mismatch.md) |
 | **HU-038** | `ide/opencode/commands/` nunca se creó en el repo | 🔴 Critical | Commands en `opencode.json` | 🔥 Hotfix | [HU-038](../tasks/HU-001-HU-099/HU-038-opencode-commands-missing.md) |
+| **HU-039** | Flag corto `-y` no reconocido en `flowforge init` | 🟡 Minor | Usar `--yes` | 📋 Ready | [HU-039](../tasks/HU-001-HU-099/HU-039-fix-init-short-flag-y.md) |
 
 ### Análisis forense
 
@@ -49,11 +50,13 @@
 ### Plan de resolución (Hotfix Release)
 
 ```
-1. Crear ide/opencode/commands/ con 7 archivos .md (HU-038)
-2. Verificar que ide/install.sh usa ruta correcta (HU-027 — ya corregido)
-3. dotnet publish -c Release -r linux-x64
-4. gh release create v0.1.0-alpha.13 ./artifacts/*
-5. Test end-to-end en VM limpia
+1. Crear ide/opencode/commands/ con 7 archivos .md (HU-038) ✅ done
+2. Verificar que ide/install.sh usa ruta correcta (HU-027 — ya corregido) ✅ done
+3. Fix flag -y en InitCommand (HU-039 — opcional, P2)
+4. Merge branch hotfix/hu-028-opencode-commands → main
+5. dotnet publish -c Release -r linux-x64
+6. gh release create v0.1.0-alpha.13 ./artifacts/*
+7. Test end-to-end en VM limpia (PM-1 re-run)
 ```
 
 **Tiempo estimado**: 2-3 horas  
