@@ -300,19 +300,78 @@ public sealed class InteractiveMenu
 
     // ── State: Export ────────────────────────────────────────────────────────
 
-    private async Task<MenuState> DoExportAsync()
+    private Task<MenuState> DoExportAsync()
     {
+        if (string.IsNullOrEmpty(_outputPath))
+        {
+            AnsiConsole.MarkupLine("[yellow]⚠[/] No output path specified");
+            AnsiConsole.MarkupLine("[grey]Press Enter to return to menu...[/]");
+            Console.ReadLine();
+            return Task.FromResult(MenuState.Init);
+        }
+
         try
         {
-            var success = await MarkdownExporter.ExportAsync(_data, _outputPath, displayUser: null);
-            if (success)
+            // Build markdown content from OnboardingData
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"# Onboarding Briefing: {_data.Project}");
+            sb.AppendLine();
+            sb.AppendLine($"**User:** {_data.User}");
+            sb.AppendLine($"**Generated:** {_data.GeneratedAt:yyyy-MM-dd HH:mm:ss}");
+            sb.AppendLine();
+
+            // Recent Sessions
+            if (_data.RecentSessions.Count > 0)
             {
-                AnsiConsole.MarkupLine($"[green]✓[/] ONBOARDING.md exported to: [bold]{Markup.Escape(_outputPath)}[/]");
+                sb.AppendLine("## Recent Sessions");
+                sb.AppendLine();
+                foreach (var session in _data.RecentSessions)
+                {
+                    sb.AppendLine($"### {session.Title}");
+                    sb.AppendLine($"*{session.Timestamp:yyyy-MM-dd HH:mm}*");
+                    sb.AppendLine();
+                    sb.AppendLine(session.Content);
+                    sb.AppendLine();
+                }
             }
-            else
+
+            // Decisions
+            if (_data.Decisions.Count > 0)
             {
-                AnsiConsole.MarkupLine($"[yellow]⚠[/] Export skipped (scope is personal)");
+                sb.AppendLine("## Key Decisions");
+                sb.AppendLine();
+                foreach (var decision in _data.Decisions)
+                {
+                    sb.AppendLine($"### {decision.Title}");
+                    sb.AppendLine($"*{decision.Timestamp:yyyy-MM-dd HH:mm}*");
+                    sb.AppendLine();
+                    sb.AppendLine(decision.Content);
+                    sb.AppendLine();
+                }
             }
+
+            // Patterns
+            if (_data.Patterns.Count > 0)
+            {
+                sb.AppendLine("## Patterns");
+                sb.AppendLine();
+                foreach (var pattern in _data.Patterns)
+                {
+                    sb.AppendLine($"### {pattern.Title}");
+                    sb.AppendLine($"*{pattern.Timestamp:yyyy-MM-dd HH:mm}*");
+                    sb.AppendLine();
+                    sb.AppendLine(pattern.Content);
+                    sb.AppendLine();
+                }
+            }
+
+            // Write to file
+            var dir = Path.GetDirectoryName(_outputPath);
+            if (!string.IsNullOrEmpty(dir))
+                Directory.CreateDirectory(dir);
+
+            File.WriteAllText(_outputPath, sb.ToString());
+            AnsiConsole.MarkupLine($"[green]✓[/] ONBOARDING.md exported to: [bold]{Markup.Escape(_outputPath)}[/]");
         }
         catch (Exception ex)
         {
@@ -321,7 +380,7 @@ public sealed class InteractiveMenu
 
         AnsiConsole.MarkupLine("[grey]Press Enter to return to menu...[/]");
         Console.ReadLine();
-        return MenuState.Init;
+        return Task.FromResult(MenuState.Init);
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────────
