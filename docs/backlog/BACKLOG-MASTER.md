@@ -1,19 +1,66 @@
 # FlowForge — Backlog Consolidado
 
-> **Última actualización**: 2026-08-14  
-> **Versión actual**: v0.1.0-alpha.13  
-> **Total de items**: 19 (8 NS-* + 7 FF-* + 4 Roadmap)
+> **Última actualización**: 2026-09-16  
+> **Versión actual**: v0.1.0-alpha.12  
+> **Total de items**: 21 (8 NS-* + 7 FF-* + 4 Roadmap + 2 HU-*)  
+> **Hotfixes críticos**: 2 (requieren release inmediato)
 
 ---
 
 ## 📊 Resumen ejecutivo
 
-| Categoría | Total | ✅ Done | 🔄 In Progress | 📋 Ready | 🔴 Blocked | ⏸️ Deferred |
-|-----------|-------|---------|----------------|----------|------------|-------------|
-| **NS-*** (Non-Functional/Methodology) | 8 | 3 | 2 | 2 | 0 | 1 |
-| **FF-*** (Feature Ideas) | 7 | 0 | 0 | 3 | 4 | 0 |
-| **Roadmap** (OSS/Post-release) | 4 | 3 | 0 | 1 | 0 | 0 |
-| **TOTAL** | **19** | **6** | **2** | **6** | **4** | **1** |
+| Categoría | Total | ✅ Done | 🔄 In Progress | 📋 Ready | 🔴 Blocked | ⏸️ Deferred | 🔥 Hotfix |
+|-----------|-------|---------|----------------|----------|------------|-------------|-----------|
+| **NS-*** (Non-Functional/Methodology) | 8 | 3 | 2 | 2 | 0 | 1 | 0 |
+| **FF-*** (Feature Ideas) | 7 | 0 | 0 | 3 | 4 | 0 | 0 |
+| **Roadmap** (OSS/Post-release) | 4 | 3 | 0 | 1 | 0 | 0 | 0 |
+| **HU-*** (Hotfixes críticos) | 2 | 0 | 0 | 0 | 0 | 0 | 2 |
+| **TOTAL** | **21** | **6** | **2** | **6** | **4** | **1** | **2** |
+
+---
+
+## 🔥 HOTFIXES CRÍTICOS (P0 — Bloquean instalación/uso)
+
+> **Fecha de detección**: 2026-09-16  
+> **Detectado por**: Usuario durante instalación quick install (Linux)  
+> **Impacto**: Bloquea onboarding de nuevos usuarios
+
+| ID | Título | Severidad | Workaround | Status | HU File |
+|----|--------|-----------|------------|--------|---------|
+| **HU-027** | Binario busca `templates/agent-models.json` (ruta movida a `config/`) | 🔴 Critical | Symlink manual | 🔥 Hotfix | [HU-027](../tasks/HU-001-HU-099/HU-027-agent-models-path-mismatch.md) |
+| **HU-038** | `ide/opencode/commands/` nunca se creó en el repo | 🔴 Critical | Commands en `opencode.json` | 🔥 Hotfix | [HU-038](../tasks/HU-001-HU-099/HU-038-opencode-commands-missing.md) |
+| **HU-039** | Flag corto `-y` no reconocido en `flowforge init` | 🟡 Minor | Usar `--yes` | 📋 Ready | [HU-039](../tasks/HU-001-HU-099/HU-039-fix-init-short-flag-y.md) |
+
+### Análisis forense
+
+**HU-027 — Path mismatch en binario publicado**
+
+- **Root cause**: ADR-012 movió `agent-models.json` de `templates/` a `config/`. El código fuente se actualizó, pero el binario publicado en GitHub Releases (`v0.1.0-alpha.12`) se compiló antes de la migración.
+- **Commit donde se rompió**: No es un "break" — es un release desactualizado.
+- **Workaround aplicado**: `ln -s ~/.flowforge/cache/FlowForge/ide/opencode/config/agent-models.json ~/.flowforge/cache/FlowForge/ide/opencode/templates/agent-models.json`
+- **Fix definitivo**: Recompile binario desde source actual + publicar nuevo release.
+
+**HU-038 — Commands de OpenCode faltantes**
+
+- **Root cause**: Commit `cdd5c79` (Jun 2026) creó commands para Cursor y Antigravity, pero olvidó OpenCode. Commit `3f7b07b` (28 Jun 2026) agregó la lógica de copia para OpenCode pero asumió que los archivos ya existían.
+- **Commit donde se rompió**: `3f7b07b` — implementación incompleta.
+- **Workaround aplicado**: Commands agregados manualmente en `~/.config/opencode/opencode.json` (sección `commands`).
+- **Fix definitivo**: Crear `ide/opencode/commands/*.md` en el repo + recompile.
+
+### Plan de resolución (Hotfix Release)
+
+```
+1. Crear ide/opencode/commands/ con 7 archivos .md (HU-038) ✅ done
+2. Verificar que ide/install.sh usa ruta correcta (HU-027 — ya corregido) ✅ done
+3. Fix flag -y en InitCommand (HU-039 — opcional, P2)
+4. Merge branch hotfix/hu-028-opencode-commands → main
+5. dotnet publish -c Release -r linux-x64
+6. gh release create v0.1.0-alpha.13 ./artifacts/*
+7. Test end-to-end en VM limpia (PM-1 re-run)
+```
+
+**Tiempo estimado**: 2-3 horas  
+**Riesgo**: Bajo (cambios aislados, sin breaking changes)
 
 ---
 
@@ -36,6 +83,13 @@
 |----|---------|--------|--------------|----------|
 | NS-06 | Context project file | Propuesto | Definir trigger y template | S (1 día) |
 | NS-08 | Agent Quality Improvement | Propuesto | Implementar Phase 1 (critical fixes) | M (1-2 días) |
+
+### 🔥 Hotfixes críticos (2 items)
+
+| ID | Feature | Status | Esfuerzo | Bloqueador | Impacto |
+|----|---------|--------|----------|------------|---------|
+| **HU-027** | Binario busca ruta obsoleta de agent-models.json | 🔥 Hotfix | S (1 hora) | Requiere recompile + release | Bloquea instalación nueva |
+| **HU-038** | Commands de OpenCode faltantes en installer | 🔥 Hotfix | S (2 horas) | Requiere crear archivos + release | Sin slash commands en OpenCode |
 
 ### 📋 Ready para implementar (6 items)
 
@@ -92,6 +146,24 @@ FF-OSS-04 (Demo visual) 📋 ─────────────────
 ---
 
 ## 🎯 Roadmap recomendado
+
+### 🔥 INMEDIATO — Hotfix Release (hoy)
+
+> **Objetivo**: Desbloquear instalación para nuevos usuarios  
+> **Tiempo estimado**: 2-3 horas  
+> **Release target**: v0.1.0-alpha.13
+
+1. **HU-027** — Fix path mismatch en binario (P0, S, 1 hora)
+   - Verificar que `ide/install.sh` usa ruta correcta ✅ (ya corregido)
+   - Recompile binario: `dotnet publish -c Release -r linux-x64`
+   - Publicar release: `gh release create v0.1.0-alpha.13`
+   - **Comando**: No requiere `/flow-start`, es tarea de release
+
+2. **HU-038** — Crear commands de OpenCode (P0, S, 2 horas)
+   - Crear `ide/opencode/commands/` con 7 archivos `.md`
+   - Agregar tests unitarios para `InitCommand`
+   - Incluir en el mismo release v0.1.0-alpha.13
+   - **Comando**: `/flow-start hotfix-opencode-commands-missing`
 
 ### Corto plazo (próximas 2-4 semanas)
 
@@ -235,7 +307,19 @@ Bajo valor │ FF-001 (P1, XL) 🔴    FF-005 (P3, L) 🔴
 | Esfuerzo relativo | 20% |
 | Dependencias externas | 10% |
 
-### Top 5 recomendados (orden de implementación)
+### 🔥 PRIORIDAD 0 — Hotfixes (implementar HOY)
+
+1. **HU-027** — Fix path mismatch en binario
+   - **Por qué**: Bloquea instalación de nuevos usuarios
+   - **Cuándo**: HOY (1 hora)
+   - **Comando**: No requiere `/flow-start`, es tarea de release
+
+2. **HU-038** — Crear commands de OpenCode
+   - **Por qué**: Sin slash commands, UX rota en OpenCode
+   - **Cuándo**: HOY (2 horas)
+   - **Comando**: `/flow-start hotfix-opencode-commands-missing`
+
+### Top 5 recomendados (orden de implementación, después de hotfixes)
 
 1. **FF-003** — Onboarding flow
    - **Por qué**: Mayor valor para equipos, sin bloqueadores, spec completa
@@ -270,6 +354,7 @@ Bajo valor │ FF-001 (P1, XL) 🔴    FF-005 (P3, L) 🔴
 |---------|-------|--------|--------|
 | Items completados (últimos 30 días) | 6 | 4-6 | ✅ On track |
 | Items blocked | 4 | <3 | ⚠️ Depende de engram-dotnet |
+| Hotfixes críticos | 2 | 0 | 🔴 Requiere release inmediato |
 | Items sin spec | 1 (NS-06) | 0 | ⚠️ Requiere completar spec |
 | Esfuerzo promedio por item | M (2-3 días) | M | ✅ Healthy |
 | Ratio valor/esfuerzo | 70% alto valor | >60% | ✅ Healthy |
@@ -277,6 +362,10 @@ Bajo valor │ FF-001 (P1, XL) 🔴    FF-005 (P3, L) 🔴
 ---
 
 ## 🔗 Enlaces rápidos
+
+### 🔥 Hotfixes críticos
+- [HU-027](../tasks/HU-001-HU-099/HU-027-agent-models-path-mismatch.md) — 🔥 Binario busca ruta obsoleta
+- [HU-038](../tasks/HU-001-HU-099/HU-038-opencode-commands-missing.md) — 🔥 Commands OpenCode faltantes
 
 ### Specs completadas
 - [NS-06](NS-06-context-project-file.md) — incompleta
@@ -326,4 +415,9 @@ Bajo valor │ FF-001 (P1, XL) 🔴    FF-005 (P3, L) 🔴
 
 ---
 
-**Próximo paso recomendado**: Iniciar FF-003 (Onboarding flow) con `/flow-start ff-003-onboarding-flow`
+**Próximo paso recomendado**: Resolver hotfixes críticos (HU-027 + HU-038) y publicar release v0.1.0-alpha.13
+
+```bash
+# Iniciar hotfix de commands de OpenCode
+/flow-start hotfix-opencode-commands-missing
+```
