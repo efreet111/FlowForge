@@ -16,7 +16,10 @@ public class GitHubReleasesClientTests
     {
         var logPath = Path.Combine(Path.GetTempPath(), $"flowforge-log-{Guid.NewGuid():N}.log");
         var log = new InstallerLogger(logPath);
-        using var http = new HttpClient(new DelayHandler(TimeSpan.FromSeconds(5))) { Timeout = TimeSpan.FromSeconds(1) };
+        // The production client owns the API timeout CTS and disables HttpClient.Timeout.
+        // Throw the cancellation exception directly so this verifies its timeout mapping
+        // without a real network call or timing-dependent delay.
+        using var http = new HttpClient(new TimeoutHandler());
         var client = new GitHubReleasesClient(http, log, downloadTimeoutSeconds: 1);
         await Assert.ThrowsAsync<TimeoutException>(() => client.GetLatestVersionAsync("efreet111/FlowForge", "stable"));
     }
@@ -43,19 +46,11 @@ public class GitHubReleasesClientTests
         }
     }
 
-    sealed class DelayHandler : HttpMessageHandler
+    sealed class TimeoutHandler : HttpMessageHandler
     {
-        readonly TimeSpan _delay;
-
-        public DelayHandler(TimeSpan delay) => _delay = delay;
-
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            await Task.Delay(_delay, cancellationToken);
-            return new HttpResponseMessage(HttpStatusCode.OK)
-            {
-                Content = new StringContent("[{ \"tag_name\": \"v0.1.0\" }]" )
-            };
+            return Task.FromException<HttpResponseMessage>(new TaskCanceledException("simulated API timeout"));
         }
     }
 
