@@ -7,7 +7,7 @@ public class ScriptTests
 {
     const string ScriptPath = "install/install.sh";
 
-    string LoadScript() => File.ReadAllText(Path.Combine("..", "..", ScriptPath));
+    string LoadScript() => File.ReadAllText(Path.Combine(AppContext.BaseDirectory, ScriptPath));
 
     [Fact]
     public void FR_002_CurlUsesProgressBar()
