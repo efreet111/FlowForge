@@ -8,7 +8,7 @@ public class DocumentationTests
     [Fact]
     public void FR_008_ReadmeIncludesTroubleshootingHints()
     {
-        var content = File.ReadAllText(Path.Combine("..", "..", "README.md"));
+        var content = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "README.md"));
         Assert.Contains("## Troubleshooting", content);
         Assert.Contains("SQLite Error 14", content);
         Assert.Contains("flowforge doctor", content);
@@ -18,7 +18,7 @@ public class DocumentationTests
     [Fact]
     public void FR_008_ReadmeEsIncludesTroubleshootingHints()
     {
-        var content = File.ReadAllText(Path.Combine("..", "..", "README.es.md"));
+        var content = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "README.es.md"));
         Assert.Contains("## Solución de problemas", content);
         Assert.Contains("SQLite Error 14", content);
         Assert.Contains("flowforge doctor", content);

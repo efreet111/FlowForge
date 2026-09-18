@@ -8,7 +8,7 @@ public class InstallCommandSourceTests
     [Fact]
     public void FR_004_BannerAndConnectingPrintedBeforeManifest()
     {
-        var content = File.ReadAllText(Path.Combine("..", "..", "src", "FlowForge.Installer", "Commands", "InstallCommand.cs"));
+        var content = File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "src", "FlowForge.Installer", "Commands", "InstallCommand.cs"));
         var bannerIndex = content.IndexOf("FlowForge Stack Installer");
         var connectIndex = content.IndexOf("Conectando a GitHub");
         var manifestIndex = content.IndexOf("ctx.Manifest.FetchAsync");
