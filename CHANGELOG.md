@@ -4,6 +4,21 @@ All notable changes to the FlowForge methodology and IDE packs are documented he
 
 Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning follows [SemVer](https://semver.org/).
 
+## [v0.1.0-alpha.14] - 2026-09-18
+
+### Added
+- **CI unit-tests job**: Nuevo job en `test-installer.yml` que ejecuta `dotnet test` en ubuntu-latest. Previamente solo se ejecutaban smoke tests y happy path installs.
+- **Test fixtures MSBuild**: Configuración explícita para copiar README.md, README.es.md, install/install.sh, InstallCommand.cs, EngramModule.cs e InstallerConfig.cs al output de tests.
+
+### Fixed
+- **FlowForgeRepoLocator cache refresh**: `EnsureAvailable()` ahora ejecuta `git pull --ff-only` (fallback: fetch + reset --hard) en el cache gestionado `~/.flowforge/cache/FlowForge`. Previamente el cache nunca se actualizaba, causando que `flowforge init` copiara archivos obsoletos. Non-blocking en fallos (offline/corrupto → warn + continúa con cache existente). Gated por `IsCachePath()` para no afectar repos de desarrollo.
+- **MarkdownExporterTests compilation**: Tests reescritos para usar API real (`ExportAsync` con `BriefingData`). Previamente llamaban métodos inexistentes (`GenerateMarkdown`, `ResolveOutputPath`, `Export`).
+- **Test timeout determinista**: `GitHubReleasesClientTests.FR_001_GetLatestVersion_TimesOut` ahora usa `TimeoutHandler` simulado en lugar de depender de timing de red.
+- **Test fixture paths**: Corregidos paths de fixtures en `ScriptTests`, `DocumentationTests`, `InstallCommandSourceTests` e `InstallerAsksForSyncUrlTests`.
+
+### Changed
+- **FlowForgeRepoLocator constructor**: Ahora acepta parámetro opcional `cachePath` para inyección en tests. Callers existentes no requieren cambios.
+
 ## [Unreleased]
 
 ### Added
