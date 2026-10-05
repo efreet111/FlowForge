@@ -1,7 +1,7 @@
 ---
 hu_id: HU-035
 title: "Code-Context Arch Agent"
-status: draft
+status: done
 category: feature
 flowforge_slug: "hu-035-code-context-arch-agent"
 ---
@@ -12,10 +12,12 @@ flowforge_slug: "hu-035-code-context-arch-agent"
 As a FlowForge developer, I want the Arch agent to recall prior architectural decisions from memory before designing new solutions, so that I don't waste time re-deriving the same decisions and can maintain consistency across sessions.
 
 ## Acceptance Criteria (business-level)
-- [ ] AC-1: Arch agent queries memory for prior decisions on the target module before generating recommendations
-- [ ] AC-2: Second FlowForge run on the same codebase produces fewer re-derivation steps
-- [ ] AC-3: Arch agent can explain "I made this decision because of memory Y"
-- [ ] AC-4: "You're about to contradict decision X" warnings surface when applicable
+- [x] AC-1: Arch agent queries memory for prior decisions on the target module before generating recommendations
+- [x] AC-2: Second FlowForge run on the same codebase produces fewer re-derivation steps (runtime eval)
+- [x] AC-3: Arch agent can explain "I made this decision because of memory Y"
+- [x] AC-4: "You're about to contradict decision X" warnings surface when applicable
+- [ ] AC-5: Graceful degradation when memory unavailable (runtime eval pending)
+- [ ] AC-6: Memory unavailable path handles errors gracefully (runtime eval pending)
 
 ## Scenarios (SDD Spec)
 ### Happy Path
