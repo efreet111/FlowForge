@@ -2,8 +2,10 @@
 name: forge-dev
 description: Phase 3 (Execution) of FlowForge. Implements plan.md with Ralph Wiggum auto-correction.
 trigger: When user says "forge dev", "start coding", or enters phase 3 in FlowForge.
-version: "1.1.0"
+version: "1.2.0"
 changelog:
+  - date: "2026-10-05"
+    note: "HU-033: Add code-aware memory hooks (FR-001–FR-004) — init, pre-edit, post-edit, symbol-level recall"
   - date: "2026-08-27"
     note: "Add version-bump habit rule (FR-005) to mandatory rules"
   - date: "2026-08-27"
@@ -37,7 +39,7 @@ At the end of your handoff output, always include a `## Memory Signal` block:
 
 ```markdown
 ## Memory Signal
-- type: bugfix | config | pattern | none
+- type: bugfix | config | pattern | none | code-capture
 - significance: high | low
 - summary: "Título específico y buscable (no 'bug fix' o 'update')"
 - topics: [tema1, tema2]   # OPTIONAL — orchestrator treats missing as single-topic
@@ -56,6 +58,110 @@ Rules for the signal:
   - ❌ "Update" → ✅ "Removed title from idx_obs_dedupe to prevent B-tree overflow"
   - ❌ "Config" → ✅ "PostgreSQL connection pool set to 100 for production load"
 - **Do NOT call `mem_save` directly** — emit the signal and let the orchestrator decide.
+
+## Code-Aware Memory Hooks (HU-033)
+
+> Integrates engram-dotnet code-aware recall tools into the Dev agent session.
+> Dev agent NEVER calls mem_save directly — all capture intents use Memory Signal emission.
+> Hooks are fire-and-forget (async, non-blocking) except post-edit which awaits user offer response.
+
+### FR-001 — Initialization Hook: Module-Level Memory Load
+
+Trigger: Dev agent session start (before any code generation).
+
+```
+1. Resolve target module from plan.md (primary module in "Module" or "Scope" field).
+2. Call mem_recall_for_module(module: "{module_name}", project: "{project_name}").
+3. If returned memories exist:
+   - Inject memories into context window before code generation.
+   - Log: "Loaded {N} module-level memories for {module_name}."
+   - Indicate confidence: high (fresh < 30 days), medium (older or partial).
+4. If empty:
+   - Log: "No prior memories found for module {module_name}. Proceeding with standard context."
+   - Continue without error (graceful degradation).
+```
+
+### FR-002 — Pre-Edit Hook: File-Level Memory Surface
+
+Trigger: Dev agent is about to edit an existing file (from plan.md Proposed Changes list).
+
+```
+1. For each file in plan.md Proposed Changes that is NOT newly created:
+   a. Call mem_recall_for_file(path: "{file_path}", project: "{project_name}").
+   b. If returned memories exist:
+      - Surface memories in context before the edit.
+      - Log: "Surfacing {N} file-level memories for {file_path}."
+   c. If empty:
+      - Log: "No memories found for {file_path}. Applying standard conventions."
+      - Continue without error.
+2. Pre-edit hooks are fire-and-forget: do not block code generation.
+```
+
+### FR-003 — Post-Edit Hook: Memory Capture Offer
+
+Trigger: A planned file edit completes and all validation (compilation, tests) passes.
+
+```
+1. After successful edit validation:
+   a. Construct Memory Signal block with type: "code-capture" (NEW type).
+   b. Signal content must include:
+      - file_path: the edited file
+      - symbol: affected class/function (if identifiable from diff)
+      - diff_summary: one-line description of what changed
+   c. Emit the signal in handoff output.
+   d. Say: "Edit complete. Offer to capture this change? [y/N]"
+   e. Await user response asynchronously (does NOT block continuation).
+2. If user accepts (y):
+   - Orchestrator routes to forge-memory for persistence.
+3. If user declines (n):
+   - No memory saved. Proceed normally.
+4. If edit fails validation:
+   - Do NOT emit post-edit offer.
+```
+
+**Memory Signal type `code-capture` (NEW)**:
+
+For `type: code-capture`, the signal MUST include a `code_context` sub-block:
+
+```markdown
+## Memory Signal
+- type: code-capture
+- significance: high | low
+- summary: "Added validation to UserService.save() method"
+- code_context:
+  - file_path: "src/services/UserService.ts"
+  - symbol: "UserService.save"
+  - namespace: "auth"
+  - diff_summary: "Added input validation before persisting user record"
+```
+
+### FR-004 — Symbol-Level Recall
+
+Trigger: The edit target is a class or function (detected by file extension + LLM classification or explicit plan.md mention).
+
+```
+1. When modifying a class or function:
+   a. Call mem_recall_for_symbol(symbol: "{symbol_name}", project: "{project_name}").
+   b. If returned memories exist:
+      - Inject memories into context before modification.
+      - Log: "Loaded {N} symbol-level memories for {symbol_name}."
+   c. If empty:
+      - Log: "No symbol-level memories for {symbol_name}. Applying standard patterns."
+      - Continue without error.
+2. Symbol-level recall is fire-and-forget: do not block code generation.
+```
+
+### Graceful Degradation Rules (shared across all hooks)
+
+```
+- If engram MCP tools are unreachable:
+  → Log: "[memory-hook] WARN: engram MCP unavailable — proceeding with standard context."
+  → Continue session without memory context.
+- If a recall call times out (>2 seconds):
+  → Log: "[memory-hook] WARN: recall timed out for {target} — continuing."
+  → Continue session without that recall result.
+- Hook failures NEVER abort the session.
+```
 
 ## Rework mode (open ticket)
 

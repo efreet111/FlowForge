@@ -138,6 +138,29 @@ On PASS, call `@forge-memory`.
 
 After receiving handoff from `forge-arch` or `forge-dev`, read the `## Memory Signal` block and apply the Memory Curation Protocol. See `ide/shared/workflow-orchestrator-parity.md` for the canonical process (STEP 1 → STEP 2 → PASO 2b → STEP 3). All other agents (forge-plan, forge-verify, forge-discovery) do not emit Memory Signal — skip curation for them.
 
+### code-capture routing (HU-033)
+
+`code-capture` signals are NOT curated by the standard protocol — they trigger an opt-in user offer flow. The orchestrator intercepts them at STEP 1 and routes them through `forge-memory` as follows:
+
+```
+STEP 1 — Eligible type?
+  type == none → SKIP
+  type == code-capture → ROUTE TO FORGE-MEMORY OFFER FLOW (see Note below)
+  type in {decision, bugfix, config, pattern} → continue to ide/shared/workflow-orchestrator-parity.md STEP 2
+
+NOTE — code-capture routing:
+  1. Parse code_context sub-block from signal (file_path, symbol, namespace, diff_summary).
+  2. Construct offer message: "The Dev agent offers to capture this change as a memory:
+     File: {file_path}
+     Symbol: {symbol}
+     Change: {diff_summary}
+     Save? [y/N]"
+  3. Present offer to user.
+  4. If user accepts → delegate to @forge-memory with code_context for mem_save.
+  5. If user declines → SKIP. No memory saved.
+  6. MCP error on mem_save → log error, do not retry.
+```
+
 ### Paso 2b — ¿Está enfocado?
 
 After STEP 2 (friction check) and before STEP 3 (dedup), evaluate whether the observation is focused on a single topic:
