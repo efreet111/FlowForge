@@ -1,188 +1,151 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "default_agent": "flowforge",
+  "skills": [
+    "./skills"
+  ],
   "instructions": [
     "./flowforge/AGENTS.md"
   ],
-  "agent": {
+  "agents": {
     "flowforge": {
       "description": "FlowForge Orchestrator — 6 fases, 7 agentes. Coordina el flujo CKP-0 → CKP-4.",
       "mode": "primary",
       "model": "__FLOWFORGE_MODEL__",
-      "permission": {
-        "edit": "allow",
-        "write": "allow",
-        "read": "allow",
-        "bash": "allow",
-        "task": "allow"
-      },
-      "prompt": "{file:./agents/flowforge.md}",
-      "skills": [
-        "{file:$FLOWFORGE_REPO/skills/forge-orchestrator/SKILL.md}"
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "allow" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "subagent", "resource": "*", "effect": "allow" },
+        { "action": "skill", "resource": "*", "effect": "allow" }
       ],
-      "tools": {
-        "edit": true,
-        "write": true,
-        "read": true,
-        "bash": true,
-        "task": true
-      }
+      "system": "{file:./agents/flowforge.md}",
+      "skills": [
+        "{file:$FLOWFORGE_REPO/skills/flowforge/SKILL.md}"
+      ]
     },
     "forge-discovery": {
       "description": "Phase 0 — Context mapping & memory association. Hard-stops on vague requirements.",
       "mode": "subagent",
       "hidden": true,
       "model": "__FLOWFORGE_MODEL__",
-      "permission": {
-        "bash": "allow",
-        "read": "allow",
-        "edit": "deny",
-        "write": "deny"
-      },
-      "prompt": "{file:./agents/forge-discovery.md}",
+      "permissions": [
+        { "action": "shell", "resource": "*", "effect": "allow" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "skill", "resource": "forge-discovery", "effect": "allow" }
+      ],
+      "system": "{file:./agents/forge-discovery.md}",
       "skills": [
         "{file:$FLOWFORGE_REPO/skills/forge-discovery/SKILL.md}"
-      ],
-      "tools": {
-        "bash": true,
-        "read": true
-      }
+      ]
     },
     "forge-arch": {
       "description": "Phase 1 — Writes spec.md with capability matrix (FR/NFR) and STRIDE analysis.",
       "mode": "subagent",
       "hidden": true,
       "model": "__FLOWFORGE_MODEL__",
-      "permission": {
-        "edit": "allow",
-        "write": "allow",
-        "read": "allow",
-        "bash": "allow"
-      },
-      "prompt": "{file:./agents/forge-arch.md}",
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "allow" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "skill", "resource": "forge-arch", "effect": "allow" }
+      ],
+      "system": "{file:./agents/forge-arch.md}",
       "skills": [
         "{file:$FLOWFORGE_REPO/skills/forge-arch/SKILL.md}"
-      ],
-      "tools": {
-        "edit": true,
-        "write": true,
-        "read": true,
-        "bash": true
-      }
+      ]
     },
     "forge-plan": {
       "description": "Phase 2 — Breaks spec into tasks, contracts, effort estimates.",
       "mode": "subagent",
       "hidden": true,
       "model": "__FLOWFORGE_MODEL__",
-      "permission": {
-        "edit": "allow",
-        "write": "allow",
-        "read": "allow",
-        "bash": "allow"
-      },
-      "prompt": "{file:./agents/forge-plan.md}",
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "allow" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "skill", "resource": "forge-plan", "effect": "allow" }
+      ],
+      "system": "{file:./agents/forge-plan.md}",
       "skills": [
         "{file:$FLOWFORGE_REPO/skills/forge-plan/SKILL.md}"
-      ],
-      "tools": {
-        "edit": true,
-        "write": true,
-        "read": true,
-        "bash": true
-      }
+      ]
     },
     "forge-dev": {
       "description": "Phase 3 — Implements plan.md, writes unit tests, runs the Ralph Wiggum loop.",
       "mode": "subagent",
       "hidden": true,
       "model": "__FLOWFORGE_MODEL__",
-      "permission": {
-        "edit": "allow",
-        "write": "allow",
-        "read": "allow",
-        "bash": "allow"
-      },
-      "prompt": "{file:./agents/forge-dev.md}",
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "allow" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "skill", "resource": "forge-dev", "effect": "allow" }
+      ],
+      "system": "{file:./agents/forge-dev.md}",
       "skills": [
         "{file:$FLOWFORGE_REPO/skills/forge-dev/SKILL.md}"
-      ],
-      "tools": {
-        "edit": true,
-        "write": true,
-        "read": true,
-        "bash": true
-      }
+      ]
     },
     "forge-verify": {
       "description": "Phase 3 — Audits implementation, generates verify-report.md with PASS / REWORK verdict.",
       "mode": "subagent",
       "hidden": true,
       "model": "__FLOWFORGE_MODEL__",
-      "permission": {
-        "edit": "allow",
-        "write": "allow",
-        "read": "allow",
-        "bash": "allow"
-      },
-      "prompt": "{file:./agents/forge-verify.md}",
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "allow" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "skill", "resource": "forge-verify", "effect": "allow" }
+      ],
+      "system": "{file:./agents/forge-verify.md}",
       "skills": [
         "{file:$FLOWFORGE_REPO/skills/forge-verify/SKILL.md}"
-      ],
-      "tools": {
-        "edit": true,
-        "write": true,
-        "read": true,
-        "bash": true
-      }
+      ]
     },
     "forge-memory": {
       "description": "Phase 4 — Session closure, session summary, ADR promotion.",
       "mode": "subagent",
       "hidden": true,
       "model": "__FLOWFORGE_MODEL__",
-      "permission": {
-        "edit": "allow",
-        "write": "allow",
-        "read": "allow",
-        "bash": "allow"
-      },
-      "prompt": "{file:./agents/forge-memory.md}",
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "allow" },
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "skill", "resource": "forge-memory", "effect": "allow" }
+      ],
+      "system": "{file:./agents/forge-memory.md}",
       "skills": [
         "{file:$FLOWFORGE_REPO/skills/forge-memory/SKILL.md}"
-      ],
-      "tools": {
-        "edit": true,
-        "write": true,
-        "read": true,
-        "bash": true
-      }
+      ]
     },
     "forge-teacher": {
       "description": "Teacher mode — explains FlowForge concepts on demand. Read-only.",
       "mode": "subagent",
       "hidden": true,
       "model": "__FLOWFORGE_MODEL__",
-      "permission": {
-        "read": "allow",
-        "bash": "deny",
-        "edit": "deny",
-        "write": "deny"
-      },
-      "prompt": "{file:./agents/forge-teacher.md}",
+      "permissions": [
+        { "action": "read", "resource": "*", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "deny" },
+        { "action": "edit", "resource": "*", "effect": "deny" },
+        { "action": "skill", "resource": "forge-teacher", "effect": "allow" }
+      ],
+      "system": "{file:./agents/forge-teacher.md}",
       "skills": [
         "{file:$FLOWFORGE_REPO/skills/forge-teacher/SKILL.md}"
-      ],
-      "tools": {
-        "read": true
-      }
+      ]
     }
   },
-  "provider": {
+  "providers": {
     "opencode-zen": {
       "id": "opencode-zen",
       "name": "OpenCode Zen (Free)",
-      "api": "https://opencode.ai/zen/v1",
-      "npm": "@ai-sdk/openai-compatible",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "https://opencode.ai/zen/v1"
+      },
+      "env": [],
       "description": "Free tier — 8 models. Warning: free models may use prompts for training.",
       "models": {
         "big-pickle": {
@@ -238,8 +201,10 @@
     "opencode-go": {
       "id": "opencode-go",
       "name": "OpenCode Go - Suscripción",
-      "npm": "@ai-sdk/openai-compatible",
-      "api": "https://opencode.ai/zen/go/v1",
+      "package": "@opencode/ai/providers/openai-compatible",
+      "settings": {
+        "baseURL": "https://opencode.ai/zen/go/v1"
+      },
       "env": [
         "OPENCODIGO_API_KEY"
       ],
@@ -350,25 +315,21 @@
       }
     }
   },
-  "permission": {
-    "bash": {
-      "*": "allow",
-      "git commit *": "ask",
-      "git push *": "ask",
-      "git push --force *": "ask",
-      "git rebase *": "ask",
-      "git reset --hard *": "ask"
-    },
-    "read": {
-      "*": "allow",
-      "**/.env": "deny",
-      "**/.env.*": "deny",
-      "**/credentials.json": "deny",
-      "**/secrets/**": "deny",
-      "*.env": "deny",
-      "*.env.*": "deny"
-    }
-  },
+  "permissions": [
+    { "action": "shell", "resource": "*", "effect": "allow" },
+    { "action": "shell", "resource": "git commit *", "effect": "ask" },
+    { "action": "shell", "resource": "git push *", "effect": "ask" },
+    { "action": "shell", "resource": "git push --force *", "effect": "ask" },
+    { "action": "shell", "resource": "git rebase *", "effect": "ask" },
+    { "action": "shell", "resource": "git reset --hard *", "effect": "ask" },
+    { "action": "read", "resource": "*", "effect": "allow" },
+    { "action": "read", "resource": "**/.env", "effect": "deny" },
+    { "action": "read", "resource": "**/.env.*", "effect": "deny" },
+    { "action": "read", "resource": "**/credentials.json", "effect": "deny" },
+    { "action": "read", "resource": "**/secrets/**", "effect": "deny" },
+    { "action": "read", "resource": "*.env", "effect": "deny" },
+    { "action": "read", "resource": "*.env.*", "effect": "deny" }
+  ],
   "mcp": {
     "engram": {
       "type": "local",

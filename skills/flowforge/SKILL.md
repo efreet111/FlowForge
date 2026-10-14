@@ -1,5 +1,5 @@
 ---
-name: forge-orchestrator
+name: flowforge
 description: "Main traffic light. Routes agent sequence, reads FlowForge state, and runs human checkpoints (CKP-0 → CKP-4)."
 version: "1.3.0"
 metadata:

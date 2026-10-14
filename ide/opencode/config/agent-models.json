@@ -23,7 +23,7 @@
       "description": "Free / low-cost tier for daily development",
       "cost_policy": "Discovery/Memory → cheapest. Dev → code-specialized. Arch/Plan/Verify → strongest free model.",
       "agents": {
-        "forge-orchestrator": { "model": "big-pickle", "fallback": "big-pickle" },
+        "flowforge": { "model": "big-pickle", "fallback": "big-pickle" },
         "forge-discovery": { "model": "deepseek-v4-flash-free", "fallback": "deepseek-v4-flash-free" },
         "forge-arch": { "model": "big-pickle", "fallback": "big-pickle" },
         "forge-plan": { "model": "big-pickle", "fallback": "big-pickle" },
@@ -44,7 +44,7 @@
     }
   },
   "agents": {
-    "forge-orchestrator": {
+    "flowforge": {
       "model": { "minimax-coding-plan": "MiniMax-M2.7", "opencode-go": "qwen3.7-plus" },
       "fallback": { "opencode-zen": "big-pickle" },
       "mode": "primary",

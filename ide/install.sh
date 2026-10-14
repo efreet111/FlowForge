@@ -199,7 +199,7 @@ generate_antigravity_model_assignments() {
     echo ""
     echo "| Agent | Preferred Model | Fallback | Mode | Purpose |"
     echo "|-------|----------------|----------|------|---------|"
-    for agent in forge-orchestrator forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher default; do
+    for agent in flowforge forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher default; do
       local model fallback mode purpose
       model="$(jq -r ".agents[\"$agent\"].model" "$json_file")"
       fallback="$(jq -r ".agents[\"$agent\"].fallback" "$json_file")"

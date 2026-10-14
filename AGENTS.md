@@ -37,7 +37,7 @@ The orchestrator enforces 5 control points. Learn the difference:
 
 | Skill | Fase | CKP | Trigger / Context | Path |
 |-------|------|-----|-------------------|------|
-| `forge-orchestrator` | All | CKP‑0→4 | When starting a new session, analyzing the workflow state, or managing state transitions. | [`skills/forge-orchestrator/SKILL.md`](skills/forge-orchestrator/SKILL.md) |
+| `flowforge` | All | CKP‑0→4 | When starting a new session, analyzing the workflow state, or managing state transitions. | [`skills/flowforge/SKILL.md`](skills/flowforge/SKILL.md) |
 | `forge-discovery` | 0 | CKP‑0 🔴 | When starting a new epic, exploring memories (DB or local grep fallback), or mapping requirements. | [`skills/forge-discovery/SKILL.md`](skills/forge-discovery/SKILL.md) |
 | `forge-arch` | 1 | CKP‑1 🟡 | When designing the spec.md, writing Given-When-Then scenarios, or defining capabilities. | [`skills/forge-arch/SKILL.md`](skills/forge-arch/SKILL.md) |
 | `forge-plan` | 2 | CKP‑2 🟡 | When writing plan.md, proposing technical changes, or creating a checklist of tasks. | [`skills/forge-plan/SKILL.md`](skills/forge-plan/SKILL.md) |
@@ -126,9 +126,9 @@ If a flowdoc skill is not installed or not responding:
 
 ### Key rules
 
-- `flowdoc-hu` is NEVER invoked via `flowdoc-assist` — it's a direct call from `forge-orchestrator`
+- `flowdoc-hu` is NEVER invoked via `flowdoc-assist` — it's a direct call from `flowforge`
 - `flowdoc-assist` coordinates ONLY base docs (discover/prd/adr/rfc/api/db/review) — NOT HUs
-- HU cycle is independent of base docs cycle; forge-orchestrator is the hub connecting both
+- HU cycle is independent of base docs cycle; flowforge is the hub connecting both
 - `.atl/skill-registry.md` is auto-generated — do NOT edit manually
 
 ---
