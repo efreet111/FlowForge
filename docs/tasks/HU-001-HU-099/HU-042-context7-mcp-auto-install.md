@@ -1,7 +1,7 @@
 ---
 hu_id: HU-042
 title: "FEATURE: Auto-install context7 MCP when using non-local Engram profile"
-status: todo
+status: in-progress
 category: feature
 flowforge_slug: "context7-mcp-auto-install"
 priority: P1
@@ -105,11 +105,16 @@ opencode mcp add context7 --url https://mcp.context7.com/mcp --global
 
 ## Implementation Tasks
 
-- [ ] Update `InstallCommand.cs` (C#) to detect non-local profile and add context7
-- [ ] Update `ide/install.sh` to detect non-local profile and add context7
-- [ ] Update `POST-INSTALL.md` with context7 requirement documentation
-- [ ] Add unit tests for profile detection logic
+- [x] Update `InstallCommand.cs` (C#) to detect non-local profile and add context7
+- [x] Update `ide/install.sh` to detect non-local profile and add context7
+- [x] Update `POST-INSTALL.md` with context7 requirement documentation
+- [x] Add unit tests for profile detection logic
 - [ ] Test with both local and sync profiles
+
+> ⚠️ **CLOSURE BLOCKED (CKP-4, 2026-10-14)** — Cannot close: manual tests pending (PM-1…PM-5 in `.ai-work/context7-mcp-auto-install/spec.md` §4, PM-6 in `plan.md` T-05).
+> Run them and mark `[x]` in spec.md. Evidence so far: `dotnet build` 0 errors, `dotnet test` 245/245, `bash -n ide/install.sh` OK,
+> rework cycle 2 = PASS (`verify-report.md`, commit `64c5baf`). No new ADR required — ADR-006 updated in place.
+> See `.ai-work/context7-mcp-auto-install/summary.preview.md` (PREVIEW — feature NOT closed).
 
 ## Dependencies
 
