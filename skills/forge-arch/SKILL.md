@@ -2,8 +2,12 @@
 name: forge-arch
 description: Phase 1 (Intent) of FlowForge. Translates user intent into spec.md and Capability Matrix.
 trigger: When user says "forge arch", "design feature", or starts a new FlowForge feature.
-version: "1.1.0"
+version: "1.2.0"
+metadata:
+  opencode/autoinvoke: false  # HU-045: Disable auto-invocation to force subagent delegation
 changelog:
+  - date: "2026-10-14"
+    note: "HU-045: Add opencode/autoinvoke: false — subagent-first invocation"
   - date: "2026-10-05"
     note: "HU-035: Add code-aware memory hooks (FR-001–FR-004) — init recall, contradiction warnings, decision citation, graceful degradation"
   - date: "2026-08-27"

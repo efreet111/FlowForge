@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Reflection;
 using ConsoleAppFramework;
 using FlowForge.Installer.Infrastructure;
@@ -241,6 +242,12 @@ public sealed class InstallCommand(InstallerContext ctx)
             module.Install(selectedIdes, normalizedProvider, forceFree, dryRun, jsonOnly, allowSymlink, noSudo);
         }
 
+        // ── 5b. Auto-install context7 MCP for non-local profiles (HU-042) ────
+        if (engramMode != "local" && selectedIdes.Any(i => i.Equals("OpenCode", StringComparison.OrdinalIgnoreCase)))
+        {
+            await InstallContext7McpAsync();
+        }
+
         // ── 6. Guardar config ─────────────────────────────────────────────────
         ctx.Store.Update(c =>
         {
@@ -356,5 +363,180 @@ public sealed class InstallCommand(InstallerContext ctx)
             ides.Add("Claude Desktop");
 
         return ides;
+    }
+
+    /// <summary>
+    /// Detecta el perfil de Engram (local vs sync/remote) y, si es non-local,
+    /// instala automáticamente el servidor MCP context7 requerido por OpenCode v2
+    /// para conexiones MCP remotas (HU-042).
+    /// </summary>
+    /// <remarks>
+    /// Lógica de detección:
+    /// 1. ENGRAM_SERVER_URL env var (scripts/CI)
+    /// 2. ENGRAM_PROFILE != "local" (selección de perfil)
+    /// 3. ~/.engram/config.json con sync.remote_url (instalación previa con sync)
+    /// </remarks>
+    async Task InstallContext7McpAsync()
+    {
+        AnsiConsole.MarkupLine("[grey]Verificando perfil de Engram para auto-instalación de context7 MCP...[/]");
+
+        // 1. Detección de perfil non-local
+        var isNonLocal = false;
+
+        // 1a. ENGRAM_SERVER_URL (scripts/CI)
+        var envUrl = Environment.GetEnvironmentVariable("ENGRAM_SERVER_URL");
+        if (!string.IsNullOrWhiteSpace(envUrl))
+        {
+            AnsiConsole.MarkupLine($"[green]✓[/] Perfil non-local detectado vía ENGRAM_SERVER_URL: {envUrl}");
+            isNonLocal = true;
+        }
+        else
+        {
+            // 1b. ENGRAM_PROFILE != "local"
+            var envProfile = Environment.GetEnvironmentVariable("ENGRAM_PROFILE") ?? "local";
+            if (!envProfile.Equals("local", StringComparison.OrdinalIgnoreCase))
+            {
+                AnsiConsole.MarkupLine($"[green]✓[/] Perfil non-local detectado vía ENGRAM_PROFILE: {envProfile}");
+                isNonLocal = true;
+            }
+            else
+            {
+                // 1c. ~/.engram/config.json con sync.remote_url
+                var configPath = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                    ".engram", "config.json");
+
+                if (File.Exists(configPath))
+                {
+                    try
+                    {
+                        var json = await File.ReadAllTextAsync(configPath);
+                        if (json.Contains("sync", StringComparison.OrdinalIgnoreCase) &&
+                            json.Contains("remote_url", StringComparison.OrdinalIgnoreCase))
+                        {
+                            AnsiConsole.MarkupLine($"[green]✓[/] Perfil non-local detectado vía {configPath}");
+                            isNonLocal = true;
+                        }
+                    }
+                    catch
+                    {
+                        // Ignorar errores de lectura; continuar con perfil local
+                    }
+                }
+            }
+        }
+
+        if (!isNonLocal)
+        {
+            AnsiConsole.MarkupLine("[grey]→ Perfil local detectado; omitiendo context7 MCP[/]");
+            return;
+        }
+
+        // 2. Verificar si opencode está instalado
+        if (!IsCommandAvailable("opencode"))
+        {
+            AnsiConsole.MarkupLine("[yellow]![/] OpenCode no está instalado; omitiendo context7 MCP");
+            return;
+        }
+
+        // 3. Verificar idempotencia: ¿ya está instalado?
+        try
+        {
+            var mcpList = await RunCommandAsync("opencode", "mcp list");
+            if (mcpList.Contains("context7", StringComparison.OrdinalIgnoreCase))
+            {
+                AnsiConsole.MarkupLine("[green]✓[/] context7 MCP ya está instalado");
+                return;
+            }
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[yellow]![/] No se pudo verificar idempotencia: {ex.Message}");
+            // Continuar con la instalación de todas formas
+        }
+
+        // 4. Instalar context7 MCP
+        AnsiConsole.MarkupLine("[grey]→ Instalando context7 MCP...[/]");
+        try
+        {
+            var output = await RunCommandAsync(
+                "opencode",
+                "mcp add context7 --url https://mcp.context7.com/mcp --global");
+
+            if (output.Contains("added", StringComparison.OrdinalIgnoreCase) ||
+                output.Contains("success", StringComparison.OrdinalIgnoreCase) ||
+                string.IsNullOrWhiteSpace(output)) // Algunos CLIs no imprimen nada en éxito
+            {
+                AnsiConsole.MarkupLine("[green]✓[/] context7 MCP instalado correctamente");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine($"[yellow]![/] context7 MCP instalado con advertencias: {output}");
+            }
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"[red]✗[/] No se pudo instalar context7 MCP: {ex.Message}");
+            AnsiConsole.MarkupLine("[grey]  Instalación manual requerida:[/]");
+            AnsiConsole.MarkupLine("[grey]    opencode mcp add context7 --url https://mcp.context7.com/mcp --global[/]");
+        }
+    }
+
+    /// <summary>
+    /// Verifica si un comando está disponible en el PATH del sistema.
+    /// </summary>
+    static bool IsCommandAvailable(string command)
+    {
+        try
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                FileName = OperatingSystem.IsWindows() ? "where" : "which",
+                Arguments = command,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using var process = new Process { StartInfo = startInfo };
+            process.Start();
+            process.WaitForExit(5000);
+            return process.ExitCode == 0;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Ejecuta un comando y retorna su output completo (stdout).
+    /// </summary>
+    static async Task<string> RunCommandAsync(string command, string arguments)
+    {
+        var startInfo = new ProcessStartInfo
+        {
+            FileName = command,
+            Arguments = arguments,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+            CreateNoWindow = true
+        };
+
+        using var process = new Process { StartInfo = startInfo };
+        process.Start();
+
+        var output = await process.StandardOutput.ReadToEndAsync();
+        await process.WaitForExitAsync();
+
+        if (process.ExitCode != 0)
+        {
+            var error = await process.StandardError.ReadToEndAsync();
+            throw new InvalidOperationException($"Command '{command} {arguments}' failed with exit code {process.ExitCode}: {error}");
+        }
+
+        return output;
     }
 }

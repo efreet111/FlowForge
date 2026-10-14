@@ -2,8 +2,10 @@
 name: forge-memory
 description: Phase 4 (Closure) of FlowForge. Extracts knowledge from the session and persists it to Engram and Level-2 documentation.
 trigger: When the user says "forge memory", "close session", or completes a feature in FlowForge.
-version: "1.2.0"
+version: "1.3.0"
 changelog:
+  - date: "2026-10-14"
+    note: "HU-036 Rework v2: Update contradiction check section — FlowForge-layer surfacing approach"
   - date: "2026-09-11"
     note: "F-001 fix: Add session bootstrap (mem_session_start) before extraction loop — prevents unknown_session errors in mem_save calls"
   - date: "2026-09-11"
@@ -87,6 +89,72 @@ Verified by the human developer.
 ## Session close protocol (mandatory)
 
 After PM-* gates pass, **before** writing `summary.md` or reporting CKP-4 complete:
+
+### Contradiction Check (HU-036 Rework v2)
+
+> **Trigger**: Invoked before `mem_session_summary` during session close.
+> **Purpose**: Detect and surface memory contradictions for user resolution.
+> **Approach**: FlowForge-layer surfacing — does NOT depend on engram-dotnet surfacing in mem_search.
+
+**Step 1 — Call contradiction check**:
+
+```
+1. Call mem_check_contradictions(Limit: 20, IncludeResolved: false)
+2. Parse response:
+   - If phase == "stub" → Show advisory message (see Step 2)
+   - If contradictions found → Process each (see Step 3)
+   - If empty → proceed silently to mem_session_summary
+3. Continue to mem_session_summary only after contradiction check completes or user defers
+```
+
+**Step 2 — If phase == "stub" or empty**:
+
+Display to the user:
+```
+ℹ️ [mem_check_contradictions] is in stub mode or no contradictions found.
+
+   Manual contradiction tracking is available:
+   - Use mem_relations --type conflicts_with to register contradictions
+   - Use this command on-demand: "check contradictions"
+
+   No contradictions detected.
+```
+
+**Step 3 — If contradictions found**:
+
+For each contradiction, present the resolution prompt from `contradiction-resolver.md`:
+
+```markdown
+## ⚠️ Contradiction Detected
+
+**Memory A** (id: {memoryAId}): {summaryA}
+**Memory B** (id: {memoryBId}): {summaryB}
+
+**Topic**: {topicKey}
+
+**Resolution Options**:
+1. **Keep Both** — Both valid in different contexts
+2. **Mark Supersedence** — B supersedes A
+3. **Merge** — Combine into new memory
+4. **Ignore** — Not a real contradiction
+
+> Choose 1-4 or type "defer" to resolve later.
+```
+
+After user selects resolution:
+- Execute the appropriate resolution action (see `skills/forge-memory-contradiction/contradiction-resolver.md`)
+- Call `mem_save` to log the resolution as a memory signal
+- Continue to next contradiction or session summary
+
+**Deferral**: If user types "defer", log the deferral and proceed:
+```
+mem_save(
+  title: "Deferred contradiction: {memoryAId} ↔ {memoryBId}",
+  type: "task",
+  content: "Contradiction on {topicKey} deferred. Memory A: {summaryA}. Memory B: {summaryB}.",
+  topic_key: "contradiction/hu-036/deferred"
+)
+```
 
 1. **Ingest local buffer** (if any): scan `./.engram/local_memory/*.md`, synthesize
    high-value items via Smart Curation (below), then `mem_save` or keep file if MCP fails.

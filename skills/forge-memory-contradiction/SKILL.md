@@ -1,9 +1,11 @@
 ---
 name: forge-memory-contradiction
-description: Phase 4 Memory Curation — Contradiction Detection and Resolution. Detects and resolves conflicting memories using mem_check_contradictions and mem_relations.
+description: Phase 4 Memory Curation — Contradiction Detection and Resolution (Rework v2). FlowForge-layer surfacing + resolution workflow.
 trigger: "When the user says 'contradiction', 'check conflicts', 'resolve conflicts', 'forge memory --contradictions', or during CKP-4 session close flow."
-version: "1.0.0"
+version: "2.0.0"
 changelog:
+  - date: "2026-10-14"
+    note: "HU-036 Rework v2 — FlowForge-layer surfacing approach (no longer depends on mem_search surfacing)"
   - date: "2026-10-08"
     note: "HU-036 Phase 1 — initial skill for contradiction detection and curation workflow"
 ---
@@ -13,6 +15,8 @@ changelog:
 You are the **MEMORY CONTRADICTION AGENT**, responsible for detecting and resolving conflicting memories in the engram-dotnet store. Your goal is to keep the memory store a reliable source of truth by surfacing contradictions and guiding users through resolution.
 
 > **Your role in the checkpoint system**: You are invoked during CKP-4 (Deploy Gate) as part of the Memory Curation Protocol. Contradiction surfacing runs at session close before the session summary is written.
+
+> **Approach (v2)**: FlowForge handles contradiction surfacing and resolution workflow. Does NOT depend on engram-dotnet returning `contradictions` field in mem_search/mem_recall responses.
 
 ---
 
@@ -24,30 +28,26 @@ Trigger contradiction check in these contexts:
 |---------|---------|--------|
 | **CKP-4 Session Close** | `/flow-close` runs `forge-memory` | Call `mem_check_contradictions` at step 3 of session close |
 | **On-demand** | User says "contradiction" or "check conflicts" | Call `mem_check_contradictions` directly |
-| **Memory retrieval** | Any `mem_recall` or `mem_search` response | Surface contradictions from `conflicts_with` relations |
 | **Decision conflict** | Detecting a conflict between new and existing knowledge | Guide user to register via `mem_relations` |
+
+> **Note (v2)**: Contradiction surfacing during `mem_recall`/`mem_search` retrieval is NOT implemented. All surfacing happens at session close or on-demand contradiction check.
 
 ---
 
 ## 🛠️ Core Tools
 
-### mem_check_contradictions (Phase 1 Stub)
+### mem_check_contradictions (engram-dotnet 1.4+)
 
 ```
 mem_check_contradictions(Limit: 20, IncludeResolved: false)
 ```
 
-**Phase 1 behavior** (stub):
-```json
-{
-  "contradictions": [],
-  "phase": "stub",
-  "note": "Full detection awaits ENG-412/ENG-414. Use mem_relations to manually register contradictions.",
-  "totalCount": 0
-}
-```
+**Behavior**:
+- If contradictions found: returns list with memory IDs, summaries, relation types
+- If none found: returns empty list with success message
+- If stub mode: returns `phase: "stub"` with note
 
-**Action**: Display the note to the user and explain that manual contradiction tracking via `mem_relations` is available now, with full auto-detection coming in Phase 2.
+**Action**: Parse response and surface contradictions to user for resolution.
 
 ### mem_relations (existing — for manual contradiction registration)
 
@@ -56,55 +56,23 @@ Register a contradiction manually:
 mem_relations --from <memory-id-A> --to <memory-id-B> --type conflicts_with
 ```
 
-### mem_recall / mem_search (existing — for contradiction surfacing)
-
-When memories are retrieved, check for `conflicts_with` relations and surface them:
-
-```
-Response includes:
-"contradictions": [
-  {
-    "memoryId": "<conflicting-memory-id>",
-    "relationId": "<relation-id>",
-    "topicKey": "<common-topic>",
-    "summary": "<one-line summary of conflict>",
-    "relationType": "conflicts_with",
-    "resolution": null  // or "kept_both", "superseded", "merged", "ignored"
-  }
-]
-```
-
 ---
 
 ## 🔍 Contradiction Detection Workflow
 
-### Step 1: Check for Contradictions
+### Step 1: Call Contradiction Check
 
-Call `mem_check_contradictions` at session close:
+At session close, call `mem_check_contradictions`:
 
 ```
 1. Call mem_check_contradictions(Limit: 20, IncludeResolved: false)
-2. Parse response.phase:
-   - "stub" → display advisory message; manual contradiction tracking available
-   - "full" → process contradictions array
-3. For each contradiction:
-   a. Fetch full content of MemoryA and MemoryB via mem_get_observation
-   b. Present resolution options (see §Resolution Options)
+2. Parse response:
+   - If phase == "stub" → show advisory message, proceed to mem_session_summary
+   - If contradictions found → present resolution prompt for each
+   - If empty → proceed silently to mem_session_summary
 ```
 
-### Step 2: Surface Contradictions During Retrieval
-
-When `mem_recall` or `mem_search` returns memories:
-
-```
-For each returned memory:
-1. Check if memory has active conflicts_with relations (from mem_relations)
-2. If yes → append "contradictions" field to display
-3. Show: "⚠️ Contradiction detected: [summary of conflicting memory]"
-4. Prompt: "Resolve now or defer?"
-```
-
-### Step 3: Resolution Prompt
+### Step 2: Resolution Prompt
 
 When a contradiction is found:
 
@@ -196,22 +164,19 @@ mem_update(id: <relation-id>, resolution: "ignored", justification: "<brief just
 
 ## 🔗 Integration with forge-memory (Session Close Flow)
 
-Add to the session close protocol in `skills/forge-memory/SKILL.md`:
+The contradiction check is integrated into `forge-memory/SKILL.md` session close protocol:
 
 ```markdown
-### Contradiction Check (HU-036 Phase 1)
+### Contradiction Check (HU-036 v2)
 
-After step 2 (mem_session_summary) but before writing summary.md:
-
-1. Call mem_check_contradictions(Limit: 20, IncludeResolved: false)
-2. If contradictions found and phase == "full":
-   - Surface each contradiction with resolution prompt
-   - After resolution, update relation/memory accordingly
-3. If phase == "stub":
-   - Display: "Contradiction detection is in stub mode. Manual contradiction tracking available via mem_relations."
-   - Offer to check for existing contradictions via mem_relations query
-4. Proceed to write summary.md only after contradiction check (or user defers)
+Step 1: Call mem_check_contradictions(Limit: 20, IncludeResolved: false)
+Step 2: Parse response.phase:
+   - "stub" → show advisory, proceed to mem_session_summary
+   - "full" → surface contradictions with resolution prompt
+Step 3: After resolution (or deferral) → mem_session_summary
 ```
+
+See `skills/forge-memory/SKILL.md` for the full session close protocol.
 
 ---
 
@@ -220,23 +185,23 @@ After step 2 (mem_session_summary) but before writing summary.md:
 - No memory is ever deleted — only archived or superseded
 - Contradiction resolution is always user-driven (never auto-resolved without consent)
 - All resolution actions are idempotent (same result on repeated calls)
-- Stub mode clearly communicated to prevent false expectations
+- All resolution actions are logged as memory signals for audit trail
 
 ---
 
 ## 📚 Related Skills
 
-- `forge-memory` — Session close orchestration (you are invoked from here)
+- `forge-memory` — Session close orchestration (invokes contradiction check)
 - `mem_relations` — Relation management (used for conflicts_with and supersedes)
-- `mem_recall` / `mem_search` — Memory retrieval with contradiction surfacing
+- `mem_check_contradictions` — engram-dotnet tool for contradiction detection
 
 ---
 
-## 🔄 Phase 2 (Blocked — ENG-412/414)
+## 🔄 Phase 2 (Deferred — ENG-412/414)
 
 When ENG-412 (embedding similarity) and ENG-414 (contradiction heuristics) are implemented:
-- `mem_check_contradictions` returns populated `contradictions` array
 - Automatic grouping by topic_key
 - Confidence scores on each contradiction
 - Auto-mark supersedence for high-confidence cases (threshold: 0.85)
 - Periodic cron-triggered detection
+- LLM-as-Judge for ambiguous cases

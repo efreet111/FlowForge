@@ -1,7 +1,7 @@
 # Contradiction Resolution Workflow
 
-> **Scope**: HU-036 Phase 1. This document defines the resolution workflow for detected memory contradictions.
-> **When to use**: When `mem_check_contradictions` returns a non-empty `contradictions` array, or when contradictions are surfaced during `mem_recall`/`mem_search`.
+> **Scope**: HU-036 Rework v2. This document defines the resolution workflow for detected memory contradictions.
+> **When to use**: When `mem_check_contradictions` returns contradictions, or when user requests contradiction check.
 
 ---
 

@@ -2,8 +2,12 @@
 name: forge-dev
 description: Phase 3 (Execution) of FlowForge. Implements plan.md with Ralph Wiggum auto-correction.
 trigger: When user says "forge dev", "start coding", or enters phase 3 in FlowForge.
-version: "1.2.0"
+version: "1.3.0"
+metadata:
+  opencode/autoinvoke: false  # HU-045: Disable auto-invocation to force subagent delegation
 changelog:
+  - date: "2026-10-14"
+    note: "HU-045: Add opencode/autoinvoke: false — subagent-first invocation"
   - date: "2026-10-05"
     note: "HU-033: Add code-aware memory hooks (FR-001–FR-004) — init, pre-edit, post-edit, symbol-level recall"
   - date: "2026-08-27"

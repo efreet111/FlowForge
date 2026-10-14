@@ -44,10 +44,25 @@ No tool named "tools.*" is currently available.
 ```
 
 ### Installation
-The installer should automatically detect non-local profiles and add context7:
+The installer automatically detects non-local profiles and adds context7. This applies to **both installers**:
+- C# installer: `flowforge install --ide opencode`
+- Bash installer: `bash ide/install.sh`
+
+**Profile detection logic** (in priority order):
+1. `ENGRAM_SERVER_URL` environment variable is set
+2. `ENGRAM_PROFILE` environment variable is not `"local"` (e.g., `sync`)
+3. `~/.engram/config.json` contains a `sync` configuration
+
+If any condition is met AND OpenCode is selected as an IDE, context7 is automatically installed with:
 ```bash
 opencode mcp add context7 --url https://mcp.context7.com/mcp --global
 ```
 
+**Idempotency**: The installer checks `opencode mcp list` before adding to prevent duplicate entries.
+
+**Graceful failure**: If installation fails, the installer logs a warning and continues. Manual fix instructions are provided in the troubleshooting output.
+
 See [HU-042](docs/tasks/HU-001-HU-099/HU-042-context7-mcp-auto-install.md) for implementation details.
+
+**User-facing documentation**: See [POST-INSTALL.md §2](POST-INSTALL.md#2-decide-your-sync-mode) for troubleshooting steps and manual installation instructions.
 

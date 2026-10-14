@@ -40,7 +40,7 @@ DESTINATIONS=(
 )
 
 # ── Step 1: Create destination directories ──────────────
-echo -e "\n${CYAN}[1/3] Creando directorios de configuración...${NC}"
+echo -e "\n${CYAN}[1/5] Creando directorios de configuración...${NC}"
 
 for label in "${!DESTINATIONS[@]}"; do
     dir="${DESTINATIONS[$label]}"
@@ -53,7 +53,7 @@ for label in "${!DESTINATIONS[@]}"; do
 done
 
 # ── Step 2: Deliver skills to all destinations ──────────
-echo -e "\n${CYAN}[2/3] Instalando ${SKILL_COUNT} Skills (11 core + $((SKILL_COUNT - 11)) specialized) de FlowForge...${NC}"
+echo -e "\n${CYAN}[2/5] Instalando ${SKILL_COUNT} Skills (11 core + $((SKILL_COUNT - 11)) specialized) de FlowForge...${NC}"
 
 FAILED=0
 
@@ -96,7 +96,7 @@ for label in "${!DESTINATIONS[@]}"; do
 done
 
 # ── Step 3: FlowDocs upstream skills ────────────────────
-echo -e "\n${CYAN}[3/4] Instalando FlowDocs skills (upstream)...${NC}"
+echo -e "\n${CYAN}[3/5] Instalando FlowDocs skills (upstream)...${NC}"
 
 FLOWDOC_REPO="https://github.com/crhistianmdz/FlowDocs.git"
 FLOWDOC_TMP="/tmp/flowdocs-$(date +%s)"
@@ -119,8 +119,36 @@ else
     rm -rf "$FLOWDOC_TMP" 2>/dev/null
 fi
 
-# ── Step 4: Permissions & summary ───────────────────────
-echo -e "\n${CYAN}[4/4] Configurando permisos...${NC}"
+# ── Step 4: Apply HU-045 autoinvoke config ───────────────────────
+echo -e "\n${CYAN}[4/5] HU-045: Configurando subagent-first invocation...${NC}"
+
+# This ensures skills are NOT auto-invoked by OpenCode
+# Forcing the orchestrator to use subagents instead
+HU045_APPLIED=0
+for dest_dir in "${DESTINATIONS[@]}"; do
+    if [ -d "$dest_dir" ]; then
+        for skill_file in "$dest_dir"/forge-*/SKILL.md "$dest_dir"/forge-*.md 2>/dev/null; do
+            if [ -f "$skill_file" ]; then
+                # Check if metadata.opencode/autoinvoke already exists
+                if ! grep -q "opencode/autoinvoke: false" "$skill_file"; then
+                    # Insert metadata block after the first --- line
+                    if grep -q "^---$" "$skill_file"; then
+                        sed -i '0,/^---$/a metadata:\n  opencode/autoinvoke: false  # HU-045: Disable auto-invocation to force subagent delegation' "$skill_file" 2>/dev/null
+                        HU045_APPLIED=$((HU045_APPLIED + 1))
+                    fi
+                fi
+            fi
+        done
+    fi
+done
+if [ "$HU045_APPLIED" -gt 0 ]; then
+    echo -e "   - ${GREEN}OK${NC} HU-045: $HU045_APPLIED skills configuradas con autoinvoke: false"
+else
+    echo -e "   - ${YELLOW}SKIP${NC} HU-045: skills ya tienen la configuración"
+fi
+
+# ── Step 5: Permissions & summary ───────────────────────
+echo -e "\n${CYAN}[5/5] Configurando permisos...${NC}"
 chmod +x ./install-skills.sh
 
 echo -e "\n${GREEN}====================================================${NC}"

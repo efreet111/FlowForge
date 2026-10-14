@@ -48,6 +48,10 @@ Es la base del sistema. Permite capturar el contexto de desarrollo y recuperarlo
 *   `mem_session_summary`: Al finalizar las tareas, genera un resumen estructurado con las metas, descubrimientos y archivos afectados para que el próximo agente no empiece a ciegas.
 *   `mem_session_end`: Cierra la sesión activa.
 
+### Herramientas de Relación y Contradicción:
+*   `mem_relations`: Registra relaciones entre memorias (tipo: `depends_on`, `supersedes`, `conflicts_with`, `related_to`). Útil para tracking manual de contradicciones.
+*   `mem_check_contradictions`: **[HU-036 Phase 1 — STUB]** Detecta contradicciones activas en la store. Phase 1 stub devuelve `{"contradictions": [], "phase": "stub"}`. Full implementation awaiting ENG-412/ENG-414. Para registro manual de contradicciones en Phase 1, usar `mem_relations --type conflicts_with`.
+
 ---
 
 ## 2. Colaboración & Sync (Offline-First Multi-User)
