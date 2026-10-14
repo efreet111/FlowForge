@@ -201,12 +201,22 @@ The plugin files import from `@opencode-ai/plugin` but the new API uses `@openco
 - ✅ All 3 plugins load successfully (`opencode plugin list` verified)
 - ✅ MCP engram + obsidian both connected
 - ✅ Memory tools functional (tested with `engram save` CLI)
+- ✅ HU-041 completed: `opencode-subagent-statusline` and `opencode-sdd-engram-manage` migrated to V2
 
-**Pending (AC-8):**
-- External npm plugins installed but NOT loading — they use V1 plugin format (not V2)
-- `opencode-subagent-statusline` exports V1 format: `async () => { event: ... }`
-- `opencode-sdd-engram-manage` likely same issue
-- **See HU-041** for migration of these external plugins
+**Key Fixes Applied:**
+
+| Plugin | Issue | Fix |
+|--------|-------|-----|
+| `engram.ts` | Used `ctx.directory` (V2 doesn't have) | Changed to `ctx.location?.directory ?? process.cwd()` |
+| `engram.ts` | Used `Bun.*` APIs | Changed to `node:child_process` and `node:fs` |
+| `background-agents.ts` | Used V1 API `client.session.create({ body: {...} })` | Changed to V2 `ctx.session.create({ ... })` without body wrapper |
+| `background-agents.ts` | Used `client.session.prompt()` with `path`/`body` | Changed to V2 `ctx.session.prompt({ sessionID, text })` |
+| `background-agents.ts` | Used `client.session.messages()` | Changed to V2 `ctx.session.context()` |
+| `background-agents.ts` | Used `client.session.delete()` | Changed to V2 `ctx.session.remove()` |
+| `background-agents.ts` | Used `client.app.agents()` | Changed to V2 `ctx.agent.list()` |
+| `background-agents.ts` | `compaction` hook not async | Added `async` keyword |
+
+**Reference:** [OpenCode V2 Plugin Docs](https://opencode.ai/v2/docs/build/plugins)
 
 ## Definition of Done
 
@@ -214,7 +224,7 @@ The plugin files import from `@opencode-ai/plugin` but the new API uses `@openco
 - [x] `opencode plugin list` confirms all plugins loaded
 - [x] Functional test: new session shows memory instructions in system context
 - [x] Functional test: `mem_save` call succeeds and persists
-- [ ] External plugins reinstalled (AC-8 - pending V1→V2 migration of npm plugins)
+- [x] External plugins migrated (HU-041 completed)
 - [ ] CHANGELOG entry added in FlowForge project
 
 ## FlowForge
