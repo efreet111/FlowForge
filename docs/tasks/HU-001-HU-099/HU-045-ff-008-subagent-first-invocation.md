@@ -24,7 +24,7 @@ flowforge_slug: ""
 
 Currently, when the orchestrator (reginald/flowforge) encounters a FlowForge phase (Discovery, Arch, Plan, Dev, Verify, Memory), it may load the corresponding skill inline instead of launching a subagent. This happens because:
 
-1. Skills in `~/.config/opencode/skills/forge-*/` have `description` fields
+1. Skills in `skills/forge-*/` have `description` fields
 2. OpenCode V2 auto-advertises skills with descriptions to the model
 3. The model chooses skill loading (more efficient) over subagent creation
 4. Result: Inline execution instead of isolated subagent sessions
@@ -146,13 +146,13 @@ metadata:
 ### Installation Script Integration
 
 ```bash
-# In install-skills.sh, add:
-for skill_dir in ~/.config/opencode/skills/forge-*; do
-  if [ -f "$skill_dir/SKILL.md" ]; then
+# In install-skills.sh, after copying skills to destination dirs:
+for skill_file in "$DEST_DIR"/forge-*/SKILL.md "$DEST_DIR"/forge-*.md 2>/dev/null; do
+  if [ -f "$skill_file" ]; then
     # Ensure metadata.opencode/autoinvoke: false exists
-    if ! grep -q "autoinvoke: false" "$skill_dir/SKILL.md"; then
+    if ! grep -q "autoinvoke: false" "$skill_file"; then
       # Insert after first --- line
-      sed -i '/^---$/a metadata:\n  opencode/autoinvoke: false' "$skill_dir/SKILL.md"
+      sed -i '/^---$/a metadata:\n  opencode/autoinvoke: false' "$skill_file"
     fi
   fi
 done
@@ -164,7 +164,7 @@ done
 
 - **Related to**: HU-021 (adopt-flowdocs-skills), HU-027 (agent-quality-improvement)
 - **OpenCode V2 docs**: Skills with `description` are auto-advertised unless `metadata.opencode/autoinvoke: false`
-- **Reference**: `~/.config/opencode/docs/opencode-agents-skills-config.md` — Previous learning about skills vs subagents
+- **Reference**: `docs/opencode-agents-skills-config.md` (engram) — Previous learning about skills vs subagents
 
 > ⚠️ **Why Option C over Option A or B?**
 > - Option A (remove skills[]): Breaks direct-skill workflows for users who want single-model local usage
