@@ -239,6 +239,45 @@ copy_skills() {
     success "Installed $skill_count skills."
 }
 
+# ── Copy agents (stripping hardcoded models) ─────────────────────────────────
+copy_agents() {
+    local dest="$IDE_PATH"
+    local agent_count=0
+    local agents_src="$REPO_ROOT/ide/opencode/agents"
+
+    # Only for opencode IDE
+    if [[ "$IDE_SELECTED" != "opencode" ]]; then
+        info "Agent copying skipped for $IDE_SELECTED."
+        return 0
+    fi
+
+    if [[ ! -d "$agents_src" ]]; then
+        warn "Agents source directory not found: $agents_src"
+        return 0
+    fi
+
+    info "Installing FlowForge agents to: $dest/agents (models will be stripped)"
+
+    mkdir -p "$dest/agents" 2>/dev/null || true
+
+    for agent_file in "$agents_src"/*.md; do
+        if [[ -f "$agent_file" ]]; then
+            local agent_name
+            agent_name="$(basename "$agent_file")"
+            local target_file="$dest/agents/$agent_name"
+
+            # Copy and strip model: line from frontmatter
+            sed '/^model:/d' "$agent_file" > "$target_file"
+
+            if [[ -f "$target_file" ]]; then
+                agent_count=$((agent_count+1))
+            fi
+        fi
+    done
+
+    success "Installed $agent_count agents (model lines stripped)."
+}
+
 # ── Merge AGENTS.md ───────────────────────────────────────────────────────────
 merge_agents_md() {
     local agents_md="$IDE_PATH/AGENTS.md"
@@ -313,6 +352,7 @@ run_non_interactive() {
     check_prereqs
     do_backup
     copy_skills
+    copy_agents
     merge_agents_md
 
     echo ""
@@ -358,6 +398,7 @@ main() {
 
         do_backup
         copy_skills
+        copy_agents
         merge_agents_md
 
         echo ""
