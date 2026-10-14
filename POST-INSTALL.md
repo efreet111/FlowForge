@@ -95,6 +95,20 @@ See [ADR-016](docs/decisions/ADR-016-update-mechanism-by-component.md) for archi
 `flowforge install` but did not configure a remote URL, the server will print
 a warning at startup (see step 4).
 
+### ⚠️ Important: context7 MCP for non-local profiles
+
+When using **non-local profiles** (sync/remote mode), OpenCode requires the `context7` MCP server as a prerequisite for remote MCP connections to work properly. This affects all remote MCP servers.
+
+**Auto-installed by FlowForge** (v0.1.0-alpha.14+):
+The `flowforge install --ide opencode` command automatically detects non-local profiles and installs `context7` for you.
+
+**If you see "No tool named 'tools.*' available"** despite having MCP servers configured:
+```bash
+# Manual fix — install context7 MCP
+opencode mcp add context7 --url https://mcp.context7.com/mcp --global
+opencode mcp list  # Verify it shows "✓ context7  connected"
+```
+
 ---
 
 ## 3. Configure the sync target (sync mode only)
@@ -219,6 +233,7 @@ Expected: a row with the saved content appears.
 | `Mutation transport failed with status 501` every 30ms in logs | Self-loop (no `ENGRAM_SERVER_URL` set) — **fixed in v0.4.0+**, warning should appear instead | Update binary (step 1) or set `ENGRAM_SYNC_ENABLED=false` |
 | Stale binary after FlowForge update | Component update available | Run `flowforge update --component engram` (v0.1.0-alpha.13+) or manual update via step 1 |
 | Memory not visible from team | Server not running, or different `ENGRAM_USER` | Check `engram doctor` and verify `ENGRAM_USER` matches |
+| `No tool named "tools.*" available` with sync profile | Missing `context7` MCP server (required for remote MCP) | Run `opencode mcp add context7 --url https://mcp.context7.com/mcp --global` |
 
 ---
 

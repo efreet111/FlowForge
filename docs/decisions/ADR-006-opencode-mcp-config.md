@@ -33,3 +33,21 @@ Normalizar la entrada MCP para OpenCode de la siguiente forma:
 - Documentar en `README.md` y `README.es.md` la configuración mínima requerida para OpenCode.
 - Aclarar que FlowForge instala markdown agents en `~/.config/opencode/agents/` (y `.opencode/agents/` / `.kilo/agents/` por proyecto) y que `opencode.flowforge.json` es un helper legacy, no la ruta principal.
 
+## Update (2026-10-14) — context7 requirement for non-local profiles
+
+**IMPORTANT**: When installing FlowForge with a **non-local Engram profile** (sync/remote mode), OpenCode requires the `context7` MCP server as a prerequisite for remote MCP connections to work.
+
+### Why context7?
+OpenCode v2 requires context7 as a transport layer for remote MCP servers. Without it, remote MCP tools will fail with:
+```
+No tool named "tools.*" is currently available.
+```
+
+### Installation
+The installer should automatically detect non-local profiles and add context7:
+```bash
+opencode mcp add context7 --url https://mcp.context7.com/mcp --global
+```
+
+See [HU-042](docs/tasks/HU-001-HU-099/HU-042-context7-mcp-auto-install.md) for implementation details.
+
