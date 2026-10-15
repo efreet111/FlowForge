@@ -148,9 +148,9 @@ public sealed class OpenCodeConfigGenerator
             ffObj["model"] = preservedPaidModel;
         }
 
-        var engramNode = GetNodeAtPath(template, "mcp.engram");
+        var engramNode = GetNodeAtPath(template, "mcp.servers.engram");
         if (engramNode is not null)
-            SetValueAtPath(target, "mcp.engram", DeepCopy(engramNode));
+            SetValueAtPath(target, "mcp.servers.engram", DeepCopy(engramNode));
 
         return target;
     }

@@ -71,7 +71,7 @@ merged="$(jq -n \
   | .skills = $new.skills
   | .default_agent = $new.default_agent
   | .permissions = $new.permissions
-  | .mcp = (.mcp // {}) | .mcp["engram"] = $new.mcp["engram"]
+  | .mcp = (.mcp // {}) | .mcp["servers"] = ((.mcp["servers"]) // {}) | .mcp["servers"]["engram"] = $new.mcp["servers"]["engram"]
   | .providers = ((.providers // {}) + ($new.providers // {}))
   | .[$schema_key] = $new[$schema_key]
 '

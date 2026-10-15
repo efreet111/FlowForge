@@ -234,15 +234,13 @@ public sealed class EngramModule(InstallerContext ctx)
                 env["ENGRAM_SERVER_URL"] = syncUrl;
             }
 
-            // Build engram MCP entry as JsonNode
-            // OpenCode requires "type": "local" (not "stdio") and "enabled": true
+            // Build engram MCP entry as JsonNode (OpenCode V2 format)
             var engramNode = new System.Text.Json.Nodes.JsonObject
             {
                 ["type"]    = "local",
-                ["enabled"] = true,
                 ["command"] = new System.Text.Json.Nodes.JsonArray(
                     PathHelper.EngramBinary, "mcp"),
-                ["environment"] = new System.Text.Json.Nodes.JsonObject()
+                ["env"] = new System.Text.Json.Nodes.JsonObject()
                 {
                     ["ENGRAM_DATA_DIR"]     = dataDir,
                     ["ENGRAM_USER"]         = user,
@@ -251,7 +249,7 @@ public sealed class EngramModule(InstallerContext ctx)
             };
             if (syncEnabled && !string.IsNullOrWhiteSpace(syncUrl))
             {
-                ((System.Text.Json.Nodes.JsonObject)engramNode["environment"]!)
+                ((System.Text.Json.Nodes.JsonObject)engramNode["env"]!)
                     ["ENGRAM_SERVER_URL"] = syncUrl;
             }
 
@@ -261,7 +259,13 @@ public sealed class EngramModule(InstallerContext ctx)
                 mcpNode = new System.Text.Json.Nodes.JsonObject();
                 node["mcp"] = mcpNode;
             }
-            mcpNode["engram"] = engramNode;
+            // Get or create mcp.servers section (V2 format)
+            if (mcpNode["servers"] is not System.Text.Json.Nodes.JsonObject serversNode)
+            {
+                serversNode = new System.Text.Json.Nodes.JsonObject();
+                mcpNode["servers"] = serversNode;
+            }
+            serversNode["engram"] = engramNode;
 
             // Serialize back
             var json = node.ToJsonString(
@@ -282,18 +286,17 @@ public sealed class EngramModule(InstallerContext ctx)
                 return false;
 
             var managed = JsonSerializer.Deserialize<string[]>(File.ReadAllText(sidecarPath));
-            if (managed == null || !managed.Contains("mcp.engram", StringComparer.OrdinalIgnoreCase))
+            if (managed == null || !managed.Contains("mcp.servers.engram", StringComparer.OrdinalIgnoreCase))
                 return false;
 
             var configText = File.ReadAllText(configPath);
             var node = JsonNode.Parse(configText);
-            var engram = node?["mcp"]?["engram"];
+            var engram = node?["mcp"]?["servers"]?["engram"];
             if (engram is not JsonObject engramNode)
                 return false;
 
             var type = engramNode["type"]?.GetValue<string>() ?? string.Empty;
-            var enabled = engramNode["enabled"]?.GetValue<bool>() ?? false;
-            if (string.Equals(type, "local", StringComparison.OrdinalIgnoreCase) && enabled)
+            // V2 format: engram exists and is local type
             {
                 AnsiConsole.MarkupLine("[grey]⋯[/] OpenCode MCP already configured by OpenCodeConfigGenerator; skipping merge.");
                 return true;

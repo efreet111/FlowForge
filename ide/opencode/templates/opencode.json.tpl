@@ -331,15 +331,16 @@
     { "action": "read", "resource": "*.env.*", "effect": "deny" }
   ],
   "mcp": {
-    "engram": {
-      "type": "local",
-      "enabled": true,
-      "command": "$FLOWFORGE_ENGRAM_BIN",
-      "environment": {
-        "ENGRAM_USER": "$USER"
-      },
-      "options": {
-        "data_dir": "$FLOWFORGE_REPO/.engram"
+    "servers": {
+      "engram": {
+        "type": "local",
+        "command": ["$FLOWFORGE_ENGRAM_BIN"],
+        "env": {
+          "ENGRAM_USER": "$USER"
+        },
+        "options": {
+          "data_dir": "$FLOWFORGE_REPO/.engram"
+        }
       }
     }
   }
