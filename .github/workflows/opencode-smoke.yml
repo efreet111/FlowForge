@@ -37,7 +37,7 @@ jobs:
       - name: Lint SKILL.md completeness (Layer 1 — item 22)
         run: |
           FAIL=0
-          for skill in forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher forge-orchestrator; do
+          for skill in forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher flowforge; do
             f="skills/$skill/SKILL.md"
             if [ ! -f "$f" ]; then
               echo "ERROR: Missing $f"

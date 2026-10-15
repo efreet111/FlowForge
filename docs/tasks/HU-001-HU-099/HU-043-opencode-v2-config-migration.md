@@ -1,12 +1,13 @@
 ---
 hu_id: HU-043
 title: "MIGRATION: OpenCode v2 config format (opencode.json V1→V2)"
-status: todo
+status: done
 category: maintenance
 flowforge_slug: "opencode-v2-config-migration"
 priority: P0
 severity: critical
 created_date: 2026-10-14
+completed_date: 2026-10-14
 ---
 
 # HU-043 — MIGRATION: OpenCode v2 config format (opencode.json V1→V2)
@@ -140,18 +141,47 @@ Model references should use `provider/model-id` format, not placeholders like `_
 
 ## Implementation Tasks
 
-- [ ] Rewrite `ide/opencode/templates/opencode.json.tpl` with V2 format
-- [ ] Update `ide/opencode/generate-config.sh` field mappings
-- [ ] Update C# `OpenCodeConfigGenerator` if applicable
-- [ ] Add JSON schema validation test
-- [ ] Test generated config with OpenCode v2
-- [ ] Update documentation (opencode-installer.md)
+- [x] Rewrite `ide/opencode/templates/opencode.json.tpl` with V2 format
+- [x] Update `ide/opencode/generate-config.sh` field mappings
+- [x] Update C# `OpenCodeConfigGenerator` if applicable
+- [x] Add JSON schema validation test
+- [x] Test generated config with OpenCode v2
+- [x] Update documentation (opencode-installer.md)
+
+## Completion Summary
+
+- **Status**: PASS (verified via @forge-verify)
+- **FR Coverage**: 13/13 ✅
+- **AC Coverage**: 14/14 ✅
+- **Tests**: 245/245 green
+- **Rework Cycles**: 3 (naming unification, managed-paths.json, skill permissions)
+- **Key Changes**: 
+  - `forge-orchestrator` → `flowforge` naming unified across 9+ files
+  - Added `skills` array, `default_agent`, `skill` permissions
+  - Migrated to V2 format: `agents`, `permissions[]`, `system`, `providers`
+- **Open Issues**: 
+  - `validate-agent-models.sh` has pre-existing bug (model schema mismatch)
+  - Cross-IDE naming consistency decision pending
+
+## Artifacts
+
+- `.ai-work/opencode-v2-config-migration/spec.md` - Specification
+- `.ai-work/opencode-v2-config-migration/plan.md` - Implementation plan
+- `.ai-work/opencode-v2-config-migration/verify-report.md` - Verification report
+- `.ai-work/opencode-v2-config-migration/context-map.md` - Patterns and edge cases
 
 ## Related
 
 - HU-040 (Plugin V1→V2 migration)
 - HU-041 (NPM plugins V1→V2 migration)
 - ADR-006 (OpenCode MCP config)
+
+## Open Investigation
+
+- **Topic**: OpenCode v2 subagent model selection undocumented
+- **Finding**: OpenCode v2 documentation does not explain how subagent models are selected or where reported model name comes from
+- **Docs Gap**: Only states "uses configured model or inherits parent session model" - no further detail
+- **Status**: Under investigation (2026-10-14)
 
 ## References
 

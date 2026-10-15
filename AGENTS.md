@@ -108,8 +108,8 @@ Load these on-demand when the context demands domain expertise. The core skills 
 
 | Trigger | Skill | Cycle | Output path |
 |---------|-------|-------|-------------|
-| Create/update HU | `flowdoc-hu` | Direct (forge-orchestrator → flowdoc-hu) | `docs/tasks/HU-001-HU-099/HU-NNN.md` |
-| Create PRD | `flowdoc-assist` → `flowdoc-prd` | Delegated (forge-orchestrator → flowdoc-assist) | `docs/PRD.md` |
+| Create/update HU | `flowdoc-hu` | Direct (flowforge → flowdoc-hu) | `docs/tasks/HU-001-HU-099/HU-NNN.md` |
+| Create PRD | `flowdoc-assist` → `flowdoc-prd` | Delegated (flowforge → flowdoc-assist) | `docs/PRD.md` |
 | Create product ADR | `flowdoc-assist` → `flowdoc-adr` | Delegated | `docs/architecture/adr/` |
 | Create RFC | `flowdoc-assist` → `flowdoc-rfc` | Delegated | `docs/architecture/rfc/` |
 | Document API | `flowdoc-assist` → `flowdoc-api` | Delegated | `docs/endpoints.md` |
