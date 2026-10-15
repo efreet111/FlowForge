@@ -55,7 +55,7 @@ Legacy `.cursorrules` in the repo root is **deprecated** in favor of `.mdc` rule
 
 ## 3. OpenCode (primary origin of this project)
 
-`ide/install.sh` copies the bundle directly into `~/.config/opencode/agents/` and `~/.config/opencode/commands/`, and patches `opencode.json`/`.jsonc` with `mcp.engram.type = "local"` plus `enabled: true`. `opencode.flowforge.json` and `~/.config/opencode/flowforge/` remain available for migrating legacy installs, but FlowForge now prefers writing straight into the `agents/` directory.
+`ide/install.sh` copies the bundle directly into `~/.config/opencode/agents/` and `~/.config/opencode/commands/`, and patches `opencode.json`/`.jsonc` with `mcp.servers.engram.type = "local"` (V2 format). `opencode.flowforge.json` and `~/.config/opencode/flowforge/` remain available for migrating legacy installs, but FlowForge now prefers writing straight into the `agents/` directory.
 
 Typical smoke after Linux setup:
 

@@ -66,3 +66,41 @@ See [HU-042](docs/tasks/HU-001-HU-099/HU-042-context7-mcp-auto-install.md) for i
 
 **User-facing documentation**: See [POST-INSTALL.md §2](POST-INSTALL.md#2-decide-your-sync-mode) for troubleshooting steps and manual installation instructions.
 
+## Update (2026-10-15) — V2 MCP structure (`mcp.servers`)
+
+**BREAKING CHANGE**: OpenCode V2 requires MCP servers to be nested under `mcp.servers` instead of `mcp.{server}`.
+
+### Old format (V1)
+```jsonc
+"mcp": {
+  "engram": { "type": "local", "command": [...] }
+}
+```
+
+### New format (V2)
+```jsonc
+"mcp": {
+  "servers": {
+    "engram": { "type": "local", "command": [...] }
+  }
+}
+```
+
+### Additional V2 fields
+- `command` as array: `["engram", "mcp"]` instead of `"engram mcp"` string
+- `env` instead of `environment`
+- `enabled` field removed (presence of server implies enabled)
+
+### Migration
+The installer (both C# and Bash) now generates V2-compliant MCP configuration. Users with existing configurations should run:
+```bash
+flowforge install --ide opencode
+```
+
+Or regenerate via:
+```bash
+bash ide/opencode/generate-config.sh /path/to/flowforge
+```
+
+See [HU-046](docs/tasks/HU-001-HU-099/HU-046-opencode-v2-legacy-compat.md) for implementation details.
+

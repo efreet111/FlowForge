@@ -66,7 +66,7 @@ Los agents OpenCode **referencian** skills por ruta relativa (`skills/forge-dev/
 
 1. Elegir agente **`flowforge`** (no `build`).
 2. Escribir **`/`** → listar `flow-start`, etc.
-3. MCP Engram: `opencode.json` con `mcp.engram.type = "local"` (ver ADR-006).
+3. MCP Engram: `opencode.json` con `mcp.servers.engram.type = "local"` (ver ADR-006).
 
 ---
 
