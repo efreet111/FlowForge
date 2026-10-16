@@ -79,7 +79,7 @@ validate_file() {
   }
 
   # Check required agent keys separately (simpler jq)
-  for agent in flowforge forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher default; do
+  for agent in forge-orchestrator forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher default; do
     if ! jq -e ".agents[\"$agent\"]" "$file" >/dev/null 2>&1; then
       echo "[$ide] FAIL: Missing agent key '$agent' in $file"
       file_errors=$((file_errors + 1))

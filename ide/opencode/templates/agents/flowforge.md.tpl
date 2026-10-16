@@ -2,25 +2,12 @@
 description: FlowForge Orchestrator — 6 fases, 7 agentes. Coordina el flujo CKP-0 → CKP-4.
 mode: primary
 model: __FLOWFORGE_MODEL__
-permissions:
-  - action: edit
-    resource: "*"
-    effect: allow
-  - action: write
-    resource: "*"
-    effect: allow
-  - action: read
-    resource: "*"
-    effect: allow
-  - action: shell
-    resource: "*"
-    effect: allow
-  - action: subagent
-    resource: "*"
-    effect: allow
-  - action: skill
-    resource: "*"
-    effect: allow
+permission:
+  edit: allow
+  write: allow
+  read: allow
+  bash: allow
+  task: allow
 ---
 
 # FlowForge Orchestrator

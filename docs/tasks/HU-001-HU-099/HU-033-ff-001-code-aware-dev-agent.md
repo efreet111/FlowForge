@@ -1,7 +1,7 @@
 ---
 hu_id: HU-033
 title: "Code-Aware Dev Agent"
-status: done
+status: draft
 category: feature
 flowforge_slug: "hu-033-code-aware-dev-agent"
 ---
@@ -12,12 +12,12 @@ flowforge_slug: "hu-033-code-aware-dev-agent"
 As a development team, I want the Dev agent to have access to our project's code-context memory, so that it produces code consistent with our existing architectural decisions, team conventions, and design patterns without re-deriving the same decisions repeatedly.
 
 ## Acceptance Criteria (business-level)
-- [x] AC-1: Dev agent loads relevant project context at initialization before generating code
-- [x] AC-2: Dev agent surfaces relevant memories before editing existing files
-- [x] AC-3: Dev agent offers to capture code changes as memories after successful edits
-- [x] AC-4: Dev agent queries symbol-level context when modifying classes or functions
-- [ ] AC-5: Team reports measurable reduction in time spent correcting Dev agent output (pendiente — se evalúa en uso real)
-- [ ] AC-6: Team trusts the Dev agent with our codebase (pendiente — se evalúa en uso real)
+- [ ] AC-1: Dev agent loads relevant project context at initialization before generating code
+- [ ] AC-2: Dev agent surfaces relevant memories before editing existing files
+- [ ] AC-3: Dev agent offers to capture code changes as memories after successful edits
+- [ ] AC-4: Dev agent queries symbol-level context when modifying classes or functions
+- [ ] AC-5: Team reports measurable reduction in time spent correcting Dev agent output
+- [ ] AC-6: Team trusts the Dev agent with our codebase
 
 ## Scenarios (SDD Spec)
 ### Happy Path
@@ -80,13 +80,13 @@ A Dev agent without project memory is essentially a smarter autocomplete—it ca
 - **Status**: BLOCKED
 
 ## Definition of Done
-- [x] Dev agent initializes with `mem_recall_for_module` context
-- [x] Pre-edit hook queries `mem_recall_for_file` and surfaces memories
-- [x] Post-edit hook offers `mem_capture` for code changes
-- [x] Symbol-level recall via `mem_recall_for_symbol` integrated
-- [ ] Team validates consistency with existing design decisions (pendiente — uso real)
-- [ ] Measurable reduction in correction time demonstrated (pendiente — uso real)
-- [ ] User trust survey shows improvement (pendiente — uso real)
+- [ ] Dev agent initializes with `mem_recall_for_module` context
+- [ ] Pre-edit hook queries `mem_recall_for_file` and surfaces memories
+- [ ] Post-edit hook offers `mem_capture` for code changes
+- [ ] Symbol-level recall via `mem_recall_for_symbol` integrated
+- [ ] Team validates consistency with existing design decisions
+- [ ] Measurable reduction in correction time demonstrated
+- [ ] User trust survey shows improvement
 
 ## FlowForge
 > This section is managed by FlowForge agents. Do not edit manually.

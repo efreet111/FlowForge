@@ -1,300 +1,136 @@
+/* Source: https://opencode.ai/config.json (fallback cache) - retrieved 2026-07-13 */
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "FlowForge OpenCode V2 Configuration",
-  "description": "Schema derived from OpenCode V2 official documentation (https://opencode.ai/v2/docs/config/)",
+  "title": "FlowForge OpenCode configuration",
+  "description": "Simplified schema derived from OpenCode's published config reference for FlowForge-managed instals.",
   "type": "object",
   "properties": {
     "$schema": { "type": "string" },
-    "default_agent": {
-      "type": "string",
-      "description": "Primary agent used when session has no selection"
+    "instructions": {
+      "type": "array",
+      "items": { "type": "string" }
     },
-    "agents": {
+    "agent": {
       "type": "object",
       "additionalProperties": {
         "$ref": "#/definitions/agentDefinition"
       }
     },
-    "providers": {
+    "provider": {
       "type": "object",
       "additionalProperties": {
         "$ref": "#/definitions/providerDefinition"
       }
     },
-    "permissions": {
-      "type": "array",
-      "description": "Ordered rules for allow/deny/ask",
-      "items": {
-        "type": "object",
-        "properties": {
-          "action": { "type": "string" },
-          "resource": { "type": "string" },
-          "effect": { "enum": ["allow", "deny", "ask"] }
-        },
-        "required": ["action", "resource", "effect"]
-      }
+    "permission": {
+      "$ref": "#/definitions/permissionBlock"
     },
     "mcp": {
       "type": "object",
       "properties": {
-        "servers": {
-          "type": "object",
-          "additionalProperties": {
-            "$ref": "#/definitions/mcpServer"
-          }
+        "engram": {
+          "$ref": "#/definitions/mcpEngram"
         }
-      }
-    },
-    "plugins": {
-      "type": "array",
-      "description": "Plugin packages or local directories",
-      "items": {
-        "oneOf": [
-          { "type": "string" },
-          {
-            "type": "object",
-            "properties": {
-              "package": { "type": "string" },
-              "options": { "type": "object" }
-            }
-          }
-        ]
-      }
-    },
-    "skills": {
-      "type": "array",
-      "description": "Directories or URLs for agent skills",
-      "items": { "type": "string" }
-    },
-    "instructions": {
-      "type": "array",
-      "description": "Instruction files, globs, or HTTP URLs",
-      "items": { "type": "string" }
-    },
-    "model": {
-      "type": "string",
-      "description": "Default model in provider/model format"
-    },
-    "shell": {
-      "type": "string",
-      "description": "Shell for terminal and shell tools"
-    },
-    "update": {
-      "type": "string",
-      "enum": ["auto", "notify", "disable"]
-    },
-    "username": { "type": "string" },
-    "watcher": {
-      "type": "object",
-      "properties": {
-        "ignore": {
-          "type": "array",
-          "items": { "type": "string" }
-        }
-      }
-    },
-    "formatter": {
-      "oneOf": [
-        { "type": "boolean" },
-        { "type": "object" }
-      ]
-    },
-    "media": {
-      "type": "object",
-      "properties": {
-        "image": {
-          "type": "object",
-          "properties": {
-            "auto_resize": { "type": "boolean" },
-            "max_width": { "type": "integer" },
-            "max_height": { "type": "integer" },
-            "max_base64_bytes": { "type": "integer" }
-          }
-        }
-      }
-    },
-    "tool_output": {
-      "type": "object",
-      "properties": {
-        "max_lines": { "type": "integer" },
-        "max_bytes": { "type": "integer" }
-      }
-    },
-    "compaction": {
-      "type": "object",
-      "properties": {
-        "auto": { "type": "boolean" },
-        "keep": {
-          "type": "object",
-          "properties": {
-            "tokens": { "type": "integer" }
-          }
-        },
-        "buffer": { "type": "integer" }
-      }
-    },
-    "commands": {
-      "type": "object",
-      "additionalProperties": {
-        "type": "object",
-        "properties": {
-          "description": { "type": "string" },
-          "template": { "type": "string" },
-          "agent": { "type": "string" },
-          "model": { "type": "string" }
-        }
-      }
-    },
-    "snapshots": { "type": "boolean" },
-    "policies": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "action": { "type": "string" },
-          "resource": { "type": "string" },
-          "effect": { "enum": ["allow", "deny"] }
-        }
-      }
-    },
-    "disabled_providers": {
-      "type": "array",
-      "items": { "type": "string" }
-    },
-    "enabled_providers": {
-      "type": "array",
-      "items": { "type": "string" }
-    },
-    "experimental": {
-      "type": "object"
+      },
+      "required": ["engram"],
+      "additionalProperties": true
     }
   },
+  "required": ["$schema", "instructions", "agent", "provider", "permission", "mcp"],
   "additionalProperties": true,
   "definitions": {
     "agentDefinition": {
       "type": "object",
       "properties": {
         "description": { "type": "string" },
-        "mode": {
-          "type": "string",
-          "enum": ["primary", "subagent", "all"]
-        },
+        "mode": { "type": "string" },
         "hidden": { "type": "boolean" },
-        "disabled": { "type": "boolean" },
         "model": { "type": "string" },
-        "system": { "type": "string" },
-        "permissions": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "properties": {
-              "action": { "type": "string" },
-              "resource": { "type": "string" },
-              "effect": { "enum": ["allow", "deny", "ask"] }
-            },
-            "required": ["action", "resource", "effect"]
-          }
-        },
-        "steps": {
-          "type": "integer",
-          "description": "Max agent steps"
-        },
-        "color": { "type": "string" },
+        "permission": { "$ref": "#/definitions/agentPermission" },
+        "prompt": { "type": "string" },
         "skills": {
           "type": "array",
           "items": { "type": "string" }
         },
-        "request": {
+        "tools": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      },
+      "required": ["mode", "model"],
+      "additionalProperties": true
+    },
+    "agentPermission": {
+      "type": "object",
+      "properties": {
+        "edit": { "enum": ["allow", "deny"] },
+        "write": { "enum": ["allow", "deny"] },
+        "read": { "enum": ["allow", "deny"] },
+        "bash": { "enum": ["allow", "deny"] },
+        "task": { "enum": ["allow", "deny"] }
+      },
+      "additionalProperties": true
+    },
+    "permissionBlock": {
+      "type": "object",
+      "properties": {
+        "bash": {
           "type": "object",
           "properties": {
-            "headers": { "type": "object" },
-            "body": { "type": "object" }
-          }
+            "allow": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "deny": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "required": ["allow", "deny"],
+          "additionalProperties": false
+        },
+        "read": {
+          "type": "object",
+          "properties": {
+            "allow": {
+              "type": "array",
+              "items": { "type": "string" }
+            },
+            "deny": {
+              "type": "array",
+              "items": { "type": "string" }
+            }
+          },
+          "required": ["allow", "deny"],
+          "additionalProperties": false
         }
-      }
+      },
+      "required": ["bash", "read"],
+      "additionalProperties": true
     },
     "providerDefinition": {
       "type": "object",
       "properties": {
-        "name": { "type": "string" },
-        "env": {
+        "api": { "type": "string" },
+        "npm": { "type": "string" },
+        "models": {
           "type": "array",
           "items": { "type": "string" }
-        },
-        "package": { "type": "string" },
-        "canonical": { "type": "string" },
-        "compatibility": { "type": "object" },
-        "settings": { "type": "object" },
-        "headers": { "type": "object" },
-        "body": { "type": "object" },
-        "models": {
-          "type": "object",
-          "additionalProperties": {
-            "type": "object",
-            "properties": {
-              "modelID": { "type": "string" },
-              "name": { "type": "string" },
-              "family": { "type": "string" },
-              "package": { "type": "string" },
-              "settings": { "type": "object" },
-              "headers": { "type": "object" },
-              "body": { "type": "object" },
-              "capabilities": { "type": "object" },
-              "compatibility": { "type": "object" },
-              "variants": {
-                "type": "array",
-                "items": { "type": "object" }
-              },
-              "cost": {
-                "type": "object",
-                "properties": {
-                  "input": { "type": "number" },
-                  "output": { "type": "number" },
-                  "cache": { "type": "number" }
-                }
-              },
-              "limit": {
-                "type": "object",
-                "properties": {
-                  "context": { "type": "integer" },
-                  "input": { "type": "integer" },
-                  "output": { "type": "integer" }
-                }
-              },
-              "disabled": { "type": "boolean" }
-            }
-          }
         }
-      }
+      },
+      "required": ["api", "npm", "models"],
+      "additionalProperties": true
     },
-    "mcpServer": {
+    "mcpEngram": {
       "type": "object",
       "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["local", "remote"]
-        },
-        "command": {
-          "oneOf": [
-            { "type": "string" },
-            { "type": "array", "items": { "type": "string" } }
-          ]
-        },
-        "args": {
-          "type": "array",
-          "items": { "type": "string" }
-        },
-        "env": {
-          "type": "object"
-        },
-        "url": { "type": "string" },
-        "headers": {
-          "type": "object"
-        },
-        "disabled": { "type": "boolean" },
+        "type": { "type": "string" },
         "enabled": { "type": "boolean" },
-        "timeout": { "type": "integer" }
-      }
+        "command": { "type": "string" },
+        "environment": { "type": "object" }
+      },
+      "required": ["type", "enabled", "command"],
+      "additionalProperties": true
     }
   }
 }

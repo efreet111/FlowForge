@@ -1,7 +1,7 @@
 ---
 hu_id: HU-036
 title: "Contradiction Detection in Memory Store"
-status: done
+status: draft
 category: feature
 flowforge_slug: "hu-036-contradiction-detection"
 ---
@@ -95,39 +95,8 @@ From the spec:
 > This section is managed by FlowForge agents. Do not edit manually.
 - HU status lifecycle: `draft` → `in-progress` → `done`
 - Status is updated by forge-memory at `/flow-close`
-- **Phase 1/Phase 2 split** (2026-10-08): Phase 1 unblocked — manual contradiction tracking + stub tool
-- **Rework v2** (2026-10-14): Full restart from CKP-0 — new FlowForge-layer surfacing approach
-
-### Rework v2 (2026-10-14) — IN PROGRESS
-- **Approach**: FlowForge-layer surfacing (does NOT depend on engram-dotnet surfacing in mem_search)
-- **Context Map**: `.ai-work/hu-036-contradiction-detection/context-map.md`
-- **Spec**: `.ai-work/hu-036-contradiction-detection/spec.md`
-- **Plan**: `.ai-work/hu-036-contradiction-detection/plan.md`
-
-#### Tareas Implementadas (Rework v2)
-- [x] T-001: `skills/forge-memory/SKILL.md` — updated to v1.3.0, contradiction check section
-- [x] T-002: `skills/forge-memory-contradiction/SKILL.md` — refactored to v2.0.0, FlowForge-layer approach
-- [x] T-003: `skills/forge-memory-contradiction/contradiction-resolver.md` — updated header for v2
-- [ ] T-004: HU-036 documentation updated (en progreso)
-
-### Previous Implementation (Pre-Rework)
-#### Phase 1 (2026-10-08) — CKP-4 CLOSED
-- [x] T-005: `skills/forge-memory-contradiction/SKILL.md` — contradiction detection + curation skill
-- [x] T-006: `skills/forge-memory-contradiction/contradiction-resolver.md` — resolution workflow
-- [x] T-007: `skills/forge-memory/SKILL.md` — contradiction surfacing at session close
-- [x] T-008: Session close flow — `mem_check_contradictions` call at close
-- [x] T-009: HU-036 updated with Phase 1/Phase 2 status
-- [x] T-010: `docs/12-engram-tool-reference.md` — `mem_check_contradictions` stub entry
-- [x] T-011: PM-1 through PM-4 manual test cases added to spec.md
-
-### Phase 2 (Deferred — blocked on ENG-412/414)
-- [BLOCKED] T-012: Embedding-based similarity detection (ENG-412)
-- [BLOCKED] T-013: Contradiction heuristics engine (ENG-414)
-- [BLOCKED] T-014: Schema evolution for temporal fields (ENG-416)
-- [BLOCKED] T-015: Embedding service integration (ENG-418)
-- [BLOCKED] T-016: Auto-mark supersedence with confidence threshold
-- [BLOCKED] T-017: Cron-triggered periodic detection
-- [BLOCKED] T-018: LLM-as-Judge for ambiguous cases
+- Blocked by: ENG-412, ENG-414, ENG-416, ENG-418 (engram-dotnet)
+- After unblock: Effort drops from XL to M
 
 ---
 

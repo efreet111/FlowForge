@@ -22,16 +22,17 @@ public class OpenCodeConfigGeneratorTests
         Assert.True(root.TryGetProperty("instructions", out var instructions));
         Assert.Equal("./flowforge/AGENTS.md", instructions[0].GetString());
 
-        Assert.True(root.TryGetProperty("agents", out var agents));
+        Assert.True(root.TryGetProperty("agent", out var agents));
         Assert.True(agents.TryGetProperty("flowforge", out var flowforge));
         Assert.Equal("opencode-zen/big-pickle", flowforge.GetProperty("model").GetString());
 
-        Assert.True(root.TryGetProperty("providers", out var providers));
-        Assert.True(providers.TryGetProperty("opencode-zen", out var zen));
-        Assert.Equal("https://opencode.ai/zen/v1", zen.GetProperty("settings").GetProperty("baseURL").GetString());
+        Assert.True(root.TryGetProperty("provider", out var provider));
+        Assert.True(provider.TryGetProperty("opencode-zen", out var zen));
+        Assert.Equal("https://opencode.ai/zen/v1", zen.GetProperty("api").GetString());
 
-        Assert.True(root.TryGetProperty("permissions", out var permissions));
-        Assert.Equal(JsonValueKind.Array, permissions.ValueKind);
+        Assert.True(root.TryGetProperty("permission", out var permission));
+        Assert.True(permission.TryGetProperty("bash", out _));
+        Assert.True(permission.TryGetProperty("read", out _));
 
         Assert.True(root.TryGetProperty("mcp", out var mcp));
         Assert.True(mcp.TryGetProperty("engram", out var engram));
@@ -48,7 +49,7 @@ public class OpenCodeConfigGeneratorTests
         generator.GenerateOrMerge(workspace.ConfigPath, workspace.TemplatesDir, workspace.AgentModelsPath, workspace.ManagedPathsPath, workspace.SidecarPath);
 
         var root = JsonDocument.Parse(File.ReadAllText(workspace.ConfigPath)).RootElement;
-        var model = root.GetProperty("agents").GetProperty("flowforge").GetProperty("model").GetString();
+        var model = root.GetProperty("agent").GetProperty("flowforge").GetProperty("model").GetString();
         Assert.Equal(expectedModel, model);
     }
 
@@ -94,53 +95,36 @@ public class OpenCodeConfigGeneratorTests
     static string TemplateContent => """
     {
       "$schema": "https://opencode.ai/config.json",
-      "default_agent": "flowforge",
-      "skills": [
-        "./skills"
-      ],
       "instructions": [
         "./flowforge/AGENTS.md"
       ],
-      "agents": {
+      "agent": {
         "flowforge": {
           "description": "FlowForge Orchestrator",
           "mode": "primary",
           "model": "__FLOWFORGE_MODEL__",
-          "permissions": [
-            { "action": "edit", "resource": "*", "effect": "allow" },
-            { "action": "shell", "resource": "*", "effect": "allow" },
-            { "action": "read", "resource": "*", "effect": "allow" },
-            { "action": "subagent", "resource": "*", "effect": "allow" },
-            { "action": "skill", "resource": "*", "effect": "allow" }
-          ],
-          "system": "{file:./agents/flowforge.md}"
+          "permission": {
+            "edit": "allow",
+            "write": "allow",
+            "read": "allow",
+            "bash": "allow",
+            "task": "allow"
+          },
+          "prompt": "{file:./agents/flowforge.md}"
         }
       },
-      "providers": {
+      "provider": {
         "opencode-zen": {
-          "id": "opencode-zen",
-          "name": "OpenCode Zen (Free)",
-          "package": "@opencode/ai/providers/openai-compatible",
-          "settings": {
-            "baseURL": "https://opencode.ai/zen/v1"
-          },
-          "env": [],
-          "models": {
-            "big-pickle": {
-              "name": "Big Pickle",
-              "reasoning": false,
-              "structured_output": true,
-              "tool_call": true
-            }
-          }
+          "api": "https://opencode.ai/zen/v1",
+          "npm": "@ai-sdk/openai-compatible",
+          "models": [
+            "big-pickle"
+          ]
         },
         "opencode-go": {
           "id": "opencode-go",
-          "name": "OpenCode Go (paid)",
-          "package": "@opencode/ai/providers/openai-compatible",
-          "settings": {
-            "baseURL": "https://opencode.ai/zen/go/v1"
-          },
+          "api": "https://opencode.ai/zen/go/v1",
+          "npm": "@ai-sdk/openai-compatible",
           "env": [
             "OPENCODIGO_API_KEY"
           ],
@@ -161,10 +145,14 @@ public class OpenCodeConfigGeneratorTests
           }
         }
       },
-      "permissions": [
-        { "action": "shell", "resource": "*", "effect": "allow" },
-        { "action": "read", "resource": "*", "effect": "allow" }
-      ],
+      "permission": {
+        "bash": {
+          "*": "allow"
+        },
+        "read": {
+          "*": "allow"
+        }
+      },
       "mcp": {
         "engram": {
           "type": "local",
@@ -229,13 +217,12 @@ public class OpenCodeConfigGeneratorTests
     [
       "$schema",
       "instructions",
-      "agents.flowforge",
-      "providers.opencode-zen",
-      "providers.opencode-go",
-      "permissions",
-      "mcp.engram",
-      "skills",
-      "default_agent"
+      "agent.flowforge",
+      "provider.opencode-zen",
+      "provider.opencode-go",
+      "permission.bash",
+      "permission.read",
+      "mcp.engram"
     ]
     """;
 }
