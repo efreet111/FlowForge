@@ -56,7 +56,7 @@ public sealed class OpenCodeConfigGenerator
         var managedPaths = ReadManagedPaths(managedPathsPath);
         var existingNode = LoadExistingConfig(targetConfigPath);
 
-        var paidProviderDetected = existingNode?["provider"]?["opencode-go"] is not null && !_forceFree;
+        var paidProviderDetected = existingNode?["providers"]?["opencode-go"] is not null && !_forceFree;
         if (paidProviderDetected)
             warnings.Add("Detected paid provider 'opencode-go'. Free-Zen not applied unless --force-free.");
 
@@ -120,7 +120,7 @@ public sealed class OpenCodeConfigGenerator
         string? preservedPaidModel = null;
         if (paidProviderDetected)
         {
-            var existingModel = GetNodeAtPath(target, "agent.flowforge.model")?.GetValue<string>();
+            var existingModel = GetNodeAtPath(target, "agents.flowforge.model")?.GetValue<string>();
             if (!string.IsNullOrWhiteSpace(existingModel)
                 && existingModel.StartsWith("opencode-go/", StringComparison.OrdinalIgnoreCase))
             {
@@ -143,14 +143,14 @@ public sealed class OpenCodeConfigGenerator
 
         // Restore the paid model on top of the freshly-merged agent.flowforge.
         if (preservedPaidModel is not null
-            && GetNodeAtPath(target, "agent.flowforge") is JsonObject ffObj)
+            && GetNodeAtPath(target, "agents.flowforge") is JsonObject ffObj)
         {
             ffObj["model"] = preservedPaidModel;
         }
 
-        var engramNode = GetNodeAtPath(template, "mcp.engram");
+        var engramNode = GetNodeAtPath(template, "mcp.servers.engram");
         if (engramNode is not null)
-            SetValueAtPath(target, "mcp.engram", DeepCopy(engramNode));
+            SetValueAtPath(target, "mcp.servers.engram", DeepCopy(engramNode));
 
         return target;
     }
@@ -177,7 +177,7 @@ public sealed class OpenCodeConfigGenerator
 
     static bool IsPaidPath(string path, JsonNode target, List<string> warnings)
     {
-        if (path == "provider.opencode-go")
+        if (path == "providers.opencode-go")
         {
             warnings.Add("Preserving custom paid provider 'opencode-go'.");
             return true;

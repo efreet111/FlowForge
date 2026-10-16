@@ -1,0 +1,25 @@
+---
+id: claude-code
+kind: agent
+label: "Claude Code"
+detect:
+  - CLAUDE.md
+  - .claude/
+conflicts: []
+recommendedWith: []
+version: 1
+---
+
+## Claude Code agent instructions
+
+<!-- V2: deep per-agent optimisation is deferred to HU-047 §10 Fase 2; this is the valid V1 minimum. -->
+
+Claude Code reads `CLAUDE.md`, not `AGENTS.md`. Keep one source of truth:
+
+- If `CLAUDE.md` exists, make it a pointer: its first line tells the agent to read `AGENTS.md`, and
+  nothing from that file is duplicated here.
+- Keep the FlowForge phase rules, checkpoint table and skill index in `AGENTS.md` only.
+- Project slash commands are declared under `.claude/commands/`; the FlowForge `/flow-*` commands
+  stay documented in the `AGENTS.md` index.
+- Load a skill by reading its `SKILL.md` path from the index on demand, and respect CKP-0 through
+  CKP-3 exactly as `AGENTS.md` describes.

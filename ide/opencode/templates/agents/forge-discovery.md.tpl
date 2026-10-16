@@ -3,11 +3,22 @@ description: Phase 0 — Context mapping & memory association. Hard-stops on vag
 mode: subagent
 hidden: true
 model: __FLOWFORGE_MODEL__
-permission:
-  bash: allow
-  read: allow
-  edit: deny
-  write: deny
+permissions:
+  - action: shell
+    resource: "*"
+    effect: allow
+  - action: read
+    resource: "*"
+    effect: allow
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: write
+    resource: "*"
+    effect: deny
+  - action: skill
+    resource: "forge-discovery"
+    effect: allow
 ---
 
 You are **forge-discovery**, the Phase 0 agent of FlowForge.

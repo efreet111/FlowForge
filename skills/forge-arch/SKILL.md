@@ -2,8 +2,14 @@
 name: forge-arch
 description: Phase 1 (Intent) of FlowForge. Translates user intent into spec.md and Capability Matrix.
 trigger: When user says "forge arch", "design feature", or starts a new FlowForge feature.
-version: "1.0.0"
+version: "1.2.0"
+metadata:
+  opencode/autoinvoke: false  # HU-045: Disable auto-invocation to force subagent delegation
 changelog:
+  - date: "2026-10-14"
+    note: "HU-045: Add opencode/autoinvoke: false — subagent-first invocation"
+  - date: "2026-10-05"
+    note: "HU-035: Add code-aware memory hooks (FR-001–FR-004) — init recall, contradiction warnings, decision citation, graceful degradation"
   - date: "2026-08-27"
     note: "Initial tracked version"
 ---
@@ -57,6 +63,81 @@ Rules for the signal:
   - ❌ "Change" → ✅ "Switched from sessions to JWT for stateless auth"
   - ❌ "Config" → ✅ "PostgreSQL connection pool set to 100 for production load"
 - **Do NOT call `mem_save` directly** — emit the signal and let the orchestrator decide.
+
+## Code-Aware Memory Hooks (HU-035)
+
+> Integrates engram-dotnet code-aware recall tools into the Arch agent session.
+> Arch agent NEVER calls mem_save directly — all capture intents use Memory Signal emission.
+> Hooks are fire-and-forget (async, non-blocking).
+
+### FR-001 — Init Recall Hook: Module-Level Decision Load
+
+Trigger: Arch agent begins spec generation (before writing spec.md).
+
+Steps:
+1. Resolve target modules from:
+   a. Explicit user mention in the request (e.g. "design the auth module")
+   b. Context Map `target_modules` field (if present)
+2. For each resolved module, call:
+   - mem_decisions_for_module(module: "{module_name}", project: "{project_name}", limit: 20)
+3. If returned memories exist:
+   - Inject memories into the spec-generation context window as design constraints
+   - Log: "Loaded {N} prior decisions for module {module_name}."
+   - Surface a "## Prior Decision Constraints" section in the draft spec citing each memory-id
+4. If empty:
+   - Log: "No prior decisions found for module {module_name}. Proceeding with stateless derivation."
+   - Continue without error (graceful degradation).
+5. If Engram MCP is unreachable:
+   - Log: "[memory-hook] WARN: engram MCP unavailable — proceeding with stateless derivation."
+   - Continue without memory context.
+
+### FR-002 — Contradiction Warnings
+
+Trigger: After draft spec is generated, before CKP-1 human review gate.
+
+Steps:
+1. Compare each proposed architectural decision in the draft spec against recalled prior decisions.
+2. LLM-level comparison (no mem_check_contradictions tool needed):
+   - For each recalled decision, assess whether the proposed spec contradicts it.
+3. If high-confidence contradiction found (proposed conflicts with prior decision that has significance: high):
+   - Surface warning: "⚠️ You're about to contradict decision {memory-id}: [{title}]. This decision was marked high-significance. Do you want to continue?"
+   - Block CKP-1 until user acknowledges or resolves the conflict.
+4. If medium-confidence or low-significance conflict:
+   - Surface informational warning: "ℹ️ This proposal may conflict with decision {memory-id}: [{title}]. Not blocking — continue if intentional."
+   - CKP-1 proceeds normally after warning is displayed.
+5. If no contradiction:
+   - Proceed to CKP-1 without warning.
+
+### FR-003 — Decision Citation
+
+Trigger: Simultaneously with FR-001 (inject citations as spec is generated).
+
+Steps:
+1. For every prior decision incorporated as a constraint:
+   - Include inline citation in spec: "because of memory {memory-id}: \"{decision title}\""
+2. Add a "## Prior Decision Constraints" section to spec.md with:
+   - memory-id
+   - decision title
+   - relevance justification
+3. If no prior decisions were found:
+   - Emit Memory Signal with type: "decision", significance: "low"
+   - Note in spec: "⚙️ No prior decisions found for {module}; stateless derivation applied"
+
+### FR-004 — Graceful Degradation
+
+Shared fallback rules for all hooks:
+
+- If engram MCP tools are unreachable:
+  → Log: "[memory-hook] WARN: engram MCP unavailable — proceeding with stateless derivation."
+  → Continue spec generation without memory context.
+- If a recall call times out (>5 seconds):
+  → Log: "[memory-hook] WARN: recall timed out for {module} — continuing."
+  → Continue without that recall result.
+- If no target modules can be identified (empty user request + no Context Map):
+  → Fall back to mem_search with the request topic.
+  → Log: "No explicit module detected; used mem_search fallback."
+  → Note in spec: "⚙️ No explicit module detected; used mem_search fallback"
+- Hook failures NEVER block spec generation.
 
 Required `spec.md` structure:
 

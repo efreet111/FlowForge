@@ -1,8 +1,12 @@
 ---
 name: forge-discovery
 description: "Phase 0 (Discovery) of FlowForge. Explores memories, maps requirements, and produces context-map.md."
-version: "1.2.0"
+version: "1.3.0"
+metadata:
+  opencode/autoinvoke: false  # HU-045: Disable auto-invocation to force subagent delegation
 changelog:
+  - date: "2026-10-14"
+    note: "HU-045: Add opencode/autoinvoke: false — subagent-first invocation"
   - date: "2026-09-08"
     note: "HU-026: Add step 3a-alt context-project fast-path (FR-007 read-if-exists, FR-008 alert-if-absent)"
   - date: "2026-08-28"

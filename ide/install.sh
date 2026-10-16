@@ -135,6 +135,51 @@ cleanup_legacy_antigravity_pack() {
   rm -f "${HOME}/.gemini/config/skills.json" 2>/dev/null || true
 }
 
+# HU-042: Auto-install context7 MCP for non-local Engram profiles
+install_context7_mcp() {
+  # Profile detection: env var, ENGRAM_PROFILE, or config file (3-tier)
+  local is_non_local=0
+
+  # 1. ENGRAM_SERVER_URL (scripts/CI)
+  if [ -n "${ENGRAM_SERVER_URL:-}" ]; then
+    echo -e "  ${GREEN}✓${NC} Non-local profile detected via ENGRAM_SERVER_URL"
+    is_non_local=1
+  # 2. ENGRAM_PROFILE != "local"
+  elif [ "${ENGRAM_PROFILE:-local}" != "local" ]; then
+    echo -e "  ${GREEN}✓${NC} Non-local profile detected via ENGRAM_PROFILE=${ENGRAM_PROFILE}"
+    is_non_local=1
+  # 3. ~/.engram/config.json with sync config
+  elif [ -f "${HOME}/.engram/config.json" ] && grep -q '"sync"' "${HOME}/.engram/config.json" 2>/dev/null; then
+    echo -e "  ${GREEN}✓${NC} Non-local profile detected via ~/.engram/config.json"
+    is_non_local=1
+  fi
+
+  if [ "$is_non_local" -eq 0 ]; then
+    echo -e "  ${YELLOW}→${NC} Local profile — skipping context7 MCP"
+    return 0
+  fi
+
+  # Check if opencode is installed
+  if ! command -v opencode >/dev/null 2>&1; then
+    echo -e "  ${YELLOW}!${NC} opencode not found — skipping context7 MCP"
+    return 0
+  fi
+
+  # Idempotency: check if already installed
+  if opencode mcp list 2>/dev/null | grep -q "context7"; then
+    echo -e "  ${GREEN}✓${NC} context7 MCP already installed"
+    return 0
+  fi
+
+  echo -e "  ${YELLOW}→${NC} Installing context7 MCP..."
+  if opencode mcp add context7 --url https://mcp.context7.com/mcp --global 2>/dev/null; then
+    echo -e "  ${GREEN}OK${NC} context7 MCP installed"
+  else
+    echo -e "  ${YELLOW}!${NC} context7 MCP installation failed — manual fix required:"
+    echo -e "     ${BLUE}opencode mcp add context7 --url https://mcp.context7.com/mcp --global${NC}"
+  fi
+}
+
 generate_antigravity_model_assignments() {
   local dest="$1"
   local json_file="$IDE_DIR/antigravity/config/agent-models.json"
@@ -154,7 +199,7 @@ generate_antigravity_model_assignments() {
     echo ""
     echo "| Agent | Preferred Model | Fallback | Mode | Purpose |"
     echo "|-------|----------------|----------|------|---------|"
-    for agent in forge-orchestrator forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher default; do
+    for agent in flowforge forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher default; do
       local model fallback mode purpose
       model="$(jq -r ".agents[\"$agent\"].model" "$json_file")"
       fallback="$(jq -r ".agents[\"$agent\"].fallback" "$json_file")"
@@ -180,7 +225,6 @@ migrate_legacy_antigravity_workflows() {
       cp -f "$f" "$dest"
     fi
   done
->>>>>>> origin/main
 }
 
 install_antigravity_global() {
@@ -315,6 +359,10 @@ if [ -d "${HOME}/.config/opencode" ] || mkdir -p "${HOME}/.config/opencode" 2>/d
 
   echo -e "  ${GREEN}OK${NC} ~/.config/opencode/ (config + agents + commands)"
   echo -e "  ${YELLOW}⚠ Free Zen models may use your data for training. See docs/PII-POLICY.md${NC}"
+  
+  # HU-042: Auto-install context7 MCP for non-local profiles
+  install_context7_mcp
+  
   INSTALLED=1
 fi
 

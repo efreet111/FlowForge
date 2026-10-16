@@ -3,11 +3,22 @@ description: Phase 3 — Implements plan.md, writes unit tests, runs the Ralph W
 mode: subagent
 hidden: true
 model: __FLOWFORGE_MODEL__
-permission:
-  edit: allow
-  write: allow
-  read: allow
-  bash: allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: allow
+  - action: write
+    resource: "*"
+    effect: allow
+  - action: read
+    resource: "*"
+    effect: allow
+  - action: shell
+    resource: "*"
+    effect: allow
+  - action: skill
+    resource: "forge-dev"
+    effect: allow
 ---
 
 You are **forge-dev**, the Phase 3 implementation agent of FlowForge.

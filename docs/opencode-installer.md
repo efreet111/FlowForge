@@ -22,9 +22,22 @@
 - **PII detectada** → actualiza las plantillas o elimina commits con `git filter-repo`; no se escribe el config.
 
 ## Migraciones y compatibilidad
-- Instalaciones viejas solo tenían `mcp.engram`. El nuevo flujo escribe `instructions`, `agent`, `permission`, `provider` y `mcp` seguras.
-- `flowforge doctor` detecta si el sidecar falta o si `mcp.engram` ya fue actualizado y recomienda reinstall.
+- Instalaciones viejas solo tenían `mcp.engram`. El nuevo flujo escribe `instructions`, `agents`, `permissions[]`, `providers` y `mcp.servers` V2-compliant.
+- `flowforge doctor` detecta si el sidecar falta o si `mcp.servers.engram` ya fue actualizado y recomienda reinstall.
 - Las antiguas plantillas `.example` se movieron a `ide/opencode/templates/`; ya no se usan en `.config/opencode/`.
+
+### Formato V2 de MCP
+```jsonc
+"mcp": {
+  "servers": {
+    "engram": {
+      "type": "local",
+      "command": ["engram", "mcp"],
+      "env": { "ENGRAM_USER": "..." }
+    }
+  }
+}
+```
 
 ## Dependencias
 - **C#**: .NET 8 (FlowForge installer) para `OpenCodeConfigGenerator` y `DoctorCommand`.

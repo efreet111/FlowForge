@@ -347,13 +347,13 @@ public sealed class DoctorCommand(InstallerContext ctx)
         }
 
         var mcp = root?["mcp"] as JsonObject;
-        var engram = mcp?["engram"] as JsonObject;
+        var servers = mcp?["servers"] as JsonObject;
+        var engram = servers?["engram"] as JsonObject;
         var type = engram?["type"]?.GetValue<string>();
-        var enabled = engram?["enabled"]?.GetValue<bool>() ?? false;
-        if (string.Equals(type, "local", StringComparison.OrdinalIgnoreCase) && enabled)
-            results.Add(new DoctorCheck("OpenCode mcp.engram", true));
+        if (string.Equals(type, "local", StringComparison.OrdinalIgnoreCase))
+            results.Add(new DoctorCheck("OpenCode mcp.servers.engram", true));
         else
-            results.Add(new DoctorCheck("OpenCode mcp.engram", false, "mcp.engram debe ser local/true. Ejecutá flowforge install."));
+            results.Add(new DoctorCheck("OpenCode mcp.servers.engram", false, "mcp.servers.engram debe ser local. Ejecutá flowforge install."));
 
         var agentsNode = root?["agent"] as JsonObject;
         var expectedAgents = new[] { "flowforge", "forge-discovery", "forge-arch", "forge-plan", "forge-dev", "forge-verify", "forge-memory", "forge-teacher" };
@@ -500,8 +500,8 @@ public sealed class DoctorCommand(InstallerContext ctx)
         else
         {
             var list = JsonSerializer.Deserialize(File.ReadAllText(sidecarPath), OpenCodeJsonContext.Default.StringArray);
-            if (list == null || !list.Any(p => p.Equals("mcp.engram", StringComparison.OrdinalIgnoreCase)))
-                results.Add(new DoctorCheck("OpenCode sidecar", false, "Sidecar no contiene mcp.engram"));
+            if (list == null || !list.Any(p => p.Equals("mcp.servers.engram", StringComparison.OrdinalIgnoreCase)))
+                results.Add(new DoctorCheck("OpenCode sidecar", false, "Sidecar no contiene mcp.servers.engram"));
             else
                 results.Add(new DoctorCheck("OpenCode sidecar", true));
         }

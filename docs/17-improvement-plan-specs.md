@@ -108,7 +108,7 @@
 - [ ] Si no: documentar el blocker con pasos para resolverlo
 
 **Enfoque**:
-1. Revisar el MCP config en `~/.config/opencode/opencode.json` → `mcp.engram`
+1. Revisar el MCP config en `~/.config/opencode/opencode.json` → `mcp.servers.engram`
 2. Verificar que `engram mcp` está disponible en el PATH
 3. Verificar que `ENGRAM_URL` apunta al servidor correcto
 4. Ejecutar `mem_doctor` desde el agente

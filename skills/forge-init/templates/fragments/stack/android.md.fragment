@@ -1,0 +1,29 @@
+---
+id: android
+kind: stack
+label: "Android / Kotlin"
+detect:
+  - build.gradle.kts
+  - settings.gradle.kts
+  - AndroidManifest.xml
+  - "**/*.kt"
+conflicts: [kotlin, web, python]
+recommendedWith: [compose]
+version: 1
+---
+
+## Android / Kotlin conventions
+
+- **Gradle (Kotlin DSL)** is the build system: `./gradlew assembleDebug` to build,
+  `./gradlew test` for unit tests, `./gradlew connectedAndroidTest` for instrumented tests,
+  `./gradlew lint` for Android Lint.
+- **Manifest**: every activity, service, permission and deep link lives in
+  `app/src/main/AndroidManifest.xml`. Never add a permission without a comment saying which
+  feature needs it.
+- **Versions** are centralised in `gradle/libs.versions.toml` (version catalog). Do not hardcode a
+  dependency version in a module `build.gradle.kts`.
+- **Kotlin style**: prefer `val` over `var`, explicit return types on public functions, sealed
+  interfaces for state, `data class` for value types, and no platform types leaking across module
+  boundaries.
+- **Resource naming**: `snake_case` for resource files, `PascalCase` for composables.
+- **Do not commit** `local.properties`, `.idea/`, `build/`, or `*.keystore` material.

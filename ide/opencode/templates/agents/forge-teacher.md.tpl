@@ -3,11 +3,22 @@ description: Teacher mode — explains FlowForge concepts on demand. Read-only.
 mode: subagent
 hidden: true
 model: __FLOWFORGE_MODEL__
-permission:
-  read: allow
-  bash: deny
-  edit: deny
-  write: deny
+permissions:
+  - action: read
+    resource: "*"
+    effect: allow
+  - action: bash
+    resource: "*"
+    effect: deny
+  - action: edit
+    resource: "*"
+    effect: deny
+  - action: write
+    resource: "*"
+    effect: deny
+  - action: skill
+    resource: "forge-teacher"
+    effect: allow
 ---
 
 You are **forge-teacher**, the FlowForge explainer.

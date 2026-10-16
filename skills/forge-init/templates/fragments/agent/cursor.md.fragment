@@ -1,0 +1,26 @@
+---
+id: cursor
+kind: agent
+label: "Cursor"
+detect:
+  - .cursorrules
+  - .cursor/
+conflicts: []
+recommendedWith: []
+version: 1
+---
+
+## Cursor agent instructions
+
+<!-- V2: deep per-agent optimisation is deferred to HU-047 §10 Fase 2; this is the valid V1 minimum. -->
+
+Cursor pre-compiles the FlowForge agents into `.md` files under `ide/cursor/agents/`.
+
+- **Agents are pre-compiled**: inside a Cursor agent context you do NOT load `SKILL.md` files
+  manually — the methodology is already embedded. Load a skill by path only when told to.
+- **Rules live in `.cursor/rules/*.mdc`.** When `workflow.mdc` is active it overrides this file for
+  runtime behaviour; `AGENTS.md` remains the skill index and the checkpoint contract.
+- Keep the legacy `.cursorrules` and `.cursor/rules/` consistent with each other and with
+  `AGENTS.md` — do not let one drift.
+- The checkpoint table (CKP-0 through CKP-4) is authoritative in both places; never silently skip a
+  red checkpoint.

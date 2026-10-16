@@ -1,0 +1,30 @@
+---
+id: opencode
+kind: agent
+label: "OpenCode"
+detect:
+  - opencode.json
+  - .opencode/
+conflicts: []
+recommendedWith: []
+version: 1
+---
+
+## OpenCode agent instructions
+
+This project is driven through OpenCode. Keep these rules when delegating.
+
+- **Skills live in `~/.config/opencode/skills/`** (user scope, populated by `install-skills.sh`) and
+  in `{repo}/skills/` when the FlowForge clone is the workspace. Load a skill by reading its
+  `SKILL.md` before writing any code.
+- **Subagent-first delegation.** FlowForge marks its skills `metadata.opencode/autoinvoke: false`,
+  so they are never auto-invoked. The orchestrator (`flowforge`) delegates each phase to its
+  subagent — `forge-discovery`, `forge-arch`, `forge-plan`, `forge-dev`, `forge-verify`,
+  `forge-memory` — instead of answering inline.
+- **Skill loading order** for any task: (1) this `AGENTS.md`, (2) the phase skill named in its index,
+  (3) the specialised skill under `skills/<skill>/<topic>/SKILL.md` when the trigger matches.
+- **Checkpoints are blocking.** CKP-0 through CKP-4 are surfaced to the human; never advance past a
+  red checkpoint on your own.
+- **Read the `## Memory Signal`** a subagent returns and hand it to `forge-memory`; never call
+  memory tools to persist your own summary.
+- Do not edit `AGENTS.md` by hand — re-run `/fforge-init` so the managed block stays consistent.

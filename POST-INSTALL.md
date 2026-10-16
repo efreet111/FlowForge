@@ -95,6 +95,57 @@ See [ADR-016](docs/decisions/ADR-016-update-mechanism-by-component.md) for archi
 `flowforge install` but did not configure a remote URL, the server will print
 a warning at startup (see step 4).
 
+### ⚠️ Important: context7 MCP for non-local profiles
+
+When using **non-local profiles** (sync/remote mode), OpenCode requires the `context7` MCP server as a prerequisite for remote MCP connections to work properly. This affects all remote MCP servers.
+
+**Auto-installed by FlowForge** (v0.1.0-alpha.14+):
+The `flowforge install --ide opencode` command automatically detects non-local profiles and installs `context7` for you.
+
+#### Detection Criteria
+
+The installer auto-detects non-local profiles using three methods (in priority order):
+
+1. **`ENGRAM_SERVER_URL` environment variable**: If set to any non-empty value
+2. **`ENGRAM_PROFILE` environment variable**: If set to anything other than `"local"` (e.g., `sync`)
+3. **`~/.engram/config.json`**: If the config file contains a `sync` section with `remote_url`
+
+If any of these conditions are met AND OpenCode is selected as an IDE during installation, `context7` is automatically installed.
+
+#### Scope
+
+- **Only installed when**: OpenCode is selected as an IDE during `flowforge install --ide opencode` or `bash install.sh`
+- **Not installed when**: Using a local profile (default), or when OpenCode is not in the selected IDEs
+- **Works with**: Both C# installer (`flowforge install`) and Bash installer (`ide/install.sh`)
+
+#### Troubleshooting: "No tool named 'tools.*' available"
+
+If you see this error despite having MCP servers configured:
+
+```
+error: No tool named "tools.context7" is currently available.
+```
+
+**Cause**: The `context7` MCP server is missing. This typically happens when:
+- You installed FlowForge with a non-local profile but the auto-install failed
+- You manually configured sync mode after installation
+- You're using an older FlowForge version (< v0.1.0-alpha.14)
+
+**Fix**: Install context7 manually:
+
+```bash
+opencode mcp add context7 --url https://mcp.context7.com/mcp --global
+```
+
+**Verification**:
+
+```bash
+opencode mcp list
+# Expected output: ✓ context7  connected
+```
+
+If the verification fails, check that OpenCode is properly installed and in your PATH.
+
 ---
 
 ## 3. Configure the sync target (sync mode only)
@@ -219,6 +270,7 @@ Expected: a row with the saved content appears.
 | `Mutation transport failed with status 501` every 30ms in logs | Self-loop (no `ENGRAM_SERVER_URL` set) — **fixed in v0.4.0+**, warning should appear instead | Update binary (step 1) or set `ENGRAM_SYNC_ENABLED=false` |
 | Stale binary after FlowForge update | Component update available | Run `flowforge update --component engram` (v0.1.0-alpha.13+) or manual update via step 1 |
 | Memory not visible from team | Server not running, or different `ENGRAM_USER` | Check `engram doctor` and verify `ENGRAM_USER` matches |
+| `No tool named "tools.*" available` with sync profile | Missing `context7` MCP server (required for remote MCP) | See troubleshooting subsection in §2 above |
 
 ---
 

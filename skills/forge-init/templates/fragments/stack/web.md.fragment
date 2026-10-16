@@ -1,0 +1,23 @@
+---
+id: web
+kind: stack
+label: "JavaScript / TypeScript"
+detect:
+  - package.json
+  - "**/*.ts"
+  - "**/*.tsx"
+conflicts: [android, kotlin, python]
+recommendedWith: [testing]
+version: 1
+---
+
+## Web / TypeScript conventions
+
+- **Package manager**: use the lockfile that exists (`package-lock.json`, `pnpm-lock.yaml`,
+  `yarn.lock`) and never mix two of them in one repository.
+- **Commands**: `npm run build`, `npm test`, `npm run lint` (adapt to the scripts actually declared
+  in `package.json`).
+- **TypeScript**: `strict: true`, no `any` in exported signatures, prefer `unknown` plus a narrowing
+  guard over a cast.
+- **Modules**: one default export per file; no barrel files that re-export an entire directory.
+- **Do not commit** `node_modules/`, `dist/`, `coverage/` or `.env` files.

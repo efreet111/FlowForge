@@ -40,7 +40,7 @@ DESTINATIONS=(
 )
 
 # ── Step 1: Create destination directories ──────────────
-echo -e "\n${CYAN}[1/3] Creando directorios de configuración...${NC}"
+echo -e "\n${CYAN}[1/5] Creando directorios de configuración...${NC}"
 
 for label in "${!DESTINATIONS[@]}"; do
     dir="${DESTINATIONS[$label]}"
@@ -53,7 +53,7 @@ for label in "${!DESTINATIONS[@]}"; do
 done
 
 # ── Step 2: Deliver skills to all destinations ──────────
-echo -e "\n${CYAN}[2/3] Instalando ${SKILL_COUNT} Skills (${CORE_COUNT} core + $((SKILL_COUNT - CORE_COUNT)) specialized) de FlowForge...${NC}"
+echo -e "\n${CYAN}[2/5] Instalando ${SKILL_COUNT} Skills (12 core + $((SKILL_COUNT - 12)) specialized) de FlowForge...${NC}"
 
 FAILED=0
 
@@ -96,7 +96,7 @@ for label in "${!DESTINATIONS[@]}"; do
 done
 
 # ── Step 3: FlowDocs upstream skills ────────────────────
-echo -e "\n${CYAN}[3/4] Instalando FlowDocs skills (upstream)...${NC}"
+echo -e "\n${CYAN}[3/5] Instalando FlowDocs skills (upstream)...${NC}"
 
 FLOWDOC_REPO="https://github.com/crhistianmdz/FlowDocs.git"
 FLOWDOC_TMP="/tmp/flowdocs-$(date +%s)"
@@ -119,8 +119,36 @@ else
     rm -rf "$FLOWDOC_TMP" 2>/dev/null
 fi
 
-# ── Step 4: Permissions & summary ───────────────────────
-echo -e "\n${CYAN}[4/4] Configurando permisos...${NC}"
+# ── Step 4: Apply HU-045 autoinvoke config ───────────────────────
+echo -e "\n${CYAN}[4/5] HU-045: Configurando subagent-first invocation...${NC}"
+
+# This ensures skills are NOT auto-invoked by OpenCode
+# Forcing the orchestrator to use subagents instead
+HU045_APPLIED=0
+for dest_dir in "${DESTINATIONS[@]}"; do
+    if [ -d "$dest_dir" ]; then
+        for skill_file in "$dest_dir"/forge-*/SKILL.md "$dest_dir"/forge-*.md 2>/dev/null; do
+            if [ -f "$skill_file" ]; then
+                # Check if metadata.opencode/autoinvoke already exists
+                if ! grep -q "opencode/autoinvoke: false" "$skill_file"; then
+                    # Insert metadata block after the first --- line
+                    if grep -q "^---$" "$skill_file"; then
+                        sed -i '0,/^---$/a metadata:\n  opencode/autoinvoke: false  # HU-045: Disable auto-invocation to force subagent delegation' "$skill_file" 2>/dev/null
+                        HU045_APPLIED=$((HU045_APPLIED + 1))
+                    fi
+                fi
+            fi
+        done
+    fi
+done
+if [ "$HU045_APPLIED" -gt 0 ]; then
+    echo -e "   - ${GREEN}OK${NC} HU-045: $HU045_APPLIED skills configuradas con autoinvoke: false"
+else
+    echo -e "   - ${YELLOW}SKIP${NC} HU-045: skills ya tienen la configuración"
+fi
+
+# ── Step 5: Permissions & summary ───────────────────────
+echo -e "\n${CYAN}[5/5] Configurando permisos...${NC}"
 chmod +x ./install-skills.sh
 
 echo -e "\n${GREEN}====================================================${NC}"
@@ -128,8 +156,8 @@ echo -e "${GREEN}      ¡INSTALACIÓN COMPLETADA CON ÉXITO! 🎉         ${NC}"
 echo -e "${GREEN}====================================================${NC}"
 echo -e "Las ${SKILL_COUNT} skills de FlowForge ya están integradas:"
 echo ""
-echo -e "  ${CYAN}Core Skills (8):${NC}"
-echo -e "   - @forge-orchestrator  (Semáforo Maestro CKP-0→4)"
+echo -e "  ${CYAN}Core Skills (12):${NC}"
+echo -e "   - @flowforge            (Semáforo Maestro CKP-0→4)"
 echo -e "   - @forge-discovery     (Fase 0: Contexto)"
 echo -e "   - @forge-arch          (Fase 1: Intención)"
 echo -e "   - @forge-plan          (Fase 2: Arquitectura)"
@@ -137,27 +165,29 @@ echo -e "   - @forge-dev           (Fase 3: Ejecución/TDD)"
 echo -e "   - @forge-verify        (Fase 3b: Juicio Hostil)"
 echo -e "   - @forge-memory        (Fase 4: Cierre/Memory)"
 echo -e "   - @forge-teacher       (Modo Socrático)"
+echo -e "   - @forge-index-docs     (Indexado de documentación)"
+echo -e "   - @forge-onboarding     (Onboarding de proyecto)"
+echo -e "   - @forge-memory-contradiction (Detección de contradicciones)"
+echo -e "   - @forge-init            (Init/sync de AGENTS.md)"
 echo ""
-echo -e "  ${CYAN}Specialized Skills ($((SKILL_COUNT - CORE_COUNT))):${NC}"
-echo -e "   - Security:  forge-arch-security, forge-plan-security,"
-echo -e "                forge-dev-security, forge-verify-security,"
-echo -e "                forge-discovery-security"
-echo -e "   - SOLID:     forge-dev-solid"
-echo -e "   - Testing:   forge-dev-testing"
-echo -e "   - Refactor:  forge-dev-refactor"
-echo -e "   - Perf:      forge-arch-performance, forge-dev-performance,"
-echo -e "                forge-verify-performance"
-echo -e "   - Patterns:  forge-plan-patterns"
-echo -e "   - Migrations:forge-plan-migrations"
-echo -e "   - Rollback:  forge-plan-rollback"
-echo -e "   - A11y:      forge-arch-a11y, forge-verify-a11y"
-echo -e "   - Domain:    forge-arch-domain"
-echo -e "   - Complexity:forge-verify-complexity"
-echo -e "   - Compliance:forge-discovery-compliance"
-echo -e "   - Cost:      forge-discovery-cost"
-echo -e "   - Changelog: forge-memory-changelog"
-echo -e "   - Knowledge: forge-memory-knowledge"
-echo -e "   - Metrics:   forge-memory-metrics"
+echo -e "  ${CYAN}Specialized Skills ($((SKILL_COUNT - 12))):${NC}"
+echo -e "   ${CYAN}Security (5):${NC}"
+echo -e "      forge-arch-security, forge-plan-security,"
+echo -e "      forge-dev-security, forge-verify-security,"
+echo -e "      forge-discovery-security"
+echo -e "   ${CYAN}Code Quality (7):${NC}"
+echo -e "      forge-dev-solid, forge-dev-testing,"
+echo -e "      forge-dev-refactor, forge-dev-performance,"
+echo -e "      forge-plan-patterns, forge-verify-complexity,"
+echo -e "      forge-verify-performance"
+echo -e "   ${CYAN}Infrastructure (7):${NC}"
+echo -e "      forge-arch-performance, forge-arch-a11y,"
+echo -e "      forge-arch-domain, forge-plan-migrations,"
+echo -e "      forge-plan-rollback, forge-discovery-compliance,"
+echo -e "      forge-discovery-cost"
+echo -e "   ${CYAN}Memory & Metrics (4):${NC}"
+echo -e "      forge-memory-changelog, forge-memory-knowledge,"
+echo -e "      forge-memory-metrics, forge-verify-a11y"
 echo ""
 echo -e "  ${CYAN}FlowDocs Skills (upstream, ~/.config/opencode/skills):${NC}"
 echo -e "   - Documentación: flowdoc-assist, flowdoc-hu, flowdoc-prd,"

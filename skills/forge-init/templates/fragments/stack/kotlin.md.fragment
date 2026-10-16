@@ -1,0 +1,24 @@
+---
+id: kotlin
+kind: stack
+label: "Kotlin / JVM"
+detect:
+  - build.gradle.kts
+  - "**/*.kt"
+conflicts: [android, web, python]
+recommendedWith: [testing]
+version: 1
+---
+
+## Kotlin / JVM conventions
+
+- **Build**: Gradle with the Kotlin DSL (`./gradlew build`, `./gradlew test`). Prefer the wrapper
+  over a system Gradle.
+- **Coroutines**: never block a thread with `runBlocking` outside `main` or tests; pass a
+  `CoroutineScope` in and cancel it on shutdown.
+- **Nullability**: model absence with `null` only when it is legal domain state; otherwise use a
+  sealed result type.
+- **Style**: `val` over `var`, expression bodies for one-liners, no wildcard imports, no
+  `!!` without an adjacent invariant comment.
+- **Versions** live in `gradle/libs.versions.toml`; do not pin dependency versions inside module
+  build files.
