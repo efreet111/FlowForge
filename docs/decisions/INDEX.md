@@ -29,6 +29,7 @@
 | ADR-023 | `flowforge onboard`: engram CLI subprocess bridge + dual Go/.NET text format tolerance | Accepted | 2026-09-08 | hu-029-onboarding-flow |
 | ADR-024 | Agent quality standards: English-only instructions, OpenCode embed-inline, `<!-- sync: -->` drift comments | Accepted | 2026-09-08 | agent-quality-improvement |
 | ADR-025 | Post-Plan hook: decision extraction from plan.md into Engram (3-pass, opt-in, fail-safe) | Accepted | 2026-09-11 | hu-030-decision-extraction |
+| ADR-026 | `/fforge-init`: hybrid skill architecture (SKILL.md orchestrator + zero-dependency bash engine) with `plan.json` seam | Accepted | 2026-10-16 | hu-047 (fforge-init) |
 
 ---
 

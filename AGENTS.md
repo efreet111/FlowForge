@@ -45,6 +45,7 @@ The orchestrator enforces 5 control points. Learn the difference:
 | `forge-verify` | 3 | CKP‑3 🔴 | Auditing implementation (LLM-as-Judge & traceability) or generating rework tickets. | [`skills/forge-verify/SKILL.md`](skills/forge-verify/SKILL.md) |
 | `forge-memory` | 4 | CKP‑4 🟢 | Session closure (smart synthesis, database upload, ADR promotion, retention cleanup). | [`skills/forge-memory/SKILL.md`](skills/forge-memory/SKILL.md) |
 | `forge-index-docs` | On-demand | — | Index FlowDoc docs (PRD, ADR, RFC, API, DB) into Engram. Trigger: "index docs", "indexar documentos", "backfill engram", "drift-check docs". | [`skills/forge-index-docs/SKILL.md`](skills/forge-index-docs/SKILL.md) |
+| `forge-init` | On-demand | — | Initialize or synchronize `AGENTS.md` in a project (6-step flow, semantic merge, backup/restore, dry-run). Trigger: "fforge-init, init AGENTS.md, inicializar AGENTS.md, sync AGENTS.md, adopt FlowForge in project". | [`skills/forge-init/SKILL.md`](skills/forge-init/SKILL.md) |
 
 ---
 

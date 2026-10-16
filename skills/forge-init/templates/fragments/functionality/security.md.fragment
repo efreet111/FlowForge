@@ -1,0 +1,25 @@
+---
+id: security
+kind: functionality
+label: "Security"
+detect: []
+conflicts: []
+recommendedWith: []
+version: 1
+---
+
+## Security guidelines
+
+<!-- Opt-in by design: never auto-recommended (contracts.md C-6 clarification 1). -->
+
+- **Never commit secrets.** Keys, tokens and connection strings come from the environment or a
+  secret manager. A leaked key is rotated, not deleted from history.
+- **Validate at the boundary.** Every external input (HTTP, CLI, file, database) is untrusted until
+  validated; reject by default and allow-list.
+- **Least privilege.** Database users, cloud roles and CI tokens get the minimum scope the job
+  needs, and nothing more.
+- **Parameterised queries only.** No string concatenation into SQL, shell, or template engines.
+- **Errors do not leak internals.** Return a correlation id to the client; log the details.
+- **Dependencies are reviewed, not just updated**: check the advisory database before adding one,
+  and pin the version in a lockfile.
+- Load the FlowForge `forge-*-security` skills for a security review of a change.

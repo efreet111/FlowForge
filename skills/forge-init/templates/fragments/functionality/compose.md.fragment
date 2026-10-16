@@ -1,0 +1,25 @@
+---
+id: compose
+kind: functionality
+label: "Jetpack Compose"
+detect:
+  - "**/*Screen.kt"
+  - "**/ui/theme/**"
+conflicts: []
+recommendedWith: [android]
+version: 1
+---
+
+## Jetpack Compose conventions
+
+- **Stateless composables by default**: hoist state to the caller; a composable that owns state is
+  a screen, not a component.
+- **One `@Composable` per file**, named after the screen or component, with `@Preview` functions in
+  the same file.
+- **No business logic in composables**: map state in a ViewModel and keep composables pure.
+- **Keys and stability**: pass stable types (no `List` mutation) and provide stable keys in lazy
+  lists; annotate with `@Immutable` when a class is safe to skip.
+- **Theme**: colours, typography and spacing come from `MaterialTheme`; never hardcode a hex colour
+  or a raw `dp` that duplicates a theme token.
+- **Accessibility**: every icon button needs a content description, and touch targets stay at least
+  48dp.

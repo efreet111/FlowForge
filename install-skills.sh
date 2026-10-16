@@ -53,7 +53,7 @@ for label in "${!DESTINATIONS[@]}"; do
 done
 
 # ── Step 2: Deliver skills to all destinations ──────────
-echo -e "\n${CYAN}[2/5] Instalando ${SKILL_COUNT} Skills (11 core + $((SKILL_COUNT - 11)) specialized) de FlowForge...${NC}"
+echo -e "\n${CYAN}[2/5] Instalando ${SKILL_COUNT} Skills (12 core + $((SKILL_COUNT - 12)) specialized) de FlowForge...${NC}"
 
 FAILED=0
 
@@ -156,7 +156,7 @@ echo -e "${GREEN}      ¡INSTALACIÓN COMPLETADA CON ÉXITO! 🎉         ${NC}"
 echo -e "${GREEN}====================================================${NC}"
 echo -e "Las ${SKILL_COUNT} skills de FlowForge ya están integradas:"
 echo ""
-echo -e "  ${CYAN}Core Skills (11):${NC}"
+echo -e "  ${CYAN}Core Skills (12):${NC}"
 echo -e "   - @flowforge            (Semáforo Maestro CKP-0→4)"
 echo -e "   - @forge-discovery     (Fase 0: Contexto)"
 echo -e "   - @forge-arch          (Fase 1: Intención)"
@@ -168,8 +168,9 @@ echo -e "   - @forge-teacher       (Modo Socrático)"
 echo -e "   - @forge-index-docs     (Indexado de documentación)"
 echo -e "   - @forge-onboarding     (Onboarding de proyecto)"
 echo -e "   - @forge-memory-contradiction (Detección de contradicciones)"
+echo -e "   - @forge-init            (Init/sync de AGENTS.md)"
 echo ""
-echo -e "  ${CYAN}Specialized Skills ($((SKILL_COUNT - 11))):${NC}"
+echo -e "  ${CYAN}Specialized Skills ($((SKILL_COUNT - 12))):${NC}"
 echo -e "   ${CYAN}Security (5):${NC}"
 echo -e "      forge-arch-security, forge-plan-security,"
 echo -e "      forge-dev-security, forge-verify-security,"
