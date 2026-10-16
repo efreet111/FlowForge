@@ -99,7 +99,7 @@ public sealed class OpenCodeConfigGenerator
 
     static void InjectAgentModels(JsonNode templateNode, AgentModelsManifest manifest, string provider)
     {
-        if (templateNode["agents"] is not JsonObject agents)
+        if (templateNode["agent"] is not JsonObject agents)
             return;
 
         foreach (var (name, _) in manifest.Agents)
