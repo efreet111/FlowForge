@@ -1,0 +1,23 @@
+---
+id: database
+kind: functionality
+label: "Database & migrations"
+detect:
+  - migrations/
+  - "**/schema.sql"
+  - prisma/schema.prisma
+conflicts: []
+recommendedWith: []
+version: 1
+---
+
+## Database & migrations
+
+- **Migrations are append-only.** Never edit a migration that has run anywhere; add a new one.
+- **Every migration is reversible** (or explicitly documents why it is not) and is deployed
+  separately from the code that depends on it.
+- **Schema changes are backward compatible** for one release: add columns as nullable, backfill,
+  then tighten in a later release.
+- **Seed data and fixtures never run against production**; keep the seed script idempotent.
+- **Indexes are justified**: name the query that needs one in the migration description.
+- Load the FlowForge `forge-plan-migrations` skill when a change touches the schema.

@@ -3,11 +3,22 @@ description: Phase 4 — Session closure, session summary, ADR promotion.
 mode: subagent
 hidden: true
 model: __FLOWFORGE_MODEL__
-permission:
-  edit: allow
-  write: allow
-  read: allow
-  bash: allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: allow
+  - action: write
+    resource: "*"
+    effect: allow
+  - action: read
+    resource: "*"
+    effect: allow
+  - action: shell
+    resource: "*"
+    effect: allow
+  - action: skill
+    resource: "forge-memory"
+    effect: allow
 ---
 
 You are **forge-memory**, the Phase 4 closure agent of FlowForge.

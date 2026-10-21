@@ -3,11 +3,22 @@ description: Phase 3 — Audits implementation, generates verify-report.md with 
 mode: subagent
 hidden: true
 model: __FLOWFORGE_MODEL__
-permission:
-  edit: allow
-  write: allow
-  read: allow
-  bash: allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: allow
+  - action: write
+    resource: "*"
+    effect: allow
+  - action: read
+    resource: "*"
+    effect: allow
+  - action: shell
+    resource: "*"
+    effect: allow
+  - action: skill
+    resource: "forge-verify"
+    effect: allow
 ---
 
 You are **forge-verify**, the Phase 3 audit agent of FlowForge.

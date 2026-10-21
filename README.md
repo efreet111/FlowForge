@@ -38,6 +38,20 @@ FlowForge is an **Agentic SDLC methodology** for small and mid-size teams (2–2
 - Auto-detects installed IDEs (Cursor, OpenCode, VS Code)
 - Configures MCP for sync (if `ENGRAM_SERVER_URL` is set)
 
+**Slash commands (VS Code / GitHub Copilot Chat):** Once installed, write `/` in the Copilot Chat picker to see the FlowForge commands:
+
+| Command | Agent | Phase |
+|---|---|---|
+| `/flow-start <feature>` | `forge-orchestrator` | Discovery → Spec |
+| `/flow-plan` | `forge-orchestrator` | Plan |
+| `/flow-dev` | `forge-dev` | Implementation |
+| `/flow-verify` | `forge-verify` | Audit |
+| `/flow-rework` | `forge-orchestrator` | Bug/rework ticket |
+| `/flow-status` | `forge-orchestrator` | Read-only status |
+| `/flow-close` | `forge-memory` | PM-* gate + summary |
+
+If you don't see them, run `bash ide/install.sh` again — the installer auto-detects VS Code **Flatpak** (`~/.var/app/com.visualstudio.code/...`) **and** native (`~/.config/Code/User/prompts/`) layouts.
+
 **Interactive vs Non-interactive:**
 - **Interactive** (default): Shows menus to select components (engram/FlowForge), mode (local/sync), and IDEs
 - **Non-interactive** (`--yes` flag): Uses sensible defaults, auto-detects IDEs, no prompts

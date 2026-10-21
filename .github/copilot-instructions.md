@@ -17,7 +17,7 @@ Select **FlowForge Orchestrator** from the agent picker, or use handoffs to phas
 
 | Agent | Phase | Role |
 |-------|-------|------|
-| `forge-orchestrator` | All | Routes phases; never codes product |
+| `flowforge` | All | Routes phases; never codes product |
 | `forge-discovery` | 0 | Context map |
 | `forge-arch` | 1 | spec.md + PM-* manual tests |
 | `forge-plan` | 2 | plan.md + checklist |

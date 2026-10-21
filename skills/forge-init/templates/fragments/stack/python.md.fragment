@@ -1,0 +1,23 @@
+---
+id: python
+kind: stack
+label: "Python"
+detect:
+  - pyproject.toml
+  - requirements.txt
+  - "**/*.py"
+conflicts: [android, kotlin, web]
+recommendedWith: [testing]
+version: 1
+---
+
+## Python conventions
+
+- **Environment**: a virtual environment per project (`.venv`); never install into the system
+  interpreter.
+- **Dependencies**: declared in `pyproject.toml`; `requirements.txt` only when the project is
+  pinned for deployment.
+- **Commands**: `python -m pytest`, `python -m mypy .`, `python -m ruff check .`.
+- **Typing**: full annotations on public functions; `from __future__ import annotations` for
+  forward references.
+- **Do not commit** `.venv/`, `__pycache__/`, `*.pyc`, `.pytest_cache/` or build artifacts.

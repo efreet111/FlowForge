@@ -30,24 +30,14 @@ USER="${USER:-$(whoami)}"
 export FLOWFORGE_REPO="$FF_REPO" HOME USER FLOWFORGE_ENGRAM_BIN="$HOME/.local/bin/engram"
 
 json="$(envsubst < "$TEMPLATES/opencode.json.tpl")"
-AGENTS="forge-orchestrator forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher"
+AGENTS="flowforge forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher"
 for agent in $AGENTS; do
   model="$(jq -r ".agents[\"$agent\"].model" "$CONFIG_DIR/agent-models.json")"
-  json="$(printf '%s' "$json" | jq --arg agent "$agent" --arg model "opencode-zen/$model" '.agent[$agent].model = $model')"
+  json="$(printf '%s' "$json" | jq --arg agent "$agent" --arg model "opencode-zen/$model" '.agents[$agent].model = $model')"
 done
 
-if ! printf '%s' "$json" | jq -e '.provider["opencode-zen"].models | type == "object"' >/dev/null 2>&1; then
+if ! printf '%s' "$json" | jq -e '.providers["opencode-zen"].models | type == "object"' >/dev/null 2>&1; then
   echo "provider.opencode-zen.models must be an object" >&2
-  exit 1
-fi
-
-if ! printf '%s' "$json" | jq -e '(.permission.bash | type == "object") and (.permission.read | type == "object")' >/dev/null 2>&1; then
-  echo "permission.bash and permission.read must be objects" >&2
-  exit 1
-fi
-
-if ! printf '%s' "$json" | jq -e '.agent | to_entries | map(.value.tools) | map(type == "object") | all' >/dev/null 2>&1; then
-  echo "agent.*.tools must all be objects" >&2
   exit 1
 fi
 
@@ -62,6 +52,10 @@ if [ ! -f "$SIDECAR" ]; then
   managed_paths_file="$TEMPLATES/managed-paths.json"
 fi
 
+# Skills discovery paths (OpenCode v2) — FR-012 documentation:
+#   - Project: .opencode/skills/, .claude/skills/, .agents/skills/
+#   - Global: ~/.config/opencode/skills, ~/.claude/skills, ~/.agents/skills
+#   - Custom: see "skills" array in opencode.json (merged below)
 merged="$(jq -n \
   --argjson existing "$existing" \
   --argjson new "$json" \
@@ -71,12 +65,14 @@ merged="$(jq -n \
   ($existing // {}) as $base
   | reduce ($agents | split(" "))[] as $agent (
       $base;
-      .agent[$agent] = $new.agent[$agent]
+      .agents[$agent] = $new.agents[$agent]
   )
   | .instructions = $new.instructions
-  | .permission = $new.permission
-  | .mcp = (.mcp // {}) | .mcp["engram"] = $new.mcp["engram"]
-  | .provider = ((.provider // {}) + ($new.provider // {}))
+  | .skills = $new.skills
+  | .default_agent = $new.default_agent
+  | .permissions = $new.permissions
+  | .mcp = (.mcp // {}) | .mcp["servers"] = ((.mcp["servers"]) // {}) | .mcp["servers"]["engram"] = $new.mcp["servers"]["engram"]
+  | .providers = ((.providers // {}) + ($new.providers // {}))
   | .[$schema_key] = $new[$schema_key]
 '
 )"

@@ -3,11 +3,22 @@ description: Phase 1 — Writes spec.md with capability matrix (FR/NFR) and STRI
 mode: subagent
 hidden: true
 model: __FLOWFORGE_MODEL__
-permission:
-  edit: allow
-  write: allow
-  read: allow
-  bash: allow
+permissions:
+  - action: edit
+    resource: "*"
+    effect: allow
+  - action: write
+    resource: "*"
+    effect: allow
+  - action: read
+    resource: "*"
+    effect: allow
+  - action: shell
+    resource: "*"
+    effect: allow
+  - action: skill
+    resource: "forge-arch"
+    effect: allow
 ---
 
 You are **forge-arch**, the Phase 1 agent of FlowForge.

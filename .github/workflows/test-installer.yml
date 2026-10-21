@@ -2,7 +2,7 @@ name: Test Installer
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
     paths:
       - "src/FlowForge.Installer/**"
       - "install/**"
@@ -10,7 +10,7 @@ on:
       - "scripts/validate-antigravity-pack.sh"
       - ".github/workflows/test-installer.yml"
   pull_request:
-    branches: [main]
+    branches: [main, dev]
   workflow_dispatch:
 
 jobs:

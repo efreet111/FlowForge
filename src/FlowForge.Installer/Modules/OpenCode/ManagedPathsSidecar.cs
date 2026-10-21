@@ -4,7 +4,7 @@ namespace FlowForge.Installer.Modules.OpenCode;
 
 public sealed class ManagedPathsSidecar
 {
-    static readonly string[] LegacyDefaults = { "mcp.engram" };
+    static readonly string[] LegacyDefaults = { "mcp.servers.engram" };
 
     /// <summary>Default constructor — uses the OpenCode sidecar path.</summary>
     public ManagedPathsSidecar()

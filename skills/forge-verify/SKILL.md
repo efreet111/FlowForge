@@ -2,8 +2,12 @@
 name: forge-verify
 description: Phase 3 (Judgment) of FlowForge. Sentinel Judge that audits code against spec.md and plan.md.
 trigger: When user says "forge verify", "audit code", or advances to phase 3 judgment in FlowForge.
-version: "1.2.0"
+version: "1.3.0"
+metadata:
+  opencode/autoinvoke: false  # HU-045: Disable auto-invocation to force subagent delegation
 changelog:
+  - date: "2026-10-14"
+    note: "HU-045: Add opencode/autoinvoke: false — subagent-first invocation"
   - date: "2026-09-11"
     note: "Add drift health check — Step 6 (FR-001 to FR-007, HU-031). Deterministic detection of untracked files and stale tasks integrated into verify workflow."
   - date: "2026-08-27"

@@ -37,7 +37,7 @@ The orchestrator enforces 5 control points. Learn the difference:
 
 | Skill | Fase | CKP | Trigger / Context | Path |
 |-------|------|-----|-------------------|------|
-| `forge-orchestrator` | All | CKP‑0→4 | When starting a new session, analyzing the workflow state, or managing state transitions. | [`skills/forge-orchestrator/SKILL.md`](skills/forge-orchestrator/SKILL.md) |
+| `flowforge` | All | CKP‑0→4 | When starting a new session, analyzing the workflow state, or managing state transitions. | [`skills/flowforge/SKILL.md`](skills/flowforge/SKILL.md) |
 | `forge-discovery` | 0 | CKP‑0 🔴 | When starting a new epic, exploring memories (DB or local grep fallback), or mapping requirements. | [`skills/forge-discovery/SKILL.md`](skills/forge-discovery/SKILL.md) |
 | `forge-arch` | 1 | CKP‑1 🟡 | When designing the spec.md, writing Given-When-Then scenarios, or defining capabilities. | [`skills/forge-arch/SKILL.md`](skills/forge-arch/SKILL.md) |
 | `forge-plan` | 2 | CKP‑2 🟡 | When writing plan.md, proposing technical changes, or creating a checklist of tasks. | [`skills/forge-plan/SKILL.md`](skills/forge-plan/SKILL.md) |
@@ -45,6 +45,7 @@ The orchestrator enforces 5 control points. Learn the difference:
 | `forge-verify` | 3 | CKP‑3 🔴 | Auditing implementation (LLM-as-Judge & traceability) or generating rework tickets. | [`skills/forge-verify/SKILL.md`](skills/forge-verify/SKILL.md) |
 | `forge-memory` | 4 | CKP‑4 🟢 | Session closure (smart synthesis, database upload, ADR promotion, retention cleanup). | [`skills/forge-memory/SKILL.md`](skills/forge-memory/SKILL.md) |
 | `forge-index-docs` | On-demand | — | Index FlowDoc docs (PRD, ADR, RFC, API, DB) into Engram. Trigger: "index docs", "indexar documentos", "backfill engram", "drift-check docs". | [`skills/forge-index-docs/SKILL.md`](skills/forge-index-docs/SKILL.md) |
+| `forge-init` | On-demand | — | Initialize or synchronize `AGENTS.md` in a project (6-step flow, semantic merge, backup/restore, dry-run). Trigger: "fforge-init, init AGENTS.md, inicializar AGENTS.md, sync AGENTS.md, adopt FlowForge in project". | [`skills/forge-init/SKILL.md`](skills/forge-init/SKILL.md) |
 
 ---
 
@@ -108,8 +109,8 @@ Load these on-demand when the context demands domain expertise. The core skills 
 
 | Trigger | Skill | Cycle | Output path |
 |---------|-------|-------|-------------|
-| Create/update HU | `flowdoc-hu` | Direct (forge-orchestrator → flowdoc-hu) | `docs/tasks/HU-001-HU-099/HU-NNN.md` |
-| Create PRD | `flowdoc-assist` → `flowdoc-prd` | Delegated (forge-orchestrator → flowdoc-assist) | `docs/PRD.md` |
+| Create/update HU | `flowdoc-hu` | Direct (flowforge → flowdoc-hu) | `docs/tasks/HU-001-HU-099/HU-NNN.md` |
+| Create PRD | `flowdoc-assist` → `flowdoc-prd` | Delegated (flowforge → flowdoc-assist) | `docs/PRD.md` |
 | Create product ADR | `flowdoc-assist` → `flowdoc-adr` | Delegated | `docs/architecture/adr/` |
 | Create RFC | `flowdoc-assist` → `flowdoc-rfc` | Delegated | `docs/architecture/rfc/` |
 | Document API | `flowdoc-assist` → `flowdoc-api` | Delegated | `docs/endpoints.md` |
@@ -126,9 +127,9 @@ If a flowdoc skill is not installed or not responding:
 
 ### Key rules
 
-- `flowdoc-hu` is NEVER invoked via `flowdoc-assist` — it's a direct call from `forge-orchestrator`
+- `flowdoc-hu` is NEVER invoked via `flowdoc-assist` — it's a direct call from `flowforge`
 - `flowdoc-assist` coordinates ONLY base docs (discover/prd/adr/rfc/api/db/review) — NOT HUs
-- HU cycle is independent of base docs cycle; forge-orchestrator is the hub connecting both
+- HU cycle is independent of base docs cycle; flowforge is the hub connecting both
 - `.atl/skill-registry.md` is auto-generated — do NOT edit manually
 
 ---

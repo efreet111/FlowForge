@@ -1,0 +1,77 @@
+{
+  "id": "agents-md-base",
+  "label": "AGENTS.md base template",
+  "version": 1,
+  "placeholders": [
+    "__PROJECT_NAME__",
+    "__DATE__",
+    "__FLOWFORGE_VERSION__",
+    "__STACK_LANG__",
+    "__STACK_FRAMEWORK__",
+    "__STACK_TESTS__",
+    "__STACK_VERSION__"
+  ],
+  "recommendedFragments": [],
+  "requiredSections": ["AI Agent Rules"],
+  "skills": [
+    "flowforge",
+    "forge-discovery",
+    "forge-arch",
+    "forge-plan",
+    "forge-dev",
+    "forge-verify",
+    "forge-memory"
+  ],
+  "profiles": {
+    "blank": {
+      "label": "Blank (minimal structure)",
+      "placeholders": {
+        "__STACK_LANG__": "(fill in)",
+        "__STACK_FRAMEWORK__": "(fill in)",
+        "__STACK_TESTS__": "(fill in)",
+        "__STACK_VERSION__": "(fill in)"
+      },
+      "recommendedFragments": []
+    },
+    "kotlin-android": {
+      "label": "Kotlin / Android",
+      "placeholders": {
+        "__STACK_LANG__": "Kotlin",
+        "__STACK_FRAMEWORK__": "Jetpack Compose",
+        "__STACK_TESTS__": "JUnit 5",
+        "__STACK_VERSION__": "JDK 17"
+      },
+      "recommendedFragments": [
+        "stack/android.md.fragment",
+        "functionality/testing.md.fragment",
+        "functionality/compose.md.fragment"
+      ]
+    },
+    "web": {
+      "label": "JavaScript / TypeScript",
+      "placeholders": {
+        "__STACK_LANG__": "TypeScript",
+        "__STACK_FRAMEWORK__": "Node.js",
+        "__STACK_TESTS__": "Vitest",
+        "__STACK_VERSION__": "Node 20"
+      },
+      "recommendedFragments": [
+        "stack/web.md.fragment",
+        "functionality/testing.md.fragment"
+      ]
+    },
+    "python": {
+      "label": "Python",
+      "placeholders": {
+        "__STACK_LANG__": "Python",
+        "__STACK_FRAMEWORK__": "(stdlib)",
+        "__STACK_TESTS__": "pytest",
+        "__STACK_VERSION__": "Python 3.12"
+      },
+      "recommendedFragments": [
+        "stack/python.md.fragment",
+        "functionality/testing.md.fragment"
+      ]
+    }
+  }
+}

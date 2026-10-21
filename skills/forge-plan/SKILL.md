@@ -2,8 +2,12 @@
 name: forge-plan
 description: Phase 2 (Architecture) of FlowForge. Translates spec.md into strict plan.md to prevent Dev freelancing.
 trigger: When user says "forge plan", "create plan", or designs implementation in FlowForge.
-version: "1.1.0"
+version: "1.2.0"
+metadata:
+  opencode/autoinvoke: false  # HU-045: Disable auto-invocation to force subagent delegation
 changelog:
+  - date: "2026-10-14"
+    note: "HU-045: Add opencode/autoinvoke: false — subagent-first invocation"
   - date: "2026-09-11"
     note: "HU-030: Document [DECISION] and [CONVENTION] marker syntax for automated extraction (post-Plan hook)"
   - date: "2026-08-27"

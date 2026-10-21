@@ -2,8 +2,14 @@
 name: forge-memory
 description: Phase 4 (Closure) of FlowForge. Extracts knowledge from the session and persists it to Engram and Level-2 documentation.
 trigger: When the user says "forge memory", "close session", or completes a feature in FlowForge.
-version: "1.2.0"
+version: "1.4.0"
+metadata:
+  opencode/autoinvoke: false  # HU-045: Disable auto-invocation to force subagent delegation
 changelog:
+  - date: "2026-10-16"
+    note: "HU-048: Add DRY-RUN GATE for mem_retention_prune — validates types before prune to prevent deletion of durable knowledge (bugfix, pattern, discovery, learning)"
+  - date: "2026-10-14"
+    note: "HU-045: Add opencode/autoinvoke: false — subagent-first invocation"
   - date: "2026-09-11"
     note: "F-001 fix: Add session bootstrap (mem_session_start) before extraction loop — prevents unknown_session errors in mem_save calls"
   - date: "2026-09-11"
@@ -88,6 +94,76 @@ Verified by the human developer.
 
 After PM-* gates pass, **before** writing `summary.md` or reporting CKP-4 complete:
 
+### Contradiction Check (HU-036 Phase 1)
+
+> **Trigger**: Invoked before `mem_session_summary` during session close.
+> **Purpose**: Detect and surface memory contradictions for user resolution.
+
+**Step 1 — Call contradiction check**:
+
+```
+1. Call mem_check_contradictions(Limit: 20, IncludeResolved: false)
+2. Parse response.phase:
+   - "stub" → Show advisory message (see below)
+   - "full" → Process contradictions array
+3. Continue to mem_session_summary only after contradiction check completes or user defers
+```
+
+**Step 2 — If phase == "stub"**:
+
+Display to the user:
+```
+ℹ️ [mem_check_contradictions] is in stub mode — automatic contradiction detection
+   awaits ENG-412/ENG-414 in Phase 2.
+
+   Manual contradiction tracking is available now:
+   - Use mem_relations --type conflicts_with to register contradictions
+   - Use mem_recall/mem_search to surface contradictions during retrieval
+
+   No contradictions detected (Phase 1 stub response).
+```
+
+**Step 3 — If phase == "full" and contradictions found**:
+
+For each contradiction, present the resolution prompt from `contradiction-resolver.md`:
+
+```markdown
+## ⚠️ Contradiction Detected
+
+**Memory A** (id: {memoryAId}): {summaryA}
+**Memory B** (id: {memoryBId}): {summaryB}
+
+**Topic**: {topicKey}
+**Confidence**: {confidence ?? "N/A"}
+
+**Resolution Options**:
+1. **Keep Both** — Both valid in different contexts
+2. **Mark Supersedence** — B supersedes A
+3. **Merge** — Combine into new memory
+4. **Ignore** — Not a real contradiction
+
+> Choose 1-4 or type "defer" to resolve later.
+```
+
+After user selects resolution:
+- Execute the appropriate resolution action (see `skills/forge-memory-contradiction/contradiction-resolver.md`)
+- Call `mem_save` to log the resolution as a memory signal
+- Continue to next contradiction or session summary
+
+**Step 4 — If no contradictions found**:
+
+Proceed silently to `mem_session_summary`.
+
+**Deferral**: If user types "defer", log the deferral and proceed:
+```
+mem_save(
+  title: "Deferred contradiction: {memoryAId} ↔ {memoryBId}",
+  type: "task",
+  content: "Contradiction on {topicKey} deferred. Memory A: {summaryA}. Memory B: {summaryB}.",
+  topic_key: "contradiction/hu-036/deferred"
+)
+```
+
 1. **Ingest local buffer** (if any): scan `./.engram/local_memory/*.md`, synthesize
    high-value items via Smart Curation (below), then `mem_save` or keep file if MCP fails.
 2. **Call `mem_session_summary`** (required — not optional) with:
@@ -121,8 +197,43 @@ The `engram-dotnet` engine provides a full toolbox. Use it as follows:
    * Then run `mem_sync_md_to_repo` so the new ADR is indexed in the repository.
 3. **Health & Retention (`mem_doctor`, `mem_retention_stats` & `mem_retention_prune`)**:
    * At start, run `mem_doctor` in the background to verify engine connectivity.
-   * At session close, **first** invoke `mem_retention_stats` to see what will be pruned (counts by type and age). Review the output before pruning.
-   * Then invoke `mem_retention_prune` to safely delete temporary observations (`tool_use`, `command`, `file_change`) that have exceeded their TTL, keeping the team database lean.
+   * At session close, **first** invoke `mem_retention_stats` to see what will be pruned (counts by type and age).
+
+   **⚠️ DRY-RUN GATE — MANDATORY BEFORE PRUNE (HU-048)**
+
+   After receiving `mem_retention_stats` output, apply this validation before invoking `mem_retention_prune`:
+
+   ```
+   TEMPORARY_TYPES = {"tool_use", "command", "file_change"}
+
+   1. Parse the type counts from mem_retention_stats output
+   2. Classify each type:
+      - If type ∈ TEMPORARY_TYPES → "safe to prune"
+      - If type ∉ TEMPORARY_TYPES → "durable knowledge — DO NOT PRUNE"
+   3. Decision tree:
+      ├─ ONLY temporary types present?
+      │   └─ YES → Invoke mem_retention_prune (safe to proceed)
+      └─ ANY non-temporary types present?
+          ├─ YES → Emit WARNING with full type list:
+          │   "⚠️ mem_retention_prune would delete DURABLE knowledge:
+          │       {list of non-temporary types and counts}
+          │   Temporary types (safe): {safe types}
+          │   Non-temporary types (BLOCKED): {blocked types}
+          │   Recommended action: Cancel prune to preserve team knowledge."
+          │   → DO NOT invoke mem_retention_prune automatically
+          │   → Ask user for explicit decision:
+          │      [A] Proceed anyway (unsafe — requires typed confirmation)
+          │      [B] Cancel (safe default)
+          └─ NO types at all → No-op, nothing to prune
+   ```
+
+   **Why this gate exists (HU-048 root cause):**
+   - `mem_retention_prune` has no `type` filter parameter
+   - Without this gate, the tool deletes ALL expired observations
+   - This includes durable knowledge types: `bugfix`, `pattern`, `discovery`, `learning`
+   - The skill documentation claimed "safe delete temporary observations" but provided no enforcement
+
+   **Limitation note:** If `mem_retention_prune` does not support a `type` parameter, this gate is the only mechanism to prevent data loss. Consider filing a feature request for `mem_retention_prune --type <filter>`.
 
 ---
 
@@ -135,11 +246,11 @@ When the developer works **offline** (no DB), notes accumulate as individual mar
    * Discard fleeting debugging notes (console prints, temporary test snippets).
    * Identify high‑value items: structural decisions, complex bug fixes, new patterns.
 3. **Consolidation & Compression**:
-    * If multiple files describe the same bug, merge them into a **single high‑quality observation** with the canonical format:
-      - **What**: definitive resolution or decision.
-      - **Why**: reasoning behind the choice.
-      - **Where**: affected files/components.
-      - **Learned**: key technical lesson or gotcha.
+     * If multiple files describe the same bug, merge them into a **single high‑quality observation** with the canonical format:
+       - **What**: definitive resolution or decision.
+       - **Why**: reasoning behind the choice.
+       - **Where**: affected files/components.
+       - **Learned**: key technical lesson or gotcha.
 4. **Observation Quality Checklist**:
 
     Antes de guardar, verificar:

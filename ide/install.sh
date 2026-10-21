@@ -135,6 +135,51 @@ cleanup_legacy_antigravity_pack() {
   rm -f "${HOME}/.gemini/config/skills.json" 2>/dev/null || true
 }
 
+# HU-042: Auto-install context7 MCP for non-local Engram profiles
+install_context7_mcp() {
+  # Profile detection: env var, ENGRAM_PROFILE, or config file (3-tier)
+  local is_non_local=0
+
+  # 1. ENGRAM_SERVER_URL (scripts/CI)
+  if [ -n "${ENGRAM_SERVER_URL:-}" ]; then
+    echo -e "  ${GREEN}✓${NC} Non-local profile detected via ENGRAM_SERVER_URL"
+    is_non_local=1
+  # 2. ENGRAM_PROFILE != "local"
+  elif [ "${ENGRAM_PROFILE:-local}" != "local" ]; then
+    echo -e "  ${GREEN}✓${NC} Non-local profile detected via ENGRAM_PROFILE=${ENGRAM_PROFILE}"
+    is_non_local=1
+  # 3. ~/.engram/config.json with sync config
+  elif [ -f "${HOME}/.engram/config.json" ] && grep -q '"sync"' "${HOME}/.engram/config.json" 2>/dev/null; then
+    echo -e "  ${GREEN}✓${NC} Non-local profile detected via ~/.engram/config.json"
+    is_non_local=1
+  fi
+
+  if [ "$is_non_local" -eq 0 ]; then
+    echo -e "  ${YELLOW}→${NC} Local profile — skipping context7 MCP"
+    return 0
+  fi
+
+  # Check if opencode is installed
+  if ! command -v opencode >/dev/null 2>&1; then
+    echo -e "  ${YELLOW}!${NC} opencode not found — skipping context7 MCP"
+    return 0
+  fi
+
+  # Idempotency: check if already installed
+  if opencode mcp list 2>/dev/null | grep -q "context7"; then
+    echo -e "  ${GREEN}✓${NC} context7 MCP already installed"
+    return 0
+  fi
+
+  echo -e "  ${YELLOW}→${NC} Installing context7 MCP..."
+  if opencode mcp add context7 --url https://mcp.context7.com/mcp --global 2>/dev/null; then
+    echo -e "  ${GREEN}OK${NC} context7 MCP installed"
+  else
+    echo -e "  ${YELLOW}!${NC} context7 MCP installation failed — manual fix required:"
+    echo -e "     ${BLUE}opencode mcp add context7 --url https://mcp.context7.com/mcp --global${NC}"
+  fi
+}
+
 generate_antigravity_model_assignments() {
   local dest="$1"
   local json_file="$IDE_DIR/antigravity/config/agent-models.json"
@@ -154,7 +199,7 @@ generate_antigravity_model_assignments() {
     echo ""
     echo "| Agent | Preferred Model | Fallback | Mode | Purpose |"
     echo "|-------|----------------|----------|------|---------|"
-    for agent in forge-orchestrator forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher default; do
+    for agent in flowforge forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher default; do
       local model fallback mode purpose
       model="$(jq -r ".agents[\"$agent\"].model" "$json_file")"
       fallback="$(jq -r ".agents[\"$agent\"].fallback" "$json_file")"
@@ -180,7 +225,6 @@ migrate_legacy_antigravity_workflows() {
       cp -f "$f" "$dest"
     fi
   done
->>>>>>> origin/main
 }
 
 install_antigravity_global() {
@@ -238,7 +282,12 @@ install_project() {
   cp "$IDE_DIR/opencode/agents/"*.md "$root/.opencode/agents/" 2>/dev/null || true
   cp "$IDE_DIR/opencode/commands/"*.md "$root/.opencode/commands/" 2>/dev/null || true
   cp "$IDE_DIR/opencode/agents/"*.md "$root/.kilo/agents/" 2>/dev/null || true
-  echo -e "  ${GREEN}OK${NC} .github/agents + .opencode/agents + .opencode/commands + .kilo/agents"
+  # HU-040 / ADR-011 — Copilot Chat slash commands into the project scope.
+  if [ -d "$IDE_DIR/vscode/prompts" ]; then
+    mkdir -p "$root/.github/prompts"
+    cp "$IDE_DIR/vscode/prompts/"*.prompt.md "$root/.github/prompts/" 2>/dev/null || true
+  fi
+  echo -e "  ${GREEN}OK${NC} .github/agents + .github/prompts + .opencode/agents + .opencode/commands + .kilo/agents"
 }
 
 echo -e "${BLUE}========================================${NC}"
@@ -293,10 +342,38 @@ if [ -d "${HOME}/.config/opencode" ] || mkdir -p "${HOME}/.config/opencode" 2>/d
       dest="${HOME}/.config/opencode/agents/${dest_name}"
       cp "$tpl" "$dest"
       agent_key="${dest_name%.md}"
+      # HU-041 fix: agent-models.json migrated to a per-provider schema in commit 2637562
+      # ({"agents":{"forge-dev":{"opencode-zen":"...","opencode-go":"..."}}}) while older
+      # caches use ({"tiers":{"<tier>":{"agents":{"forge-dev":{"model":"..."}}}}}).
+      # Probe both shapes, then validate the result is a single-line token before sed.
+      # If neither matches, we skip the rewrite entirely and leave the template's
+      # model: line untouched — never clobber a working assignment with garbage.
       if command -v jq >/dev/null 2>&1 && [ -f "$IDE_DIR/opencode/config/agent-models.json" ]; then
-        model=$(jq -r ".agents[\"${agent_key}\"].model // empty" "$IDE_DIR/opencode/config/agent-models.json")
+        models_file="$IDE_DIR/opencode/config/agent-models.json"
+        provider="${FLOWFORGE_PROVIDER:-opencode-zen}"
+        model=""
+        # Shape A (current repo schema): .agents.<key>.<provider>
+        model=$(jq -r --arg k "$agent_key" --arg p "$provider" \
+          '.agents[$k][$p] // empty' "$models_file" 2>/dev/null || echo "")
+        # Shape B (legacy cache schema): .tiers.<active_tier>.agents.<key>.model
+        if [ -z "$model" ]; then
+          model=$(jq -r --arg k "$agent_key" \
+            '.tiers[.active_tier].agents[$k].model // empty' "$models_file" 2>/dev/null || echo "")
+        fi
+        # Shape C (legacy flat schema): .agents.<key>.model
+        if [ -z "$model" ]; then
+          model=$(jq -r --arg k "$agent_key" \
+            '.agents[$k].model // empty' "$models_file" 2>/dev/null || echo "")
+        fi
+        # Only rewrite when we resolved a clean single-line token (no spaces, quotes,
+        # braces or newlines). Anything else means we mis-parsed the schema — bail out
+        # and preserve whatever the template already had.
+        case "$model" in
+          ''|*[[:space:]]*|*'{'*|*'}'*|*'"'* )
+            model="" ;;
+        esac
         if [ -n "$model" ]; then
-          sed -i "s|^model:.*|model: opencode-zen/${model}|" "$dest"
+          sed -i "s|^model:.*|model: ${provider}/${model}|" "$dest" 2>/dev/null || true
         fi
       fi
     done
@@ -315,6 +392,10 @@ if [ -d "${HOME}/.config/opencode" ] || mkdir -p "${HOME}/.config/opencode" 2>/d
 
   echo -e "  ${GREEN}OK${NC} ~/.config/opencode/ (config + agents + commands)"
   echo -e "  ${YELLOW}⚠ Free Zen models may use your data for training. See docs/PII-POLICY.md${NC}"
+  
+  # HU-042: Auto-install context7 MCP for non-local profiles
+  install_context7_mcp
+  
   INSTALLED=1
 fi
 
@@ -332,6 +413,18 @@ if [ -d "${HOME}/.cursor" ]; then
 fi
 
 # --- VS Code ---
+# Detect the prompts directory for the GitHub Copilot Chat picker.
+# Supports both native installs (Linux/macOS/Windows — $HOME/.config/Code/User/prompts)
+# and Flatpak installs ($HOME/.var/app/com.visualstudio.code/config/Code/User/prompts).
+# HU-040 / ADR-011. Bash 3.2+ POSIX-compliant.
+detect_vscode_prompts_path() {
+  if [ -d "${HOME}/.var/app/com.visualstudio.code" ]; then
+    printf '%s' "${HOME}/.var/app/com.visualstudio.code/config/Code/User/prompts"
+  else
+    printf '%s' "${HOME}/.config/Code/User/prompts"
+  fi
+}
+
 if [ -d "${HOME}/.vscode" ] || [ -d "${HOME}/.vscode-server" ]; then
   echo -e "${GREEN}[OK] VS Code detectado${NC}"
   HAS_COPILOT=0
@@ -356,6 +449,21 @@ if [ -d "${HOME}/.vscode" ] || [ -d "${HOME}/.vscode-server" ]; then
       } > "${HOME}/.copilot/instructions/flowforge.instructions.md"
     fi
     echo -e "  ${GREEN}OK${NC} GitHub Copilot → ~/.copilot/agents/"
+
+    # HU-040 / ADR-011 — Copilot Chat slash commands (prompts pack).
+    # Detects Flatpak sandbox path automatically; backs up existing prompts dir
+    # before overwriting (T-B7 — NFR-2 atomicity + rollback safety).
+    if [ -d "$IDE_DIR/vscode/prompts" ]; then
+      VSCODE_PROMPTS_DEST="$(detect_vscode_prompts_path)"
+      # T-B7: backup preflight of the destination prompts dir.
+      if [ -d "$VSCODE_PROMPTS_DEST" ]; then
+        mkdir -p "${BACKUP_DIR}/vscode-prompts"
+        cp -r "$VSCODE_PROMPTS_DEST/." "${BACKUP_DIR}/vscode-prompts/" 2>/dev/null || true
+      fi
+      mkdir -p "$VSCODE_PROMPTS_DEST"
+      cp "$IDE_DIR/vscode/prompts/"*.prompt.md "$VSCODE_PROMPTS_DEST/" 2>/dev/null || true
+      echo -e "  ${GREEN}OK${NC} GitHub Copilot prompts → $VSCODE_PROMPTS_DEST"
+    fi
   fi
 
   if [ "$HAS_KILO" -eq 1 ] || [ "$HAS_COPILOT" -eq 0 ]; then

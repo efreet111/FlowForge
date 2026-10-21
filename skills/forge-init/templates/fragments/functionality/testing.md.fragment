@@ -1,0 +1,24 @@
+---
+id: testing
+kind: functionality
+label: "Testing"
+detect:
+  - "**/*Test*"
+  - "**/tests/**"
+conflicts: []
+recommendedWith: []
+version: 1
+---
+
+## Testing conventions
+
+- **Red → green → refactor.** A failing test comes first; a change without a test is incomplete.
+- **One behaviour per test**, named for the requirement it proves. Tag the requirement id in the
+  test name or the nearest comment when a requirement exists.
+- **Test pyramid**: many fast unit tests, few integration tests, end-to-end only for the critical
+  paths.
+- **Determinism**: no sleeps, no real network, no wall-clock or timezone dependence. Freeze time
+  explicitly when time matters.
+- **Coverage is a signal, not a goal**: cover the branches that carry risk, not every line.
+- For advanced techniques (fixtures, property-based, contract, mutation) load the FlowForge
+  `forge-dev-testing` skill before designing the suite.
