@@ -10,7 +10,7 @@ status: draft
 category: hotfix
 flowforge_slug: "hu-041-installer-updater-parity"
 priority: P1
-related_adrs: [ADR-008, ADR-011, ADR-026]
+related_adrs: [ADR-008, ADR-027, ADR-028]
 related_hu: [HU-040, HU-038, HU-027]
 ---
 
@@ -159,7 +159,7 @@ Durante la validación de [HU-040](HU-040-vscode-slash-commands-missing.md) en l
 
 ## ADR candidate
 
-**Sí.** Requiere **ADR-026 — Manifest único de destinos IDE compartido por shell y C#**, que modifica ADR-008 (matriz de rutas) y ADR-011 (paridad VS Code).
+**Sí.** Requiere **ADR-028 — Manifest único de destinos IDE compartido por shell y C#**, que modifica ADR-008 (matriz de rutas) y ADR-027 (paridad VS Code).
 
 ---
 
@@ -169,7 +169,7 @@ Durante la validación de [HU-040](HU-040-vscode-slash-commands-missing.md) en l
 - **HU-038** — precedente: paridad OpenCode commands
 - **HU-027** — precedente: path mismatch
 - **ADR-008** — matriz canónica de rutas (aeijoextends con el manifest)
-- **ADR-011** — VS Code prompts pack
+- **ADR-027** — VS Code prompts pack
 - **`src/FlowForge.Installer/Update/UpdateOrchestrator.cs`** — `GetAgentDirsForIde()` línea ~395
 - **`src/FlowForge.Installer/Update/CacheRefresher.cs`** — fuente del downgrade
 - **`ide/install.sh`** línea ~303 — el `sed` frágil
@@ -187,7 +187,7 @@ Durante la validación de [HU-040](HU-040-vscode-slash-commands-missing.md) en l
 ## Definition of Done
 
 - [ ] FR-1..FR-6 implementados
-- [ ] ADR-026 en `docs/decisions/` y aceptado
+- [ ] ADR-028 en `docs/decisions/` y aceptado
 - [ ] `ide/install.sh` + `ide/install.ps1` + `UpdateOrchestrator.cs` consumen el manifest
 - [ ] Tests nuevos cubren D1–D4
 - [ ] `dotnet test` ≥ 240 + nuevos, todos verdes

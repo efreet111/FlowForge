@@ -29,6 +29,9 @@
 | ADR-023 | `flowforge onboard`: engram CLI subprocess bridge + dual Go/.NET text format tolerance | Accepted | 2026-09-08 | hu-029-onboarding-flow |
 | ADR-024 | Agent quality standards: English-only instructions, OpenCode embed-inline, `<!-- sync: -->` drift comments | Accepted | 2026-09-08 | agent-quality-improvement |
 | ADR-025 | Post-Plan hook: decision extraction from plan.md into Engram (3-pass, opt-in, fail-safe) | Accepted | 2026-09-11 | hu-030-decision-extraction |
+| ADR-026 | Installer cache refresh strategy: detect working-tree drift before update | Accepted | 2026-09-30 | hu-046-opencode-v2-legacy-compat |
+| ADR-027 | VS Code prompts pack (slash commands `/flow-*`): Flatpak-aware path detection | Accepted | 2026-10-20 | hu-040-vscode-slash-commands |
+| ADR-028 | Shared IDE destinations manifest consumed by shell installer and C# updater | Proposed | 2026-10-20 | hu-041-installer-updater-parity |
 
 ---
 
@@ -38,6 +41,8 @@
 |----------|------------|--------|
 | ADR-011 (ide-pack-parity) | ADR-019 | Duplicate number |
 | ADR-013 (engram-mcp-no-anthropic) | ADR-020 | Duplicate number |
+| ADR-011 (planned for vscode-prompts) | ADR-027 | Duplicate with ADR-019's lineage at merge time |
+| ADR-026 (planned for shared-manifest) | ADR-028 | Duplicate with ADR-026 (cache refresh) |
 
 ## Guidelines
 

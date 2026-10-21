@@ -10,7 +10,7 @@ status: done
 category: hotfix
 flowforge_slug: "hu-040-vscode-slash-commands"
 priority: P1
-related_adrs: [ADR-008, ADR-011]
+related_adrs: [ADR-008, ADR-027]
 related_hu: [HU-038]
 ---
 
@@ -52,7 +52,7 @@ Resultado: el orquestador responde (porque las instructions sí cargan), pero lo
 - [x] **AC-4**: En VS Code con GitHub Copilot Chat instalado, al escribir `/` en el chat picker aparecen listados los 7 comandos `/flow-*`.
 - [x] **AC-5**: Cada prompt referencia al agente apropiado (e.g. `/flow-start` invoca `forge-orchestrator`; `/flow-verify` invoca `forge-verify`).
 - [x] **AC-6**: `flowforge doctor` reporta el pack VS Code como 🟢 (o 🟡 explicativo) — nunca 🔴 silencioso.
-- [x] **AC-7**: ADR-011 queda en `docs/decisions/` y modifica la matriz de ADR-008 agregando la fila de `prompts/` para GitHub Copilot.
+- [x] **AC-7**: ADR-027 queda en `docs/decisions/` y modifica la matriz de ADR-008 agregando la fila de `prompts/` para GitHub Copilot.
 
 ---
 
@@ -64,13 +64,13 @@ Resultado: el orquestador responde (porque las instructions sí cargan), pero lo
   **GIVEN** un usuario con VS Code nativo en Linux (`~/.vscode/extensions/github.copilot*` presente)
   **WHEN** ejecuta `bash ide/install.sh` sin argumentos
   **THEN** los 7 archivos `flow-*.prompt.md` aparecen en `~/.config/Code/User/prompts/` y el log muestra `OK GitHub Copilot → ~/.config/Code/User/prompts/`
-  **🧪 Ref**: `ide/install.sh#L334-L364`, ADR-011
+  **🧪 Ref**: `ide/install.sh#L334-L364`, ADR-027
 
 - [ ] **[Instalación global — Flatpak]**
   **GIVEN** un usuario con VS Code instalado vía Flatpak (`~/.var/app/com.visualstudio.code/...` presente)
   **WHEN** ejecuta `bash ide/install.sh`
   **THEN** los 7 archivos se copian a `~/.var/app/com.visualstudio.code/config/Code/User/prompts/` (NO a `~/.config/Code/User/prompts/`)
-  **🧪 Ref**: `ide/install.sh#L334-L364`, ADR-011 (detección de sandbox)
+  **🧪 Ref**: `ide/install.sh#L334-L364`, ADR-027 (detección de sandbox)
 
 - [ ] **[Instalación por proyecto]**
   **GIVEN** un proyecto vacío en `/tmp/example`
@@ -179,7 +179,7 @@ Resultado: el orquestador responde (porque las instructions sí cargan), pero lo
 
 ## ADR candidate
 
-Esta HU **requiere** un nuevo ADR que modifique `ADR-008-ide-installer-path-matrix.md` para agregar la fila de `prompts/` faltante. El nuevo ADR será `ADR-011-vscode-prompts-pack.md`.
+Esta HU **requiere** un nuevo ADR que modifique `ADR-008-ide-installer-path-matrix.md` para agregar la fila de `prompts/` faltante. El nuevo ADR será `ADR-027-vscode-prompts-pack.md`.
 
 ---
 
@@ -204,7 +204,7 @@ Esta HU **requiere** un nuevo ADR que modifique `ADR-008-ide-installer-path-matr
 
 - [ ] `ide/vscode/prompts/` contiene los 7 archivos con frontmatter válido
 - [ ] `ide/install.sh` (y `.ps1`) copia prompts a las dos rutas (user + workspace)
-- [ ] `ADR-011` queda en `docs/decisions/` y modifica ADR-008
+- [ ] `ADR-027` queda en `docs/decisions/` y modifica ADR-008
 - [ ] `docs/16-ide-integration-plan.md` refleja el nuevo pack
 - [ ] `README.md` y/o `docs/QUICKSTART.md` mencionan los comandos VS Code
 - [ ] forge-verify emite verdict PASS

@@ -1,9 +1,9 @@
-# ADR-026: Manifest único de destinos IDE compartido por shell installer y actualizador C#
+# ADR-028: Manifest único de destinos IDE compartido por shell installer y actualizador C#
 
 **Estado:** Proposed
 **Fecha:** 2026-10-20
 **Autores:** FlowForge installer crew (hallazgos de validación en máquina real de HU-040)
-**Relacionado con:** [ADR-008](ADR-008-ide-installer-path-matrix.md), [ADR-011](ADR-011-vscode-prompts-pack.md), [HU-041](../tasks/HU-001-HU-099/HU-041-installer-updater-parity.md), [HU-040](../tasks/HU-001-HU-099/HU-040-vscode-slash-commands-missing.md)
+**Relacionado con:** [ADR-008](ADR-008-ide-installer-path-matrix.md), [ADR-027](ADR-027-vscode-prompts-pack.md), [HU-041](../tasks/HU-001-HU-099/HU-041-installer-updater-parity.md), [HU-040](../tasks/HU-001-HU-099/HU-040-vscode-slash-commands-missing.md)
 
 ## Contexto
 
@@ -76,7 +76,7 @@ ides:
         source: ide/vscode/copilot-instructions.md
         dest: "~/.copilot/instructions/flowforge.instructions.md"
         generated_frontmatter: { applyTo: "'**'" }
-      - id: prompts                     # ← HU-040 / ADR-011
+      - id: prompts                     # ← HU-040 / ADR-027
         source: ide/vscode/prompts
         dest_resolvers:
           - when: { dir_exists: "~/.var/app/com.visualstudio.code" }

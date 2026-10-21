@@ -57,11 +57,11 @@ public static class PathHelper
     public static string CopilotInstructions =>
         Path.Combine(HomeDir, ".copilot", "instructions");
 
-    /// <summary>HU-040 / ADR-011 — VS Code Copilot Chat slash commands dir (native layout).</summary>
+    /// <summary>HU-040 / ADR-027 — VS Code Copilot Chat slash commands dir (native layout).</summary>
     public static string CopilotPromptsNative =>
         Path.Combine(HomeDir, ".config", "Code", "User", "prompts");
 
-    /// <summary>HU-040 / ADR-011 — VS Code Copilot Chat slash commands dir (Flatpak sandbox).</summary>
+    /// <summary>HU-040 / ADR-027 — VS Code Copilot Chat slash commands dir (Flatpak sandbox).</summary>
     public static string CopilotPromptsFlatpak =>
         Path.Combine(HomeDir, ".var", "app", "com.visualstudio.code", "config", "Code", "User", "prompts");
 

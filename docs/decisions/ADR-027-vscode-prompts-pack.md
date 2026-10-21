@@ -1,4 +1,4 @@
-# ADR-011: VS Code prompts pack (slash commands `/flow-*`)
+# ADR-027: VS Code prompts pack (slash commands `/flow-*`)
 
 **Estado:** Accepted — *promovido 2026-10-20 por forge-memory tras verdict PASS*  
 **Fecha:** 2026-10-20  

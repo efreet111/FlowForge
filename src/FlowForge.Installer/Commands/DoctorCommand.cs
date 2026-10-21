@@ -176,7 +176,7 @@ public sealed class DoctorCommand(InstallerContext ctx)
         return (true, null);
     }
 
-    // HU-040 / ADR-011 — distinguishes prompts (slash commands) from instructions and agents.
+    // HU-040 / ADR-027 — distinguishes prompts (slash commands) from instructions and agents.
     static (bool, string?) CheckFile(string path)
     {
         return File.Exists(path)
