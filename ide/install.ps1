@@ -253,6 +253,15 @@ function Install-ProjectBundle {
     $ghDir = Join-Path $Root ".github"
     Copy-Item (Join-Path $IdeDir "vscode\copilot-instructions.md") $ghDir -Force -ErrorAction SilentlyContinue
     Write-Host "  OK .github/copilot-instructions.md" -ForegroundColor Green
+
+    # HU-040 / ADR-011 — Copilot Chat slash commands por proyecto.
+    $ghPrompts = Join-Path $Root ".github\prompts"
+    $vscodePromptsSrc = Join-Path $IdeDir "vscode\prompts"
+    if (Test-Path $vscodePromptsSrc) {
+        New-Item -ItemType Directory -Force -Path $ghPrompts | Out-Null
+        Copy-Item -Path "$vscodePromptsSrc\*.prompt.md" -Destination $ghPrompts -Force -ErrorAction SilentlyContinue
+        Write-Host "  OK .github/prompts/" -ForegroundColor Green
+    }
 }
 
 Write-Host "========================================" -ForegroundColor Blue
@@ -339,6 +348,23 @@ if (Test-Path "$env:USERPROFILE\.vscode") {
             ) | Set-Content -Path $destInstructions -Encoding UTF8
         }
         Write-Host "  OK ~/.copilot/agents + ~/.copilot/instructions/" -ForegroundColor Green
+
+        # HU-040 / ADR-011 — Copilot Chat slash commands (prompts pack).
+        # Windows is always native; Flatpak does not apply here, so the path is fixed:
+        # %APPDATA%\Code\User\prompts\ (which is what VS Code calls the user profile prompts dir).
+        $vscodePromptsSrc = Join-Path $IdeDir "vscode\prompts"
+        $vscodePromptsDest = Join-Path $env:USERPROFILE "AppData\Roaming\Code\User\prompts"
+        if (Test-Path $vscodePromptsSrc) {
+            if (Test-Path $vscodePromptsDest) {
+                # T-B7: backup preflight of the prompts dir (atomicity, NFR-2).
+                $backupDest = Join-Path $BackupDir "vscode-prompts"
+                New-Item -ItemType Directory -Force -Path $backupDest | Out-Null
+                Copy-Item -Path (Join-Path $vscodePromptsDest "*") -Destination $backupDest -Recurse -Force -ErrorAction SilentlyContinue
+            }
+            New-Item -ItemType Directory -Force -Path $vscodePromptsDest | Out-Null
+            Copy-Item -Path (Join-Path $vscodePromptsSrc "*.prompt.md") -Destination $vscodePromptsDest -Force -ErrorAction SilentlyContinue
+            Write-Host "  OK Copilot Chat prompts -> $vscodePromptsDest" -ForegroundColor Green
+        }
     }
 
     if ($hasKilo) {

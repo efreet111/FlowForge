@@ -29,6 +29,8 @@
 |----|--------|-----------|------------|--------|---------|
 | **HU-027** | Binario busca `templates/agent-models.json` (ruta movida a `config/`) | 🔴 Critical | Symlink manual | 🔥 Hotfix | [HU-027](../tasks/HU-001-HU-099/HU-027-agent-models-path-mismatch.md) |
 | **HU-038** | `ide/opencode/commands/` nunca se creó en el repo | 🔴 Critical | Commands en `opencode.json` | 🔥 Hotfix | [HU-038](../tasks/HU-001-HU-099/HU-038-opencode-commands-missing.md) |
+| **HU-040** | `ide/vscode/prompts/` nunca se creó (paridad con Cursor/Antigravity/OpenCode) | 🟠 P1 | Disparadores en lenguaje natural | ✅ Done | [HU-040](../tasks/HU-001-HU-099/HU-040-vscode-slash-commands-missing.md) |
+| **HU-041** | Paridad `install.sh` ↔ `flowforge update`: 4 defectos (sed schema, prompts fuera del updater, downgrade por cache, provider pisado) | 🔴 Critical | Usar `FLOWFORGE_PROVIDER=` y no correr `update` con commits locales | 📋 Ready | [HU-041](../tasks/HU-001-HU-099/HU-041-installer-updater-parity.md) |
 | **HU-039** | Flag corto `-y` no reconocido en `flowforge init` | 🟡 Minor | Usar `--yes` | 📋 Ready | [HU-039](../tasks/HU-001-HU-099/HU-039-fix-init-short-flag-y.md) |
 
 ### Análisis forense

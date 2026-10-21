@@ -68,7 +68,7 @@ Canonical orchestrator behavior: [`ide/shared/workflow-orchestrator-parity.md`](
 |-----|-------|--------|----------------------|---------|
 | **Cursor** | `.cursor/rules/*.mdc` | `.cursor/agents/*.md` | `ide/cursor/commands/flow-*.md` | `ide/install.ps1` / `install.sh` |
 | **Antigravity** | `.agents/rules/*.md` | skills under `.agents/skills/` | `.agents/workflows/flow-*.md` | install script → project |
-| **VS Code / Copilot** | `.github/copilot-instructions.md` or `.vscode/` | `.github/agents/*.md` | Chat + agent files | copy or install script |
+| **VS Code / Copilot** | `.github/copilot-instructions.md` or `.vscode/` | `.github/agents/*.md` | `ide/vscode/prompts/flow-*.prompt.md` (slash commands) | install script → `~/.config/Code/User/prompts/` (Flatpak-aware) |
 | **OpenCode** | MCP in `opencode.json` (`type: local`) | `agents/*.md` (orchestrator: `flowforge.md`) | `commands/*.md` | install script → `~/.config/opencode/agents/` + `commands/` |
 
 ### IDE path matrix
@@ -79,7 +79,7 @@ FlowForge writes agent packs to the directories each IDE actually reads. The mat
 |-----|---------------|----------------|-----------|
 | **Cursor** | `~/.cursor/agents/`, `~/.cursor/rules/`, `~/.cursor/commands/` | `.cursor/agents/`, `.cursor/rules/`, `.cursor/commands/` | Presence of `~/.cursor` |
 | **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/`, `.kilo/agents/` (mirrored) | Presence of `~/.config/opencode` |
-| **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | VS Code extension `github.copilot*` |
+| **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md`, `~/.config/Code/User/prompts/*.prompt.md` (or `~/.var/app/com.visualstudio.code/config/Code/User/prompts/` on Flatpak) | `.github/agents/*.agent.md`, `.github/copilot-instructions.md`, `.github/prompts/*.prompt.md` | VS Code extension `github.copilot*` |
 | **Kilo Code** | `~/.config/kilo/agents/*.md` (same bundle as OpenCode) | `.kilo/agents/*.md` (duplicated) | VS Code extension `kilocode.*` |
 | **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `workflows/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `.agents/skills/`, `AGENTS.md` | `~/.gemini` — ver [ADR-019](decisions/ADR-019-opencode-antigravity-customizations.md) |
 | **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (MCP only) | — | `%APPDATA%\Claude` / `~/.config/Claude/` |
@@ -117,7 +117,22 @@ ide/antigravity/
 ```
 ide/vscode/
 ├── copilot-instructions.md
-└── (see also .github/agents/ templates in docs)
+├── agents/
+│   ├── forge-orchestrator.agent.md
+│   ├── forge-discovery.agent.md
+│   ├── forge-arch.agent.md
+│   ├── forge-plan.agent.md
+│   ├── forge-dev.agent.md
+│   ├── forge-verify.agent.md
+│   └── forge-memory.agent.md
+└── prompts/   ← slash commands for the Copilot Chat picker (HU-040)
+    ├── flow-start.prompt.md   (agent: forge-orchestrator)
+    ├── flow-plan.prompt.md    (agent: forge-orchestrator)
+    ├── flow-dev.prompt.md     (agent: forge-dev)
+    ├── flow-verify.prompt.md  (agent: forge-verify)
+    ├── flow-rework.prompt.md  (agent: forge-orchestrator)
+    ├── flow-status.prompt.md  (agent: forge-orchestrator)
+    └── flow-close.prompt.md   (agent: forge-memory)
 ```
 
 ---
