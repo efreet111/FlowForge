@@ -19,6 +19,28 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 ### Changed
 - **FlowForgeRepoLocator constructor**: Ahora acepta parámetro opcional `cachePath` para inyección en tests. Callers existentes no requieren cambios.
 
+## [v0.4.2] - 2026-10-20
+
+### Added
+- **HU-040 — VS Code slash commands `/flow-*`**: Pack `ide/vscode/prompts/` con 7 `.prompt.md` (frontmatter YAML: `description` + `agent`). Detectas Flatpak vs layout nativo automáticamente. Ver [HU-040](docs/tasks/HU-001-HU-099/HU-040-vscode-slash-commands-missing.md) y [ADR-027](docs/decisions/ADR-027-vscode-prompts-pack.md).
+- **`flowforge doctor` — 3 checks nuevos**: `~/.copilot/instructions/flowforge.instructions.md`, prompts pack (native), prompts pack (Flatpak).
+
+### Fixed
+- **`ide/install.sh` — merge marker huérfano**: Eliminado el `>>>>>>> origin/main` que rompía `bash -n`. Incluido para destrabar el bloque OpenCode→VS Code.
+- **`ide/install.sh` — parser `agent-models.json`**: Tolerante a 3 schemas (per-provider V2, tiers legacy, flat legacy). Evita que el script aborte cuando la migración de schema llega antes que el fix del `sed`. Huérfano de scope: vive aquí porque sin él el bloque VS Code nunca corría.
+
+### Documentation
+- **`ADR-027`** (renumerado desde ADR-011 por colisión con `dev`'s ADR-019 lineage): VS Code prompts pack.
+- **`ADR-028`** (renumerado desde ADR-026 por colisión con `dev`'s ADR-026 cache-refresh): Shared IDE destinations manifest (Proposed).
+- **`HU-041`** — 4 defectos de paridad `install.sh` ↔ `flowforge update`: (D1) `sed` schema-fragil, (D2) `GetAgentDirsForIde` no incluye `prompts/`, (D3) `CacheRefresher` degrada working tree, (D4) `FLOWFORGE_PROVIDER` no se respeta en C#. Documenta scope para próximo hotfix.
+
+### Verified
+- `dotnet build`: 0 errores
+- `dotnet test`: 273/273 pasando (33 tests nuevos agregados por `dev`)
+- `bash -n ide/install.sh`: clean
+- Prueba en máquina real (Linux + VS Code Flatpak): 7/7 prompts aparecen en el chat picker
+- `gh ls-remote refs/tags/v0.4.2`: tag pusheado a `03aa0727` antes del release.yml
+
 ## [Unreleased]
 
 ### Added
