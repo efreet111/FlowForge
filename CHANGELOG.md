@@ -6,6 +6,8 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 
 ## [Unreleased]
 
+## [v0.1.0-alpha.16] - 2026-10-30
+
 ### Fixed
 - **Gate de compatibilidad semver (era un no-op en prereleases)**: `TryParseVersion` descartaba el sufijo (`0.1.0-alpha.13` → `0.1.0`), así que `alpha.13` y `alpha.15` se comparaban como iguales y `requires.installer`/`requires.engram-dotnet` no bloqueaban nada dentro de la línea alpha. Reemplazado por comparación semver completa (`alpha.9 < alpha.10 < beta.1 < 0.1.0`) con tests. Detectado al preparar el bump de `requires.installer`.
 - **`requires.installer` → `>=0.1.0-alpha.15`**: una vez publicado el release, los installers anteriores reciben el aviso de bloqueo. El mensaje ya no sugiere `flowforge update --self` (comando inexistente en v1 — ADR-016 OQ-1) sino el bootstrap real: `curl -fsSL .../install/install.sh | bash`. Tests en `ManifestClientTests`.
