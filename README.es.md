@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/readme/banner-1280x320.png" width="880" alt="FlowForge — un enano herrero forjando un pipeline de agentes de IA en un yunque">
+</p>
+
 # FlowForge
 
 > **Forja tu flujo de desarrollo con agentes de IA.**
