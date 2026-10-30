@@ -1,8 +1,8 @@
 # FlowForge — Backlog Consolidado
 
-> **Última actualización**: 2026-09-16  
-> **Versión actual**: v0.1.0-alpha.12  
-> **Total de items**: 21 (8 NS-* + 7 FF-* + 4 Roadmap + 2 HU-*)  
+> **Última actualización**: 2026-10-29  
+> **Versión actual**: v0.1.0-alpha.15  
+> **Total de items**: 22 (8 NS-* + 7 FF-* + 4 Roadmap + 3 HU-*)  
 > **Hotfixes críticos**: 2 (requieren release inmediato)
 
 ---
@@ -14,8 +14,8 @@
 | **NS-*** (Non-Functional/Methodology) | 8 | 3 | 2 | 2 | 0 | 1 | 0 |
 | **FF-*** (Feature Ideas) | 7 | 0 | 0 | 3 | 4 | 0 | 0 |
 | **Roadmap** (OSS/Post-release) | 4 | 3 | 0 | 1 | 0 | 0 | 0 |
-| **HU-*** (Hotfixes críticos) | 2 | 0 | 0 | 0 | 0 | 0 | 2 |
-| **TOTAL** | **21** | **6** | **2** | **6** | **4** | **1** | **2** |
+| **HU-*** (Hotfixes críticos) | 3 | 0 | 0 | 0 | 0 | 0 | 2 |
+| **TOTAL** | **22** | **6** | **2** | **6** | **4** | **1** | **2** |
 
 ---
 
@@ -32,6 +32,7 @@
 | **HU-040** | `ide/vscode/prompts/` nunca se creó (paridad con Cursor/Antigravity/OpenCode) | 🟠 P1 | Disparadores en lenguaje natural | ✅ Done | [HU-040](../tasks/HU-001-HU-099/HU-040-vscode-slash-commands-missing.md) |
 | **HU-041** | Paridad `install.sh` ↔ `flowforge update`: 4 defectos (sed schema, prompts fuera del updater, downgrade por cache, provider pisado) | 🔴 Critical | Usar `FLOWFORGE_PROVIDER=` y no correr `update` con commits locales | 📋 Ready | [HU-041](../tasks/HU-001-HU-099/HU-041-installer-updater-parity.md) |
 | **HU-039** | Flag corto `-y` no reconocido en `flowforge init` | 🟡 Minor | Usar `--yes` | 📋 Ready | [HU-039](../tasks/HU-001-HU-099/HU-039-fix-init-short-flag-y.md) |
+| **HU-050** | Contrato de customizations de Antigravity roto (rules inertes, `/flow-*` muertos, 0 subagentes) | 🔴 Critical | Ninguno (requiere update del installer) | ✅ Done | [HU-050](../tasks/HU-001-HU-099/HU-050-antigravity-customizations-contract.md) · [PR #38](https://github.com/efreet111/FlowForge/pull/38) |
 
 ### Análisis forense
 

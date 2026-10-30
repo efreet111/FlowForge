@@ -3,6 +3,7 @@ using FlowForge.Installer.Infrastructure;
 using FlowForge.Installer.Modules;
 using FlowForge.Installer.Modules.OpenCode;
 using FlowForge.Installer.Update;
+using System.Text.RegularExpressions;
 using Xunit;
 
 namespace FlowForge.Installer.Tests.Update;
@@ -112,7 +113,7 @@ public class ReworkFixTests
     }
 
     [Fact]
-    public void CopySkillsForIde_Antigravity_CopiesRulesAndWorkflows()
+    public void CopySkillsForIde_Antigravity_CopiesRulesAgentsAndCommandSkills()
     {
         var tempDir = Path.Combine(Path.GetTempPath(), $"copy-test-{Guid.NewGuid():N}");
         var homeDir = Path.Combine(tempDir, "home");
@@ -120,13 +121,111 @@ public class ReworkFixTests
         try
         {
             CreateTestFiles(Path.Combine(cacheRepo, "ide", "antigravity", "rules"), "workflow.md");
-            CreateTestFiles(Path.Combine(cacheRepo, "ide", "antigravity", "workflows"), "flow-start.md");
+            CreateTestFiles(Path.Combine(cacheRepo, "ide", "antigravity", "agents"), "forge-dev.md");
+            CreateTestFiles(Path.Combine(cacheRepo, "skills", "forge-dev"), "SKILL.md");
+            var workflowsDir = Path.Combine(cacheRepo, "ide", "antigravity", "workflows");
+            Directory.CreateDirectory(workflowsDir);
+            File.WriteAllText(
+                Path.Combine(workflowsDir, "flow-start.md"),
+                "---\ndescription: Start a FlowForge feature\n---\n\n# /flow-start\n");
 
             var managed = FlowForgeModule.CopySkillsForIde("antigravity", homeDir, cacheRepo);
 
-            Assert.True(File.Exists(Path.Combine(homeDir, ".gemini", "config", "rules", "workflow.md")));
-            Assert.True(File.Exists(Path.Combine(homeDir, ".gemini", "config", "global_workflows", "flow-start.md")));
-            Assert.True(managed.Count >= 2);
+            var configDir = Path.Combine(homeDir, ".gemini", "config");
+            Assert.True(File.Exists(Path.Combine(configDir, "rules", "workflow.md")));
+            Assert.True(File.Exists(Path.Combine(configDir, "agents", "forge-dev.md")));
+            Assert.True(File.Exists(Path.Combine(configDir, "skills", "forge-dev", "SKILL.md")));
+
+            // ADR-019 Amendment: /flow-* ship as skills, never as legacy workflows.
+            var commandSkill = Path.Combine(configDir, "skills", "flow-start", "SKILL.md");
+            Assert.True(File.Exists(commandSkill));
+            var content = File.ReadAllText(commandSkill);
+            Assert.Contains("name: flow-start", content, StringComparison.Ordinal);
+            Assert.Contains("description: Start a FlowForge feature", content, StringComparison.Ordinal);
+            Assert.False(Directory.Exists(Path.Combine(configDir, "global_workflows")));
+
+            // Workspace mirror gets the same artifacts.
+            Assert.True(File.Exists(Path.Combine(configDir, ".agents", "agents", "forge-dev.md")));
+            Assert.True(File.Exists(Path.Combine(configDir, ".agents", "skills", "flow-start", "SKILL.md")));
+
+            Assert.True(managed.Count >= 6);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [Fact]
+    public void CopySkillsForIde_Antigravity_ReplacesDanglingSkillSymlink()
+    {
+        // Regression: a legacy install pointing at a moved clone leaves a dangling
+        // symlink at config/skills/flow-*. Directory.CreateDirectory throws EEXIST
+        // on that path, which aborted the whole installer (compat test 2026-10-29).
+        var tempDir = Path.Combine(Path.GetTempPath(), $"copy-test-{Guid.NewGuid():N}");
+        var homeDir = Path.Combine(tempDir, "home");
+        var cacheRepo = Path.Combine(tempDir, "cache");
+        try
+        {
+            CreateTestFiles(Path.Combine(cacheRepo, "ide", "antigravity", "rules"), "workflow.md");
+            var workflowsDir = Path.Combine(cacheRepo, "ide", "antigravity", "workflows");
+            Directory.CreateDirectory(workflowsDir);
+            File.WriteAllText(
+                Path.Combine(workflowsDir, "flow-start.md"),
+                "---\ndescription: Start a FlowForge feature\n---\n\n# /flow-start\n");
+
+            var configDir = Path.Combine(homeDir, ".gemini", "config");
+            var danglingSkills = Path.Combine(configDir, "skills");
+            Directory.CreateDirectory(danglingSkills);
+            Directory.CreateSymbolicLink(
+                Path.Combine(danglingSkills, "flow-start"),
+                Path.Combine(tempDir, "moved-clone", "skills", "flow-start"));
+
+            FlowForgeModule.CopySkillsForIde("antigravity", homeDir, cacheRepo);
+
+            var skillFile = Path.Combine(configDir, "skills", "flow-start", "SKILL.md");
+            Assert.True(File.Exists(skillFile));
+            Assert.Contains("name: flow-start", File.ReadAllText(skillFile), StringComparison.Ordinal);
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [Fact]
+    public void CopySkillsForIde_Antigravity_RemovesStaleLegacyWorkflows()
+    {
+        var tempDir = Path.Combine(Path.GetTempPath(), $"copy-test-{Guid.NewGuid():N}");
+        var homeDir = Path.Combine(tempDir, "home");
+        var cacheRepo = Path.Combine(tempDir, "cache");
+        try
+        {
+            CreateTestFiles(Path.Combine(cacheRepo, "ide", "antigravity", "rules"), "workflow.md");
+            var workflowsDir = Path.Combine(cacheRepo, "ide", "antigravity", "workflows");
+            Directory.CreateDirectory(workflowsDir);
+            File.WriteAllText(
+                Path.Combine(workflowsDir, "flow-start.md"),
+                "---\ndescription: Start a FlowForge feature\n---\n\n# /flow-start\n");
+
+            var configDir = Path.Combine(homeDir, ".gemini", "config");
+            var legacyWorkflows = Path.Combine(configDir, "workflows");
+            var globalWorkflows = Path.Combine(configDir, "global_workflows");
+            var workspaceWorkflows = Path.Combine(configDir, ".agents", "workflows");
+            foreach (var dir in new[] { legacyWorkflows, globalWorkflows, workspaceWorkflows })
+            {
+                Directory.CreateDirectory(dir);
+                File.WriteAllText(Path.Combine(dir, "flow-start.md"), "---\ndescription: stale\n---\n");
+            }
+
+            FlowForgeModule.CopySkillsForIde("antigravity", homeDir, cacheRepo);
+
+            foreach (var dir in new[] { legacyWorkflows, globalWorkflows, workspaceWorkflows })
+            {
+                Assert.False(File.Exists(Path.Combine(dir, "flow-start.md")));
+            }
+
+            Assert.True(File.Exists(Path.Combine(configDir, "skills", "flow-start", "SKILL.md")));
         }
         finally
         {
@@ -315,9 +414,8 @@ public class ReworkFixTests
     [Fact]
     public void StatusCommand_InstallerVersion_MatchesCsproj()
     {
-        // FR-008: Version must be consistent across all files
-        var expectedVersion = FlowForgeModule.InstallerVersion;
-        Assert.Equal("0.1.0-alpha.13", expectedVersion);
+        // FR-008: the version shown by `flowforge status` must match the csproj <Version>.
+        Assert.Equal(FlowForgeModule.InstallerVersion, ReadCsprojVersion());
     }
 
     [Fact]
@@ -390,18 +488,62 @@ public class ReworkFixTests
     // ── Cycle 2 Rework: Issue 3 — Version consistency (FR-008) ────────────
 
     [Fact]
-    public void VersionConsistency_AllSources_MatchAlpha13()
+    public void VersionConsistency_AllSources_MatchCanonical()
     {
-        // FR-008: All version sources must be consistent
-        // FlowForgeModule.InstallerVersion is the canonical source
-        Assert.Equal("0.1.0-alpha.13", FlowForgeModule.InstallerVersion);
+        // FR-008: All version sources must be consistent.
+        // FlowForgeModule.InstallerVersion is the canonical source (ADR-017).
+        var canonical = FlowForgeModule.InstallerVersion;
 
-        // RemoteManifest default should match
+        // csproj <Version> must match (release.yml may override it via -p:Version).
+        Assert.Equal(canonical, ReadCsprojVersion());
+
+        // install/manifest.yaml installer_version must match.
+        Assert.Equal(canonical, ReadManifestInstallerVersion());
+
+        // RemoteManifest default should match.
         var manifest = Models.RemoteManifest.Default;
-        Assert.Equal("0.1.0-alpha.13", manifest.InstallerVersion);
+        Assert.Equal(canonical, manifest.InstallerVersion);
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────
+
+    // ADR-017 version guard: read the real repo files so a bump that misses one
+    // source fails the test suite instead of drifting silently.
+    static string RepoRoot()
+    {
+        var dir = AppContext.BaseDirectory;
+        while (!string.IsNullOrEmpty(dir))
+        {
+            if (File.Exists(Path.Combine(dir, "src", "FlowForge.Installer", "FlowForge.Installer.csproj")))
+                return dir;
+            dir = Directory.GetParent(dir)?.FullName ?? string.Empty;
+        }
+
+        throw new InvalidOperationException(
+            "Could not locate FlowForge repo root (src/FlowForge.Installer/FlowForge.Installer.csproj) from " + AppContext.BaseDirectory);
+    }
+
+    static string ReadCsprojVersion()
+    {
+        var path = Path.Combine(RepoRoot(), "src", "FlowForge.Installer", "FlowForge.Installer.csproj");
+        var match = Regex.Match(File.ReadAllText(path), @"<Version>\s*([^<\s]+)\s*</Version>");
+        Assert.True(match.Success, $"No <Version> element found in {path}");
+        return match.Groups[1].Value;
+    }
+
+    static string ReadManifestInstallerVersion()
+    {
+        const string key = "installer_version:";
+        var path = Path.Combine(RepoRoot(), "install", "manifest.yaml");
+        foreach (var line in File.ReadLines(path))
+        {
+            var trimmed = line.TrimStart();
+            if (!trimmed.StartsWith(key, StringComparison.Ordinal)) continue;
+            return trimmed[key.Length..].Trim().Trim('"', '\'');
+        }
+
+        throw new InvalidOperationException($"No installer_version entry found in {path}");
+    }
 
     static InstallerContext CreateTestContext()
     {

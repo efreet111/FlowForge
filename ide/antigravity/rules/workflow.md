@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+trigger: always_on
 description: FlowForge orchestrator checkpoints and phase delegation for Antigravity.
 ---
 

@@ -1,5 +1,5 @@
 ---
-alwaysApply: false
+trigger: model_decision
 description: Model assignments for FlowForge agents (Antigravity — Gemini models).
 ---
 
@@ -9,7 +9,7 @@ The orchestrator reads this table at session start. When delegating, use the pre
 
 | Agent | Preferred Model | Fallback | Mode | Purpose |
 |-------|----------------|----------|------|---------|
-| forge-orchestrator | `gemini-3-pro` | `gemini-3-flash` | primary | CKP-0..4 coordinator |
+| flowforge | `gemini-3-pro` | `gemini-3-flash` | primary | CKP-0..4 coordinator |
 | forge-discovery | `gemini-3-flash` | `gemini-3-flash` | subagent | Context map / CKP-0 |
 | forge-arch | `gemini-3-pro` | `gemini-3-flash` | subagent | Spec + STRIDE analysis |
 | forge-plan | `gemini-3-pro` | `gemini-3-flash` | subagent | Plan decomposition and checklist |
