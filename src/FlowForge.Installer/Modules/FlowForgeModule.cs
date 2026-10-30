@@ -17,7 +17,7 @@ namespace FlowForge.Installer.Modules;
 public sealed class FlowForgeModule(InstallerContext ctx)
 {
     // Single source of truth for the installer version (see ADR-017).
-    public const string InstallerVersion = "0.1.0-alpha.16";
+    public const string InstallerVersion = "0.1.0-alpha.17";
 
     public void Install(
         List<string> selectedIdes,
@@ -423,7 +423,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         }
     }
 
-    static void InstallAntigravitySkills(string destDir, string ffRepo)
+    internal static void InstallAntigravitySkills(string destDir, string ffRepo)
     {
         var skillsSrc = Path.Combine(ffRepo, "skills");
         if (!Directory.Exists(skillsSrc)) return;
@@ -437,10 +437,10 @@ public sealed class FlowForgeModule(InstallerContext ctx)
 
             var name = Path.GetFileName(skillDir);
             var target = Path.Combine(destDir, name);
-            if (Directory.Exists(target) || File.Exists(target))
-            {
-                try { Directory.Delete(target, recursive: true); } catch { /* best-effort */ }
-            }
+            // A dangling symlink makes both Exists() checks false while the path
+            // still exists, so CreateSymbolicLink throws. Remove the entry first
+            // (dir, file or link) — see Docker E2E 2026-10-30.
+            RemoveEntryForReplacement(target);
 
             try
             {
@@ -499,9 +499,40 @@ public sealed class FlowForgeModule(InstallerContext ctx)
     }
 
     /// <summary>
+    /// Removes whatever occupies <paramref name="path"/> so it can be replaced:
+    /// a real directory, a file, or a symlink (including dangling ones, where
+    /// <c>Directory.Exists</c>/<c>File.Exists</c> both return false).
+    /// <c>File.Delete</c> unlinks symlinks without following them; on a real
+    /// directory it throws, so we fall back to a recursive delete.
+    /// </summary>
+    static void RemoveEntryForReplacement(string path)
+    {
+        try
+        {
+            File.Delete(path); // file, symlink (dangling or not), or no-op
+            return;
+        }
+        catch
+        {
+            /* it is a real directory */
+        }
+
+        try
+        {
+            if (Directory.Exists(path))
+                Directory.Delete(path, recursive: true);
+        }
+        catch
+        {
+            /* best-effort: caller falls back to copy */
+        }
+    }
+
+    /// <summary>
     /// Removes a dangling symlink (or a stray file) sitting where a skill directory
-    /// must be created. <c>Directory.CreateDirectory</c> throws EEXIST on those, which
-    /// aborts the install on legacy <c>~/.gemini/config/skills</c> layouts.
+    /// must be created. Real directories are left untouched (the caller overwrites
+    /// their contents). <c>Directory.CreateDirectory</c> throws EEXIST on dangling
+    /// links, which aborts the install on legacy <c>~/.gemini/config/skills</c>.
     /// </summary>
     static void RemoveDanglingLinkOrFile(string path)
     {
@@ -510,16 +541,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
             if (Directory.Exists(path))
                 return; // real directory — caller overwrites its contents
 
-            var info = new FileInfo(path);
-            if (info.LinkTarget != null)
-            {
-                try { info.Delete(); }
-                catch { try { Directory.Delete(path, recursive: false); } catch { /* best-effort */ } }
-                return;
-            }
-
-            if (File.Exists(path))
-                File.Delete(path);
+            File.Delete(path); // file or symlink (dangling or not) — unlinks only
         }
         catch
         {
@@ -726,15 +748,24 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         if (!Directory.EnumerateFileSystemEntries(path).Any())
             return;
 
-        Directory.CreateDirectory(PathHelper.FlowForgeBackupDir);
-        var timestamp = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss");
-        var baseName = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar)) ?? "flowforge";
-        var backupDest = Path.Combine(PathHelper.FlowForgeBackupDir, $"{baseName}-{timestamp}");
-        CopyDirectoryRecursive(path, backupDest);
-        AnsiConsole.MarkupLine($"  [grey]⋯[/] Backup: {backupDest}");
+        // A backup must never abort the install (ADR-017): a weird entry in the
+        // user directory (dangling symlink, permission issue) is reported, not fatal.
+        try
+        {
+            Directory.CreateDirectory(PathHelper.FlowForgeBackupDir);
+            var timestamp = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss");
+            var baseName = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar)) ?? "flowforge";
+            var backupDest = Path.Combine(PathHelper.FlowForgeBackupDir, $"{baseName}-{timestamp}");
+            CopyDirectoryRecursive(path, backupDest);
+            AnsiConsole.MarkupLine($"  [grey]⋯[/] Backup: {backupDest}");
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"  [yellow]![/] Backup omitido ({Path.GetFileName(path)}): {ex.Message}");
+        }
     }
 
-    static void CopyDirectoryRecursive(string source, string destination)
+    internal static void CopyDirectoryRecursive(string source, string destination)
     {
         if (!Directory.Exists(source))
             return;
@@ -751,6 +782,17 @@ public sealed class FlowForgeModule(InstallerContext ctx)
             var relative = Path.GetRelativePath(source, file);
             var destFile = Path.Combine(destination, relative);
             Directory.CreateDirectory(Path.GetDirectoryName(destFile)!);
+
+            // Symlinks (including dangling ones, whose target is gone) are recreated,
+            // never followed: File.Copy throws FileNotFoundException on a dangling link
+            // and used to abort the backup/install (Docker E2E 2026-10-30).
+            var linkTarget = new FileInfo(file).LinkTarget;
+            if (linkTarget is not null)
+            {
+                try { File.CreateSymbolicLink(destFile, linkTarget); } catch { /* best-effort */ }
+                continue;
+            }
+
             File.Copy(file, destFile, overwrite: true);
         }
     }
@@ -956,7 +998,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         }
     }
 
-    static void CopyAntigravitySkillsTracked(string destDir, string ffRepo, List<string> tracked)
+    internal static void CopyAntigravitySkillsTracked(string destDir, string ffRepo, List<string> tracked)
     {
         var skillsSrc = Path.Combine(ffRepo, "skills");
         if (!Directory.Exists(skillsSrc)) return;
@@ -970,10 +1012,10 @@ public sealed class FlowForgeModule(InstallerContext ctx)
 
             var name = Path.GetFileName(skillDir);
             var target = Path.Combine(destDir, name);
-            if (Directory.Exists(target) || File.Exists(target))
-            {
-                try { Directory.Delete(target, recursive: true); } catch { /* best-effort */ }
-            }
+            // A dangling symlink makes both Exists() checks false while the path
+            // still exists, so CreateSymbolicLink throws. Remove the entry first
+            // (dir, file or link) — see Docker E2E 2026-10-30.
+            RemoveEntryForReplacement(target);
 
             try
             {
@@ -987,7 +1029,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         }
     }
 
-    static void CopyDirectoryRecursiveTracked(string source, string destination, List<string> tracked)
+    internal static void CopyDirectoryRecursiveTracked(string source, string destination, List<string> tracked)
     {
         if (!Directory.Exists(source)) return;
         Directory.CreateDirectory(destination);
@@ -1001,6 +1043,23 @@ public sealed class FlowForgeModule(InstallerContext ctx)
             var relative = Path.GetRelativePath(source, file);
             var destFile = Path.Combine(destination, relative);
             Directory.CreateDirectory(Path.GetDirectoryName(destFile)!);
+
+            // Same as CopyDirectoryRecursive: never follow a symlink.
+            var linkTarget = new FileInfo(file).LinkTarget;
+            if (linkTarget is not null)
+            {
+                try
+                {
+                    File.CreateSymbolicLink(destFile, linkTarget);
+                    tracked.Add(destFile);
+                }
+                catch
+                {
+                    /* best-effort */
+                }
+                continue;
+            }
+
             File.Copy(file, destFile, overwrite: true);
             tracked.Add(destFile);
         }
