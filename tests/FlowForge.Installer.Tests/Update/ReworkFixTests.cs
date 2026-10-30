@@ -3,6 +3,7 @@ using FlowForge.Installer.Infrastructure;
 using FlowForge.Installer.Modules;
 using FlowForge.Installer.Modules.OpenCode;
 using FlowForge.Installer.Update;
+using System.Text.RegularExpressions;
 using Xunit;
 
 namespace FlowForge.Installer.Tests.Update;
@@ -413,9 +414,8 @@ public class ReworkFixTests
     [Fact]
     public void StatusCommand_InstallerVersion_MatchesCsproj()
     {
-        // FR-008: Version must be consistent across all files
-        var expectedVersion = FlowForgeModule.InstallerVersion;
-        Assert.Equal("0.1.0-alpha.13", expectedVersion);
+        // FR-008: the version shown by `flowforge status` must match the csproj <Version>.
+        Assert.Equal(FlowForgeModule.InstallerVersion, ReadCsprojVersion());
     }
 
     [Fact]
@@ -488,18 +488,62 @@ public class ReworkFixTests
     // ── Cycle 2 Rework: Issue 3 — Version consistency (FR-008) ────────────
 
     [Fact]
-    public void VersionConsistency_AllSources_MatchAlpha13()
+    public void VersionConsistency_AllSources_MatchCanonical()
     {
-        // FR-008: All version sources must be consistent
-        // FlowForgeModule.InstallerVersion is the canonical source
-        Assert.Equal("0.1.0-alpha.13", FlowForgeModule.InstallerVersion);
+        // FR-008: All version sources must be consistent.
+        // FlowForgeModule.InstallerVersion is the canonical source (ADR-017).
+        var canonical = FlowForgeModule.InstallerVersion;
 
-        // RemoteManifest default should match
+        // csproj <Version> must match (release.yml may override it via -p:Version).
+        Assert.Equal(canonical, ReadCsprojVersion());
+
+        // install/manifest.yaml installer_version must match.
+        Assert.Equal(canonical, ReadManifestInstallerVersion());
+
+        // RemoteManifest default should match.
         var manifest = Models.RemoteManifest.Default;
-        Assert.Equal("0.1.0-alpha.13", manifest.InstallerVersion);
+        Assert.Equal(canonical, manifest.InstallerVersion);
     }
 
     // ── Helpers ────────────────────────────────────────────────────────────
+
+    // ADR-017 version guard: read the real repo files so a bump that misses one
+    // source fails the test suite instead of drifting silently.
+    static string RepoRoot()
+    {
+        var dir = AppContext.BaseDirectory;
+        while (!string.IsNullOrEmpty(dir))
+        {
+            if (File.Exists(Path.Combine(dir, "src", "FlowForge.Installer", "FlowForge.Installer.csproj")))
+                return dir;
+            dir = Directory.GetParent(dir)?.FullName ?? string.Empty;
+        }
+
+        throw new InvalidOperationException(
+            "Could not locate FlowForge repo root (src/FlowForge.Installer/FlowForge.Installer.csproj) from " + AppContext.BaseDirectory);
+    }
+
+    static string ReadCsprojVersion()
+    {
+        var path = Path.Combine(RepoRoot(), "src", "FlowForge.Installer", "FlowForge.Installer.csproj");
+        var match = Regex.Match(File.ReadAllText(path), @"<Version>\s*([^<\s]+)\s*</Version>");
+        Assert.True(match.Success, $"No <Version> element found in {path}");
+        return match.Groups[1].Value;
+    }
+
+    static string ReadManifestInstallerVersion()
+    {
+        const string key = "installer_version:";
+        var path = Path.Combine(RepoRoot(), "install", "manifest.yaml");
+        foreach (var line in File.ReadLines(path))
+        {
+            var trimmed = line.TrimStart();
+            if (!trimmed.StartsWith(key, StringComparison.Ordinal)) continue;
+            return trimmed[key.Length..].Trim().Trim('"', '\'');
+        }
+
+        throw new InvalidOperationException($"No installer_version entry found in {path}");
+    }
 
     static InstallerContext CreateTestContext()
     {
