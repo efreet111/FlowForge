@@ -17,7 +17,7 @@ namespace FlowForge.Installer.Modules;
 public sealed class FlowForgeModule(InstallerContext ctx)
 {
     // Single source of truth for the installer version (see ADR-017).
-    public const string InstallerVersion = "0.1.0-alpha.15";
+    public const string InstallerVersion = "0.1.0-alpha.16";
 
     public void Install(
         List<string> selectedIdes,

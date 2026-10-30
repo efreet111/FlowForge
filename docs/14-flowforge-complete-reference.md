@@ -114,12 +114,12 @@ Shows the current state of all installed components:
 $ flowforge status
 
 ── FlowForge ───────────────────────────────────────────────────────────────────
-  Versión: v0.1.0-alpha.15  |  Canal: stable
+  Versión: v0.1.0-alpha.16  |  Canal: stable
 
   engram-dotnet   instalado    v1.3.0
   FlowForge       instalado    2026.08.13
   FlowDoc         habilitado   -
-  Installer       activo       0.1.0-alpha.15
+  Installer       activo       0.1.0-alpha.16
 ```
 
 #### `flowforge update` (v0.1.0-alpha.13+)
