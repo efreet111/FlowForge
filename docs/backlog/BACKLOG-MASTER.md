@@ -32,7 +32,7 @@
 | **HU-040** | `ide/vscode/prompts/` nunca se creó (paridad con Cursor/Antigravity/OpenCode) | 🟠 P1 | Disparadores en lenguaje natural | ✅ Done | [HU-040](../tasks/HU-001-HU-099/HU-040-vscode-slash-commands-missing.md) |
 | **HU-041** | Paridad `install.sh` ↔ `flowforge update`: 4 defectos (sed schema, prompts fuera del updater, downgrade por cache, provider pisado) | 🔴 Critical | Usar `FLOWFORGE_PROVIDER=` y no correr `update` con commits locales | 📋 Ready | [HU-041](../tasks/HU-001-HU-099/HU-041-installer-updater-parity.md) |
 | **HU-039** | Flag corto `-y` no reconocido en `flowforge init` | 🟡 Minor | Usar `--yes` | 📋 Ready | [HU-039](../tasks/HU-001-HU-099/HU-039-fix-init-short-flag-y.md) |
-| **HU-050** | Contrato de customizations de Antigravity roto (rules inertes, `/flow-*` muertos, 0 subagentes) | 🔴 Critical | Ninguno (requiere update del installer) | ✅ Done | [HU-050](../tasks/HU-001-HU-099/HU-050-antigravity-customizations-contract.md) |
+| **HU-050** | Contrato de customizations de Antigravity roto (rules inertes, `/flow-*` muertos, 0 subagentes) | 🔴 Critical | Ninguno (requiere update del installer) | ✅ Done | [HU-050](../tasks/HU-001-HU-099/HU-050-antigravity-customizations-contract.md) · [PR #38](https://github.com/efreet111/FlowForge/pull/38) |
 
 ### Análisis forense
 

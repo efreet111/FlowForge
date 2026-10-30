@@ -9,6 +9,7 @@
 | **Estado** | Done |
 | **Fecha de creacion** | 2026-10-29 |
 | **Fecha de cierre** | 2026-10-29 |
+| **PR** | [#38](https://github.com/efreet111/FlowForge/pull/38) |
 | **Prioridad** | Crítica |
 | **Skills relacionadas** | `flowforge`, `forge-dev`, `forge-verify`, `forge-memory` |
 | **Tags** | `antigravity`, `installer`, `ide-pack`, `customizations`, `bugfix`, `contract` |
@@ -46,7 +47,7 @@ Las preguntas de control al agente respondían **NO** a “¿las instrucciones m
 | `flowforge install --yes` | 🟡 EXIT 0 con pack inerte (`alwaysApply`, sin subagentes, `/flow-*` en `global_workflows/`) |
 | `flowforge uninstall --yes` | 🟡 deja restos en `~/.gemini/config/` (gap preexistente) |
 
-Detalle completo en [`.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md`](../../.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md).
+Detalle completo en `.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md` (artefacto de sesión, no versionado — ADR-002).
 
 ---
 
@@ -168,7 +169,7 @@ Medido con fingerprint (tipo + sha256/`readlink`) sobre todo el `$HOME` temporal
 
 Regresión detectada y corregida en este ciclo: un symlink colgante en `~/.gemini/config/skills/<name>` hacía fallar `mkdir -p` con `EEXIST` y abortaba el instalador a mitad de la migración.
 
-Detalle: [`.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md`](../../.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md).
+Detalle: `.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md` (artefacto de sesión, no versionado — ADR-002).
 
 ---
 
@@ -190,4 +191,4 @@ Detalle: [`.ai-work/hu-050-antigravity-customizations-contract/installer-baselin
 - [ADR-019](../../docs/decisions/ADR-019-opencode-antigravity-customizations.md) — rutas (vigentes).
 - [ADR-008](../../docs/decisions/ADR-008-ide-installer-path-matrix.md) · [ADR-011](../../docs/decisions/ADR-011-ide-pack-parity-and-delivery.md) · [ADR-017](../../docs/decisions/ADR-017-installer-protection-policy.md)
 - Docs oficiales: [rules](https://antigravity.google/docs/rules) · [skills](https://antigravity.google/docs/skills) · [subagents](https://antigravity.google/docs/subagents) · [workflows → skills](https://antigravity.google/docs/migration/workflows-to-skills)
-- Spec / plan / verificación: [`.ai-work/hu-050-antigravity-customizations-contract/`](../../.ai-work/hu-050-antigravity-customizations-contract/)
+- Spec / plan / verificación: `.ai-work/hu-050-antigravity-customizations-contract/` (artefacto de sesión, no versionado — ADR-002)

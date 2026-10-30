@@ -152,5 +152,5 @@ dotnet test tests/FlowForge.Installer.Tests -c Release --nologo   # 288 pasando
 - [ADR-008](ADR-008-ide-installer-path-matrix.md) — matriz de rutas por IDE.
 - [ADR-011](ADR-011-ide-pack-parity-and-delivery.md) — paridad de packs y entrega de skills.
 - [ADR-017](ADR-017-installer-protection-policy.md) — política de protección del instalador (baseline + tests antes de tocar el instalador).
-- Baseline y ciclo de vida medidos: [`.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md`](../../.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md)
+- Baseline y ciclo de vida medidos: `.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md` (artefacto de sesión, no versionado — ADR-002)
 - Docs oficiales: [rules](https://antigravity.google/docs/rules) · [skills](https://antigravity.google/docs/skills) · [subagents](https://antigravity.google/docs/subagents) · [workflows → skills](https://antigravity.google/docs/migration/workflows-to-skills)

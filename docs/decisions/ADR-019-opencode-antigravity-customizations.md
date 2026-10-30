@@ -186,6 +186,6 @@ Este ADR se escribió contra documentación de Antigravity 2.0/2.1 y asumía que
 
 El **contrato de customizations** (rules con `trigger:`, `/flow-*` como skills, subagentes nativos, `GEMINI.md` sin frontmatter y validadores) se especifica en **[ADR-029](ADR-029-antigravity-customizations-contract.md)**, que supersede esta parte del ADR. Las **rutas** de este documento (`~/.gemini/config/` global vs. `.agents/` workspace, y el rechazo de `~/.gemini/antigravity/`) **siguen vigentes** y son la referencia para ADR-008.
 
-La evidencia y el ciclo de vida medidos están en [`.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md`](../../.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md).
+La evidencia y el ciclo de vida medidos están en `.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md` (artefacto de sesión, no versionado — ADR-002).
 
 
