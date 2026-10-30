@@ -194,6 +194,62 @@ public class ReworkFixTests
     }
 
     [Fact]
+    public void CopyDirectoryRecursive_HandlesDanglingSymlinkWithoutThrowing()
+    {
+        // Docker E2E 2026-10-30: BackupDirectory -> CopyDirectoryRecursive used to
+        // abort the whole Antigravity install when the user skills dir had a
+        // dangling symlink (File.Copy throws FileNotFoundException). A backup must
+        // never be fatal.
+        var tempDir = Path.Combine(Path.GetTempPath(), $"copy-dir-test-{Guid.NewGuid():N}");
+        var source = Path.Combine(tempDir, "source");
+        var destination = Path.Combine(tempDir, "destination");
+        try
+        {
+            Directory.CreateDirectory(source);
+            File.WriteAllText(Path.Combine(source, "ok.txt"), "ok");
+            Directory.CreateSymbolicLink(
+                Path.Combine(source, "dangling"),
+                Path.Combine(tempDir, "missing", "target"));
+
+            FlowForgeModule.CopyDirectoryRecursive(source, destination);
+
+            Assert.True(File.Exists(Path.Combine(destination, "ok.txt")));
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [Fact]
+    public void InstallAntigravitySkills_ReplacesDanglingMethodologySkillSymlink()
+    {
+        // Docker E2E 2026-10-30: a legacy install with a dangling forge-* symlink
+        // crashed the released installer (CreateSymbolicLink threw, the copy
+        // fallback then threw too). The command-skill test did not cover forge-*.
+        var tempDir = Path.Combine(Path.GetTempPath(), $"skills-test-{Guid.NewGuid():N}");
+        var cacheRepo = Path.Combine(tempDir, "cache");
+        var destDir = Path.Combine(tempDir, "dest");
+        try
+        {
+            CreateTestFiles(Path.Combine(cacheRepo, "skills", "forge-dev"), "SKILL.md");
+            Directory.CreateDirectory(destDir);
+            Directory.CreateSymbolicLink(
+                Path.Combine(destDir, "forge-dev"),
+                Path.Combine(tempDir, "moved-clone", "skills", "forge-dev"));
+
+            FlowForgeModule.InstallAntigravitySkills(destDir, cacheRepo);
+
+            var skillFile = Path.Combine(destDir, "forge-dev", "SKILL.md");
+            Assert.True(File.Exists(skillFile));
+        }
+        finally
+        {
+            Directory.Delete(tempDir, true);
+        }
+    }
+
+    [Fact]
     public void CopySkillsForIde_Antigravity_RemovesStaleLegacyWorkflows()
     {
         var tempDir = Path.Combine(Path.GetTempPath(), $"copy-test-{Guid.NewGuid():N}");

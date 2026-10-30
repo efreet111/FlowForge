@@ -6,7 +6,13 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 
 ## [Unreleased]
 
-## [v0.1.0-alpha.16] - 2026-10-30
+## [Unreleased]
+
+## [v0.1.0-alpha.17] - 2026-10-30
+
+### Fixed
+- **El instalador abortaba al actualizar si `~/.gemini/config/skills` tenía symlinks colgantes**: `EnsureDirectoryWithBackup` -> `CopyDirectoryRecursive` hacía `File.Copy` sobre el enlace y lanzaba `FileNotFoundException`, dejando la migración a medias (detectado en Docker E2E con el binario alpha.16). Ahora los symlinks se recrean sin seguirlos y un backup fallido se reporta como warning en lugar de abortar (ADR-017).
+- Regresión cubierta por `CopyDirectoryRecursive_HandlesDanglingSymlinkWithoutThrowing` e `InstallAntigravitySkills_ReplacesDanglingMethodologySkillSymlink` (296 tests).
 
 ### Fixed
 - **Gate de compatibilidad semver (era un no-op en prereleases)**: `TryParseVersion` descartaba el sufijo (`0.1.0-alpha.13` → `0.1.0`), así que `alpha.13` y `alpha.15` se comparaban como iguales y `requires.installer`/`requires.engram-dotnet` no bloqueaban nada dentro de la línea alpha. Reemplazado por comparación semver completa (`alpha.9 < alpha.10 < beta.1 < 0.1.0`) con tests. Detectado al preparar el bump de `requires.installer`.
