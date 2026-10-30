@@ -12,7 +12,7 @@ default_channel: stable
 requires:
   # Latest GitHub tag may be notes-only (e.g. v1.3.0); installer skips releases without binaries.
   engram-dotnet: ">=0.3.0"
-  installer:     ">=0.1.0-alpha.1"
+  installer:     ">=0.1.0-alpha.15"
 
 components:
   engram-dotnet:

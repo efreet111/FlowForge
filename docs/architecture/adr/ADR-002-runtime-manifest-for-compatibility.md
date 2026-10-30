@@ -54,7 +54,7 @@ flowforge install / flowforge update
     ├── Si red no disponible → usa manifest por defecto (no bloquea la operación)
     │
     ├── Verifica requires.installer vs versión actual del binario
-    │   └── Si desactualizado → avisa "actualizá con: flowforge update --self"
+    │   └── Si desactualizado → avisa cómo reinstalar el installer (bootstrap curl|bash)
     │
     └── Verifica requires.engram-dotnet vs versión a instalar/actualizar
         └── Si incompatible → error con mensaje claro
@@ -80,7 +80,7 @@ El manifest es **best-effort**: si GitHub no está disponible (sin red, timeout,
 3. Usuarios con installer `v0.1.x` que corran `flowforge update`:
    - Descargan el manifest remoto
    - Ven que su installer es `v0.1.x < v0.2.0`
-   - Reciben el mensaje: *"Este installer está desactualizado. Actualizá con: `flowforge update --self`"*
+   - Reciben el mensaje: *"Este installer está desactualizado. Actualizá reinstalando el installer"* + comando bootstrap
    - No se instala ninguna versión incompatible de `engram-dotnet`
 
 4. Usuarios que acepten la auto-actualización del installer: descargan `v0.2.0` y luego continúan con `engram-dotnet v1.0.0`.
