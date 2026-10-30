@@ -37,7 +37,7 @@ FlowForge escribe agentes en los mismos destinos que la tabla canónica; la matr
 | **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/` | Markdown + `opencode.json` (`mcp.engram.type = "local"`). El directorio `~/.config/opencode/flowforge/` y `opencode.flowforge.json` son rutas legacy. |
 | **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | `*.agent.md`; el archivo de instrucciones incluye el header `applyTo`. Detectado por `github.copilot*`. |
 | **Kilo Code** | `~/.config/kilo/agents/*.md` (el mismo bundle de OpenCode) | `.kilo/agents/*.md` (duplicado) | Markdown OpenCode; detectado por `kilocode.*`. |
-| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `global_workflows/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `.agents/skills/`, `AGENTS.md` | Markdown de reglas + workflows con frontmatter `description:`; no es Claude Desktop. Ver [ADR-019](../docs/decisions/ADR-019-opencode-antigravity-customizations.md). |
+| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `agents/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/agents/`, `.agents/skills/`, `AGENTS.md` | Reglas Markdown con `trigger:` obligatorio; `/flow-*` se generan como skills (`skills/flow-*/SKILL.md`) y los subagentes viven en `agents/` — los workflows legacy dejaron de existir el 2026-10-19. No es Claude Desktop. Ver [ADR-029](../docs/decisions/ADR-029-antigravity-customizations-contract.md). |
 | **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (config MCP) | — | MCP JSON manual (Anthropic). |
 
 El instalador `flowforge install` detecta estas IDEs y aplica la misma matriz; `docker-pm1-test.sh` verifica las rutas globales para `~/.copilot/agents/`, `~/.config/kilo/agents/` y `~/.gemini/config/` para mantener la paridad Linux. Los scripts `ide/install.sh` / `ide/install.ps1` exponen las mismas carpetas y permiten instalaciones manuales o bundles por proyecto.
@@ -85,7 +85,7 @@ cp ide/cursor/agents/*.md  ~/.cursor/agents/
 cp ide/cursor/commands/*.md ~/.cursor/commands/
 ```
 
-**Antigravity (per project):** `bash install.sh <project>` or copy `ide/antigravity/` to `.agents/` (`rules/`, `workflows/`, `AGENTS.md`).
+**Antigravity (per project):** `bash install.sh <project>` or copy `ide/antigravity/` to `.agents/` (`rules/`, `agents/`, `skills/`, `AGENTS.md`) — `/flow-*` are generated as skills under `.agents/skills/flow-*/SKILL.md`.
 
 **VS Code:** `install.sh <project>` copies to `.github/agents/` and writes `~/.copilot/instructions/flowforge.instructions.md` plus `.github/copilot-instructions.md`.
 

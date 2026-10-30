@@ -259,19 +259,48 @@ public sealed class DoctorCommand(InstallerContext ctx)
     static List<DoctorCheck> CheckAntigravity(string home, string projectRoot)
     {
         var results = new List<DoctorCheck>();
-        var workflowsDir = PathHelper.AntigravityWorkflows;
-        var workflowIssues = AntigravityPackValidator.ValidateWorkflows(workflowsDir);
-        if (workflowIssues.Count == 0)
+
+        // ADR-019 Amendment: rules require a valid `trigger:` — otherwise Antigravity
+        // silently discards them. Never require `alwaysApply` here.
+        var ruleIssues = AntigravityPackValidator.ValidateRules(PathHelper.AntigravityRules);
+        if (ruleIssues.Count == 0)
         {
-            results.Add(new DoctorCheck("Antigravity: workflows frontmatter", true, IsAntigravity: true));
+            results.Add(new DoctorCheck("Antigravity: rules trigger", true, IsAntigravity: true));
         }
         else
         {
-            var detail = string.Join("; ", workflowIssues.Select(i => $"{i.File}: {i.Rule}"));
+            var detail = string.Join("; ", ruleIssues.Select(i => $"{i.File}: {i.Rule}"));
             results.Add(new DoctorCheck(
-                "Antigravity: workflows frontmatter",
+                "Antigravity: rules trigger",
                 false,
                 detail,
+                IsAntigravity: true));
+        }
+
+        // ADR-019 Amendment: `/flow-*` ship as skills, not legacy workflows.
+        if (AntigravityPackValidator.HasCommandSkills(PathHelper.AntigravitySkills))
+        {
+            results.Add(new DoctorCheck("Antigravity: command skills /flow-*", true, IsAntigravity: true));
+        }
+        else
+        {
+            results.Add(new DoctorCheck(
+                "Antigravity: command skills /flow-*",
+                false,
+                "Faltan skills flow-* en config/skills/<name>/SKILL.md. Ejecutá `flowforge install`.",
+                IsAntigravity: true));
+        }
+
+        if (AntigravityPackValidator.HasSubagents(PathHelper.AntigravityAgents))
+        {
+            results.Add(new DoctorCheck("Antigravity: subagents", true, IsAntigravity: true));
+        }
+        else
+        {
+            results.Add(new DoctorCheck(
+                "Antigravity: subagents",
+                false,
+                "Faltan subagentes en config/agents/*.md. Ejecutá `flowforge install`.",
                 IsAntigravity: true));
         }
 
@@ -302,12 +331,14 @@ public sealed class DoctorCommand(InstallerContext ctx)
             results.Add(new DoctorCheck("Antigravity: legacy pack", true, IsAntigravity: true));
         }
 
+        // Dead since 2026-10-19: warn only (never fail).
         if (AntigravityPackValidator.LegacyWorkflowsDirDetected())
         {
             results.Add(new DoctorCheck(
                 "Antigravity: legacy workflows dir",
-                false,
-                "config/workflows/ obsoleto detectado. Antigravity 2.1 usa config/global_workflows/. Re-ejecutá install.",
+                true,
+                "⚠ config/workflows/ o config/global_workflows/ contienen flow-*.md obsoletos. "
+                + "Antigravity ya no los indexa; re-ejecutá install para migrarlos a skills.",
                 IsAntigravity: true));
         }
         else
@@ -328,6 +359,32 @@ public sealed class DoctorCommand(InstallerContext ctx)
                     "Antigravity: project forge-discovery",
                     false,
                     ".agents/skills/forge-discovery/SKILL.md no encontrado. Ejecutá `flowforge init`.",
+                    IsAntigravity: true));
+            }
+
+            if (AntigravityPackValidator.HasCommandSkills(projectSkills))
+            {
+                results.Add(new DoctorCheck("Antigravity: project command skills", true, IsAntigravity: true));
+            }
+            else
+            {
+                results.Add(new DoctorCheck(
+                    "Antigravity: project command skills",
+                    false,
+                    "Faltan skills flow-* en .agents/skills/. Ejecutá `flowforge init`.",
+                    IsAntigravity: true));
+            }
+
+            if (AntigravityPackValidator.HasSubagents(Path.Combine(projectRoot, ".agents", "agents")))
+            {
+                results.Add(new DoctorCheck("Antigravity: project subagents", true, IsAntigravity: true));
+            }
+            else
+            {
+                results.Add(new DoctorCheck(
+                    "Antigravity: project subagents",
+                    false,
+                    "Faltan subagentes en .agents/agents/*.md. Ejecutá `flowforge init`.",
                     IsAntigravity: true));
             }
         }

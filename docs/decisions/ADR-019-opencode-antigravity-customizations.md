@@ -1,6 +1,6 @@
 # ADR-019: OpenCode commands y Antigravity customizations (rutas reales)
 
-> **Status**: Accepted  
+> **Status**: Accepted (contrato de customizations superseded por [ADR-029](ADR-029-antigravity-customizations-contract.md); rutas siguen vigentes)  
 > **Date**: 2026-07-04  
 > **Feature**: `fix-ide-installer-packs`  
 > **Links**: [ADR-008](ADR-008-ide-installer-path-matrix.md) · [ide/opencode/AGENTS.md](../../ide/opencode/AGENTS.md) · [ide/antigravity/AGENTS.md](../../ide/antigravity/AGENTS.md)
@@ -77,39 +77,54 @@ Los agents OpenCode **referencian** skills por ruta relativa (`skills/forge-dev/
 | Artefacto | Global | Workspace (proyecto) |
 |-----------|--------|---------------------|
 | Orquestador | `~/.gemini/config/AGENTS.md` | `.agents/AGENTS.md` (o `AGENTS.md` raíz si no existe otro) |
-| Rules | `~/.gemini/config/rules/` + `~/.gemini/GEMINI.md` (always-on) | `.agents/rules/` |
-| Workflows `/flow-*` | `~/.gemini/config/global_workflows/` | `.agents/workflows/` |
-| Skills | `~/.gemini/config/skills/forge-*/` (symlink → repo) | `.agents/skills/forge-*/` |
+| Rules | `~/.gemini/config/rules/` + `~/.gemini/GEMINI.md` (always-on, sin frontmatter) | `.agents/rules/` |
+| Skills `/flow-*` | `~/.gemini/config/skills/flow-*/SKILL.md` (generadas) | `.agents/skills/flow-*/SKILL.md` |
+| Subagentes | `~/.gemini/config/agents/*.md` | `.agents/agents/*.md` |
+| Skills metodología | `~/.gemini/config/skills/<name>/` (symlink → repo, incl. `flowforge`) | `.agents/skills/<name>/` |
 | MCP Engram | `~/.gemini/config/mcp_config.json` | `.agents/mcp_config.json` |
 
 **Rechazado:** `~/.gemini/antigravity/` como destino de customizations FlowForge. El instalador **elimina** el pack legacy (`AGENTS.md`, `rules/`, `workflows/` bajo `antigravity/`) al reinstalar.
 
-**Obsoleto (Antigravity 2.0):** `~/.gemini/config/workflows/` — Antigravity 2.1+ escanea `config/global_workflows/`. El instalador migra `flow-*.md` desde la ruta legacy al instalar; `flowforge doctor` advierte si queda contenido en `config/workflows/`.
+**Obsoleto (2026-10-19):** `~/.gemini/config/workflows/` **y** `config/global_workflows/`. Los workflows legacy ya no se indexan ni se ejecutan con `/`; el instalador migra `flow-*.md` a `config/skills/<name>/SKILL.md` y elimina los `.md` migrados. `flowforge doctor` advierte (sin fallar) si quedan restos.
 
 **Rechazado:** `skills.json` con `"entries": [{ "path": "..." }]`. La [documentación oficial de skills](https://antigravity.google/docs/skills) usa **directorios** `config/skills/<nombre>/SKILL.md`, no un registry JSON.
 
-### Formato workflows
+### Formato de rules
 
-Frontmatter YAML obligatorio (description en **una sola línea**, sin `>` multilínea):
+Frontmatter YAML **obligatorio** con `trigger:` ∈ {`always_on`, `model_decision`, `glob`, `manual`}. Sin `trigger:` válido la regla se **descarta en silencio** (`rules.go:482] Invalid rule trigger: CORTEX_MEMORY_TRIGGER_UNSPECIFIED`). `model_decision` exige `description`. `AGENTS.md` / `GEMINI.md` no llevan frontmatter.
 
 ```yaml
 ---
-description: Iniciar feature FlowForge (Discovery a Spec)
+trigger: always_on
+description: Una sola línea
 ---
 ```
 
-Sin frontmatter, el parser de `/` puede devolver 0 resultados ([forum Google](https://discuss.ai.google.dev/t/antigravity-ide-slash-commands-workflows-disappear-entirely-no-results-due-to-4-fatal-parser-exceptions/135370)).
+### Formato de las skills `/flow-*`
 
-`rules/workflow.md` lleva `alwaysApply: true` en frontmatter.
+`ide/antigravity/workflows/flow-*.md` sigue siendo la **fuente** de contenido (frontmatter con `description` en una sola línea), pero el instalador la convierte en skills:
+
+```yaml
+---
+name: flow-start
+description: Iniciar feature FlowForge (Discovery a Spec, CKP-0 y CKP-1)
+---
+```
+
+Sin `name:`/`description:`, el picker de `/` de Antigravity puede devolver 0 resultados. Las skills tienen precedencia sobre workflows legacy homónimos.
+
+### Subagentes nativos
+
+7 archivos en `agents/` (`flowforge`, `forge-discovery`, `forge-arch`, `forge-plan`, `forge-dev`, `forge-verify`, `forge-memory`). Frontmatter: `name`, `description`, `subagent: true`, `mainAgent: true` sólo en `flowforge`, `model: inherit`. **Nunca** declarar `tools:` — un nombre de tool no mapeado cuelga el subagente.
 
 ### Workspace = `~/.gemini/config/`
 
-Si el usuario abre Antigravity con workspace en `~/.gemini/config/` (común), el instalador también escribe espejo en `config/.agents/{rules,workflows,skills}/`.
+Si el usuario abre Antigravity con workspace en `~/.gemini/config/` (común), el instalador también escribe espejo en `config/.agents/{rules,agents,skills}/`.
 
 ### Uso
 
 1. Reiniciar Antigravity tras instalar.
-2. Customizations → Workflows debe listar `flow-start`, etc.
+2. Customizations → **Skills** debe listar `flow-start`, etc. (Workflows ya no es el mecanismo).
 3. MCP vacío (`mcp_config.json` 0 bytes) puede romper el parser — ejecutar `flowforge install` para Engram o configurar MCP manualmente.
 
 ---
@@ -118,9 +133,9 @@ Si el usuario abre Antigravity con workspace en `~/.gemini/config/` (común), el
 
 | Capa | Ubicación en repo | Cursor | OpenCode | Antigravity |
 |------|-------------------|--------|----------|-------------|
-| **Skills** (metodología) | `skills/forge-*/SKILL.md` | Embebidos en agents compilados | Referencia relativa desde repo | Symlink en `config/skills/` |
-| **Agents IDE** | `ide/*/agents/` | `~/.cursor/agents/` | `~/.config/opencode/agents/` | N/A (usa AGENTS.md + rules) |
-| **Slash commands** | `ide/*/commands/` o `workflows/` | `~/.cursor/commands/` | `~/.config/opencode/commands/` | `config/global_workflows/` o `.agents/workflows/` |
+| **Skills** (metodología) | `skills/<name>/SKILL.md` | Embebidos en agents compilados | Referencia relativa desde repo | Symlink en `config/skills/` (incl. `flowforge`) |
+| **Agents IDE / subagentes** | `ide/*/agents/` | `~/.cursor/agents/` | `~/.config/opencode/agents/` | `config/agents/` + `.agents/agents/` |
+| **Slash commands** | `ide/*/commands/` o `workflows/` | `~/.cursor/commands/` | `~/.config/opencode/commands/` | `config/skills/flow-*/SKILL.md` (generadas) |
 
 ---
 
@@ -128,7 +143,7 @@ Si el usuario abre Antigravity con workspace en `~/.gemini/config/` (común), el
 
 **Positivas:**
 
-- OpenCode y Antigravity muestran `/flow-*` tras `ide/install.sh` o `flowforge install`.
+- OpenCode y Antigravity muestran `/flow-*` tras `ide/install.sh` o `flowforge install` (en Antigravity, como skills).
 - ADR-008 matriz actualizada; doctor y CI verifican `~/.gemini/config/`.
 - Documentación evita repetir el error `antigravity/` vs `config/`.
 
@@ -156,7 +171,21 @@ ls ~/.config/opencode/commands/flow-start.md
 opencode agent list | grep flowforge
 
 # Antigravity
-ls ~/.gemini/config/global_workflows/flow-start.md
-ls ~/.gemini/config/skills/forge-dev
+ls ~/.gemini/config/skills/flow-start/SKILL.md
+ls ~/.gemini/config/agents/forge-dev.md
+grep -L 'trigger:' ~/.gemini/config/rules/*.md   # sin salida = todas tienen trigger
 test ! -f ~/.gemini/antigravity/AGENTS.md && echo "legacy OK"
+test ! -d ~/.gemini/config/global_workflows && echo "workflows legacy OK"
 ```
+
+---
+
+## Amendment (2026-10-29) — contrato real de Antigravity
+
+Este ADR se escribió contra documentación de Antigravity 2.0/2.1 y asumía que los workflows legacy seguían siendo el mecanismo de slash commands y que `alwaysApply` era el frontmatter de rules. **Ambas suposiciones eran incorrectas** y mantenían la integración 100% rota.
+
+El **contrato de customizations** (rules con `trigger:`, `/flow-*` como skills, subagentes nativos, `GEMINI.md` sin frontmatter y validadores) se especifica en **[ADR-029](ADR-029-antigravity-customizations-contract.md)**, que supersede esta parte del ADR. Las **rutas** de este documento (`~/.gemini/config/` global vs. `.agents/` workspace, y el rechazo de `~/.gemini/antigravity/`) **siguen vigentes** y son la referencia para ADR-008.
+
+La evidencia y el ciclo de vida medidos están en [`.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md`](../../.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md).
+
+

@@ -23,4 +23,13 @@ public class PathHelperTests
         Assert.EndsWith("workflows", PathHelper.AntigravityLegacyWorkflowsDir, StringComparison.Ordinal);
         Assert.NotEqual(PathHelper.AntigravityWorkflows, PathHelper.AntigravityLegacyWorkflowsDir);
     }
+
+    [Fact]
+    public void FR_016_AntigravityAgentsUsesConfigAgentsPath()
+    {
+        Assert.Equal(
+            Path.Combine(PathHelper.AntigravityConfigDir, "agents"),
+            PathHelper.AntigravityAgents);
+        Assert.NotEqual(PathHelper.AntigravityAgents, PathHelper.AntigravitySkills);
+    }
 }

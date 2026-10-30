@@ -32,6 +32,7 @@
 | ADR-026 | Installer cache refresh strategy: detect working-tree drift before update | Accepted | 2026-09-30 | hu-046-opencode-v2-legacy-compat |
 | ADR-027 | VS Code prompts pack (slash commands `/flow-*`): Flatpak-aware path detection | Accepted | 2026-10-20 | hu-040-vscode-slash-commands |
 | ADR-028 | Shared IDE destinations manifest consumed by shell installer and C# updater | Proposed | 2026-10-20 | hu-041-installer-updater-parity |
+| ADR-029 | Antigravity customizations contract | Accepted | 2026-10-29 | hu-050-antigravity-customizations-contract |
 
 ---
 
