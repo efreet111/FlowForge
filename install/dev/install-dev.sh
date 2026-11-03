@@ -206,8 +206,8 @@ copy_skills() {
             ;;
         antigravity)
             mkdir -p "$dest/config/rules" 2>/dev/null || true
-            mkdir -p "$dest/config/workflows" 2>/dev/null || true
             mkdir -p "$dest/config/skills" 2>/dev/null || true
+            mkdir -p "$dest/config/agents" 2>/dev/null || true
             ;;
         vscode)
             mkdir -p "$dest/agents" 2>/dev/null || true
@@ -215,10 +215,12 @@ copy_skills() {
             ;;
     esac
 
-    # Copy skills from repo
+    # Copy skills from repo (antigravity: directory bundles under config/skills,
+    # never SKILL.md flattened into agents/ — ADR-019 Amendment)
     if [[ -d "$SKILLS_DIR" ]]; then
-        for skill_dir in "$SKILLS_DIR"/forge-*; do
-            if [[ -d "$skill_dir" ]]; then
+        for skill_dir in "$SKILLS_DIR"/*/; do
+            skill_dir="${skill_dir%/}"
+            if [[ -f "$skill_dir/SKILL.md" ]]; then
                 local skill_name
                 skill_name="$(basename "$skill_dir")"
 
@@ -226,10 +228,11 @@ copy_skills() {
                     opencode)
                         cp -r "$skill_dir" "$dest/skills/" 2>/dev/null && skill_count=$((skill_count+1))
                         ;;
-                    cursor|vscode|antigravity)
-                        if [[ -f "$skill_dir/SKILL.md" ]]; then
-                            cp "$skill_dir/SKILL.md" "$dest/agents/" 2>/dev/null && skill_count=$((skill_count+1))
-                        fi
+                    antigravity)
+                        cp -r "$skill_dir" "$dest/config/skills/" 2>/dev/null && skill_count=$((skill_count+1))
+                        ;;
+                    cursor|vscode)
+                        cp "$skill_dir/SKILL.md" "$dest/agents/" 2>/dev/null && skill_count=$((skill_count+1))
                         ;;
                 esac
             fi

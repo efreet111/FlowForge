@@ -57,6 +57,14 @@ public static class PathHelper
     public static string CopilotInstructions =>
         Path.Combine(HomeDir, ".copilot", "instructions");
 
+    /// <summary>HU-040 / ADR-027 — VS Code Copilot Chat slash commands dir (native layout).</summary>
+    public static string CopilotPromptsNative =>
+        Path.Combine(HomeDir, ".config", "Code", "User", "prompts");
+
+    /// <summary>HU-040 / ADR-027 — VS Code Copilot Chat slash commands dir (Flatpak sandbox).</summary>
+    public static string CopilotPromptsFlatpak =>
+        Path.Combine(HomeDir, ".var", "app", "com.visualstudio.code", "config", "Code", "User", "prompts");
+
     public static string KiloConfigDir =>
         Path.Combine(HomeDir, ".config", "kilo");
 
@@ -86,6 +94,10 @@ public static class PathHelper
 
     public static string AntigravitySkills =>
         Path.Combine(AntigravityConfigDir, "skills");
+
+    /// <summary>Antigravity native subagents dir (ADR-019 Amendment).</summary>
+    public static string AntigravityAgents =>
+        Path.Combine(AntigravityConfigDir, "agents");
 
     public static string AntigravityWorkspaceAgents =>
         Path.Combine(AntigravityConfigDir, ".agents");

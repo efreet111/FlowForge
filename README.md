@@ -42,6 +42,20 @@ FlowForge is an **Agentic SDLC methodology** for small and mid-size teams (2–2
 - Auto-detects installed IDEs (Cursor, OpenCode, VS Code)
 - Configures MCP for sync (if `ENGRAM_SERVER_URL` is set)
 
+**Slash commands (VS Code / GitHub Copilot Chat):** Once installed, write `/` in the Copilot Chat picker to see the FlowForge commands:
+
+| Command | Agent | Phase |
+|---|---|---|
+| `/flow-start <feature>` | `forge-orchestrator` | Discovery → Spec |
+| `/flow-plan` | `forge-orchestrator` | Plan |
+| `/flow-dev` | `forge-dev` | Implementation |
+| `/flow-verify` | `forge-verify` | Audit |
+| `/flow-rework` | `forge-orchestrator` | Bug/rework ticket |
+| `/flow-status` | `forge-orchestrator` | Read-only status |
+| `/flow-close` | `forge-memory` | PM-* gate + summary |
+
+If you don't see them, run `bash ide/install.sh` again — the installer auto-detects VS Code **Flatpak** (`~/.var/app/com.visualstudio.code/...`) **and** native (`~/.config/Code/User/prompts/`) layouts.
+
 **Interactive vs Non-interactive:**
 - **Interactive** (default): Shows menus to select components (engram/FlowForge), mode (local/sync), and IDEs
 - **Non-interactive** (`--yes` flag): Uses sensible defaults, auto-detects IDEs, no prompts
@@ -222,7 +236,7 @@ FlowForge writes agent packs to the directories each IDE actually reads so that 
 | **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/` | `opencode.json` (or `.jsonc`) holds `mcp.engram` with `type: local`; `opencode.flowforge.json` and `~/.config/opencode/flowforge/` are legacy helpers only |
 | **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detected via extensions `github.copilot*`; instructions file is normalized with the `applyTo` header |
 | **Kilo Code** | `~/.config/kilo/agents/*.md` (same format as OpenCode) | `.kilo/agents/*.md` (duplicated from `.opencode/agents/`) | Detected via extensions `kilocode.*`; FlowForge keeps the directories in sync with OpenCode bundles |
-| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `global_workflows/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `.agents/skills/`, `AGENTS.md` | Google Antigravity (not Claude Desktop); global install mirrors project bundle. See [ADR-019](docs/decisions/ADR-019-opencode-antigravity-customizations.md). |
+| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `agents/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/agents/`, `.agents/skills/`, `AGENTS.md` | Google Antigravity (not Claude Desktop); `/flow-*` ship as skills (`skills/flow-*/SKILL.md`) because legacy workflows were retired on 2026-10-19. See [ADR-029](docs/decisions/ADR-029-antigravity-customizations-contract.md). |
 | **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (MCP only) | — | Anthropic MCP config only; FlowForge documents it but does not copy agents or rules |
 
 `flowforge install` automatically detects the IDEs listed above (Cursor, OpenCode, VS Code extensions, Antigravity) and installs the matching rows from this matrix. The bootstrap scripts (`ide/install.sh`, `ide/install.ps1`) expose the same destinations and can be used for manual refreshes or per-project bundles when you prefer shell wizards.

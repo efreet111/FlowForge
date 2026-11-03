@@ -1,4 +1,5 @@
 using FlowForge.Installer.Infrastructure;
+using FlowForge.Installer.Modules;
 using FlowForge.Installer.Update;
 using Spectre.Console;
 
@@ -10,7 +11,7 @@ namespace FlowForge.Installer.Commands;
 /// </summary>
 public static class StatusCommand
 {
-    const string InstallerVersion = "0.1.0-alpha.13";
+    const string InstallerVersion = FlowForgeModule.InstallerVersion;
 
     public static void Run(InstallerContext ctx)
     {

@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+trigger: always_on
 description: Prevents accidental git push without explicit human request. Enforces PR workflow.
 ---
 

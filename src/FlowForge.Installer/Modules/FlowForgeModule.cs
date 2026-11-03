@@ -16,7 +16,8 @@ namespace FlowForge.Installer.Modules;
 /// </summary>
 public sealed class FlowForgeModule(InstallerContext ctx)
 {
-    public const string InstallerVersion = "0.1.0-alpha.13";
+    // Single source of truth for the installer version (see ADR-017).
+    public const string InstallerVersion = "0.1.0-alpha.17";
 
     public void Install(
         List<string> selectedIdes,
@@ -320,14 +321,14 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         var configDir = PathHelper.AntigravityConfigDir;
         EnsureDirectoryWithBackup(configDir);
         EnsureDirectoryWithBackup(PathHelper.AntigravityRules);
-        EnsureDirectoryWithBackup(PathHelper.AntigravityWorkflows);
         EnsureDirectoryWithBackup(PathHelper.AntigravitySkills);
+        EnsureDirectoryWithBackup(PathHelper.AntigravityAgents);
         MigrateLegacyWorkflowsDir();
 
         var workspaceAgents = PathHelper.AntigravityWorkspaceAgents;
         EnsureDirectoryWithBackup(Path.Combine(workspaceAgents, "rules"));
-        EnsureDirectoryWithBackup(Path.Combine(workspaceAgents, "workflows"));
         EnsureDirectoryWithBackup(Path.Combine(workspaceAgents, "skills"));
+        EnsureDirectoryWithBackup(Path.Combine(workspaceAgents, "agents"));
 
         var agentsMd = Path.Combine(ideDir, "AGENTS.md");
         if (File.Exists(agentsMd))
@@ -337,39 +338,58 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         }
 
         CopyGlob(Path.Combine(ideDir, "rules"), PathHelper.AntigravityRules, "*.md");
-        CopyGlob(Path.Combine(ideDir, "workflows"), PathHelper.AntigravityWorkflows, "*.md");
         CopyGlob(Path.Combine(ideDir, "rules"), Path.Combine(workspaceAgents, "rules"), "*.md");
-        CopyGlob(Path.Combine(ideDir, "workflows"), Path.Combine(workspaceAgents, "workflows"), "*.md");
+        InstallAntigravityAgents(PathHelper.AntigravityAgents, ideDir);
+        InstallAntigravityAgents(Path.Combine(workspaceAgents, "agents"), ideDir);
 
         InstallAntigravitySkills(PathHelper.AntigravitySkills, ffRepo);
         InstallAntigravitySkills(Path.Combine(workspaceAgents, "skills"), ffRepo);
+        InstallAntigravityCommandSkills(PathHelper.AntigravitySkills, Path.Combine(ideDir, "workflows"));
+        InstallAntigravityCommandSkills(Path.Combine(workspaceAgents, "skills"), Path.Combine(ideDir, "workflows"));
 
         var workflowRule = Path.Combine(ideDir, "rules", "workflow.md");
         if (File.Exists(workflowRule))
-            File.Copy(workflowRule, Path.Combine(PathHelper.HomeDir, ".gemini", "GEMINI.md"), overwrite: true);
+        {
+            var geminiDir = Path.Combine(PathHelper.HomeDir, ".gemini");
+            Directory.CreateDirectory(geminiDir);
+            // GEMINI.md must NOT have frontmatter — the whole file is always_on.
+            File.WriteAllText(
+                Path.Combine(geminiDir, "GEMINI.md"),
+                StripFrontmatter(File.ReadAllText(workflowRule)));
+        }
 
         CleanupLegacyAntigravityPack();
-        AnsiConsole.MarkupLine("  [green]✓[/] Antigravity → [grey]~/.gemini/config/ (AGENTS + rules + global_workflows + skills)[/]");
+        AnsiConsole.MarkupLine("  [green]✓[/] Antigravity → [grey]~/.gemini/config/ (AGENTS + rules + agents + skills)[/]");
     }
 
+    /// <summary>
+    /// ADR-019 Amendment: legacy workflow dirs are dead (2026-10-19). Migrate
+    /// flow-*.md into config/skills/&lt;name&gt;/SKILL.md and delete the sources.
+    /// </summary>
     static void MigrateLegacyWorkflowsDir()
     {
-        var legacyDir = PathHelper.AntigravityLegacyWorkflowsDir;
-        if (!Directory.Exists(legacyDir))
-            return;
-
-        var targetDir = PathHelper.AntigravityWorkflows;
-        Directory.CreateDirectory(targetDir);
-
-        foreach (var file in Directory.GetFiles(legacyDir, "flow-*.md"))
+        foreach (var legacyDir in new[] { PathHelper.AntigravityLegacyWorkflowsDir, PathHelper.AntigravityWorkflows })
         {
-            var dest = Path.Combine(targetDir, Path.GetFileName(file));
-            if (File.Exists(dest) && File.GetLastWriteTimeUtc(dest) >= File.GetLastWriteTimeUtc(file))
+            if (!Directory.Exists(legacyDir))
                 continue;
+
+            foreach (var file in Directory.GetFiles(legacyDir, "flow-*.md"))
+            {
+                try
+                {
+                    WriteCommandSkill(file, PathHelper.AntigravitySkills);
+                    File.Delete(file);
+                }
+                catch
+                {
+                    /* best-effort */
+                }
+            }
 
             try
             {
-                File.Copy(file, dest, overwrite: true);
+                if (!Directory.EnumerateFileSystemEntries(legacyDir).Any())
+                    Directory.Delete(legacyDir);
             }
             catch
             {
@@ -403,20 +423,24 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         }
     }
 
-    static void InstallAntigravitySkills(string destDir, string ffRepo)
+    internal static void InstallAntigravitySkills(string destDir, string ffRepo)
     {
         var skillsSrc = Path.Combine(ffRepo, "skills");
         if (!Directory.Exists(skillsSrc)) return;
 
         Directory.CreateDirectory(destDir);
-        foreach (var skillDir in Directory.GetDirectories(skillsSrc, "forge-*"))
+        // ADR-019 Amendment: install every skill with a SKILL.md — including `flowforge`.
+        foreach (var skillDir in Directory.GetDirectories(skillsSrc))
         {
+            if (!File.Exists(Path.Combine(skillDir, "SKILL.md")))
+                continue;
+
             var name = Path.GetFileName(skillDir);
             var target = Path.Combine(destDir, name);
-            if (Directory.Exists(target) || File.Exists(target))
-            {
-                try { Directory.Delete(target, recursive: true); } catch { /* best-effort */ }
-            }
+            // A dangling symlink makes both Exists() checks false while the path
+            // still exists, so CreateSymbolicLink throws. Remove the entry first
+            // (dir, file or link) — see Docker E2E 2026-10-30.
+            RemoveEntryForReplacement(target);
 
             try
             {
@@ -427,6 +451,149 @@ public sealed class FlowForgeModule(InstallerContext ctx)
                 CopyDirectoryRecursive(skillDir, target);
             }
         }
+    }
+
+    /// <summary>ADR-019 Amendment: install the 7 native Antigravity subagents.</summary>
+    static void InstallAntigravityAgents(string destDir, string ideDir)
+    {
+        var srcDir = Path.Combine(ideDir, "agents");
+        if (!Directory.Exists(srcDir)) return;
+
+        Directory.CreateDirectory(destDir);
+        foreach (var file in Directory.GetFiles(srcDir, "*.md"))
+        {
+            File.Copy(file, Path.Combine(destDir, Path.GetFileName(file)), overwrite: true);
+        }
+    }
+
+    /// <summary>
+    /// ADR-019 Amendment: legacy workflows are dead. Generate one skill per
+    /// ide/antigravity/workflows/flow-*.md into &lt;destSkillsDir&gt;/&lt;name&gt;/SKILL.md.
+    /// </summary>
+    static void InstallAntigravityCommandSkills(string destSkillsDir, string workflowsDir)
+    {
+        if (!Directory.Exists(workflowsDir)) return;
+
+        Directory.CreateDirectory(destSkillsDir);
+        foreach (var workflow in Directory.GetFiles(workflowsDir, "flow-*.md"))
+        {
+            WriteCommandSkill(workflow, destSkillsDir);
+        }
+    }
+
+    static void WriteCommandSkill(string workflowPath, string destSkillsDir)
+    {
+        var name = Path.GetFileNameWithoutExtension(workflowPath);
+        var content = File.ReadAllText(workflowPath);
+        var description = ExtractFrontmatterValue(content, "description")
+                          ?? $"FlowForge command {name}";
+        var nl = Environment.NewLine;
+        var skillDir = Path.Combine(destSkillsDir, name);
+        // A dangling symlink (legacy install pointing at a moved clone) makes
+        // CreateDirectory throw and would abort the whole install (ADR-019).
+        RemoveDanglingLinkOrFile(skillDir);
+        Directory.CreateDirectory(skillDir);
+        File.WriteAllText(
+            Path.Combine(skillDir, "SKILL.md"),
+            $"---{nl}name: {name}{nl}description: {description}{nl}---{nl}{nl}{StripFrontmatter(content)}");
+    }
+
+    /// <summary>
+    /// Removes whatever occupies <paramref name="path"/> so it can be replaced:
+    /// a real directory, a file, or a symlink (including dangling ones, where
+    /// <c>Directory.Exists</c>/<c>File.Exists</c> both return false).
+    /// <c>File.Delete</c> unlinks symlinks without following them; on a real
+    /// directory it throws, so we fall back to a recursive delete.
+    /// </summary>
+    static void RemoveEntryForReplacement(string path)
+    {
+        try
+        {
+            File.Delete(path); // file, symlink (dangling or not), or no-op
+            return;
+        }
+        catch
+        {
+            /* it is a real directory */
+        }
+
+        try
+        {
+            if (Directory.Exists(path))
+                Directory.Delete(path, recursive: true);
+        }
+        catch
+        {
+            /* best-effort: caller falls back to copy */
+        }
+    }
+
+    /// <summary>
+    /// Removes a dangling symlink (or a stray file) sitting where a skill directory
+    /// must be created. Real directories are left untouched (the caller overwrites
+    /// their contents). <c>Directory.CreateDirectory</c> throws EEXIST on dangling
+    /// links, which aborts the install on legacy <c>~/.gemini/config/skills</c>.
+    /// </summary>
+    static void RemoveDanglingLinkOrFile(string path)
+    {
+        try
+        {
+            if (Directory.Exists(path))
+                return; // real directory — caller overwrites its contents
+
+            File.Delete(path); // file or symlink (dangling or not) — unlinks only
+        }
+        catch
+        {
+            /* best-effort */
+        }
+    }
+
+    /// <summary>Removes a leading YAML frontmatter block (GEMINI.md must not carry one).</summary>
+    static string StripFrontmatter(string content)
+    {
+        var text = content.TrimStart('\uFEFF');
+        var firstBreak = text.IndexOf('\n');
+        if (firstBreak < 0 || text[..firstBreak].TrimEnd('\r').Trim() != "---")
+            return text;
+
+        var index = firstBreak + 1;
+        while (index <= text.Length)
+        {
+            var nextBreak = text.IndexOf('\n', index);
+            var line = nextBreak < 0 ? text[index..] : text[index..nextBreak];
+            if (line.TrimEnd('\r').Trim() == "---")
+            {
+                var body = nextBreak < 0 ? string.Empty : text[(nextBreak + 1)..];
+                return body.TrimStart('\r', '\n');
+            }
+
+            if (nextBreak < 0) break;
+            index = nextBreak + 1;
+        }
+
+        return text;
+    }
+
+    static string? ExtractFrontmatterValue(string content, string key)
+    {
+        var text = content.TrimStart('\uFEFF');
+        var lines = text.Split('\n');
+        if (lines.Length < 2 || lines[0].TrimEnd('\r').Trim() != "---")
+            return null;
+
+        var prefix = key + ":";
+        for (var i = 1; i < lines.Length; i++)
+        {
+            var line = lines[i].TrimEnd('\r');
+            if (line.Trim() == "---") break;
+            if (!line.TrimStart().StartsWith(prefix, StringComparison.Ordinal)) continue;
+
+            var value = line.TrimStart()[prefix.Length..].Trim();
+            if (value.Length > 0) return value;
+        }
+
+        return null;
     }
 
     static void InstallVsCode(string ffRepo)
@@ -532,18 +699,19 @@ public sealed class FlowForgeModule(InstallerContext ctx)
 
     public static void InstallAntigravityProject(string projectPath, string ffRepo)
     {
+        var ideDir = Path.Combine(ffRepo, "ide", "antigravity");
         var agentsRoot = Path.Combine(projectPath, ".agents");
         EnsureDirectoryWithBackup(agentsRoot);
 
         var rulesDest = Path.Combine(agentsRoot, "rules");
         EnsureDirectoryWithBackup(rulesDest);
-        CopyGlob(Path.Combine(ffRepo, "ide", "antigravity", "rules"), rulesDest, "*.md");
+        CopyGlob(Path.Combine(ideDir, "rules"), rulesDest, "*.md");
 
-        var workflowsDest = Path.Combine(agentsRoot, "workflows");
-        EnsureDirectoryWithBackup(workflowsDest);
-        CopyGlob(Path.Combine(ffRepo, "ide", "antigravity", "workflows"), workflowsDest, "*.md");
+        var subagentsDest = Path.Combine(agentsRoot, "agents");
+        EnsureDirectoryWithBackup(subagentsDest);
+        InstallAntigravityAgents(subagentsDest, ideDir);
 
-        var agentsMdSrc = Path.Combine(ffRepo, "ide", "antigravity", "AGENTS.md");
+        var agentsMdSrc = Path.Combine(ideDir, "AGENTS.md");
         if (File.Exists(agentsMdSrc))
         {
             File.Copy(agentsMdSrc, Path.Combine(agentsRoot, "AGENTS.md"), overwrite: true);
@@ -552,7 +720,9 @@ public sealed class FlowForgeModule(InstallerContext ctx)
                 File.Copy(agentsMdSrc, rootAgents, overwrite: true);
         }
 
-        InstallAntigravitySkills(Path.Combine(agentsRoot, "skills"), ffRepo);
+        var skillsDest = Path.Combine(agentsRoot, "skills");
+        InstallAntigravitySkills(skillsDest, ffRepo);
+        InstallAntigravityCommandSkills(skillsDest, Path.Combine(ideDir, "workflows"));
     }
 
     public static bool HasVsCodeExtension(string prefix)
@@ -578,15 +748,24 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         if (!Directory.EnumerateFileSystemEntries(path).Any())
             return;
 
-        Directory.CreateDirectory(PathHelper.FlowForgeBackupDir);
-        var timestamp = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss");
-        var baseName = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar)) ?? "flowforge";
-        var backupDest = Path.Combine(PathHelper.FlowForgeBackupDir, $"{baseName}-{timestamp}");
-        CopyDirectoryRecursive(path, backupDest);
-        AnsiConsole.MarkupLine($"  [grey]⋯[/] Backup: {backupDest}");
+        // A backup must never abort the install (ADR-017): a weird entry in the
+        // user directory (dangling symlink, permission issue) is reported, not fatal.
+        try
+        {
+            Directory.CreateDirectory(PathHelper.FlowForgeBackupDir);
+            var timestamp = DateTime.UtcNow.ToString("yyyyMMdd-HHmmss");
+            var baseName = Path.GetFileName(path.TrimEnd(Path.DirectorySeparatorChar)) ?? "flowforge";
+            var backupDest = Path.Combine(PathHelper.FlowForgeBackupDir, $"{baseName}-{timestamp}");
+            CopyDirectoryRecursive(path, backupDest);
+            AnsiConsole.MarkupLine($"  [grey]⋯[/] Backup: {backupDest}");
+        }
+        catch (Exception ex)
+        {
+            AnsiConsole.MarkupLine($"  [yellow]![/] Backup omitido ({Path.GetFileName(path)}): {ex.Message}");
+        }
     }
 
-    static void CopyDirectoryRecursive(string source, string destination)
+    internal static void CopyDirectoryRecursive(string source, string destination)
     {
         if (!Directory.Exists(source))
             return;
@@ -603,6 +782,17 @@ public sealed class FlowForgeModule(InstallerContext ctx)
             var relative = Path.GetRelativePath(source, file);
             var destFile = Path.Combine(destination, relative);
             Directory.CreateDirectory(Path.GetDirectoryName(destFile)!);
+
+            // Symlinks (including dangling ones, whose target is gone) are recreated,
+            // never followed: File.Copy throws FileNotFoundException on a dangling link
+            // and used to abort the backup/install (Docker E2E 2026-10-30).
+            var linkTarget = new FileInfo(file).LinkTarget;
+            if (linkTarget is not null)
+            {
+                try { File.CreateSymbolicLink(destFile, linkTarget); } catch { /* best-effort */ }
+                continue;
+            }
+
             File.Copy(file, destFile, overwrite: true);
         }
     }
@@ -722,14 +912,51 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         var rulesDest = Path.Combine(configDir, "rules");
         CopyGlobTracked(Path.Combine(ideDir, "rules"), rulesDest, "*.md", managed);
 
-        var workflowsDest = Path.Combine(configDir, "global_workflows");
-        CopyGlobTracked(Path.Combine(ideDir, "workflows"), workflowsDest, "*.md", managed);
+        // ADR-019 Amendment: native subagents are part of the pack.
+        var agentsDest = Path.Combine(configDir, "agents");
+        CopyGlobTracked(Path.Combine(ideDir, "agents"), agentsDest, "*.md", managed);
 
-        // Skills (symlink or copy)
+        // Legacy workflow dirs are dead: never re-create them, drop stale flow-* files.
+        RemoveLegacyFlowWorkflowFiles(Path.Combine(configDir, "workflows"));
+        RemoveLegacyFlowWorkflowFiles(Path.Combine(configDir, "global_workflows"));
+        RemoveLegacyFlowWorkflowFiles(Path.Combine(configDir, ".agents", "workflows"));
+
+        // Skills (symlink or copy) + one generated skill per /flow-* command.
         var skillsDest = Path.Combine(configDir, "skills");
         CopyAntigravitySkillsTracked(skillsDest, cacheRepo, managed);
+        InstallAntigravityCommandSkillsTracked(skillsDest, Path.Combine(ideDir, "workflows"), managed);
+
+        // Workspace mirror (~/.gemini/config/.agents) — same artifacts.
+        var workspaceAgents = Path.Combine(configDir, ".agents");
+        CopyGlobTracked(Path.Combine(ideDir, "rules"), Path.Combine(workspaceAgents, "rules"), "*.md", managed);
+        CopyGlobTracked(Path.Combine(ideDir, "agents"), Path.Combine(workspaceAgents, "agents"), "*.md", managed);
+        var workspaceSkills = Path.Combine(workspaceAgents, "skills");
+        CopyAntigravitySkillsTracked(workspaceSkills, cacheRepo, managed);
+        InstallAntigravityCommandSkillsTracked(workspaceSkills, Path.Combine(ideDir, "workflows"), managed);
 
         return managed;
+    }
+
+    static void RemoveLegacyFlowWorkflowFiles(string dir)
+    {
+        if (!Directory.Exists(dir)) return;
+        foreach (var file in Directory.GetFiles(dir, "flow-*.md"))
+        {
+            try { File.Delete(file); } catch { /* best-effort */ }
+        }
+    }
+
+    static void InstallAntigravityCommandSkillsTracked(
+        string destSkillsDir, string workflowsDir, List<string> tracked)
+    {
+        if (!Directory.Exists(workflowsDir)) return;
+        Directory.CreateDirectory(destSkillsDir);
+        foreach (var workflow in Directory.GetFiles(workflowsDir, "flow-*.md"))
+        {
+            var name = Path.GetFileNameWithoutExtension(workflow);
+            WriteCommandSkill(workflow, destSkillsDir);
+            tracked.Add(Path.Combine(destSkillsDir, name, "SKILL.md"));
+        }
     }
 
     static List<string> CopyVsCodeSkills(string homeDir, string cacheRepo)
@@ -771,20 +998,24 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         }
     }
 
-    static void CopyAntigravitySkillsTracked(string destDir, string ffRepo, List<string> tracked)
+    internal static void CopyAntigravitySkillsTracked(string destDir, string ffRepo, List<string> tracked)
     {
         var skillsSrc = Path.Combine(ffRepo, "skills");
         if (!Directory.Exists(skillsSrc)) return;
 
         Directory.CreateDirectory(destDir);
-        foreach (var skillDir in Directory.GetDirectories(skillsSrc, "forge-*"))
+        // ADR-019 Amendment: every skill with a SKILL.md — including `flowforge`.
+        foreach (var skillDir in Directory.GetDirectories(skillsSrc))
         {
+            if (!File.Exists(Path.Combine(skillDir, "SKILL.md")))
+                continue;
+
             var name = Path.GetFileName(skillDir);
             var target = Path.Combine(destDir, name);
-            if (Directory.Exists(target) || File.Exists(target))
-            {
-                try { Directory.Delete(target, recursive: true); } catch { /* best-effort */ }
-            }
+            // A dangling symlink makes both Exists() checks false while the path
+            // still exists, so CreateSymbolicLink throws. Remove the entry first
+            // (dir, file or link) — see Docker E2E 2026-10-30.
+            RemoveEntryForReplacement(target);
 
             try
             {
@@ -798,7 +1029,7 @@ public sealed class FlowForgeModule(InstallerContext ctx)
         }
     }
 
-    static void CopyDirectoryRecursiveTracked(string source, string destination, List<string> tracked)
+    internal static void CopyDirectoryRecursiveTracked(string source, string destination, List<string> tracked)
     {
         if (!Directory.Exists(source)) return;
         Directory.CreateDirectory(destination);
@@ -812,6 +1043,23 @@ public sealed class FlowForgeModule(InstallerContext ctx)
             var relative = Path.GetRelativePath(source, file);
             var destFile = Path.Combine(destination, relative);
             Directory.CreateDirectory(Path.GetDirectoryName(destFile)!);
+
+            // Same as CopyDirectoryRecursive: never follow a symlink.
+            var linkTarget = new FileInfo(file).LinkTarget;
+            if (linkTarget is not null)
+            {
+                try
+                {
+                    File.CreateSymbolicLink(destFile, linkTarget);
+                    tracked.Add(destFile);
+                }
+                catch
+                {
+                    /* best-effort */
+                }
+                continue;
+            }
+
             File.Copy(file, destFile, overwrite: true);
             tracked.Add(destFile);
         }

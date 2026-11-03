@@ -6,6 +6,71 @@ Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning foll
 
 ## [Unreleased]
 
+## [Unreleased]
+
+## [v0.1.0-alpha.17] - 2026-10-30
+
+### Fixed
+- **El instalador abortaba al actualizar si `~/.gemini/config/skills` tenía symlinks colgantes**: `EnsureDirectoryWithBackup` -> `CopyDirectoryRecursive` hacía `File.Copy` sobre el enlace y lanzaba `FileNotFoundException`, dejando la migración a medias (detectado en Docker E2E con el binario alpha.16). Ahora los symlinks se recrean sin seguirlos y un backup fallido se reporta como warning en lugar de abortar (ADR-017).
+- Regresión cubierta por `CopyDirectoryRecursive_HandlesDanglingSymlinkWithoutThrowing` e `InstallAntigravitySkills_ReplacesDanglingMethodologySkillSymlink` (296 tests).
+
+### Fixed
+- **Gate de compatibilidad semver (era un no-op en prereleases)**: `TryParseVersion` descartaba el sufijo (`0.1.0-alpha.13` → `0.1.0`), así que `alpha.13` y `alpha.15` se comparaban como iguales y `requires.installer`/`requires.engram-dotnet` no bloqueaban nada dentro de la línea alpha. Reemplazado por comparación semver completa (`alpha.9 < alpha.10 < beta.1 < 0.1.0`) con tests. Detectado al preparar el bump de `requires.installer`.
+- **`requires.installer` → `>=0.1.0-alpha.15`**: una vez publicado el release, los installers anteriores reciben el aviso de bloqueo. El mensaje ya no sugiere `flowforge update --self` (comando inexistente en v1 — ADR-016 OQ-1) sino el bootstrap real: `curl -fsSL .../install/install.sh | bash`. Tests en `ManifestClientTests`.
+- **Antigravity — contrato de customizations corregido (integración 100% rota)**: verificado con `agy` CLI y docs oficiales; ver [ADR-029](docs/decisions/ADR-029-antigravity-customizations-contract.md).
+  - **Rules**: el pack emite `trigger:` (`always_on` / `model_decision`) en lugar de `alwaysApply`. Sin `trigger:` válido Antigravity descarta la regla en silencio (`Invalid rule trigger: CORTEX_MEMORY_TRIGGER_UNSPECIFIED`). Añadida `rules/pr-workflow.md` al pack (drift con `.agents/rules/`).
+  - **Workflows → skills**: los workflows legacy dejaron de ejecutarse el 2026-10-19. Los `/flow-*` se generan ahora como `skills/flow-*/SKILL.md` (workspace y `~/.gemini/config/skills/`); el instalador ya no escribe `global_workflows/` ni `.agents/workflows/` y migra+elimina los restos legacy.
+  - **Subagentes nativos**: nuevo `ide/antigravity/agents/` con 7 subagentes (`flowforge`, `forge-discovery`, `forge-arch`, `forge-plan`, `forge-dev`, `forge-verify`, `forge-memory`) instalados en `agents/` y `.agents/agents/` (sin `tools:` para evitar el hang).
+  - **Skill `flowforge`**: el instalador copia todas las skills con `SKILL.md`, no solo `forge-*`; antes el orquestador nunca se instalaba.
+  - **`~/.gemini/GEMINI.md`**: se escribe sin frontmatter (el archivo completo es always_on).
+  - **Validadores**: `AntigravityPackValidator` valida `trigger:` (nunca `alwaysApply`), las 7 command skills y los 7 subagentes; `flowforge doctor` agrega esos checks y solo advierte por workflows legacy. `scripts/validate-antigravity-pack.sh` verifica el contrato real.
+  - **Compatibilidad de actualización**: `scripts/compat-antigravity-upgrade.sh` reconstruye un estado anterior (0.5.x y generación legacy) y verifica migración sin pérdida, cero cambios fuera de `~/.gemini` e idempotencia. Corregido un aborto del instalador cuando `config/skills/<name>` era un symlink colgante (`mkdir: El fichero ya existe`) en `install.sh`, `install.ps1` y `WriteCommandSkill`. Baseline en [`.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md`](.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md).
+  - **Paridad**: cambios espejo en `ide/install.sh`, `ide/install.ps1` y `src/FlowForge.Installer` (install + self-update + proyecto).
+
+### Verified
+- `bash -n ide/install.sh`: clean
+- `scripts/validate-antigravity-pack.sh`: passed
+- `dotnet test`: 286/286 pasando
+
+## [v0.1.0-alpha.14] - 2026-09-18
+
+### Added
+- **CI unit-tests job**: Nuevo job en `test-installer.yml` que ejecuta `dotnet test` en ubuntu-latest. Previamente solo se ejecutaban smoke tests y happy path installs.
+- **Test fixtures MSBuild**: Configuración explícita para copiar README.md, README.es.md, install/install.sh, InstallCommand.cs, EngramModule.cs e InstallerConfig.cs al output de tests.
+
+### Fixed
+- **FlowForgeRepoLocator cache refresh**: `EnsureAvailable()` ahora ejecuta `git pull --ff-only` (fallback: fetch + reset --hard) en el cache gestionado `~/.flowforge/cache/FlowForge`. Previamente el cache nunca se actualizaba, causando que `flowforge init` copiara archivos obsoletos. Non-blocking en fallos (offline/corrupto → warn + continúa con cache existente). Gated por `IsCachePath()` para no afectar repos de desarrollo.
+- **MarkdownExporterTests compilation**: Tests reescritos para usar API real (`ExportAsync` con `BriefingData`). Previamente llamaban métodos inexistentes (`GenerateMarkdown`, `ResolveOutputPath`, `Export`).
+- **Test timeout determinista**: `GitHubReleasesClientTests.FR_001_GetLatestVersion_TimesOut` ahora usa `TimeoutHandler` simulado en lugar de depender de timing de red.
+- **Test fixture paths**: Corregidos paths de fixtures en `ScriptTests`, `DocumentationTests`, `InstallCommandSourceTests` e `InstallerAsksForSyncUrlTests`.
+
+### Changed
+- **FlowForgeRepoLocator constructor**: Ahora acepta parámetro opcional `cachePath` para inyección en tests. Callers existentes no requieren cambios.
+
+## [v0.4.2] - 2026-10-20
+
+### Added
+- **HU-040 — VS Code slash commands `/flow-*`**: Pack `ide/vscode/prompts/` con 7 `.prompt.md` (frontmatter YAML: `description` + `agent`). Detectas Flatpak vs layout nativo automáticamente. Ver [HU-040](docs/tasks/HU-001-HU-099/HU-040-vscode-slash-commands-missing.md) y [ADR-027](docs/decisions/ADR-027-vscode-prompts-pack.md).
+- **`flowforge doctor` — 3 checks nuevos**: `~/.copilot/instructions/flowforge.instructions.md`, prompts pack (native), prompts pack (Flatpak).
+
+### Fixed
+- **`ide/install.sh` — merge marker huérfano**: Eliminado el `>>>>>>> origin/main` que rompía `bash -n`. Incluido para destrabar el bloque OpenCode→VS Code.
+- **`ide/install.sh` — parser `agent-models.json`**: Tolerante a 3 schemas (per-provider V2, tiers legacy, flat legacy). Evita que el script aborte cuando la migración de schema llega antes que el fix del `sed`. Huérfano de scope: vive aquí porque sin él el bloque VS Code nunca corría.
+
+### Documentation
+- **`ADR-027`** (renumerado desde ADR-011 por colisión con `dev`'s ADR-019 lineage): VS Code prompts pack.
+- **`ADR-028`** (renumerado desde ADR-026 por colisión con `dev`'s ADR-026 cache-refresh): Shared IDE destinations manifest (Proposed).
+- **`HU-041`** — 4 defectos de paridad `install.sh` ↔ `flowforge update`: (D1) `sed` schema-fragil, (D2) `GetAgentDirsForIde` no incluye `prompts/`, (D3) `CacheRefresher` degrada working tree, (D4) `FLOWFORGE_PROVIDER` no se respeta en C#. Documenta scope para próximo hotfix.
+
+### Verified
+- `dotnet build`: 0 errores
+- `dotnet test`: 273/273 pasando (33 tests nuevos agregados por `dev`)
+- `bash -n ide/install.sh`: clean
+- Prueba en máquina real (Linux + VS Code Flatpak): 7/7 prompts aparecen en el chat picker
+- `gh ls-remote refs/tags/v0.4.2`: tag pusheado a `03aa0727` antes del release.yml
+
+## [Unreleased]
+
 ### Added
 
 - **HU-047 — `/fforge-init`: initialize/synchronize `AGENTS.md` (`fforge-init`)**: New on-demand skill (no CKP gate) that initializes or synchronizes a project's `AGENTS.md` without losing project-specific configuration. Hybrid architecture (DEC-1): `SKILL.md` owns the 6-step dialogue and every judgement call (section selection, skill classification, fragment choice, conflict resolution), while a **zero-dependency bash engine** (`skills/forge-init/scripts/fforge-init.sh`, runtime: bash + awk/sed/grep/find/sha256sum — no node, no jq, no network) owns every deterministic file operation behind a frozen `plan.json` (contract-first, `contracts.md` C-1…C-10). Highlights: section-model analysis with line ranges (adopted from `AgentsMdMerger`), deterministic skill classification (`forge-*`/`flowdoc-*`/`reginald-*` → FlowForge; static `sdd-*` migration map), fragment composition (11 self-describing fragments: 4 stack, 4 functionality, 3 agent), **idempotent re-sync** via `<!-- fforge-init:begin v=1 hash=… -->` managed block (a hand-edited block is reported as *drift*, never overwritten), project-local backup `.agents.md.backup` + `--restore` (consumed on success, overwritten only after a fully successful write), `--dry-run` running the identical code path as `apply`, and frozen exit codes 0–7 with what/why/how messages on stderr (NFR-002). Undecided external skills block the flow with exit 4 (FR-005). New files: `skills/forge-init/**` (SKILL.md, contracts.md, README.md, 11 fragments, base template + base.meta.json, engine), `ide/opencode/commands/fforge-init.md`, `tests/fforge-init/run-tests.sh` (212 assertions, bash-only) and `tests/FlowForge.Installer.Tests/FforgeInitScriptTests.cs` (structural contract tests). Registry: `AGENTS.md` index row, `install-skills.sh` core count 11 → 12. Ver [HU-047](docs/tasks/HU-001-HU-099/HU-047-fforge-init.md), [spec](.ai-work/fforge-init/spec.md), [plan](.ai-work/fforge-init/plan.md) y [contracts](skills/forge-init/contracts.md).

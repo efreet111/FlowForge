@@ -1,12 +1,13 @@
 ---
 hu_id: HU-038
 title: "HOTFIX: OpenCode slash commands missing"
-status: in-progress
+status: done
 category: hotfix
 flowforge_slug: "hotfix-opencode-commands-missing"
 priority: P0
 severity: critical
 created_date: 2026-09-16
+closed_date: 2026-09-18
 ---
 
 # HU-038 — HOTFIX: OpenCode slash commands missing
@@ -38,23 +39,23 @@ Commit `cdd5c79` (Jun 2026) created commands for Cursor and Antigravity, but for
 
 ## Acceptance Criteria (business-level)
 
-- [ ] AC-1: `flowforge init` creates `.opencode/commands/flow-start.md` with correct OpenCode format
-- [ ] AC-2: All 7 FlowForge commands are available: `flow-start`, `flow-plan`, `flow-dev`, `flow-verify`, `flow-rework`, `flow-close`, `flow-status`
-- [ ] AC-3: Commands use OpenCode format (frontmatter YAML with `description`, `agent`, `template`)
-- [ ] AC-4: Commands reference the `flowforge` agent (defined in `.opencode/agents/flowforge.md`)
-- [ ] AC-5: Documentation updated (OpenCode quickstart mentions slash commands)
+- [x] AC-1: `flowforge init` creates `.opencode/commands/flow-start.md` with correct OpenCode format
+- [x] AC-2: All 7 FlowForge commands are available: `flow-start`, `flow-plan`, `flow-dev`, `flow-verify`, `flow-rework`, `flow-close`, `flow-status`
+- [x] AC-3: Commands use OpenCode format (frontmatter YAML with `description`, `agent`, `template`)
+- [x] AC-4: Commands reference the `flowforge` agent (defined in `.opencode/agents/flowforge.md`)
+- [x] AC-5: Documentation updated (OpenCode quickstart mentions slash commands)
 
 ## Scenarios (SDD Spec)
 
 ### Happy Path
 
-- [ ] **Commands are created on init**
+- [x] **Commands are created on init**
   **GIVEN** a project without `.opencode/commands/`
   **WHEN** `flowforge init .` runs
   **THEN** 7 command files are created in `.opencode/commands/`
   **🧪 Ref**: `tests/FlowForge.Installer.Tests/Init/InitCommandTests.cs`
 
-- [ ] **Commands have correct format**
+- [x] **Commands have correct format**
   **GIVEN** `.opencode/commands/flow-start.md` exists
   **WHEN** the file is read
   **THEN** it has frontmatter with `description` and `agent: flowforge`
@@ -62,13 +63,13 @@ Commit `cdd5c79` (Jun 2026) created commands for Cursor and Antigravity, but for
 
 ### Edge Cases
 
-- [ ] **Existing commands are preserved**
+- [x] **Existing commands are preserved**
   **GIVEN** `.opencode/commands/custom.md` exists (user-created)
   **WHEN** `flowforge init .` runs
   **THEN** `custom.md` is not modified or deleted
   **AND** FlowForge commands are added alongside it
 
-- [ ] **Re-run does not overwrite**
+- [x] **Re-run does not overwrite**
   **GIVEN** `.opencode/commands/flow-start.md` already exists
   **WHEN** `flowforge init .` runs again
   **THEN** the user is prompted: Skip / Backup+Overwrite / Overwrite
@@ -139,12 +140,12 @@ Commands were manually created in `.opencode/commands/` following the OpenCode f
 
 ## Definition of Done
 
-- [ ] `ide/opencode/commands/` created with 7 command files
-- [ ] `InitCommand.cs` copies commands for OpenCode
-- [ ] Unit tests passing
-- [ ] Manual test: `flowforge init` creates commands in a fresh project
-- [ ] Documentation updated
-- [ ] New release published
+- [x] `ide/opencode/commands/` created with 7 command files
+- [x] `InitCommand.cs` copies commands for OpenCode
+- [x] Unit tests passing
+- [x] Manual test: `flowforge init` creates commands in a fresh project
+- [x] Documentation updated
+- [x] New release published (v0.1.0-alpha.14)
 
 ## FlowForge
 

@@ -69,7 +69,7 @@ FlowForge writes agents into the directories each IDE expects. After running any
 | **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/`, `.opencode/commands/` | Skills en `{repo}/skills/` (no copiados). Ver [ADR-019](docs/decisions/ADR-019-opencode-antigravity-customizations.md). |
 | **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detected via `github.copilot*`. |
 | **Kilo Code** | `~/.config/kilo/agents/*.md` (same bundle as OpenCode) | `.kilo/agents/*.md` (duplicated) | Detected via `kilocode.*`. |
-| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `workflows/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `.agents/skills/` | Google Antigravity (not Claude Desktop). |
+| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `agents/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/agents/`, `.agents/skills/` | Google Antigravity (not Claude Desktop); `/flow-*` ship as skills because legacy workflows were retired on 2026-10-19. See [ADR-029](docs/decisions/ADR-029-antigravity-customizations-contract.md). |
 | **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (MCP only) | — | Out of scope for agent packs. |
 
 `flowforge doctor`, `ide/install.sh`, and `ide/install.ps1` follow this matrix; see [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md) for the canonical layout.
@@ -360,6 +360,6 @@ Direct `@forge-*` invocation (legacy) bypasses checkpoints and Memory Curation �
 | **`/flow-close` not in autocomplete** | Run `ide/install.ps1 -ProjectPath <repo>`; or type `/flow-close` as plain text — it is not a Cursor built-in |
 | **Used `/forge-memory` by mistake** | Use `/flow-close` (command) — `forge-memory` is the agent name, not a slash command |
 | **No `@skills` manual load** | Use compiled agents (Cursor) or IDE packs from `ide/install` |
-| **`/flow-*` missing in Antigravity picker** | Reload/restart Antigravity first (required after install). Then verify `~/.gemini/config/global_workflows/` has 7 files with YAML `description:` frontmatter; run `flowforge doctor` |
+| **`/flow-*` missing in Antigravity picker** | Reload/restart Antigravity first (required after install). Then verify `~/.gemini/config/skills/flow-*/SKILL.md` exists (19 skills total, 12 methodology + 7 `flow-*`) and `~/.gemini/config/agents/` has the 7 subagents. Legacy workflows were retired on 2026-10-19, so `global_workflows/` is no longer the mechanism. Run `flowforge doctor` (expects `rules trigger ✓`, `command skills ✓`, `subagents ✓`). |
 
 > **Problems?** Open an issue: https://github.com/efreet111/FlowForge

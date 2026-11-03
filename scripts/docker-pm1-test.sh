@@ -183,20 +183,31 @@ else
 fi
 
 ANTI_WF=$(find "$HOME/.gemini/config/global_workflows" -name "flow-*.md" 2>/dev/null | wc -l)
-if [ "$ANTI_WF" -eq 7 ]; then
-    pass "PM-1-4f: Antigravity workflows instalados ($ANTI_WF archivos)"
-    fm_fail=0
-    for f in "$HOME/.gemini/config/global_workflows"/flow-*.md; do
-        head -1 "$f" | grep -q '^---$' || fm_fail=1
-        grep -m1 '^description:' "$f" >/dev/null || fm_fail=1
-    done
-    if [ "$fm_fail" -eq 0 ]; then
-        pass "PM-1-4f-b: Antigravity workflows con frontmatter valido"
-    else
-        fail "PM-1-4f-b: Antigravity workflows sin frontmatter description:"
-    fi
+if [ "$ANTI_WF" -eq 0 ]; then
+    pass "PM-1-4f: global_workflows/ no se escribe (ruta muerta desde 2026-10-19)"
 else
-    fail "PM-1-4f: Antigravity workflows count=$ANTI_WF (expected 7)"
+    fail "PM-1-4f: global_workflows/ con $ANTI_WF archivos (ADR-019 Amendment)"
+fi
+
+ANTI_SKILLS=$(find "$HOME/.gemini/config/skills" -maxdepth 2 -name "SKILL.md" -path "*/flow-*" 2>/dev/null | wc -l)
+if [ "$ANTI_SKILLS" -eq 7 ]; then
+    pass "PM-1-4f-b: Antigravity /flow-* instalados como skills ($ANTI_SKILLS)"
+else
+    fail "PM-1-4f-b: Antigravity command skills count=$ANTI_SKILLS (expected 7)"
+fi
+
+if ! grep -rq 'alwaysApply' "$HOME/.gemini/config/rules" 2>/dev/null \
+   && grep -rq '^trigger:' "$HOME/.gemini/config/rules" 2>/dev/null; then
+    pass "PM-1-4f-c: Antigravity rules con trigger: valido"
+else
+    fail "PM-1-4f-c: Antigravity rules sin trigger: (el motor las descarta)"
+fi
+
+ANTI_AGENTS=$(find "$HOME/.gemini/config/agents" -maxdepth 1 -name "*.md" 2>/dev/null | wc -l)
+if [ "$ANTI_AGENTS" -ge 7 ]; then
+    pass "PM-1-4f-d: Antigravity subagentes instalados ($ANTI_AGENTS)"
+else
+    fail "PM-1-4f-d: Antigravity subagentes count=$ANTI_AGENTS (expected >=7)"
 fi
 
 if [ -f "$HOME/.gemini/config/skills/forge-discovery/SKILL.md" ]; then
