@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/readme/banner-1280x320.png" width="880" alt="FlowForge — a dwarf blacksmith forging a pipeline of AI agents at an anvil">
+</p>
+
 # FlowForge
 
 > **Forge your AI-agent software development workflow.**
