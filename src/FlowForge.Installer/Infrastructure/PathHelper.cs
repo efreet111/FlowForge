@@ -95,6 +95,10 @@ public static class PathHelper
     public static string AntigravitySkills =>
         Path.Combine(AntigravityConfigDir, "skills");
 
+    /// <summary>Antigravity native subagents dir (ADR-019 Amendment).</summary>
+    public static string AntigravityAgents =>
+        Path.Combine(AntigravityConfigDir, "agents");
+
     public static string AntigravityWorkspaceAgents =>
         Path.Combine(AntigravityConfigDir, ".agents");
 

@@ -4,6 +4,34 @@ All notable changes to the FlowForge methodology and IDE packs are documented he
 
 Format based on [Keep a Changelog](https://keepachangelog.com/). Versioning follows [SemVer](https://semver.org/).
 
+## [Unreleased]
+
+## [Unreleased]
+
+## [v0.1.0-alpha.17] - 2026-10-30
+
+### Fixed
+- **El instalador abortaba al actualizar si `~/.gemini/config/skills` tenía symlinks colgantes**: `EnsureDirectoryWithBackup` -> `CopyDirectoryRecursive` hacía `File.Copy` sobre el enlace y lanzaba `FileNotFoundException`, dejando la migración a medias (detectado en Docker E2E con el binario alpha.16). Ahora los symlinks se recrean sin seguirlos y un backup fallido se reporta como warning en lugar de abortar (ADR-017).
+- Regresión cubierta por `CopyDirectoryRecursive_HandlesDanglingSymlinkWithoutThrowing` e `InstallAntigravitySkills_ReplacesDanglingMethodologySkillSymlink` (296 tests).
+
+### Fixed
+- **Gate de compatibilidad semver (era un no-op en prereleases)**: `TryParseVersion` descartaba el sufijo (`0.1.0-alpha.13` → `0.1.0`), así que `alpha.13` y `alpha.15` se comparaban como iguales y `requires.installer`/`requires.engram-dotnet` no bloqueaban nada dentro de la línea alpha. Reemplazado por comparación semver completa (`alpha.9 < alpha.10 < beta.1 < 0.1.0`) con tests. Detectado al preparar el bump de `requires.installer`.
+- **`requires.installer` → `>=0.1.0-alpha.15`**: una vez publicado el release, los installers anteriores reciben el aviso de bloqueo. El mensaje ya no sugiere `flowforge update --self` (comando inexistente en v1 — ADR-016 OQ-1) sino el bootstrap real: `curl -fsSL .../install/install.sh | bash`. Tests en `ManifestClientTests`.
+- **Antigravity — contrato de customizations corregido (integración 100% rota)**: verificado con `agy` CLI y docs oficiales; ver [ADR-029](docs/decisions/ADR-029-antigravity-customizations-contract.md).
+  - **Rules**: el pack emite `trigger:` (`always_on` / `model_decision`) en lugar de `alwaysApply`. Sin `trigger:` válido Antigravity descarta la regla en silencio (`Invalid rule trigger: CORTEX_MEMORY_TRIGGER_UNSPECIFIED`). Añadida `rules/pr-workflow.md` al pack (drift con `.agents/rules/`).
+  - **Workflows → skills**: los workflows legacy dejaron de ejecutarse el 2026-10-19. Los `/flow-*` se generan ahora como `skills/flow-*/SKILL.md` (workspace y `~/.gemini/config/skills/`); el instalador ya no escribe `global_workflows/` ni `.agents/workflows/` y migra+elimina los restos legacy.
+  - **Subagentes nativos**: nuevo `ide/antigravity/agents/` con 7 subagentes (`flowforge`, `forge-discovery`, `forge-arch`, `forge-plan`, `forge-dev`, `forge-verify`, `forge-memory`) instalados en `agents/` y `.agents/agents/` (sin `tools:` para evitar el hang).
+  - **Skill `flowforge`**: el instalador copia todas las skills con `SKILL.md`, no solo `forge-*`; antes el orquestador nunca se instalaba.
+  - **`~/.gemini/GEMINI.md`**: se escribe sin frontmatter (el archivo completo es always_on).
+  - **Validadores**: `AntigravityPackValidator` valida `trigger:` (nunca `alwaysApply`), las 7 command skills y los 7 subagentes; `flowforge doctor` agrega esos checks y solo advierte por workflows legacy. `scripts/validate-antigravity-pack.sh` verifica el contrato real.
+  - **Compatibilidad de actualización**: `scripts/compat-antigravity-upgrade.sh` reconstruye un estado anterior (0.5.x y generación legacy) y verifica migración sin pérdida, cero cambios fuera de `~/.gemini` e idempotencia. Corregido un aborto del instalador cuando `config/skills/<name>` era un symlink colgante (`mkdir: El fichero ya existe`) en `install.sh`, `install.ps1` y `WriteCommandSkill`. Baseline en [`.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md`](.ai-work/hu-050-antigravity-customizations-contract/installer-baseline.md).
+  - **Paridad**: cambios espejo en `ide/install.sh`, `ide/install.ps1` y `src/FlowForge.Installer` (install + self-update + proyecto).
+
+### Verified
+- `bash -n ide/install.sh`: clean
+- `scripts/validate-antigravity-pack.sh`: passed
+- `dotnet test`: 286/286 pasando
+
 ## [v0.1.0-alpha.14] - 2026-09-18
 
 ### Added

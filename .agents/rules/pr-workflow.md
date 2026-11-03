@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+trigger: always_on
 description: Enforces Pull Request workflow for all changes to main branch.
 ---
 

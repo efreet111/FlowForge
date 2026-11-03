@@ -1,6 +1,6 @@
 # ADR-011: IDE Pack Parity & Skill Delivery Pipeline
 
-> **Status:** Proposed  
+> **Status:** Proposed (las afirmaciones sobre el contrato de entrega de Antigravity quedan superseded por [ADR-029](ADR-029-antigravity-customizations-contract.md); la paridad entre packs sigue vigente)  
 > **Date:** 2026-01-17  
 > **Deciders:** FlowForge Team  
 > **Related:** [PRD-starter-kit.md](../PRD-starter-kit.md), [ADR-008-ide-installer-path-matrix.md](ADR-008-ide-installer-path-matrix.md)
@@ -52,7 +52,7 @@ FlowForge supports 4 IDEs: **Cursor**, **VS Code**, **OpenCode**, and **Antigrav
 | **Agent definitions** | Each agent must be self-contained OR have guaranteed skill access | Cursor: self-contained. Others: must fix skill delivery first. |
 | **Core skills (7)** | All accessible via symlinks or bundled | Fix broken symlinks, update installer |
 | **Specialized skills (24)** | All accessible via parent directory | Don't need individual symlinks — agents load via `skills/forge-X/security/SKILL.md` |
-| **Workflows** | All `/flow-*` commands available | Already parity across all packs |
+| **Workflows** | All `/flow-*` commands available | Already parity across all packs (Antigravity: delivered as skills — see Amendment) |
 | **Rules** | Core rules (workflow, model-assignments, git-sin-push) present | Already parity |
 
 **Implementation approach:**
@@ -60,7 +60,7 @@ FlowForge supports 4 IDEs: **Cursor**, **VS Code**, **OpenCode**, and **Antigrav
 - **Cursor:** No changes needed (already rich). Keep as reference implementation.
 - **VS Code:** Add concrete output templates to agents (medium priority).
 - **OpenCode:** Enhance agents from thin stubs to medium-detail (include output templates, operational rules). OR fix skill delivery so stubs work.
-- **Antigravity:** Add per-agent definition files (currently missing). OR fix skill delivery so rules+workflows work.
+- **Antigravity:** Native subagent files now ship in `ide/antigravity/agents/` (see Amendment 2026-10-29).
 
 **Trade-off:** We can either (A) make all agents self-contained like Cursor, or (B) fix skill delivery so thin stubs work. **Decision: Option B for OpenCode/Antigravity** — fix the delivery pipeline first, then enhance agents only if needed. This avoids duplicating skill content across 4 IDE packs.
 
@@ -108,7 +108,7 @@ FlowForge supports 4 IDEs: **Cursor**, **VS Code**, **OpenCode**, and **Antigrav
 | **Cursor** | Rich, self-contained | Works | No — keep as reference |
 | **VS Code** | Medium detail | Works | Maybe — add output templates if users report issues |
 | **OpenCode** | Thin stubs | Works (can load skills) | Maybe — enhance if skill loading is too slow or unreliable |
-| **Antigravity** | No per-agent files | Works (rules + workflows) | Maybe — add per-agent files if users need more guidance |
+| **Antigravity** | Native subagents (`agents/*.md`) | Works (rules + skills + subagents) | No — per-agent files shipped (Amendment 2026-10-29) |
 
 **Decision:** Fix delivery first, then monitor user feedback. Only enhance agents if:
 - Users report confusion or errors
@@ -162,7 +162,7 @@ done
 **Task 1.2: Update `install-skills.sh`**
 - Find/replace "EngramFlow" → "FlowForge"
 - Remove `.cursorrules` / `.clinerules` logic
-- Add support for OpenCode (`~/.config/opencode/skills/`) and Antigravity (`~/.gemini/antigravity/skills/`)
+- Add support for OpenCode (`~/.config/opencode/skills/`) and Antigravity (`~/.gemini/config/skills/`)
 - Copy all 31 skills (not just 8 core)
 
 **Task 1.3: Add skill validation to `flowforge doctor`**
@@ -242,3 +242,13 @@ No migration needed. This ADR fixes bugs and improves quality — no breaking ch
 2. Implement Phase 1 (fix skill delivery) — 2-3 days
 3. Test Phase 2 (parity validation) — 1 week
 4. Decide Phase 3 (agent enhancements) based on feedback
+
+---
+
+## Amendment (2026-10-29) — Antigravity delivery contract
+
+Las afirmaciones de este ADR sobre **cómo** se entregan las customizations de Antigravity quedaron superseded por **[ADR-029](ADR-029-antigravity-customizations-contract.md)**: rules con `trigger:` (nunca la clave inerte de Cursor), `/flow-*` como skills generadas y 7 subagentes nativos. Los workflows legacy dejaron de existir el **2026-10-19**.
+
+El objetivo de **paridad entre los cuatro packs** (mismos `/flow-*`, reglas y agentes) sigue vigente y se cumple: Antigravity los expone vía skills en lugar de workflows.
+
+

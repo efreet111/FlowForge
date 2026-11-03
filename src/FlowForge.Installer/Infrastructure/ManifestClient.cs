@@ -66,10 +66,7 @@ public sealed class ManifestClient(HttpClient http, InstallerLogger log)
         var minVersion = ParseMinVersion(manifest.RequiresEngramDotnet);
         if (minVersion == null) return null;
 
-        if (!TryParseVersion(installedVersion, out var installed)) return null;
-        if (!TryParseVersion(minVersion, out var minimum)) return null;
-
-        if (installed < minimum)
+        if (CompareSemVer(installedVersion, minVersion) is < 0)
         {
             return $"engram-dotnet {installedVersion} no es compatible. " +
                    $"Se requiere {manifest.RequiresEngramDotnet}. " +
@@ -90,14 +87,12 @@ public sealed class ManifestClient(HttpClient http, InstallerLogger log)
         var minVersion = ParseMinVersion(manifest.RequiresInstaller);
         if (minVersion == null) return null;
 
-        if (!TryParseVersion(currentInstallerVersion, out var current)) return null;
-        if (!TryParseVersion(minVersion, out var minimum)) return null;
-
-        if (current < minimum)
+        if (CompareSemVer(currentInstallerVersion, minVersion) is < 0)
         {
             return $"Este installer (v{currentInstallerVersion}) está desactualizado. " +
                    $"Se requiere v{minVersion} o superior. " +
-                   $"Actualizá con: flowforge update --self";
+                   $"Actualizá reinstalando el installer: " +
+                   "curl -fsSL https://raw.githubusercontent.com/efreet111/FlowForge/main/install/install.sh | bash";
         }
 
         return null;
@@ -161,10 +156,58 @@ public sealed class ManifestClient(HttpClient http, InstallerLogger log)
         return parts.TrimStart('>', '=', '<', ' ');
     }
 
-    static bool TryParseVersion(string raw, out Version version)
+    /// <summary>
+    /// Compara dos versiones semver incluyendo el sufijo prerelease
+    /// (<c>0.1.0-alpha.13 &lt; 0.1.0-alpha.15</c>).
+    /// <see cref="Version"/> descarta el sufijo, así que comparar sólo el core hacía
+    /// que cualquier requisito dentro de la línea alpha fuese invisible
+    /// (el gate de compatibilidad era un no-op — detectado 2026-10-30).
+    /// Devuelve null si alguna versión no se puede parsear.
+    /// </summary>
+    static int? CompareSemVer(string left, string right)
     {
-        // Normalizar "0.3.0-alpha.1" → "0.3.0" para comparación numérica
-        var normalized = raw.Split('-')[0];
-        return Version.TryParse(normalized, out version!);
+        if (!TrySplitSemVer(left, out var lc, out var lp)) return null;
+        if (!TrySplitSemVer(right, out var rc, out var rp)) return null;
+
+        var cmp = lc.CompareTo(rc);
+        if (cmp != 0) return cmp;
+
+        // Una release es mayor que cualquier prerelease de la misma base.
+        if (lp.Length == 0 && rp.Length == 0) return 0;
+        if (lp.Length == 0) return 1;
+        if (rp.Length == 0) return -1;
+
+        var shared = Math.Min(lp.Length, rp.Length);
+        for (var i = 0; i < shared; i++)
+        {
+            var leftNumeric = long.TryParse(lp[i], out var ln);
+            var rightNumeric = long.TryParse(rp[i], out var rn);
+            var partCmp = leftNumeric && rightNumeric
+                ? ln.CompareTo(rn)
+                : string.CompareOrdinal(lp[i], rp[i]);
+
+            if (partCmp != 0) return Math.Sign(partCmp);
+        }
+
+        return lp.Length.CompareTo(rp.Length);
+    }
+
+    static bool TrySplitSemVer(string raw, out Version core, out string[] prerelease)
+    {
+        core = new Version(0, 0, 0);
+        prerelease = [];
+
+        if (string.IsNullOrWhiteSpace(raw)) return false;
+
+        var text = raw.Trim();
+        var dash = text.IndexOf('-');
+        var coreText = dash < 0 ? text : text[..dash];
+        var preText = dash < 0 ? string.Empty : text[(dash + 1)..];
+
+        if (!Version.TryParse(coreText, out var parsed)) return false;
+
+        core = parsed;
+        prerelease = preText.Length == 0 ? [] : preText.Split('.');
+        return true;
     }
 }

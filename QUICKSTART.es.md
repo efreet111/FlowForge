@@ -71,7 +71,7 @@ FlowForge escribe los agentes en los directorios que cada IDE realmente lee. Des
 > El instalador OpenCode ahora genera `opencode.json` completo con el provider `opencode-zen` (8 modelos gratis), registra el sidecar y se valida con `flowforge doctor`. El warning sobre entrenamiento aparece en consola y la política de placeholders está en `docs/PII-POLICY.md`.
 | **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` | Detectado por `github.copilot*`. |
 | **Kilo Code** | `~/.config/kilo/agents/*.md` (el mismo bundle que OpenCode) | `.kilo/agents/*.md` (duplicado) | Detectado por `kilocode.*`. |
-| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `workflows/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `.agents/skills/` | Google Antigravity (no Claude Desktop). |
+| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `agents/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/agents/`, `.agents/skills/` | Antigravity de Google (no Claude Desktop); los `/flow-*` se entregan como skills porque los workflows legacy dejaron de existir el 2026-10-19. Ver [ADR-029](docs/decisions/ADR-029-antigravity-customizations-contract.md). |
 | **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (solo MCP) | — | Fuera del alcance de los packs de agentes. |
 
 `flowforge doctor`, `ide/install.sh` e `ide/install.ps1` respetan esta matriz; consultá [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md) para la estructura canónica.
@@ -355,7 +355,7 @@ Los `/flow-*` son convenciones de texto en modo Agent. Autocomplete requiere `id
 | **`/flow-close` no aparece en autocomplete** | Corré `ide/install.ps1 -ProjectPath <repo>`; o escribí `/flow-close` como texto — no es comando nativo de Cursor |
 | **Usaste `/forge-memory` por error** | Usá `/flow-close` (comando) — `forge-memory` es el nombre del agente |
 | **Hay que cargar `@skills` a mano** | Usá agentes compilados (Cursor) o packs desde `ide/install` |
-| **`/flow-*` no aparecen en Antigravity** | Reiniciá Antigravity tras install; verificá `~/.gemini/config/global_workflows/` (7 archivos con frontmatter `description:`); `flowforge doctor` |
+| **`/flow-*` no aparecen en Antigravity** | Reiniciá Antigravity tras install; verificá que exista `~/.gemini/config/skills/flow-*/SKILL.md` (19 skills en total: 12 de metodología + 7 `flow-*`) y que `~/.gemini/config/agents/` tenga los 7 subagentes. Los workflows legacy dejaron de existir el 2026-10-19, así que `global_workflows/` ya no es el mecanismo. Corré `flowforge doctor` (esperá `rules trigger ✓`, `command skills ✓`, `subagents ✓`). |
 | **OpenCode no arranca tras instalar FlowForge** | Revisá `~/.local/share/opencode/log/`; no uses texto `file:` con `...` en strings JSON; mergeá solo `agent{}` y conservá `mcp`/`permission` |
 | **Subagentes sin modelo en OpenCode** | Configurá proveedor `opencode-go` y API keys, o cambiá `model` en `~/.config/opencode/agents/*.md` (o `.opencode/agents/*.md` por proyecto) a tus modelos disponibles |
 

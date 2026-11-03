@@ -287,7 +287,7 @@
 - [ ] OpenCode: los 7 subagentes cargan y delegan
 - [ ] Cursor: `workflow.mdc` se aplica en el chat (alwaysApply)
 - [ ] Cursor: los 6 `agents/*.md` se cargan como subagentes
-- [ ] Antigravity: `workflow.md` + workflows fluyen correctamente
+- [ ] Antigravity: `workflow.md` (rule con `trigger:`) + skills `/flow-*` + subagentes fluyen correctamente
 - [ ] VS Code: `copilot-instructions.md` se aplica a las respuestas
 
 **Enfoque**:

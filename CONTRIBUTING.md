@@ -26,7 +26,7 @@ FlowForge installs each IDE bundle into the directories listed below. Matching d
 | OpenCode | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/` + `.kilo/agents/` |
 | GitHub Copilot | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md` | `.github/agents/*.agent.md`, `.github/copilot-instructions.md` |
 | Kilo Code | `~/.config/kilo/agents/*.md` | `.kilo/agents/*.md` |
-| Antigravity | `~/.gemini/antigravity/` (`AGENTS.md`, `rules/`, `workflows/`) | `.agents/rules/`, `.agents/workflows/`, `AGENTS.md` |
+| Antigravity | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `agents/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/agents/`, `.agents/skills/`, `AGENTS.md` |
 
 ## Issues
 

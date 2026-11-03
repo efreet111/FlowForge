@@ -32,6 +32,9 @@ def load_models() -> dict[str, str]:
 
 MODELS = load_models()
 
+# agent name (Cursor output) -> skill dir name (skills/<name>/SKILL.md)
+SKILL_SOURCE = {"forge-orchestrator": "flowforge"}
+
 DESCRIPTIONS = {
     "forge-orchestrator": "FlowForge orchestrator: 6 phases, 5 checkpoints. Coordinates flow; does not implement product code.",
     "forge-discovery": "FlowForge phase 0: discovery and CKP-0. Invoked by orchestrator.",
@@ -60,7 +63,12 @@ def strip_frontmatter(text: str) -> str:
 
 
 def compile_agent(name: str) -> None:
-    skill_path = SKILLS / name / "SKILL.md"
+    # The Cursor agent is named `forge-orchestrator` but its skill dir is
+    # `flowforge` (the skill name used by every IDE pack). Keep them in sync.
+    skill_name = SKILL_SOURCE.get(name, name)
+    skill_path = SKILLS / skill_name / "SKILL.md"
+    if not skill_path.exists():
+        raise FileNotFoundError(f"missing skill source for agent '{name}': {skill_path}")
     body = strip_frontmatter(skill_path.read_text(encoding="utf-8")).strip()
     if name == "forge-verify":
         body = body.replace(

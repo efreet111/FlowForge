@@ -8,6 +8,9 @@ on:
       - "install/**"
       - "ide/**"
       - "scripts/validate-antigravity-pack.sh"
+      - "scripts/compat-antigravity-upgrade.sh"
+      - "install-skills.sh"
+      - "install/dev/install-dev.sh"
       - ".github/workflows/test-installer.yml"
   pull_request:
     branches: [main, dev]
@@ -72,6 +75,22 @@ jobs:
           chmod +x scripts/validate-antigravity-pack.sh
           bash scripts/validate-antigravity-pack.sh "${{ github.workspace }}"
 
+      - name: Antigravity upgrade compatibility (ADR-017)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          chmod +x scripts/compat-antigravity-upgrade.sh
+          bash scripts/compat-antigravity-upgrade.sh "${{ github.workspace }}"
+
+      - name: Shell syntax checks (installer scripts)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: |
+          for f in ide/install.sh install-skills.sh install/dev/install-dev.sh scripts/docker-pm1-test.sh; do
+            bash -n "$f"
+            echo "PASS: bash -n $f"
+          done
+
   # ── Unit tests (Linux) ──────────────────────────────────────────────────────
   unit-tests:
     name: Unit Tests (FlowForge.Installer.Tests)
@@ -119,7 +138,7 @@ jobs:
           mkdir -p ~/.cursor ~/.vscode/extensions/github.copilot-1.0.0 \
             ~/.vscode/extensions/kilocode.kilo-code-1.0.0 \
             ~/.config/opencode ~/.copilot/agents ~/.copilot/instructions \
-            ~/.config/kilo/agents ~/.gemini/config/rules ~/.gemini/config/global_workflows ~/.gemini \
+            ~/.config/kilo/agents ~/.gemini/config/rules ~/.gemini \
             ~/.local/bin
 
       - name: Instalar flowforge binary
@@ -189,16 +208,33 @@ jobs:
           RULES_COUNT=$(find ~/.gemini/config/rules -name "*.md" 2>/dev/null | wc -l)
           echo "Antigravity rules: $RULES_COUNT"
           test "$RULES_COUNT" -gt 0 || (echo "FAIL: no Antigravity rules"; exit 1)
-          WF_COUNT=$(find ~/.gemini/config/global_workflows -name "flow-*.md" 2>/dev/null | wc -l)
-          echo "Antigravity workflows: $WF_COUNT"
-          test "$WF_COUNT" -eq 7 || (echo "FAIL: expected 7 Antigravity workflows, got $WF_COUNT"; exit 1)
-          for f in ~/.gemini/config/global_workflows/flow-*.md; do
-            head -1 "$f" | grep -q '^---$' || (echo "FAIL: $(basename "$f") missing frontmatter"; exit 1)
-            grep -m1 '^description:' "$f" >/dev/null || (echo "FAIL: $(basename "$f") missing description:"; exit 1)
+          for f in ~/.gemini/config/rules/*.md; do
+            grep -m1 -E '^trigger:[[:space:]]*(always_on|model_decision|glob|manual)[[:space:]]*$' "$f" >/dev/null \
+              || (echo "FAIL: $(basename "$f") missing valid trigger:"; exit 1)
+            if grep -qiE 'always[[:space:]]*Apply' "$f"; then
+              echo "FAIL: $(basename "$f") uses the inert Cursor key"; exit 1
+            fi
           done
-          echo "PASS: all workflows have frontmatter"
+          echo "PASS: all rules declare trigger:"
+          for s in flow-start flow-plan flow-dev flow-verify flow-rework flow-close flow-status; do
+            test -f ~/.gemini/config/skills/$s/SKILL.md || (echo "FAIL: command skill $s missing"; exit 1)
+          done
+          echo "PASS: 7 /flow-* command skills"
+          AGENTS_COUNT=$(find ~/.gemini/config/agents -name "*.md" 2>/dev/null | wc -l)
+          echo "Antigravity subagents: $AGENTS_COUNT"
+          test "$AGENTS_COUNT" -eq 7 || (echo "FAIL: expected 7 Antigravity subagents, got $AGENTS_COUNT"; exit 1)
+          for f in ~/.gemini/config/agents/*.md; do
+            if grep -qE '^tools:' "$f"; then echo "FAIL: $(basename "$f") must not declare tools:"; exit 1; fi
+          done
+          echo "PASS: 7 subagents without tools:"
           test -f ~/.gemini/config/skills/forge-discovery/SKILL.md && echo "PASS: forge-discovery skill" || (echo "FAIL: forge-discovery skill missing"; exit 1)
+          test -f ~/.gemini/config/skills/flowforge/SKILL.md && echo "PASS: flowforge orchestrator skill" || (echo "FAIL: flowforge skill missing"; exit 1)
+          test ! -d ~/.gemini/config/global_workflows && echo "PASS: no global_workflows/" || (echo "FAIL: legacy global_workflows/ still present"; exit 1)
           test ! -f ~/.gemini/antigravity/AGENTS.md && echo "PASS: legacy antigravity pack absent" || (echo "FAIL: legacy antigravity pack still present"; exit 1)
+          if [ -f ~/.gemini/GEMINI.md ] && [ "$(head -1 ~/.gemini/GEMINI.md)" = "---" ]; then
+            echo "FAIL: GEMINI.md must not start with frontmatter"; exit 1
+          fi
+          echo "PASS: GEMINI.md without frontmatter"
 
       - name: Verificar — flowforge doctor
         run: |
@@ -325,19 +361,32 @@ jobs:
         run: |
           $config = "$env:USERPROFILE\.gemini\config"
           if (-not (Test-Path "$config\AGENTS.md")) { Write-Error "FAIL: Antigravity AGENTS.md missing"; exit 1 }
-          $wfCount = (Get-ChildItem -Path "$config\global_workflows" -Filter "flow-*.md" -ErrorAction SilentlyContinue).Count
-          Write-Output "Antigravity workflows: $wfCount"
-          if ($wfCount -ne 7) { Write-Error "FAIL: expected 7 workflows, got $wfCount"; exit 1 }
-          foreach ($f in Get-ChildItem -Path "$config\global_workflows" -Filter "flow-*.md") {
-            $head = Get-Content $f.FullName -TotalCount 1
-            if ($head -ne "---") { Write-Error "FAIL: $($f.Name) missing frontmatter"; exit 1 }
+          foreach ($f in Get-ChildItem -Path "$config\rules" -Filter "*.md") {
             $content = Get-Content $f.FullName -Raw
-            if ($content -notmatch '(?m)^description:') { Write-Error "FAIL: $($f.Name) missing description:"; exit 1 }
+            if ($content -notmatch '(?m)^trigger:\s*(always_on|model_decision|glob|manual)\s*$') {
+              Write-Error "FAIL: $($f.Name) missing valid trigger:"; exit 1
+            }
+            if ($content -match '(?i)always\s*Apply') { Write-Error "FAIL: $($f.Name) uses the inert Cursor key"; exit 1 }
           }
-          Write-Output "PASS: all workflows have frontmatter"
+          Write-Output "PASS: all rules declare trigger:"
+          foreach ($s in @("flow-start","flow-plan","flow-dev","flow-verify","flow-rework","flow-close","flow-status")) {
+            if (-not (Test-Path "$config\skills\$s\SKILL.md")) { Write-Error "FAIL: command skill $s missing"; exit 1 }
+          }
+          Write-Output "PASS: 7 /flow-* command skills"
+          $agents = @(Get-ChildItem -Path "$config\agents" -Filter "*.md" -ErrorAction SilentlyContinue)
+          Write-Output "Antigravity subagents: $($agents.Count)"
+          if ($agents.Count -ne 7) { Write-Error "FAIL: expected 7 Antigravity subagents"; exit 1 }
+          foreach ($f in $agents) {
+            if ((Get-Content $f.FullName -Raw) -match '(?m)^tools:') { Write-Error "FAIL: $($f.Name) must not declare tools:"; exit 1 }
+          }
+          Write-Output "PASS: 7 subagents without tools:"
           $skill = "$config\skills\forge-discovery\SKILL.md"
           if (-not (Test-Path $skill)) { Write-Error "FAIL: forge-discovery skill missing"; exit 1 }
           Write-Output "PASS: forge-discovery skill"
+          if (-not (Test-Path "$config\skills\flowforge\SKILL.md")) { Write-Error "FAIL: flowforge skill missing"; exit 1 }
+          Write-Output "PASS: flowforge orchestrator skill"
+          if (Test-Path "$config\global_workflows") { Write-Error "FAIL: legacy global_workflows/ still present"; exit 1 }
+          Write-Output "PASS: no global_workflows/"
           $legacy = "$env:USERPROFILE\.gemini\antigravity\AGENTS.md"
           $legacyLocal = "$env:LOCALAPPDATA\Google\Gemini\antigravity\AGENTS.md"
           if ((Test-Path $legacy) -or (Test-Path $legacyLocal)) {
@@ -345,6 +394,11 @@ jobs:
             exit 1
           }
           Write-Output "PASS: legacy antigravity pack absent"
+          $gemini = "$env:USERPROFILE\.gemini\GEMINI.md"
+          if ((Test-Path $gemini) -and ((Get-Content $gemini -TotalCount 1) -eq "---")) {
+            Write-Error "FAIL: GEMINI.md must not start with frontmatter"; exit 1
+          }
+          Write-Output "PASS: GEMINI.md without frontmatter"
 
       - name: Verificar — flowforge doctor (Windows)
         shell: pwsh

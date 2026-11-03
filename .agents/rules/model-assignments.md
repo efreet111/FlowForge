@@ -1,5 +1,5 @@
 ---
-alwaysApply: false
+trigger: model_decision
 description: "Redirect: model assignments are now defined per-IDE in canonical JSON files."
 ---
 

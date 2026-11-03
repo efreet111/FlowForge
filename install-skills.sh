@@ -36,7 +36,7 @@ DESTINATIONS=(
     ["VS Code Copilot"]="$HOME/.copilot/skills"
     ["Proyecto Activo (.agents/skills)"]="./.agents/skills"
     ["OpenCode"]="$HOME/.config/opencode/skills"
-    ["Antigravity"]="$HOME/.gemini/antigravity/skills"
+    ["Antigravity"]="$HOME/.gemini/config/skills"
 )
 
 # ── Step 1: Create destination directories ──────────────
@@ -127,7 +127,7 @@ echo -e "\n${CYAN}[4/5] HU-045: Configurando subagent-first invocation...${NC}"
 HU045_APPLIED=0
 for dest_dir in "${DESTINATIONS[@]}"; do
     if [ -d "$dest_dir" ]; then
-        for skill_file in "$dest_dir"/forge-*/SKILL.md "$dest_dir"/forge-*.md 2>/dev/null; do
+        for skill_file in "$dest_dir"/forge-*/SKILL.md "$dest_dir"/forge-*.md; do
             if [ -f "$skill_file" ]; then
                 # Check if metadata.opencode/autoinvoke already exists
                 if ! grep -q "opencode/autoinvoke: false" "$skill_file"; then

@@ -108,14 +108,22 @@ compile_cursor_agents() {
   fi
   local py=python3
   command -v python3 >/dev/null 2>&1 || py=python
-  (cd "$FLOWFORGE_REPO" && $py "$compile") && echo -e "  ${GREEN}OK${NC} Agentes Cursor recompilados"
+  if (cd "$FLOWFORGE_REPO" && $py "$compile"); then
+    echo -e "  ${GREEN}OK${NC} Agentes Cursor recompilados"
+  else
+    # Non-fatal: an optional pack must never abort the whole installer.
+    echo -e "  ${YELLOW}! compile-agents falló; se conservan los agentes Cursor existentes${NC}"
+  fi
 }
 
 install_antigravity_skills() {
   local dest="$1"
   mkdir -p "$dest"
-  for skill_dir in "$FLOWFORGE_REPO/skills"/forge-*; do
+  # ADR-019 Amendment: install EVERY skill dir with a SKILL.md — including the
+  # `flowforge` orchestrator skill, which was previously skipped.
+  for skill_dir in "$FLOWFORGE_REPO/skills"/*; do
     [ -d "$skill_dir" ] || continue
+    [ -f "$skill_dir/SKILL.md" ] || continue
     local name
     name="$(basename "$skill_dir")"
     local target="$dest/$name"
@@ -125,6 +133,58 @@ install_antigravity_skills() {
     else
       ln -sfn "$skill_dir" "$target"
     fi
+  done
+}
+
+# Strip a leading YAML frontmatter block (used for ~/.gemini/GEMINI.md, which
+# must not carry frontmatter — the whole file is always_on).
+strip_yaml_frontmatter() {
+  awk '
+    BEGIN { in_fm=0; done=0; started=0 }
+    !done && NR==1 && /^---[[:space:]]*$/ { in_fm=1; next }
+    !done && in_fm && /^---[[:space:]]*$/ { in_fm=0; done=1; next }
+    !in_fm {
+      if (!started && $0 ~ /^[[:space:]]*$/) next
+      started=1
+      print
+    }
+  ' "$1"
+}
+
+# Extract the single-line description: value from a workflow file's frontmatter.
+workflow_description() {
+  awk '
+    BEGIN { in_fm=0 }
+    NR==1 && /^---[[:space:]]*$/ { in_fm=1; next }
+    in_fm && /^---[[:space:]]*$/ { exit }
+    in_fm && /^description:/ { sub(/^description:[[:space:]]*/, ""); print; exit }
+  ' "$1"
+}
+
+# ADR-019 Amendment: legacy workflows are dead (2026-10-19). Generate one skill
+# per ide/antigravity/workflows/flow-*.md: <dest>/<flow-name>/SKILL.md.
+generate_antigravity_command_skills() {
+  local dest="$1"
+  local src="${2:-$IDE_DIR/antigravity/workflows}"
+  [ -d "$src" ] || return 0
+  mkdir -p "$dest"
+  for wf in "$src"/flow-*.md; do
+    [ -f "$wf" ] || continue
+    local name desc target_dir
+    name="$(basename "$wf" .md)"
+    desc="$(workflow_description "$wf")"
+    [ -n "$desc" ] || desc="FlowForge command $name"
+    target_dir="$dest/$name"
+    rm -rf "$target_dir" 2>/dev/null || true
+    mkdir -p "$target_dir"
+    {
+      echo "---"
+      echo "name: $name"
+      echo "description: $desc"
+      echo "---"
+      echo ""
+      strip_yaml_frontmatter "$wf"
+    } > "$target_dir/SKILL.md"
   done
 }
 
@@ -185,11 +245,33 @@ generate_antigravity_model_assignments() {
   local json_file="$IDE_DIR/antigravity/config/agent-models.json"
   if ! command -v jq >/dev/null 2>&1 || [ ! -f "$json_file" ]; then return 0; fi
 
+  # Reads a field from ide/antigravity/config/agent-models.json, tolerating the
+  # per-provider V2 schema (`"model": { "<provider>": "..." }`) and the
+  # `flowforge` → `forge-orchestrator` rename in the JSON.
+  antigravity_agent_field() {
+    local agent="$1" field="$2" value
+    value="$(jq -r --arg a "$agent" --arg f "$field" '
+      (.agents[$a] // {})[$f]
+      | if . == null then ""
+        elif type == "object" then (to_entries | sort_by(.key) | .[0].value // "")
+        else tostring end
+    ' "$json_file")"
+    if [ -z "$value" ] && [ "$agent" = "flowforge" ]; then
+      value="$(jq -r --arg a "forge-orchestrator" --arg f "$field" '
+        (.agents[$a] // {})[$f]
+        | if . == null then ""
+          elif type == "object" then (to_entries | sort_by(.key) | .[0].value // "")
+          else tostring end
+      ' "$json_file")"
+    fi
+    printf '%s' "$value"
+  }
+
   local tmp_rules
   tmp_rules="$(mktemp "${dest}/model-assignments.md.XXXXXX")"
   {
     echo "---"
-    echo "alwaysApply: false"
+    echo "trigger: model_decision"
     echo "description: Model assignments for FlowForge agents (Antigravity — Gemini models)."
     echo "---"
     echo ""
@@ -201,10 +283,10 @@ generate_antigravity_model_assignments() {
     echo "|-------|----------------|----------|------|---------|"
     for agent in flowforge forge-discovery forge-arch forge-plan forge-dev forge-verify forge-memory forge-teacher default; do
       local model fallback mode purpose
-      model="$(jq -r ".agents[\"$agent\"].model" "$json_file")"
-      fallback="$(jq -r ".agents[\"$agent\"].fallback" "$json_file")"
-      mode="$(jq -r ".agents[\"$agent\"].mode" "$json_file")"
-      purpose="$(jq -r ".agents[\"$agent\"].purpose" "$json_file")"
+      model="$(antigravity_agent_field "$agent" model)"
+      fallback="$(antigravity_agent_field "$agent" fallback)"
+      mode="$(antigravity_agent_field "$agent" mode)"
+      purpose="$(antigravity_agent_field "$agent" purpose)"
       echo "| $agent | \`$model\` | \`$fallback\` | $mode | $purpose |"
     done
     echo ""
@@ -214,36 +296,60 @@ generate_antigravity_model_assignments() {
 }
 
 migrate_legacy_antigravity_workflows() {
-  local legacy="${HOME}/.gemini/config/workflows"
-  local target="${HOME}/.gemini/config/global_workflows"
-  [ -d "$legacy" ] || return 0
-  mkdir -p "$target"
-  for f in "$legacy"/flow-*.md; do
-    [ -f "$f" ] || continue
-    local dest="$target/$(basename "$f")"
-    if [ ! -f "$dest" ] || [ "$f" -nt "$dest" ]; then
-      cp -f "$f" "$dest"
-    fi
+  local cfg="${HOME}/.gemini/config"
+  # ADR-019 Amendment: both legacy workflow dirs are dead — migrate to skills.
+  for legacy in "$cfg/workflows" "$cfg/global_workflows"; do
+    [ -d "$legacy" ] || continue
+    for f in "$legacy"/flow-*.md; do
+      [ -f "$f" ] || continue
+      local name desc dest
+      name="$(basename "$f" .md)"
+      dest="$cfg/skills/$name"
+      # A dangling symlink at the destination (legacy install pointing at a moved
+      # clone) makes `mkdir -p` fail with EEXIST and aborts the whole installer.
+      if [ -L "$dest" ] || { [ -e "$dest" ] && [ ! -d "$dest" ]; }; then
+        rm -rf "$dest" 2>/dev/null || true
+      fi
+      if [ ! -f "$dest/SKILL.md" ]; then
+        desc="$(workflow_description "$f")"
+        [ -n "$desc" ] || desc="FlowForge command $name"
+        mkdir -p "$dest"
+        {
+          echo "---"
+          echo "name: $name"
+          echo "description: $desc"
+          echo "---"
+          echo ""
+          strip_yaml_frontmatter "$f"
+        } > "$dest/SKILL.md"
+      fi
+      rm -f "$f" 2>/dev/null || true
+    done
+    rmdir "$legacy" 2>/dev/null || true
   done
 }
 
 install_antigravity_global() {
   local cfg="${HOME}/.gemini/config"
-  mkdir -p "$cfg/rules" "$cfg/global_workflows" "$cfg/skills"
-  mkdir -p "$cfg/.agents/rules" "$cfg/.agents/workflows" "$cfg/.agents/skills"
+  mkdir -p "$cfg/rules" "$cfg/skills" "$cfg/agents"
+  mkdir -p "$cfg/.agents/rules" "$cfg/.agents/skills" "$cfg/.agents/agents"
   migrate_legacy_antigravity_workflows
   cp "$IDE_DIR/antigravity/AGENTS.md" "$cfg/" 2>/dev/null || true
   cp "$IDE_DIR/antigravity/AGENTS.md" "$cfg/.agents/" 2>/dev/null || true
   cp "$IDE_DIR/antigravity/rules/"*.md "$cfg/rules/" 2>/dev/null || true
-  cp "$IDE_DIR/antigravity/workflows/"*.md "$cfg/global_workflows/" 2>/dev/null || true
   cp "$IDE_DIR/antigravity/rules/"*.md "$cfg/.agents/rules/" 2>/dev/null || true
-  cp "$IDE_DIR/antigravity/workflows/"*.md "$cfg/.agents/workflows/" 2>/dev/null || true
+  cp "$IDE_DIR/antigravity/agents/"*.md "$cfg/agents/" 2>/dev/null || true
+  cp "$IDE_DIR/antigravity/agents/"*.md "$cfg/.agents/agents/" 2>/dev/null || true
   install_antigravity_skills "$cfg/skills"
   install_antigravity_skills "$cfg/.agents/skills"
+  generate_antigravity_command_skills "$cfg/skills" "$IDE_DIR/antigravity/workflows"
+  generate_antigravity_command_skills "$cfg/.agents/skills" "$IDE_DIR/antigravity/workflows"
   generate_antigravity_model_assignments "$cfg/rules"
   generate_antigravity_model_assignments "$cfg/.agents/rules"
   if [ -f "$IDE_DIR/antigravity/rules/workflow.md" ]; then
-    cp "$IDE_DIR/antigravity/rules/workflow.md" "${HOME}/.gemini/GEMINI.md" 2>/dev/null || true
+    mkdir -p "${HOME}/.gemini"
+    # GEMINI.md must NOT have frontmatter — the whole file is always_on.
+    strip_yaml_frontmatter "$IDE_DIR/antigravity/rules/workflow.md" > "${HOME}/.gemini/GEMINI.md" 2>/dev/null || true
   fi
   cleanup_legacy_antigravity_pack
 }
@@ -256,16 +362,17 @@ install_project() {
   fi
   echo -e "${GREEN}[*] Instalacion por proyecto: $root${NC}"
 
-  mkdir -p "$root/.agents/rules" "$root/.agents/workflows" "$root/.agents/skills"
+  mkdir -p "$root/.agents/rules" "$root/.agents/agents" "$root/.agents/skills"
   cp -r "$IDE_DIR/antigravity/rules/"* "$root/.agents/rules/"
-  cp -r "$IDE_DIR/antigravity/workflows/"* "$root/.agents/workflows/"
+  cp -r "$IDE_DIR/antigravity/agents/"* "$root/.agents/agents/"
   generate_antigravity_model_assignments "$root/.agents/rules"
   cp "$IDE_DIR/antigravity/AGENTS.md" "$root/.agents/AGENTS.md"
   install_antigravity_skills "$root/.agents/skills"
+  generate_antigravity_command_skills "$root/.agents/skills" "$IDE_DIR/antigravity/workflows"
   if [ ! -f "$root/AGENTS.md" ]; then
     cp "$IDE_DIR/antigravity/AGENTS.md" "$root/"
   fi
-  echo -e "  ${GREEN}OK${NC} .agents/ (+ skills + AGENTS.md en raíz solo si no existía)"
+  echo -e "  ${GREEN}OK${NC} .agents/ (rules + agents + skills + AGENTS.md en raíz solo si no existía)"
 
   install_shared "$root/.flowforge/shared"
   echo -e "  ${GREEN}OK${NC} .flowforge/shared/"
@@ -484,7 +591,7 @@ fi
 if [ -d "${HOME}/.gemini" ]; then
   echo -e "${GREEN}[OK] Antigravity detectado${NC}"
   install_antigravity_global
-  echo -e "  ${GREEN}OK${NC} ~/.gemini/config/ (AGENTS + rules + global_workflows + skills)"
+  echo -e "  ${GREEN}OK${NC} ~/.gemini/config/ (AGENTS + rules + agents + skills)"
   INSTALLED=1
 fi
 

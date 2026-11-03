@@ -31,7 +31,7 @@ We reviewed `cursor-enterprise-agents` v0.0.5 and mapped patterns directly to Fl
 | Git safety (no push unless asked) | `git-sin-push.mdc` / parity doc | ✅ |
 | IDE install automation | `ide/install.ps1`, `ide/install.sh` | ✅ |
 | Orchestrator parity across IDEs | `ide/shared/workflow-orchestrator-parity.md` | ✅ |
-| `/flow-plan`, `/flow-rework` commands | Cursor + Antigravity workflows | ✅ |
+| `/flow-plan`, `/flow-rework` commands | Cursor commands + Antigravity skills (legacy workflows dead since 2026-10-19) | ✅ |
 | OpenCode bundle | `~/.config/opencode/agents/` + `commands/` (legacy: `opencode.flowforge.json`) | ✅ |
 
 ### Remaining improvements
@@ -67,7 +67,7 @@ Canonical orchestrator behavior: [`ide/shared/workflow-orchestrator-parity.md`](
 | IDE | Rules | Agents | Workflows / commands | Install |
 |-----|-------|--------|----------------------|---------|
 | **Cursor** | `.cursor/rules/*.mdc` | `.cursor/agents/*.md` | `ide/cursor/commands/flow-*.md` | `ide/install.ps1` / `install.sh` |
-| **Antigravity** | `.agents/rules/*.md` | skills under `.agents/skills/` | `.agents/workflows/flow-*.md` | install script → project |
+| **Antigravity** | `.agents/rules/*.md` (`trigger:`) | native subagents `.agents/agents/*.md` + skills `.agents/skills/` | skills `.agents/skills/flow-*/SKILL.md` (workflows legacy dead since 2026-10-19) | install script → project |
 | **VS Code / Copilot** | `.github/copilot-instructions.md` or `.vscode/` | `.github/agents/*.md` | `ide/vscode/prompts/flow-*.prompt.md` (slash commands) | install script → `~/.config/Code/User/prompts/` (Flatpak-aware) |
 | **OpenCode** | MCP in `opencode.json` (`type: local`) | `agents/*.md` (orchestrator: `flowforge.md`) | `commands/*.md` | install script → `~/.config/opencode/agents/` + `commands/` |
 
@@ -81,7 +81,7 @@ FlowForge writes agent packs to the directories each IDE actually reads. The mat
 | **OpenCode** | `~/.config/opencode/agents/`, `~/.config/opencode/commands/` | `.opencode/agents/`, `.kilo/agents/` (mirrored) | Presence of `~/.config/opencode` |
 | **GitHub Copilot** | `~/.copilot/agents/*.agent.md`, `~/.copilot/instructions/flowforge.instructions.md`, `~/.config/Code/User/prompts/*.prompt.md` (or `~/.var/app/com.visualstudio.code/config/Code/User/prompts/` on Flatpak) | `.github/agents/*.agent.md`, `.github/copilot-instructions.md`, `.github/prompts/*.prompt.md` | VS Code extension `github.copilot*` |
 | **Kilo Code** | `~/.config/kilo/agents/*.md` (same bundle as OpenCode) | `.kilo/agents/*.md` (duplicated) | VS Code extension `kilocode.*` |
-| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `workflows/`, `skills/`, `mcp_config.json`) | `.agents/rules/`, `.agents/workflows/`, `.agents/skills/`, `AGENTS.md` | `~/.gemini` — ver [ADR-019](decisions/ADR-019-opencode-antigravity-customizations.md) |
+| **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `agents/`, `skills/`, `GEMINI.md`, `mcp_config.json`) | `.agents/rules/`, `.agents/agents/`, `.agents/skills/`, `AGENTS.md` | `~/.gemini` — ver [ADR-019](decisions/ADR-019-opencode-antigravity-customizations.md) |
 | **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (MCP only) | — | `%APPDATA%\Claude` / `~/.config/Claude/` |
 
 This matrix is the reference for `flowforge install`, `ide/install.sh`, `ide/install.ps1`, and the CI checks. See [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md) for the rationale and detection logic.
@@ -107,8 +107,9 @@ ide/cursor/
 
 ```
 ide/antigravity/
-├── rules/
-├── workflows/   ← flow-start, flow-plan, flow-dev, flow-verify, flow-rework, flow-close
+├── rules/       ← trigger: always_on | model_decision | glob | manual
+├── agents/      ← 7 native subagents (flowforge, forge-discovery, ...)
+├── workflows/   ← source only: converted to skills/flow-*/SKILL.md on install
 └── AGENTS.md
 ```
 

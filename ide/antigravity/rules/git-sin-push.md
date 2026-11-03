@@ -1,5 +1,5 @@
 ---
-alwaysApply: true
+trigger: always_on
 description: Prevents accidental git push without explicit human request.
 ---
 # Git Safety — No Push Without Explicit Request
