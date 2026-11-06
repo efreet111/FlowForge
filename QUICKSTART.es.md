@@ -76,7 +76,7 @@ FlowForge escribe los agentes en los directorios que cada IDE realmente lee. Des
 
 `flowforge doctor`, `ide/install.sh` e `ide/install.ps1` respetan esta matriz; consultá [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md) para la estructura canónica.
 
-## 1b. Verificar estado y actualizar componentes (v0.1.0-alpha.13+)
+## 1b. Verificar estado y actualizar componentes (actual: v0.5.0)
 
 Después de la instalación, verificá que todo esté funcionando:
 
@@ -89,13 +89,15 @@ flowforge status
 
 ```
 ── FlowForge ───────────────────────────────────────────────────────────────────
-  Versión: v0.1.0-alpha.13  |  Canal: stable
+  Versión: v0.5.0  |  Canal: stable
 
-  engram-dotnet   instalado    v1.3.0
-  FlowForge       instalado    2026.08.13
+  engram-dotnet   instalado    v1.4.0
+  FlowForge       instalado    0.5.0
   FlowDoc         habilitado   -
-  Installer       activo       0.1.0-alpha.13
+  Installer       activo       0.1.0-alpha.17
 ```
+
+> Los valores de la muestra varían según la instalación. Ejecutá `flowforge status` para ver los reales.
 
 **Actualizar componentes cuando sea necesario:**
 
@@ -153,7 +155,7 @@ Crea:
 
 | Flag | Efecto |
 |------|--------|
-| `--no-flow-doc` | Omite la creación de `docs/` — solo `.flowforge.json` + `AGENTS.md` |
+| `--no-flowdoc` | Omite la creación de `docs/` — solo `.flowforge.json` + `AGENTS.md` |
 | `--yes` / `-y` | No interactivo (sin confirmaciones) |
 
 > `flowforge init` es el único comando que escribe dentro de un directorio de proyecto. El `flowforge install` global solo toca `~/.cursor`, `~/.config`, etc.
@@ -165,7 +167,7 @@ FlowForge (metodología + `.ai-work/`) y FlowDoc (capa `docs/` de producto) son 
 | Objetivo | Qué hacer |
 |----------|-----------|
 | **Setup completo** (default) | `flowforge init .` — define `"docs_framework": "flowdoc"` + `"docs_framework_version": "2.0"` y `paths` por defecto |
-| **Solo FlowForge** (sin FlowDoc) | `flowforge init . --no-flow-doc` — sin `docs/`, sin `docs_framework`; los agentes usan solo `.ai-work/` |
+| **Solo FlowForge** (sin FlowDoc) | `flowforge init . --no-flowdoc` — sin `docs/`, sin `docs_framework`; los agentes usan solo `.ai-work/` |
 | **Desactivar después** | Editá `.flowforge.json`: quitá `"docs_framework"` o poné `"docs_framework": null` |
 | **Carpetas propias** | Mantené `"docs_framework": "flowdoc"` + `"docs_framework_version": "2.0"` y apuntá `paths` a tus rutas |
 
@@ -347,7 +349,7 @@ Los `/flow-*` son convenciones de texto en modo Agent. Autocomplete requiere `id
 | Problema | Solución |
 |----------|----------|
 | **Esperaba wizard pero solo vi salida en consola** | Corriste el [instalador IDE](README.es.md#instalacion-ide-solo-agentes) (`ide/install.ps1`). Para el wizard interactivo, usá el [Stack installer](README.es.md#stack-installer-setup-completo) (`install/install.ps1`). |
-| **Stack installer 404 en `releases/latest`** | El repo puede tener solo pre-releases (alpha). Actualizá `install/install.ps1` desde `main`, o: `iwr ... -OutFile $env:TEMP\ff-install.ps1; & $env:TEMP\ff-install.ps1 -Version v0.1.0-alpha.2` |
+| **Stack installer 404 en `releases/latest`** | El repo puede tener solo pre-releases (alpha). Actualizá `install/install.ps1` desde `main`, o: `iwr ... -OutFile $env:TEMP\ff-install.ps1; & $env:TEMP\ff-install.ps1 -Version v0.4.3` |
 | **404 al instalar desde `raw.githubusercontent.com`** | Rama o path incorrecto (verificá que la URL apunte a `main` y que el script exista) |
 | **No encuentra `git`** | Instalá Git for Windows o el gestor de paquetes de tu SO |
 | **`dubious ownership` en Windows** | `git config --global --add safe.directory E:/Proyectos/FlowForge` |

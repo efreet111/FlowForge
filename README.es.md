@@ -128,7 +128,7 @@ flowforge init E:\Proyectos\mi-app
 flowforge init ~/projects/mi-app
 ```
 
-Crea `.flowforge.json`, `AGENTS.md`, `docs/` (PRD, HUs, ADRs, templates) y `.ai-work/` dentro del proyecto. Usá `--no-flow-doc` para omitir la estructura `docs/` y crear solo la config y los archivos de agentes.
+Crea `.flowforge.json`, `AGENTS.md`, `docs/` (PRD, HUs, ADRs, templates) y `.ai-work/` dentro del proyecto. Usá `--no-flowdoc` para omitir la estructura `docs/` y crear solo la config y los archivos de agentes.
 
 ### Bundle por proyecto {#bundle-por-proyecto}
 
@@ -146,7 +146,7 @@ Después: Reload Window en el IDE, agente **`flowforge`** (o reglas FlowForge), 
 
 Guía completa: [`QUICKSTART.es.md`](QUICKSTART.es.md).
 
-### Actualización de componentes (v0.1.0-alpha.13+) {#actualizacion-componentes}
+### Actualización de componentes (actual: v0.5.0) {#actualizacion-componentes}
 
 FlowForge soporta actualizaciones granulares por componente con backup y rollback automático:
 

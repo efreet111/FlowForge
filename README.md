@@ -44,7 +44,7 @@ FlowForge is an **Agentic SDLC methodology** for small and mid-size teams (2–2
 
 **Slash commands (VS Code / GitHub Copilot Chat):** Once installed, write `/` in the Copilot Chat picker to see the FlowForge commands:
 
-| Command | Agent | Phase |
+| Command | VS Code agent id | Phase |
 |---|---|---|
 | `/flow-start <feature>` | `forge-orchestrator` | Discovery → Spec |
 | `/flow-plan` | `forge-orchestrator` | Plan |
@@ -53,6 +53,8 @@ FlowForge is an **Agentic SDLC methodology** for small and mid-size teams (2–2
 | `/flow-rework` | `forge-orchestrator` | Bug/rework ticket |
 | `/flow-status` | `forge-orchestrator` | Read-only status |
 | `/flow-close` | `forge-memory` | PM-* gate + summary |
+
+> **Naming note**: the canonical methodology name is **`flowforge`**. The VS Code/Copilot pack still ships the compiled orchestrator as `forge-orchestrator.agent.md` (agent id `forge-orchestrator`) for compatibility; OpenCode uses `flowforge.md`. The table above shows the actual VS Code agent id.
 
 If you don't see them, run `bash ide/install.sh` again — the installer auto-detects VS Code **Flatpak** (`~/.var/app/com.visualstudio.code/...`) **and** native (`~/.config/Code/User/prompts/`) layouts.
 
@@ -165,7 +167,7 @@ flowforge init E:\Proyectos\my-app
 flowforge init ~/projects/my-app
 ```
 
-Creates `.flowforge.json`, `AGENTS.md`, `docs/` (PRD, HUs, ADRs, templates) and `.ai-work/` inside the project. Use `--no-flow-doc` to skip the `docs/` structure and only create the config and agent files.
+Creates `.flowforge.json`, `AGENTS.md`, `docs/` (PRD, HUs, ADRs, templates) and `.ai-work/` inside the project. Use `--no-flowdoc` to skip the `docs/` structure and only create the config and agent files.
 
 ### Per-project bundle {#per-project-bundle}
 
@@ -183,7 +185,7 @@ Then: reload your IDE, select the **flowforge** orchestrator (or enable FlowForg
 
 Full walkthrough: [`QUICKSTART.md`](QUICKSTART.md).
 
-### Updating components (v0.1.0-alpha.13+) {#updating-components}
+### Updating components (current: v0.5.0) {#updating-components}
 
 FlowForge supports granular component updates with backup and automatic rollback:
 
