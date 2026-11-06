@@ -5,6 +5,7 @@
 > **Author:** FlowForge Team  
 > **Created:** 2026-01-17  
 > **Decisions finalized:** 2026-01-17  
+> **Schema status (2026-11-06):** the current `.flowforge.json` template persists only `engram.project`. `engram.scope`, `engram.server_url`, `ide` and `teacher_mode` are **proposed in this PRD, not implemented yet**. The Engram server URL lives in `~/.engram/config.json`; scope is chosen per `mem_save`.
 > **Related:** [PRD.md](PRD.md), [ADR-002-scaffold-doc-policy.md](decisions/ADR-002-scaffold-doc-policy.md), [19-project-memory-association-backlog.md](19-project-memory-association-backlog.md)
 
 ---
@@ -16,7 +17,7 @@
 **For new users (first-time setup):**
 - Multiple installation steps across different scripts (`install.sh`, `ide/install.sh`, `flow-init.sh`)
 - No unified "getting started" experience — users must read QUICKSTART.md (314 lines) and manually configure Engram connection
-- `.flowforge.json` requires manual editing to set Engram project name, scope, and server URL
+- `.flowforge.json` only persists the Engram project name; scope is chosen per save and the server URL lives in `~/.engram/config.json`
 - IDE integration is a separate step with its own installer
 - No validation that the setup is complete and working
 
@@ -28,7 +29,7 @@
 **For teams:**
 - No standardized onboarding for team members joining a FlowForge project
 - Each developer configures their environment independently
-- No way to share project configuration (Engram project, scope, IDE preferences)
+- No way to share project configuration (Engram project; scope/IDE preferences are not persisted in `.flowforge.json` yet)
 
 ### Impact
 
@@ -124,7 +125,7 @@
 - [ ] Prompts for:
   - Project name (defaults to folder name)
   - Project type: Web app / API / CLI tool / Library / Other
-  - Engram scope: `team` or `personal` (defaults to `team` if server configured)
+  - Engram scope: `team` or `personal` (proposed prompt; not persisted in `.flowforge.json` yet — defaults to `team` if server configured)
   - IDE: Cursor / VS Code / OpenCode / Antigravity / None (auto-detected if possible)
 - [ ] Creates:
   - `.flowforge.json` with project config
@@ -143,7 +144,7 @@
 **Acceptance Criteria:**
 - [ ] Command: `flowforge init --template team-web-app`
 - [ ] Templates include:
-  - `.flowforge.json` with `engram.project`, `engram.scope`, `engram.server_url`
+  - `.flowforge.json` with `engram.project` (current) and proposed `engram.scope` / `engram.server_url`
   - `AGENTS.md` with team-specific rules
   - `docs/` with project-specific ADR template
   - `.github/workflows/flowforge-ci.yml` (optional)
@@ -176,7 +177,7 @@
     - B) New team project: `team/{detected-name}`
     - C) Personal only: `scope=personal`
     - D) Save once without default (don't ask again this session)
-- [ ] Choice persisted in `.flowforge.json` under `engram.project` and `engram.scope`
+- [ ] Choice persisted in `.flowforge.json` under `engram.project` (current) and `engram.scope` (proposed)
 - [ ] Subsequent saves use chosen project + scope automatically
 - [ ] Works with MCP unavailable (fallback: grep `.engram/local_memory/`)
 
@@ -187,7 +188,7 @@
 - [ ] Command: `flowforge engram link`
 - [ ] Lists existing Engram projects (team + personal)
 - [ ] User selects project (or types name)
-- [ ] Updates `.flowforge.json` with `engram.project` and `engram.scope`
+- [ ] Updates `.flowforge.json` with `engram.project` (current) and `engram.scope` (proposed)
 - [ ] Validates link with test save
 
 ### Epic 4: Validation & Troubleshooting
@@ -324,7 +325,7 @@
 - `install/install.sh` (enhanced) + `install/install.ps1`
 - `flowforge init` command (enhanced `flow-init.sh`)
 - Project memory association logic in orchestrator
-- `.flowforge.json` schema update (add `engram.project`, `engram.scope`)
+- `.flowforge.json` schema update: add `engram.scope` (proposed; `engram.project` already exists)
 - `flowforge doctor` command (basic checks)
 - Updated QUICKSTART.md (simplified, < 100 lines)
 - `docs/MIGRATION.md` (manual setup → starter kit)
@@ -399,7 +400,7 @@
 | # | Question | Decision | Rationale |
 |---|----------|----------|-----------|
 | 1 | **Telemetry:** Collect opt-in data on setup completion / time-to-first-flow? | ❌ **No telemetry. Use surveys instead.** | Privacy-first approach. Surveys provide qualitative feedback without tracking. |
-| 2 | **Default Engram scope:** Should `team` be the default or prompt every time? | ✅ **`team` by default** (current behavior) | Convenience for team workflows. Can be refined later based on user feedback. |
+| 2 | **Default Engram scope:** Should `team` be the default or prompt every time? | ✅ **`team` by default** (current `mem_save` behavior; persistence in `.flowforge.json` is proposed) | Convenience for team workflows. Can be refined later based on user feedback. |
 | 3 | **Template storage:** Bundled, registry, or both? | ✅ **Bundled with binary** | Simple, no infrastructure needed. 4-person team, OSS launch imminent. Registry can be added later when community grows. |
 | 4 | **IDE auto-detection:** Detect installed IDEs or always prompt? | ✅ **Ask the user** (don't auto-detect) | Simpler, more reliable. Avoids edge cases with IDE detection. |
 | 5 | **Migration path:** `flowforge migrate` command or docs only? | ✅ **Docs only for now** (manual migration) | Low user count (4 people). Can walk team through it. Add `flowforge migrate` command later if needed (v1.2). |
@@ -416,7 +417,7 @@
 2. Run wizard: flowforge install
 3. Configure Engram: edit ~/.engram/config.json manually
 4. Initialize project: flowforge init
-5. Edit .flowforge.json: set engram.project, engram.scope
+5. Edit .flowforge.json: set engram.project (current); scope is chosen per save; server URL lives in ~/.engram/config.json
 6. Install IDE agents: bash ide/install.sh
 7. Install skills: bash install-skills.sh
 8. Read QUICKSTART.md: 314 lines
@@ -439,7 +440,22 @@
 
 **Improvements:** 4 steps, no manual edits, validation included, ~5 min total
 
-### C. `.flowforge.json` Schema Update
+### C. `.flowforge.json` Schema — Current vs Proposed
+
+**Current (v0.5.0):**
+
+```json
+{
+  "version": "0.5.0",
+  "docs_framework": "flowdoc",
+  "docs_framework_version": "2.0",
+  "engram": {
+    "project": "my-app"
+  }
+}
+```
+
+**Proposed in this PRD (not implemented):**
 
 ```json
 {
@@ -456,7 +472,9 @@
 }
 ```
 
-**New fields:** `engram.project`, `engram.scope`, `engram.server_url`, `ide`
+**Current fields:** `version`, `docs_framework`, `docs_framework_version`, `upstream`, `engram.project` (plus `adoption_level`, `project`, `created`, `paths` in the generated template).
+
+**Proposed new fields:** `engram.scope`, `engram.server_url`, `ide`, `teacher_mode`.
 
 ### D. Related Documents
 

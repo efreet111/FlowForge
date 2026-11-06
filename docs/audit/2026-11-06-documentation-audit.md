@@ -217,6 +217,15 @@ Added explicit status banners:
 - **Open**: the `flowforge-demo-task-manager` app is not vendored in this repo, so `npm test`
   was not re-executed. A fresh v0.5.0 executable PASS is still pending.
 
+### 2.17 `PRD-starter-kit` schema alignment — WARNING → fixed
+
+- Header now states the **current vs proposed** schema: `.flowforge.json` persists only
+  `engram.project`; `engram.scope`, `engram.server_url`, `ide` and `teacher_mode` are proposed.
+- Pain points, US-1.3, US-2.1, US-3.1, US-3.2, MVP deliverables and the As-Is flow now distinguish
+  current persistence from proposed fields.
+- Appendix C replaced the ambiguous “schema update” with explicit **Current (v0.5.0)** and
+  **Proposed (not implemented)** JSON examples and field lists.
+
 ---
 
 ## 3. Open findings
@@ -232,7 +241,7 @@ Added explicit status banners:
 | D-07 | warning | `examples/crud-tareas/CASE-1-VALIDATION.md` | The canonical demo artifact set was validated on 2026-05-27 under v0.4.x; it has not been re-run under v0.5.0. | **Partially fixed 2026-11-06**: artifacts revalidated against v0.5.0 (shape, phases, PM, naming deltas) and the v0.4.x/v0.5.0 distinction is now explicit. **Executable re-run still pending** because the demo app is not vendored in this repo. |
 | D-08 | suggestion | `README.md`, `README.es.md`, `QUICKSTART.md` | `README*.md` still name `forge-orchestrator` as the owner of `/flow-*` commands; `QUICKSTART.md` §1 sample output shows `v0.1.0-alpha.13`. | **Fixed 2026-11-06**: README now labels the column as the VS Code agent id and explains the canonical `flowforge` name; QUICKSTART samples moved to v0.5.0/v1.4.0/alpha.17; `--no-flow-doc` → `--no-flowdoc`; section headers and 404 workaround updated. |
 | D-09 | suggestion | `docs/12-engram-tool-reference.md` | It describes `mem_project_redirects` as managing redirects **and merges**; the tool is read-only (merges are `mem_merge_projects`). | **Fixed 2026-11-06**: corrected the read-only/merge split, refreshed the 34-tool catalog, normalized FR/NFR, documented the HU-048 retention dry-run gate and the MCP/CLI code-metadata asymmetry. |
-| D-10 | suggestion | `docs/PRD-starter-kit.md` | Treats `engram.scope` as an existing/expected `.flowforge.json` field, while the current config only has `engram.project`. | Reconcile the starter-kit PRD with the actual `.flowforge.json` schema. |
+| D-10 | suggestion | `docs/PRD-starter-kit.md` | Treats `engram.scope` as an existing/expected `.flowforge.json` field, while the current config only has `engram.project`. | **Fixed 2026-11-06**: added a schema-status header and a current-vs-proposed section. `engram.scope`, `engram.server_url`, `ide` and `teacher_mode` are now explicitly labeled as proposed, not implemented. |
 
 ---
 
