@@ -13,7 +13,7 @@ They illustrate what you should see under `.ai-work/{feature-slug}/` after disco
 | [`summary.md`](summary.md) | 4 — Close | forge-memory |
 | [`CASE-1-VALIDATION.md`](CASE-1-VALIDATION.md) | Item 2 checklist | Human / release gate |
 
-**Status:** Case 1 **validated** (2026-05-27) — 20/20 tests, verify PASS, PM-* complete. See validation doc.
+**Status:** Original executable run **validated on 2026-05-27 (FlowForge v0.4.x)** — 20/20 tests, verify PASS, PM-* complete. **Documentation revalidated against v0.5.0 on 2026-11-06**; a fresh executable re-run is still pending (the demo app is not vendored here). The artifacts use v0.4 `RF/RNF` notation; current methodology uses `FR/NFR`. See [`CASE-1-VALIDATION.md`](CASE-1-VALIDATION.md).
 
 **How to use**
 

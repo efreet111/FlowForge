@@ -27,7 +27,7 @@ Example: `flowforge-demo-task-manager` (local only is fine).
 
 ### Option B: `examples/` inside FlowForge (implemented)
 
-Single URL, but mixes methodology and sample product. The canonical reference set is [`examples/crud-tareas/`](../examples/crud-tareas/README.md) — a completed Task CRUD run validated on 2026-05-27 (see [`CASE-1-VALIDATION.md`](../examples/crud-tareas/CASE-1-VALIDATION.md)).
+Single URL, but mixes methodology and sample product. The canonical reference set is [`examples/crud-tareas/`](../examples/crud-tareas/README.md) — a completed Task CRUD run validated on 2026-05-27 under v0.4.x (see [`CASE-1-VALIDATION.md`](../examples/crud-tareas/CASE-1-VALIDATION.md)). A fresh v0.5.0 executable re-run is still pending.
 
 ---
 

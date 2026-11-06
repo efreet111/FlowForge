@@ -205,6 +205,18 @@ Added explicit status banners:
   v0.5.0”; the 404 workaround uses `-Version v0.4.3`.
 - All four files: 0 broken links; `git diff --check` clean.
 
+### 2.16 Demo artifact revalidation (docs-only) — PARTIAL
+
+- `examples/crud-tareas/CASE-1-VALIDATION.md` now separates the **original v0.4.x executable run**
+  (2026-05-27, 20/20 tests) from the **v0.5.0 documentation revalidation** (2026-11-06).
+- Added a revalidation table covering artifact completeness, phase traceability, PM evidence,
+  orchestrator/requirement-ID deltas, `revision_cycle.md` N/A, retention-gate N/A, and the
+  pending executable re-run.
+- `examples/crud-tareas/README.md` now states the same distinction and warns that artifacts use
+  v0.4 `RF/RNF` notation vs current `FR/NFR`.
+- **Open**: the `flowforge-demo-task-manager` app is not vendored in this repo, so `npm test`
+  was not re-executed. A fresh v0.5.0 executable PASS is still pending.
+
 ---
 
 ## 3. Open findings
@@ -217,7 +229,7 @@ Added explicit status banners:
 | D-04 | suggestion | `docs/14-flowforge-complete-reference.md` | Header now says 1.3/35 skills, but some Part 1–4 sections still reflect v0.4-era commands (e.g. `forge-orchestrator` naming). | **Fixed 2026-11-06**: header/version, `forge-orchestrator` → `flowforge`, CLI status sample, 35-skill table, FR/NFR notation, `/fforge-init` command, on-demand skills section, and current-tooling table. |
 | D-05 | suggestion | `docs/15-agent-skills-technical-spec.md` | Header now says 35 skills, but Part 1 tables still use legacy conceptual identifiers and some Spanish labels. | **Mitigated 2026-11-06**: header/version, `flowforge` naming, FR/NFR IDs, 35-skill table, gap statuses, and retention dry-run gate updated. Legacy conceptual function names remain by design (Part 1 note). |
 | D-06 | suggestion | `docs/04-roadmap.md` | Many checkboxes for completed items remain `[ ]`. The historical banner explains this, but the checkboxes are still misleading. | Leave as historical, or convert the checklists to a “Done” summary table. |
-| D-07 | warning | `examples/crud-tareas/CASE-1-VALIDATION.md` | The canonical demo artifact set was validated on 2026-05-27 under v0.4.x; it has not been re-run under v0.5.0. | Re-run the demo under v0.5.0 and refresh `CASE-1-VALIDATION.md` before treating `docs/18` as a hard release gate. |
+| D-07 | warning | `examples/crud-tareas/CASE-1-VALIDATION.md` | The canonical demo artifact set was validated on 2026-05-27 under v0.4.x; it has not been re-run under v0.5.0. | **Partially fixed 2026-11-06**: artifacts revalidated against v0.5.0 (shape, phases, PM, naming deltas) and the v0.4.x/v0.5.0 distinction is now explicit. **Executable re-run still pending** because the demo app is not vendored in this repo. |
 | D-08 | suggestion | `README.md`, `README.es.md`, `QUICKSTART.md` | `README*.md` still name `forge-orchestrator` as the owner of `/flow-*` commands; `QUICKSTART.md` §1 sample output shows `v0.1.0-alpha.13`. | **Fixed 2026-11-06**: README now labels the column as the VS Code agent id and explains the canonical `flowforge` name; QUICKSTART samples moved to v0.5.0/v1.4.0/alpha.17; `--no-flow-doc` → `--no-flowdoc`; section headers and 404 workaround updated. |
 | D-09 | suggestion | `docs/12-engram-tool-reference.md` | It describes `mem_project_redirects` as managing redirects **and merges**; the tool is read-only (merges are `mem_merge_projects`). | **Fixed 2026-11-06**: corrected the read-only/merge split, refreshed the 34-tool catalog, normalized FR/NFR, documented the HU-048 retention dry-run gate and the MCP/CLI code-metadata asymmetry. |
 | D-10 | suggestion | `docs/PRD-starter-kit.md` | Treats `engram.scope` as an existing/expected `.flowforge.json` field, while the current config only has `engram.project`. | Reconcile the starter-kit PRD with the actual `.flowforge.json` schema. |
