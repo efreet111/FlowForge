@@ -26,7 +26,7 @@
 | **HU-039** | `flowforge init -y` no reconocido | 🔴 Abierto; `InitCommand` solo registra `--yes` | Registrar alias `-y` + test | P2 |
 | **HU-032** | Demo visual en README | 🔴 Abierto; README solo tiene banner | Screenshot/GIF del flujo + alt text | P1 OSS |
 | **HU-028** | Mutation testing (NS-10 P1) | 🔴 Abierto; P0 (assertion/coverage gates) ya existe; no hay Stryker/mutmut en CI | Baseline + Stage 1/2 | P2 |
-| **HU-034** | Code-aware capture — Parte B | 🟡 Dependencias ENG-416/483 Done; `code-capture` existe en `forge-dev`, pero la captura end-to-end no está verificada | Implementar/verificar `file_path`/`symbol`/`namespace` en `forge-memory` | P2 |
+| **HU-034** | Code-aware capture — Parte B | 🟡 Upstream listo (`engram watch` + CLI metadata); **FlowForge capture path no implementado**; MCP `mem_save` no expone metadata | Implementar `code_context` en `forge-memory` vía CLI subprocess (ADR-023) + fallback text-only | P2 |
 | **HU-045** | Subagent-first invocation | 🟡 Parcial: `autoinvoke: false` aplicado y sección en `skills/flowforge/SKILL.md`; HU sigue `draft` y sin verify | Verificar AC/PM, paridad Cursor, cerrar | P2 |
 | **HU-037** | Cost Dashboard | ⏸️ Deferred por ROI dudoso; sin código | Decidir si se cierra como deferred o se prioriza | P4 |
 
@@ -37,9 +37,10 @@
 | Tema | Estado | Evidencia / próximo paso | Prio |
 |------|--------|--------------------------|------|
 | `scripts/validate-agent-models.sh` | 🔴 Falla en los 4 IDEs (`exit 1`) | Asume `.agents[*].model` string y `forge-orchestrator`; el schema actual usa map provider→model y `flowforge`. No está cableado en CI | P1 |
+| MCP `mem_save` sin code metadata | 🟡 El CLI `engram save` y `engram watch` sí persisten `file_path`/`symbol`/`namespace`; el MCP no | Usar CLI subprocess desde `forge-memory` (ADR-023) o extender `mem_save` en engram-dotnet | P1 |
 | OpenCode `permissions` legacy | ✅ Resuelto 2026-11-06 | `ide/opencode/agents/*.md` + `templates/agents/*.tpl` convertidos a `permissions[]` V2; `grep "^permission:"` = 0 | — |
 | Cursor compiled agents | 🟡 `ide/cursor/agents/*.md` están desincronizados de `skills/` | Ejecutar `ide/cursor/compile-agents-from-skills.py` genera ~1.5k líneas de diff; requiere un commit de regeneración dedicado | P2 |
-| `CHANGELOG.md` | 🟡 Tres `## [Unreleased]` (dos vacíos al inicio + uno con contenido) | Consolidar en una sola sección al tope | P2 |
+| `CHANGELOG.md` | ✅ Resuelto 2026-11-06 | Un solo `## [Unreleased]` y un solo `## [0.4.1]`; contenido consolidado al tope | — |
 | `ide/opencode/templates/agents/flowforge.md.tpl` | ✅ Pre-flight `AGENTS.md first` sincronizado (2026-11-06) | `grep "Pre-flight: AGENTS.md first"` = 1 | — |
 
 ---
@@ -80,8 +81,9 @@ Según `docs/team/flowforge-hu-report.md` y `.ai-work/engram-dotnet-analysis/con
 
 - **ENG-416** (schema evolution), **ENG-483** (code-aware capture), **ENG-484** (query tools),
   **ENG-412/414** (taxonomy/contradictions) están **Done** en engram-dotnet.
-- Eso desbloqueó HU-033/035/036 (cerradas); HU-034 (code-aware capture Part B) sigue pendiente
-  porque el MCP `mem_save` no expone `file_path`/`symbol`/`namespace` (el CLI sí).
+- Eso desbloqueó HU-033/035/036 (cerradas). HU-034 sigue pendiente: el upstream
+  (`engram watch` + CLI `engram save`) ya persiste `file_path`/`symbol`/`namespace`, pero el
+  MCP `mem_save` no los expone y `forge-memory` todavía no consume `code_context`.
 - Phase 2 de contradicciones (métricas de retrieval, cron, thresholds) sigue upstream.
 
 ---
