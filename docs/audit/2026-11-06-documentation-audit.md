@@ -151,6 +151,35 @@ Added explicit status banners:
 - Replaced legacy `RF`/`RNF` with `FR`/`NFR`, updated the IDE scope to include Copilot/Kilo,
   and refreshed the release tags to `v0.4.x` / `v0.1.0-alpha.x`.
 
+### 2.11 `docs/18` demo gate refresh — WARNING → fixed
+
+- Header added: `Status: Active release gate`, `Last reviewed: 2026-11-06`, `Version: 1.1`,
+  `Applies to: FlowForge v0.5.0`.
+- `examples/crud-tareas/` is now the canonical validated artifact set, linked from Goal,
+  Option B, artifacts table, DoD and runbook.
+- Runbook refreshed to the current CLI/commands: stack vs IDE installer, `flowforge init`,
+  optional `flowforge onboard`, `/flow-status`, `/flow-rework`, and `revision_cycle.md`.
+- All 19 links resolve; `git diff --check` clean.
+
+### 2.12 `docs/19` memory-association backlog refresh — WARNING → fixed
+
+- Header now records `last reviewed 2026-11-06` and the verification basis: live 34-tool MCP
+  catalog + local engram-dotnet checkout `100a9be` (`EngramTools.cs`).
+- Documented what now exists: `mem_current_project` (detection/verification, not a gate),
+  `mem_project_redirects` (read-only migrations), `mem_merge_projects` (destructive repair).
+- Documented what is still missing: interactive first-save gate, `mem_resolve_project`,
+  `mem_save` dry-run/`confirm`, `mem_link_project`, `engram.scope` in `.flowforge.json`.
+- Split-of-work table now has a "Current state" column; all 5 relative links resolve.
+
+### 2.13 `docs/20` FlowDoc adopter guide refresh — WARNING → fixed
+
+- Header now includes `Last reviewed 2026-11-06`; FlowForge 0.5.0+ and FlowDoc 2.0 pins kept.
+- Version-pins table verified against the installed `flowdoc-*/SKILL.md` frontmatter:
+  `flowdoc-assist` v3.1; the other 8 skills v1.1.
+- Stale `flow-init` references replaced with `flowforge init` (4 occurrences).
+- Known-gaps section marked "last reviewed 2026-11-06; not re-verified upstream".
+- All 10 local links resolve; `git diff --check` clean.
+
 ---
 
 ## 3. Open findings
@@ -163,6 +192,10 @@ Added explicit status banners:
 | D-04 | suggestion | `docs/14-flowforge-complete-reference.md` | Header now says 1.3/35 skills, but some Part 1–4 sections still reflect v0.4-era commands (e.g. `forge-orchestrator` naming). | **Fixed 2026-11-06**: header/version, `forge-orchestrator` → `flowforge`, CLI status sample, 35-skill table, FR/NFR notation, `/fforge-init` command, on-demand skills section, and current-tooling table. |
 | D-05 | suggestion | `docs/15-agent-skills-technical-spec.md` | Header now says 35 skills, but Part 1 tables still use legacy conceptual identifiers and some Spanish labels. | **Mitigated 2026-11-06**: header/version, `flowforge` naming, FR/NFR IDs, 35-skill table, gap statuses, and retention dry-run gate updated. Legacy conceptual function names remain by design (Part 1 note). |
 | D-06 | suggestion | `docs/04-roadmap.md` | Many checkboxes for completed items remain `[ ]`. The historical banner explains this, but the checkboxes are still misleading. | Leave as historical, or convert the checklists to a “Done” summary table. |
+| D-07 | warning | `examples/crud-tareas/CASE-1-VALIDATION.md` | The canonical demo artifact set was validated on 2026-05-27 under v0.4.x; it has not been re-run under v0.5.0. | Re-run the demo under v0.5.0 and refresh `CASE-1-VALIDATION.md` before treating `docs/18` as a hard release gate. |
+| D-08 | suggestion | `README.md`, `README.es.md`, `QUICKSTART.md` | `README*.md` still name `forge-orchestrator` as the owner of `/flow-*` commands; `QUICKSTART.md` §1 sample output shows `v0.1.0-alpha.13`. | Normalize to `flowforge` / current version in a README/QUICKSTART pass. |
+| D-09 | suggestion | `docs/12-engram-tool-reference.md` | It describes `mem_project_redirects` as managing redirects **and merges**; the tool is read-only (merges are `mem_merge_projects`). | Correct in the `docs/12` pass. |
+| D-10 | suggestion | `docs/PRD-starter-kit.md` | Treats `engram.scope` as an existing/expected `.flowforge.json` field, while the current config only has `engram.project`. | Reconcile the starter-kit PRD with the actual `.flowforge.json` schema. |
 
 ---
 

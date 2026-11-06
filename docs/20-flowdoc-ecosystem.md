@@ -1,8 +1,7 @@
 # FlowForge × FlowDoc — Adopter Guide
 
-> **Status**: Active  
-> **FlowForge version**: 0.5.0+  
-> **FlowDoc version referenced**: 2.0 (2026-06-05 — original v1.1 superseded 2026-07-08)  
+> **Status**: Active · **Last reviewed**: 2026-11-06 · **FlowForge version**: 0.5.0+ · **FlowDoc version referenced**: 2.0 (2026-06-05 — original v1.1 superseded 2026-07-08)
+>
 > **Related**: [ADR-004](decisions/ADR-004-flowdoc-integration.md) · [GLOSSARY.md](../GLOSSARY.md) · [21-flowdoc-integration-proposal.archived.md](archive/21-flowdoc-integration-proposal.archived.md)
 
 ---
@@ -15,7 +14,7 @@
 - **User Stories (HU)** — backlog as human-readable Markdown files with detailed GWT scenarios
 - **ADRs & RFCs** — architecture decisions and proposals
 
-FlowForge uses FlowDoc as its **documentation layer for generated projects**. When you run `flow-init`, the created `docs/` structure comes from FlowDoc v2.0 templates (adapted and attributed — see [ADR-004](decisions/ADR-004-flowdoc-integration.md)).
+FlowForge uses FlowDoc as its **documentation layer for generated projects**. When you run `flowforge init`, the created `docs/` structure comes from FlowDoc v2.0 templates (adapted and attributed — see [ADR-004](decisions/ADR-004-flowdoc-integration.md)).
 
 > **v2.0 note:** The `flowdoc-ciclo.md` team rhythm document from v1.1 is deprecated in FlowDoc v2.0. FlowForge provides its own workflow lifecycle via CKP-0→4 and `/flow-*` commands. See the adoption levels table below for how FlowForge maps team rhythm to L3.
 
@@ -103,13 +102,15 @@ FlowForge and FlowDoc serve different purposes and must not be confused:
 |-------|---------|------|-------|
 | `flowdoc-assist` | v3.1 | `~/.config/opencode/skills/flowdoc-assist/SKILL.md` | Orquestador de docs base |
 | `flowdoc-hu` | v1.1 | `~/.config/opencode/skills/flowdoc-hu/SKILL.md` | HUs (invocación directa) |
-| `flowdoc-adr` | — | `~/.config/opencode/skills/flowdoc-adr/SKILL.md` | ADRs de producto |
-| `flowdoc-api` | — | `~/.config/opencode/skills/flowdoc-api/SKILL.md` | API endpoint docs |
-| `flowdoc-db` | — | `~/.config/opencode/skills/flowdoc-db/SKILL.md` | DB schema docs |
-| `flowdoc-discover` | — | `~/.config/opencode/skills/flowdoc-discover/SKILL.md` | Project discovery |
-| `flowdoc-prd` | — | `~/.config/opencode/skills/flowdoc-prd/SKILL.md` | PRD creation |
-| `flowdoc-review` | — | `~/.config/opencode/skills/flowdoc-review/SKILL.md` | Doc audit |
-| `flowdoc-rfc` | — | `~/.config/opencode/skills/flowdoc-rfc/SKILL.md` | RFC creation |
+| `flowdoc-adr` | v1.1 | `~/.config/opencode/skills/flowdoc-adr/SKILL.md` | ADRs de producto |
+| `flowdoc-api` | v1.1 | `~/.config/opencode/skills/flowdoc-api/SKILL.md` | API endpoint docs |
+| `flowdoc-db` | v1.1 | `~/.config/opencode/skills/flowdoc-db/SKILL.md` | DB schema docs |
+| `flowdoc-discover` | v1.1 | `~/.config/opencode/skills/flowdoc-discover/SKILL.md` | Project discovery |
+| `flowdoc-prd` | v1.1 | `~/.config/opencode/skills/flowdoc-prd/SKILL.md` | PRD creation |
+| `flowdoc-review` | v1.1 | `~/.config/opencode/skills/flowdoc-review/SKILL.md` | Doc audit |
+| `flowdoc-rfc` | v1.1 | `~/.config/opencode/skills/flowdoc-rfc/SKILL.md` | RFC creation |
+
+> **Verified 2026-11-06** against the frontmatter `version` field of each installed `SKILL.md` (9 skills present).
 
 > **Drift detection**: When upstream FlowDocs updates a skill, compare the version here against the installed version. If drift is detected, review the changelog and update this table + re-run `flowdoc-review` to validate template compatibility.
 
@@ -125,7 +126,7 @@ FlowDoc v2.0 defines L1–L3. FlowForge adds CKPs. Here is how they map:
 | **L2** Decisions | Full HU workflow (backlog → spec → plan → implement → close) | `/flow-start` … `/flow-close` | CKP-0 → CKP-4 |
 | **L3** Complete | L2 + human retrospective + metrics + team ceremonies | L2 + `forge-memory/metrics` + `forge-verify` + human retrospectives | L2 + post-cycle review |
 
-**Default when you run `flow-init`:** `adoption_level: 1` — your project gets documented from day 1.  
+**Default when you run `flowforge init`:** `adoption_level: 1` — your project gets documented from day 1.
 Activate FlowForge agents when your team is ready (L2).
 
 ---
@@ -184,6 +185,8 @@ Templates that FlowForge modified (HU template) must be reviewed carefully — F
 
 ## Known gaps (upstream FlowDoc)
 
+> **Last reviewed**: 2026-11-06. The items below reflect the state known at that date and have **not been re-verified** against the current upstream FlowDocs repository.
+
 These are improvement requests filed with FlowDoc maintainers (tracked in [ADR-004](decisions/ADR-004-flowdoc-integration.md) section "Upstream improvement requests"):
 
 | Gap | Impact on FlowForge adopters | Workaround |
@@ -204,7 +207,7 @@ FlowForge projects have **two different files** both called `AGENTS.md`. This is
 | **FlowForge index** | `FlowForge/AGENTS.md` | Skill index + CKP overview for agents working on FlowForge itself | FlowForge team |
 | **Project context** | `{your-project}/AGENTS.md` | Stack, sources of truth, domain rules for agents working on your product | Your tech lead |
 
-The **project `AGENTS.md`** (generated by `flow-init`) should be short (40–60 lines) and contain only:
+The **project `AGENTS.md`** (generated by `flowforge init`) should be short (40–60 lines) and contain only:
 - Stack description
 - Table of sources of truth (pointing to `docs/`)
 - Workflow entry points (`/flow-start`, etc.)
@@ -218,7 +221,7 @@ It should **not** contain: CKP details, skill lists, memory curation protocol, o
 
 ```bash
 # 1. Scaffold the project (creates docs/, AGENTS.md, .flowforge.json, IDE packs)
-bash /path/to/FlowForge/flow-init.sh /path/to/my-new-project
+flowforge init /path/to/my-new-project
 
 # 2. Fill in your PRD
 edit docs/PRD.md
