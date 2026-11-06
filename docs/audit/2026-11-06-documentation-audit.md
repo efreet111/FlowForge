@@ -125,6 +125,20 @@ Added explicit status banners:
 - `forge-memory` retention row now documents the **mandatory dry-run + human confirmation** gate (HU-048).
 - Conclusion/footer updated to v0.5.0 and 2026-11-06.
 
+### 2.9 `docs/16` content refresh — WARNING → fixed
+
+- Header/version updated to **1.2 (FlowForge v0.5.0)** and title now includes Copilot/Kilo.
+- Canonical orchestrator `flowforge` updated; legacy `forge-orchestrator` retained only where it
+  is an actual filename (`forge-orchestrator.md` / `.agent.md` / prompt agent id).
+- Closed-gaps table expanded with VS Code prompts, Antigravity contract, OpenCode V2,
+  Copilot/Kilo destinations and context7 MCP.
+- Remaining-improvements table now marks natural-language intent signals as done, stack
+  references as partial, and adds the compiled-Cursor-agents drift as an explicit gap.
+- Canonical skill count 31 → **35**; OpenCode file tree and `agent-models.json` entries added.
+- Part 4 now documents the current `flowforge install/update/doctor` path alongside the
+  legacy shell installers.
+- Part 5 split into “Done (v0.4–v0.5)” and refreshed short/medium-term items.
+
 ---
 
 ## 3. Open findings
