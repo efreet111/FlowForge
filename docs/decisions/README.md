@@ -218,6 +218,18 @@ decisions made during planning.
 
 ---
 
+## ADR index
+
+The canonical index is [`INDEX.md`](INDEX.md). It contains the full table
+(`# | título | status | fecha | feature`) for every methodology ADR, including:
+
+- **ADR-018** — FlowDocs skills adoption & delegation protocol (Accepted, 2026-08-25)
+
+Product ADRs live in `docs/architecture/adr/` and are indexed in
+[`docs/architecture/adr/INDEX.md`](../architecture/adr/INDEX.md).
+
+---
+
 ## Quick reference card
 
 | Question | Answer |

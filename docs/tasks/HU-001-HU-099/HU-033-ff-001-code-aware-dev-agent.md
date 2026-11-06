@@ -1,7 +1,7 @@
 ---
 hu_id: HU-033
 title: "Code-Aware Dev Agent"
-status: draft
+status: in-progress
 category: feature
 flowforge_slug: "hu-033-code-aware-dev-agent"
 ---
@@ -12,10 +12,10 @@ flowforge_slug: "hu-033-code-aware-dev-agent"
 As a development team, I want the Dev agent to have access to our project's code-context memory, so that it produces code consistent with our existing architectural decisions, team conventions, and design patterns without re-deriving the same decisions repeatedly.
 
 ## Acceptance Criteria (business-level)
-- [ ] AC-1: Dev agent loads relevant project context at initialization before generating code
-- [ ] AC-2: Dev agent surfaces relevant memories before editing existing files
-- [ ] AC-3: Dev agent offers to capture code changes as memories after successful edits
-- [ ] AC-4: Dev agent queries symbol-level context when modifying classes or functions
+- [x] AC-1: Dev agent loads relevant project context at initialization before generating code
+- [x] AC-2: Dev agent surfaces relevant memories before editing existing files
+- [x] AC-3: Dev agent offers to capture code changes as memories after successful edits
+- [x] AC-4: Dev agent queries symbol-level context when modifying classes or functions
 - [ ] AC-5: Team reports measurable reduction in time spent correcting Dev agent output
 - [ ] AC-6: Team trusts the Dev agent with our codebase
 
@@ -72,18 +72,18 @@ A Dev agent without project memory is essentially a smarter autocomplete—it ca
 - **Owner**: @equipo-FlowForge
 - **Target milestone**: v0.8.0 (DEPENDE de engram-dotnet)
 - **Dependencies**:
-  - ENG-416 (schema evolution — add file_path, symbol, namespace fields): Ready, not started
-  - ENG-484 (code-context query tools): Idea (P2)
-  - ENG-483 (code-aware memory capture): Idea (P2)
+  - ENG-416 (schema evolution — add file_path, symbol, namespace fields): ✅ Done
+  - ENG-484 (code-context query tools): ✅ Done
+  - ENG-483 (code-aware memory capture): ✅ Done
 - **Effort**: XL (2-3 weeks including engram work)
 - **Priority**: P1
-- **Status**: BLOCKED
+- **Status**: IN PROGRESS — implementation merged; PM runtime pending
 
 ## Definition of Done
-- [ ] Dev agent initializes with `mem_recall_for_module` context
-- [ ] Pre-edit hook queries `mem_recall_for_file` and surfaces memories
-- [ ] Post-edit hook offers `mem_capture` for code changes
-- [ ] Symbol-level recall via `mem_recall_for_symbol` integrated
+- [x] Dev agent initializes with `mem_recall_for_module` context
+- [x] Pre-edit hook queries `mem_recall_for_file` and surfaces memories
+- [x] Post-edit hook offers `mem_capture` for code changes
+- [x] Symbol-level recall via `mem_recall_for_symbol` integrated
 - [ ] Team validates consistency with existing design decisions
 - [ ] Measurable reduction in correction time demonstrated
 - [ ] User trust survey shows improvement
@@ -92,6 +92,21 @@ A Dev agent without project memory is essentially a smarter autocomplete—it ca
 > This section is managed by FlowForge agents. Do not edit manually.
 - HU status lifecycle: `draft` → `in-progress` → `done`
 - Status is updated by forge-memory at `/flow-close`
+
+---
+
+## Verification & PM status
+
+> **Implementation**: `ec8abea` (`feat(HU-033): add code-aware memory hooks to forge-dev`).
+> **Verify**: PASS — `.ai-work/hu-033-code-aware-dev-agent/verify-report.md` (static wiring, 12/12 spec items, 14/14 plan items).
+> **PM runtime**: pending — PM-1..PM-5 require a real Dev-agent session; see `spec.md` §4.
+> **Status rationale**: `draft`/`BLOCKED` was stale. The code is merged and the dependencies
+> (ENG-416/483/484) are Done; only the human runtime validation remains. `forge-memory` should
+> promote to `done` after PM-1..PM-5 are executed and marked `[x]`.
+>
+> **AC status**: AC-1..AC-4 are implemented and statically verified; AC-5/AC-6 are team
+> outcome metrics that require real usage and remain open. The scenarios stay `[ ]` until
+> the PM runtime tests are executed.
 
 ---
 

@@ -208,6 +208,18 @@ permissions:
 
 ---
 
+## Closure note (2026-11-06)
+
+> The V2 conversion is now verified in **both** surfaces:
+> `ide/opencode/templates/agents/*.md.tpl` (shell installer) and
+> `ide/opencode/agents/*.md` (C# installer / update path).
+> `grep -rn "^permission:" ide/opencode/` returns 0; all 16 frontmatter blocks parse as YAML
+> and `permissions` is a list. `flowforge` uses the V2 mapping from the table above
+> (`edit`/`write`/`read`/`shell`/`skill`/`subagent`). This closes the gap found during the
+> 2026-11-06 backlog reconciliation.
+
+---
+
 ## FlowForge
 
 > This section is managed by FlowForge agents. Do not edit manually.

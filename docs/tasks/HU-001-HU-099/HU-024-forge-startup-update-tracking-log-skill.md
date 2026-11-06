@@ -25,10 +25,10 @@ flowforge_slug: "forge-startup-update-tracking-log-skill"
 These criteria define when this feature is "done" from a **business perspective**.
 **Do not include technical details here** — those belong in spec.md.
 
-- [ ] AC-1: forge-orchestrator SKILL.md specifies "read AGENTS.md first" rule
-- [ ] AC-2: All SKILL.md files have version in frontmatter
-- [ ] AC-3: All SKILL.md files have changelog section in frontmatter
-- [ ] AC-4: Session start always verifies state from local files, not just memory
+- [x] AC-1: forge-orchestrator SKILL.md specifies "read AGENTS.md first" rule
+- [x] AC-2: All SKILL.md files have version in frontmatter
+- [x] AC-3: All SKILL.md files have changelog section in frontmatter
+- [x] AC-4: Session start always verifies state from local files, not just memory
 
 ---
 
@@ -39,13 +39,13 @@ Each scenario describes verifiable behavior. Use Given/When/Then format.
 
 ### Happy Path
 
-- [ ] **[Orchestrator reads AGENTS.md first]**
+- [x] **[Orchestrator reads AGENTS.md first]**
   **GIVEN** a new session starts
   **WHEN** the user sends the first message
   **THEN** forge-orchestrator reads AGENTS.md before responding
   **🧪 Ref**: `skills/forge-orchestrator/SKILL.md`
 
-- [ ] **[Skill version tracking]**
+- [x] **[Skill version tracking]**
   **GIVEN** a skill is modified
   **WHEN** the change is committed
   **THEN** version is incremented and changelog entry added in frontmatter
@@ -53,7 +53,7 @@ Each scenario describes verifiable behavior. Use Given/When/Then format.
 
 ### Edge Cases
 
-- [ ] **[No memory available]**
+- [x] **[No memory available]**
   **GIVEN** Engram memory is unavailable
   **WHEN** session starts
   **THEN** orchestrator reads AGENTS.md and local files only
@@ -77,9 +77,9 @@ This HU addresses a discipline issue where agents go straight to memory without 
 
 ## Definition of Done
 
-- [ ] forge-orchestrator SKILL.md updated with first-step rule
-- [ ] All skills have version + changelog in frontmatter
-- [ ] No HU needed for this change (self-referential)
+- [x] forge-orchestrator SKILL.md updated with first-step rule
+- [x] All skills have version + changelog in frontmatter
+- [x] No HU needed for this change (self-referential)
 
 ---
 
@@ -98,6 +98,17 @@ To implement this HU:
 - `flowforge_slug` is set by forge-arch when `.ai-work/{slug}/` is created
 - HU status lifecycle: `draft` → `in-progress` → `done`
 - Status is updated by forge-memory at `/flow-close`
+
+---
+
+## Closure note (2026-11-06)
+
+> **Residual fixed**: `ide/opencode/templates/agents/flowforge.md.tpl` now contains the
+> `Pre-flight: AGENTS.md first (mandatory)` section. Before this fix, `ide/install.sh`
+> installed the template and a clean shell install lost the rule (HU-024 verify advisory).
+> **PM status**: PM-1/PM-2/PM-3/PM-5 verified; PM-4 (version-bump test) remains an optional
+> follow-up and is not blocking. `forge-onboarding/SKILL.md` received its missing
+> `version`+`changelog` frontmatter (PM-2 regression fixed). See `.ai-work/forge-startup-update-tracking-log-skill/summary.md`.
 
 ---
 

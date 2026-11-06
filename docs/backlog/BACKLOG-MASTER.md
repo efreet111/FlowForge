@@ -1,426 +1,96 @@
-# FlowForge — Backlog Consolidado
+# FlowForge — Backlog consolidado
 
-> **Última actualización**: 2026-10-29  
-> **Versión actual**: v0.1.0-alpha.15  
-> **Total de items**: 22 (8 NS-* + 7 FF-* + 4 Roadmap + 3 HU-*)  
-> **Hotfixes críticos**: 2 (requieren release inmediato)
-
----
-
-## 📊 Resumen ejecutivo
-
-| Categoría | Total | ✅ Done | 🔄 In Progress | 📋 Ready | 🔴 Blocked | ⏸️ Deferred | 🔥 Hotfix |
-|-----------|-------|---------|----------------|----------|------------|-------------|-----------|
-| **NS-*** (Non-Functional/Methodology) | 8 | 3 | 2 | 2 | 0 | 1 | 0 |
-| **FF-*** (Feature Ideas) | 7 | 0 | 0 | 3 | 4 | 0 | 0 |
-| **Roadmap** (OSS/Post-release) | 4 | 3 | 0 | 1 | 0 | 0 | 0 |
-| **HU-*** (Hotfixes críticos) | 3 | 0 | 0 | 0 | 0 | 0 | 2 |
-| **TOTAL** | **22** | **6** | **2** | **6** | **4** | **1** | **2** |
+> **Última actualización**: 2026-11-06
+> **Fuente de verdad**: `docs/tasks/HU-001-HU-099/` + `.ai-work/{slug}/verify-report.md`
+> **Nota**: este archivo es un snapshot de estado, no un historial. Si una fila contradice
+> una HU o un verify report, mandan la HU y el verify report.
 
 ---
 
-## 🔥 HOTFIXES CRÍTICOS (P0 — Bloquean instalación/uso)
+## 📊 Resumen
 
-> **Fecha de detección**: 2026-09-16  
-> **Detectado por**: Usuario durante instalación quick install (Linux)  
-> **Impacto**: Bloquea onboarding de nuevos usuarios
-
-| ID | Título | Severidad | Workaround | Status | HU File |
-|----|--------|-----------|------------|--------|---------|
-| **HU-027** | Binario busca `templates/agent-models.json` (ruta movida a `config/`) | 🔴 Critical | Symlink manual | 🔥 Hotfix | [HU-027](../tasks/HU-001-HU-099/HU-027-agent-models-path-mismatch.md) |
-| **HU-038** | `ide/opencode/commands/` nunca se creó en el repo | 🔴 Critical | Commands en `opencode.json` | 🔥 Hotfix | [HU-038](../tasks/HU-001-HU-099/HU-038-opencode-commands-missing.md) |
-| **HU-040** | `ide/vscode/prompts/` nunca se creó (paridad con Cursor/Antigravity/OpenCode) | 🟠 P1 | Disparadores en lenguaje natural | ✅ Done | [HU-040](../tasks/HU-001-HU-099/HU-040-vscode-slash-commands-missing.md) |
-| **HU-041** | Paridad `install.sh` ↔ `flowforge update`: 4 defectos (sed schema, prompts fuera del updater, downgrade por cache, provider pisado) | 🔴 Critical | Usar `FLOWFORGE_PROVIDER=` y no correr `update` con commits locales | 📋 Ready | [HU-041](../tasks/HU-001-HU-099/HU-041-installer-updater-parity.md) |
-| **HU-039** | Flag corto `-y` no reconocido en `flowforge init` | 🟡 Minor | Usar `--yes` | 📋 Ready | [HU-039](../tasks/HU-001-HU-099/HU-039-fix-init-short-flag-y.md) |
-| **HU-050** | Contrato de customizations de Antigravity roto (rules inertes, `/flow-*` muertos, 0 subagentes) | 🔴 Critical | Ninguno (requiere update del installer) | ✅ Done | [HU-050](../tasks/HU-001-HU-099/HU-050-antigravity-customizations-contract.md) · [PR #38](https://github.com/efreet111/FlowForge/pull/38) |
-
-### Análisis forense
-
-**HU-027 — Path mismatch en binario publicado**
-
-- **Root cause**: ADR-012 movió `agent-models.json` de `templates/` a `config/`. El código fuente se actualizó, pero el binario publicado en GitHub Releases (`v0.1.0-alpha.12`) se compiló antes de la migración.
-- **Commit donde se rompió**: No es un "break" — es un release desactualizado.
-- **Workaround aplicado**: `ln -s ~/.flowforge/cache/FlowForge/ide/opencode/config/agent-models.json ~/.flowforge/cache/FlowForge/ide/opencode/templates/agent-models.json`
-- **Fix definitivo**: Recompile binario desde source actual + publicar nuevo release.
-
-**HU-038 — Commands de OpenCode faltantes**
-
-- **Root cause**: Commit `cdd5c79` (Jun 2026) creó commands para Cursor y Antigravity, pero olvidó OpenCode. Commit `3f7b07b` (28 Jun 2026) agregó la lógica de copia para OpenCode pero asumió que los archivos ya existían.
-- **Commit donde se rompió**: `3f7b07b` — implementación incompleta.
-- **Workaround aplicado**: Commands agregados manualmente en `~/.config/opencode/opencode.json` (sección `commands`).
-- **Fix definitivo**: Crear `ide/opencode/commands/*.md` en el repo + recompile.
-
-### Plan de resolución (Hotfix Release)
-
-```
-1. Crear ide/opencode/commands/ con 7 archivos .md (HU-038) ✅ done
-2. Verificar que ide/install.sh usa ruta correcta (HU-027 — ya corregido) ✅ done
-3. Fix flag -y en InitCommand (HU-039 — opcional, P2)
-4. Merge branch hotfix/hu-028-opencode-commands → main
-5. dotnet publish -c Release -r linux-x64
-6. gh release create v0.1.0-alpha.13 ./artifacts/*
-7. Test end-to-end en VM limpia (PM-1 re-run)
-```
-
-**Tiempo estimado**: 2-3 horas  
-**Riesgo**: Bajo (cambios aislados, sin breaking changes)
+| Categoría | Total |
+|-----------|-------|
+| HUs cerradas | 19 |
+| HUs en curso | 2 (HU-033, HU-035) |
+| HUs en draft | 7 |
+| **Total** | **28** |
 
 ---
 
-## 🎯 Estado actual por categoría
+## 🎯 Pendientes activos
 
-### ✅ Completados (6 items)
-
-| ID | Feature | Fecha | Impacto |
-|----|---------|-------|---------|
-| NS-07 | Pattern Search step | 2026-06-18 | Metodología: búsqueda obligatoria de patrones existentes |
-| NS-09 | Executive Summary in spec.md | 2026-08-07 | UX: resumen ejecutivo de 15-20 líneas en cada spec |
-| NS-10 (P0) | Test Quality Gates | 2026-08-07 | Calidad: validación de assertions + coverage gate |
-| FF-OSS-01 | Fix versión en README | 2026-06-23 | Docs: consistencia de versión |
-| FF-OSS-02 | Commit de roadmap | 2026-06-23 | Docs: marcar repo como público |
-| FF-OSS-03 | Tabla de decisión de instalación | 2026-06-23 | UX: guía de instalación para nuevos usuarios |
-
-### 🔄 En progreso (2 items)
-
-| ID | Feature | Status | Próximo paso | Esfuerzo |
-|----|---------|--------|--------------|----------|
-| NS-06 | Context project file | Propuesto | Definir trigger y template | S (1 día) |
-| NS-08 | Agent Quality Improvement | Propuesto | Implementar Phase 1 (critical fixes) | M (1-2 días) |
-
-### 🔥 Hotfixes críticos (2 items)
-
-| ID | Feature | Status | Esfuerzo | Bloqueador | Impacto |
-|----|---------|--------|----------|------------|---------|
-| **HU-027** | Binario busca ruta obsoleta de agent-models.json | 🔥 Hotfix | S (1 hora) | Requiere recompile + release | Bloquea instalación nueva |
-| **HU-038** | Commands de OpenCode faltantes en installer | 🔥 Hotfix | S (2 horas) | Requiere crear archivos + release | Sin slash commands en OpenCode |
-
-### 📋 Ready para implementar (6 items)
-
-| ID | Feature | Prioridad | Esfuerzo | Bloqueador | Valor |
-|----|---------|-----------|----------|------------|-------|
-| **FF-003** | Onboarding flow | P1 | M (1-2 días) | Ninguno | Alto para equipos |
-| **FF-002 (Parte A)** | Extracción de decisiones del plan | P2 | S (1 día) | Ninguno | Medio |
-| **FF-007 (lite)** | Drift check en verify agent | P3 | M (1 día) | Ninguno | Medio |
-| **NS-09** | Executive Summary | P1 | S (1 día) | Ninguno | Alto (feedback usuario) |
-| **NS-10 (P1)** | Mutation Testing | P2 | L (3-4 días) | Baseline de P0 | Medio |
-| **FF-OSS-04** | Demo visual en README | P1 | L (4 horas) | Ninguno | Alto para OSS |
-
-### 🔴 Blocked (4 items)
-
-| ID | Feature | Bloqueador | Dependencia | Esfuerzo |
-|----|---------|------------|-------------|----------|
-| **FF-001** | Code-aware Dev agent | ENG-416, ENG-484 | engram-dotnet | XL (2-3 semanas) |
-| **FF-002 (Parte B)** | Code-aware capture | ENG-416, ENG-483 | engram-dotnet | L (2-3 semanas) |
-| **FF-004** | Code-context Arch agent | ENG-416, ENG-484 | engram-dotnet | M (2-3 días) |
-| **FF-005** | Contradiction detection | ENG-412, ENG-414 | engram-dotnet | L (1-2 días) |
-
-### ⏸️ Deferred (1 item)
-
-| ID | Feature | Razón | Re-evaluar |
-|----|---------|-------|------------|
-| **FF-006** | Cost dashboard | ROI dudoso, demanda no validada | Cuando haya 10+ equipos usando FlowForge |
+| ID | Tema | Estado real | Próximo paso | Prio |
+|----|------|-------------|--------------|------|
+| **HU-041** | Paridad `ide/install.sh` ↔ `flowforge update` | 🟡 Parcial: D1 (parser) y D3 (cache) corregidos; **D2** (`prompts/` fuera del updater) y **D4** (`FLOWFORGE_PROVIDER` no respetado en C#) abiertos; ADR-028 en `Proposed` | Implementar D2/D4, tests D1–D4 y aprobar ADR-028 | P1 |
+| **HU-039** | `flowforge init -y` no reconocido | 🔴 Abierto; `InitCommand` solo registra `--yes` | Registrar alias `-y` + test | P2 |
+| **HU-032** | Demo visual en README | 🔴 Abierto; README solo tiene banner | Screenshot/GIF del flujo + alt text | P1 OSS |
+| **HU-028** | Mutation testing (NS-10 P1) | 🔴 Abierto; P0 (assertion/coverage gates) ya existe; no hay Stryker/mutmut en CI | Baseline + Stage 1/2 | P2 |
+| **HU-034** | Code-aware capture — Parte B | 🟡 Dependencias ENG-416/483 Done; `code-capture` existe en `forge-dev`, pero la captura end-to-end no está verificada | Implementar/verificar `file_path`/`symbol`/`namespace` en `forge-memory` | P2 |
+| **HU-045** | Subagent-first invocation | 🟡 Parcial: `autoinvoke: false` aplicado y sección en `skills/flowforge/SKILL.md`; HU sigue `draft` y sin verify | Verificar AC/PM, paridad Cursor, cerrar | P2 |
+| **HU-033** | Code-Aware Dev Agent | 🟡 Implementada (`ec8abea`) + verify PASS; PM runtime pendiente | PM-1..PM-5 en sesión real; luego cerrar | P1 cierre |
+| **HU-035** | Code-Context Arch Agent | 🟡 Implementada (`19ed2af`) + verify PASS; PM runtime pendiente | PM-1..PM-5 en sesión real; luego cerrar | P1 cierre |
+| **HU-037** | Cost Dashboard | ⏸️ Deferred por ROI dudoso; sin código | Decidir si se cierra como deferred o se prioriza | P4 |
 
 ---
 
-## 🗺️ Mapa de relaciones
+## 🧹 Deuda de ingeniería / follow-ups (sin HU propia)
 
-```
-NS-06 (Context project) ──────────────────────┐
-                                               │
-NS-07 (Pattern Search) ✅ ─────────────────────┤
-                                               │
-NS-08 (Agent Quality) ─────────────────────────┤
-                                               │
-NS-09 (Executive Summary) ✅ ──────────────────┤
-                                               │
-NS-10 (Test Quality) ✅ P0 / 📋 P1 ────────────┤
-                                               │
-FF-001 (Code-aware Dev) 🔴 ───────────────────→│ ENG-416, ENG-484 (engram)
-FF-002 (Code-aware capture) 🔴 ───────────────→│ ENG-416, ENG-483 (engram)
-FF-003 (Onboarding) 📋 ────────────────────────┤
-FF-004 (Code-context Arch) 🔴 ────────────────→│ ENG-416, ENG-484 (engram)
-FF-005 (Contradiction) 🔴 ────────────────────→│ ENG-412, ENG-414 (engram)
-FF-006 (Cost dashboard) ⏸️ ────────────────────┤
-FF-007 (Drift check) 📋 ───────────────────────┤
-                                               │
-FF-OSS-04 (Demo visual) 📋 ────────────────────┘
-```
+| Tema | Estado | Evidencia / próximo paso | Prio |
+|------|--------|--------------------------|------|
+| `scripts/validate-agent-models.sh` | 🔴 Falla en los 4 IDEs (`exit 1`) | Asume `.agents[*].model` string y `forge-orchestrator`; el schema actual usa map provider→model y `flowforge`. No está cableado en CI | P1 |
+| OpenCode `permissions` legacy | ✅ Resuelto 2026-11-06 | `ide/opencode/agents/*.md` + `templates/agents/*.tpl` convertidos a `permissions[]` V2; `grep "^permission:"` = 0 | — |
+| Cursor compiled agents | 🟡 `ide/cursor/agents/*.md` están desincronizados de `skills/` | Ejecutar `ide/cursor/compile-agents-from-skills.py` genera ~1.5k líneas de diff; requiere un commit de regeneración dedicado | P2 |
+| `CHANGELOG.md` | 🟡 Tres `## [Unreleased]` (dos vacíos al inicio + uno con contenido) | Consolidar en una sola sección al tope | P2 |
+| `ide/opencode/templates/agents/flowforge.md.tpl` | ✅ Pre-flight `AGENTS.md first` sincronizado (2026-11-06) | `grep "Pre-flight: AGENTS.md first"` = 1 | — |
 
 ---
 
-## 🎯 Roadmap recomendado
+## ✅ HUs cerradas (19)
 
-### 🔥 INMEDIATO — Hotfix Release (hoy)
+| Área | HUs |
+|------|-----|
+| Onboarding / docs | HU-021, HU-022, HU-023, HU-024, HU-026, HU-029, HU-042, HU-047 |
+| Installer / IDE | HU-025, HU-027, HU-038, HU-040, HU-043, HU-046, HU-048, HU-050 |
+| Features / metodología | HU-030, HU-031, HU-036 |
 
-> **Objetivo**: Desbloquear instalación para nuevos usuarios  
-> **Tiempo estimado**: 2-3 horas  
-> **Release target**: v0.1.0-alpha.13
-
-1. **HU-027** — Fix path mismatch en binario (P0, S, 1 hora)
-   - Verificar que `ide/install.sh` usa ruta correcta ✅ (ya corregido)
-   - Recompile binario: `dotnet publish -c Release -r linux-x64`
-   - Publicar release: `gh release create v0.1.0-alpha.13`
-   - **Comando**: No requiere `/flow-start`, es tarea de release
-
-2. **HU-038** — Crear commands de OpenCode (P0, S, 2 horas)
-   - Crear `ide/opencode/commands/` con 7 archivos `.md`
-   - Agregar tests unitarios para `InitCommand`
-   - Incluir en el mismo release v0.1.0-alpha.13
-   - **Comando**: `/flow-start hotfix-opencode-commands-missing`
-
-### Corto plazo (próximas 2-4 semanas)
-
-#### Sprint 1: Quick wins (1 semana)
-
-1. **FF-003** — Onboarding flow (P1, M, 1-2 días)
-   - Mayor valor para equipos
-   - Sin bloqueadores
-   - Spec completa lista en `docs/backlog/FF-003-onboarding-flow/spec.md`
-
-2. **FF-OSS-04** — Demo visual en README (P1, L, 4 horas)
-   - Alto impacto para OSS adoption
-   - Sin bloqueadores
-   - Puede ser screenshot o GIF
-
-3. **NS-08** — Agent Quality Improvement Phase 1 (P1, M, 1-2 días)
-   - Critical fixes: traducciones ES→EN, OpenCode stubs, VS Code RF/RNF
-   - Sin bloqueadores
-   - Mejora calidad de agentes inmediatamente
-
-#### Sprint 2: Foundation (1-2 semanas)
-
-4. **FF-002 Parte A** — Extracción de decisiones del plan (P2, S, 1 día)
-   - Esfuerzo bajo, valor inmediato
-   - Sin bloqueadores
-   - Spec completa lista
-
-5. **FF-007 lite** — Drift check en verify agent (P3, M, 1 día)
-   - Extensión de verify existente
-   - Sin bloqueadores
-   - Spec completa lista
-
-6. **NS-06** — Context project file (P1, S, 1 día)
-   - Complementa FF-003 (Onboarding)
-   - Sin bloqueadores
-   - Spec incompleta (requiere definir trigger y template)
-
-### Mediano plazo (1-3 meses)
-
-7. **NS-10 P1** — Mutation Testing (P2, L, 3-4 días)
-   - Requiere baseline de P0 (ya implementado)
-   - Spec completa lista
-
-8. **FF-005** — Contradiction detection (P3, L, 1-2 días)
-   - Solo si hay 500+ memorias en engram
-   - Requiere ENG-412/414 en engram-dotnet
-
-### Largo plazo (3-6 meses)
-
-9. **ENG-416** — Schema evolution en engram-dotnet (prerequisito para FF-001/002/004)
-10. **ENG-484** — Code-context tools en engram-dotnet
-11. **FF-001** — Dev agent code-aware (se desbloquea)
-12. **FF-004** — Arch agent code-context (se desbloquea)
+> **Cierres con deuda declarada**:
+> - **HU-024**: PM-4 (version-bump test) es follow-up opcional; el template OpenCode ya está sincronizado.
+> - **HU-026**: PM-2 (auto-update con ADR real) quedó pendiente; cierre `PASS_DEGRADADO`.
+> - **HU-036**: alcance FlowForge-layer v2 cerrado; AC-2/AC-4/AC-5 y métricas completas quedan para engram Phase 2.
+> - **HU-050**: `ide/install.ps1` no se validó en Windows; `flowforge uninstall` no limpia `~/.gemini/config/` (preexistente).
 
 ---
 
-## 📈 Análisis de valor vs esfuerzo
+## 🔴🟡 Backlog sin HU
 
-```
-Alto valor │ FF-003 (P1, M)        NS-08 (P1, M)
-           │ FF-OSS-04 (P1, L)     NS-06 (P1, S)
-           │ 
-           │ FF-002A (P2, S)       FF-007 (P3, M)
-           │
-           │ NS-10 P1 (P2, L)      FF-006 (P4, L)
-           │
-Bajo valor │ FF-001 (P1, XL) 🔴    FF-005 (P3, L) 🔴
-           └────────────────────────────────────────
-             Bajo esfuerzo              Alto esfuerzo
-```
-
-**Cuadrante superior-izquierdo** (alto valor, bajo esfuerzo):
-- FF-003 (Onboarding) — P1, M
-- FF-OSS-04 (Demo visual) — P1, L
-- NS-08 (Agent Quality) — P1, M
-
-**Cuadrante superior-derecho** (alto valor, alto esfuerzo):
-- FF-001 (Code-aware Dev) — P1, XL 🔴 (blocked)
-- FF-005 (Contradiction) — P3, L 🔴 (blocked)
+| Tema | Estado | Notas |
+|------|--------|-------|
+| Project memory association gate | 📋 Propuesto (`docs/19-project-memory-association-backlog.md`) | P2; definir si se promueve a HU |
+| FF-007 full drift health check | 📋 Solo existe la versión lite (HU-031) | Evaluar si el lite alcanza |
+| NS-09 / ADR-013 — pin de engram-dotnet | 🟡 `install/manifest.yaml` sigue en `>=0.3.0`; ADR-013 en `Proposed` | Subir el mínimo y agregar smoke post-install |
+| NS-10 — engram Postgres index overflow | 🔴 Upstream (`docs/backlog/NS-10-engram-postgres-dedupe-index-overflow.md`) | P0 en engram-dotnet; sync push puede fallar silenciosamente |
+| Hybrid search (ENG-418) | 📋 Upstream opcional | No bloquea el contrato actual |
 
 ---
 
-## 🔍 Análisis detallado por item
+## 🔗 Dependencias cross-project
 
-### NS-* (Non-Functional/Methodology)
+Según `docs/team/flowforge-hu-report.md` y `.ai-work/engram-dotnet-analysis/contract-status.md`:
 
-| ID | Feature | Status | Prioridad | Esfuerzo | Spec |
-|----|---------|--------|-----------|----------|------|
-| NS-06 | Context project file | 📋 Propuesto | P1 | S (1 día) | [spec](NS-06-context-project-file.md) — incompleta |
-| NS-07 | Pattern Search step | ✅ Done | P0 | S | [spec](NS-07-pattern-search-step.md) |
-| NS-08 | Agent Quality Improvement | 🔄 Propuesto | P1 | M (1-2 días) | [spec](NS-08-agent-quality-improvement.md) |
-| NS-09 | Executive Summary in spec.md | ✅ Done | P1 | S | [spec](NS-09-executive-summary-in-spec.md) |
-| NS-10 | Test Quality Gates | ✅ P0 / 📋 P1 | P0/P1 | L (3-4 días P1) | [spec](NS-10-mutation-testing.md) |
-
-**Observaciones**:
-- NS-06 tiene spec incompleta (falta definir trigger exacto, template, quién lo actualiza)
-- NS-08 tiene spec completa con 3 fases (Critical, High, Medium priority)
-- NS-10 P0 está implementado, P1 (mutation testing) pendiente de baseline
-
-### FF-* (Feature Ideas)
-
-| ID | Feature | Status | Prioridad | Esfuerzo | Spec |
-|----|---------|--------|-----------|----------|------|
-| FF-001 | Code-aware Dev agent | 🔴 Blocked | P1 | XL | [spec](FF-001-code-aware-dev-agent/spec.md) |
-| FF-002 | Code-aware capture (CKP-2) | 🟡 Partial | P2 | S/L | [spec](FF-002-code-aware-capture/spec.md) |
-| FF-003 | Onboarding flow | 📋 Ready | P1 | M | [spec](FF-003-onboarding-flow/spec.md) |
-| FF-004 | Code-context Arch agent | 🔴 Blocked | P1 | M | [spec](FF-004-code-context-arch/spec.md) |
-| FF-005 | Contradiction detection | 🔴 Blocked | P3 | L | [spec](FF-005-contradiction-detection/spec.md) |
-| FF-006 | Cost dashboard | ⏸️ Deferred | P4 | L | [spec](FF-006-cost-dashboard/spec.md) |
-| FF-007 | Drift health check | 📋 Ready | P3 | M/L | [spec](FF-007-drift-health-check/spec.md) |
-
-**Observaciones**:
-- FF-001, FF-002 (Parte B), FF-004 comparten mismas dependencias de engram-dotnet
-- FF-002 tiene Parte A (implementable hoy) y Parte B (blocked)
-- FF-003 es el feature con mejor relación esfuerzo/valor para equipos
-- FF-006 tiene ROI dudoso, requiere validación de demanda
-
-### Roadmap (OSS/Post-release)
-
-| ID | Feature | Status | Prioridad | Esfuerzo |
-|----|---------|--------|-----------|----------|
-| FF-OSS-01 | Fix versión en README | ✅ Done | P0 | XS |
-| FF-OSS-02 | Commit de roadmap | ✅ Done | P0 | XS |
-| FF-OSS-03 | Tabla de decisión de instalación | ✅ Done | P1 | S |
-| FF-OSS-04 | Demo visual en README | 📋 Ready | P1 | L (4 horas) |
-
-**Observaciones**:
-- FF-OSS-01 a 003 están completados
-- FF-OSS-04 es el único pendiente, alto impacto para OSS adoption
+- **ENG-416** (schema evolution), **ENG-483** (code-aware capture), **ENG-484** (query tools),
+  **ENG-412/414** (taxonomy/contradictions) están **Done** en engram-dotnet.
+- Eso desbloquea HU-033/034/035/036 a nivel de herramientas; lo que queda es integración,
+  PM runtime y cierre documental.
+- Phase 2 de contradicciones (métricas de retrieval, cron, thresholds) sigue upstream.
 
 ---
 
-## 🎯 Recomendación de priorización
+## 🎯 Recomendación de secuencia
 
-### Criterios de priorización
-
-| Criterio | Peso |
-|----------|------|
-| Valor para el usuario | 40% |
-| Factibilidad técnica (hoy) | 30% |
-| Esfuerzo relativo | 20% |
-| Dependencias externas | 10% |
-
-### 🔥 PRIORIDAD 0 — Hotfixes (implementar HOY)
-
-1. **HU-027** — Fix path mismatch en binario
-   - **Por qué**: Bloquea instalación de nuevos usuarios
-   - **Cuándo**: HOY (1 hora)
-   - **Comando**: No requiere `/flow-start`, es tarea de release
-
-2. **HU-038** — Crear commands de OpenCode
-   - **Por qué**: Sin slash commands, UX rota en OpenCode
-   - **Cuándo**: HOY (2 horas)
-   - **Comando**: `/flow-start hotfix-opencode-commands-missing`
-
-### Top 5 recomendados (orden de implementación, después de hotfixes)
-
-1. **FF-003** — Onboarding flow
-   - **Por qué**: Mayor valor para equipos, sin bloqueadores, spec completa
-   - **Cuándo**: Sprint 1 (próximos 1-2 días)
-   - **Comando**: `/flow-start ff-003-onboarding-flow`
-
-2. **FF-OSS-04** — Demo visual en README
-   - **Por qué**: Alto impacto para OSS adoption, esfuerzo bajo (4 horas)
-   - **Cuándo**: Sprint 1 (puede hacerse en paralelo con FF-003)
-   - **Comando**: No requiere `/flow-start`, es tarea de documentación
-
-3. **NS-08** — Agent Quality Improvement Phase 1
-   - **Por qué**: Critical fixes que afectan calidad de agentes
-   - **Cuándo**: Sprint 1 (después de FF-003)
-   - **Comando**: `/flow-start ns-08-agent-quality-phase-1`
-
-4. **FF-002 Parte A** — Extracción de decisiones del plan
-   - **Por qué**: Esfuerzo bajo (S), valor inmediato
-   - **Cuándo**: Sprint 2 (próxima semana)
-   - **Comando**: `/flow-start ff-002-parte-a-decision-extraction`
-
-5. **FF-007 lite** — Drift check en verify agent
-   - **Por qué**: Extensión natural de verify, sin bloqueadores
-   - **Cuándo**: Sprint 2 (después de FF-002 Parte A)
-   - **Comando**: `/flow-start ff-007-lite-drift-check`
-
----
-
-## 📊 Métricas de salud del backlog
-
-| Métrica | Valor | Target | Status |
-|---------|-------|--------|--------|
-| Items completados (últimos 30 días) | 6 | 4-6 | ✅ On track |
-| Items blocked | 4 | <3 | ⚠️ Depende de engram-dotnet |
-| Hotfixes críticos | 2 | 0 | 🔴 Requiere release inmediato |
-| Items sin spec | 1 (NS-06) | 0 | ⚠️ Requiere completar spec |
-| Esfuerzo promedio por item | M (2-3 días) | M | ✅ Healthy |
-| Ratio valor/esfuerzo | 70% alto valor | >60% | ✅ Healthy |
-
----
-
-## 🔗 Enlaces rápidos
-
-### 🔥 Hotfixes críticos
-- [HU-027](../tasks/HU-001-HU-099/HU-027-agent-models-path-mismatch.md) — 🔥 Binario busca ruta obsoleta
-- [HU-038](../tasks/HU-001-HU-099/HU-038-opencode-commands-missing.md) — 🔥 Commands OpenCode faltantes
-
-### Specs completadas
-- [NS-06](NS-06-context-project-file.md) — incompleta
-- [NS-07](NS-07-pattern-search-step.md) — ✅ done
-- [NS-08](NS-08-agent-quality-improvement.md) — 🔄 proposed
-- [NS-09](NS-09-executive-summary-in-spec.md) — ✅ done
-- [NS-10](NS-10-mutation-testing.md) — ✅ P0 done / 📋 P1 pending
-
-### Feature specs
-- [FF-001](FF-001-code-aware-dev-agent/spec.md) — 🔴 blocked
-- [FF-002](FF-002-code-aware-capture/spec.md) — 🟡 partial
-- [FF-003](FF-003-onboarding-flow/spec.md) — 📋 ready
-- [FF-004](FF-004-code-context-arch/spec.md) — 🔴 blocked
-- [FF-005](FF-005-contradiction-detection/spec.md) — 🔴 blocked
-- [FF-006](FF-006-cost-dashboard/spec.md) — ⏸️ deferred
-- [FF-007](FF-007-drift-health-check/spec.md) — 📋 ready
-
-### Master backlogs
-- [FF-BACKLOG.md](FF-BACKLOG.md) — Feature ideas backlog
-- [04-roadmap.md](../04-roadmap.md) — Roadmap general
-
----
-
-## 📝 Notas finales
-
-### Dependencias críticas
-
-**engram-dotnet** es el principal bloqueador:
-- 4 features de FlowForge dependen de cambios en engram-dotnet
-- ENG-416 (schema evolution) es el prerequisito más importante
-- Si engram-dotnet prioriza ENG-416/483/484, se desbloquean FF-001/002/004
-
-### Riesgos
-
-| Riesgo | Probabilidad | Impacto | Mitigación |
-|--------|--------------|---------|------------|
-| engram-dotnet no prioriza ENG-416 | Alto | Alto | FF-003/002A/007 no dependen de engram |
-| NS-06 spec incompleta retrasa implementación | Medio | Bajo | Completar spec antes de implementar |
-| FF-006 (Cost dashboard) no tiene demanda | Alto | Bajo | Validar con usuarios antes de implementar |
-
-### Oportunidades
-
-- **FF-003 (Onboarding)** puede ser el "killer feature" para equipos
-- **FF-002 Parte A** es quick win (S effort, valor inmediato)
-- **NS-08 Phase 1** mejora calidad de agentes inmediatamente
-- **FF-OSS-04** puede aumentar OSS adoption significativamente
-
----
-
-**Próximo paso recomendado**: Resolver hotfixes críticos (HU-027 + HU-038) y publicar release v0.1.0-alpha.13
-
-```bash
-# Iniciar hotfix de commands de OpenCode
-/flow-start hotfix-opencode-commands-missing
-```
+1. **HU-041 D2/D4** + `validate-agent-models.sh` — afectan instalación/actualización.
+2. **HU-039** — fix pequeño, cierra un bug de UX.
+3. **HU-032** — impacto OSS alto, esfuerzo acotado.
+4. **Cierre de HU-033/035** — ejecutar PM runtime; luego `forge-memory` promueve a `done`.
+5. **HU-034/HU-045** — completar integración/verificación.
+6. **HU-028/HU-037** — decidir prioridad según demanda real.

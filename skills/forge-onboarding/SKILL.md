@@ -1,3 +1,16 @@
+---
+name: forge-onboarding
+description: "Cross-cutting onboarding guidance: suggest and interpret `flowforge onboard` briefings from Engram memories."
+version: "1.0.0"
+metadata:
+  opencode/autoinvoke: false  # HU-045: force subagent delegation
+changelog:
+  - date: "2026-11-06"
+    note: "HU-024 PM-2 regression: add missing version + changelog frontmatter"
+  - date: "2026-08-23"
+    note: "Initial version — onboarding skill (HU-029 / FF-003)"
+---
+
 # forge-onboarding Skill
 
 **Phase**: Cross-cutting (applies to all phases)
