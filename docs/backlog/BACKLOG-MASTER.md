@@ -11,8 +11,8 @@
 
 | Categoría | Total |
 |-----------|-------|
-| HUs cerradas | 19 |
-| HUs en curso | 2 (HU-033, HU-035) |
+| HUs cerradas | 21 |
+| HUs en curso | 0 |
 | HUs en draft | 7 |
 | **Total** | **28** |
 
@@ -28,8 +28,6 @@
 | **HU-028** | Mutation testing (NS-10 P1) | 🔴 Abierto; P0 (assertion/coverage gates) ya existe; no hay Stryker/mutmut en CI | Baseline + Stage 1/2 | P2 |
 | **HU-034** | Code-aware capture — Parte B | 🟡 Dependencias ENG-416/483 Done; `code-capture` existe en `forge-dev`, pero la captura end-to-end no está verificada | Implementar/verificar `file_path`/`symbol`/`namespace` en `forge-memory` | P2 |
 | **HU-045** | Subagent-first invocation | 🟡 Parcial: `autoinvoke: false` aplicado y sección en `skills/flowforge/SKILL.md`; HU sigue `draft` y sin verify | Verificar AC/PM, paridad Cursor, cerrar | P2 |
-| **HU-033** | Code-Aware Dev Agent | 🟡 Implementada (`ec8abea`) + verify PASS; PM runtime pendiente | PM-1..PM-5 en sesión real; luego cerrar | P1 cierre |
-| **HU-035** | Code-Context Arch Agent | 🟡 Implementada (`19ed2af`) + verify PASS; PM runtime pendiente | PM-1..PM-5 en sesión real; luego cerrar | P1 cierre |
 | **HU-037** | Cost Dashboard | ⏸️ Deferred por ROI dudoso; sin código | Decidir si se cierra como deferred o se prioriza | P4 |
 
 ---
@@ -46,15 +44,17 @@
 
 ---
 
-## ✅ HUs cerradas (19)
+## ✅ HUs cerradas (21)
 
 | Área | HUs |
 |------|-----|
 | Onboarding / docs | HU-021, HU-022, HU-023, HU-024, HU-026, HU-029, HU-042, HU-047 |
 | Installer / IDE | HU-025, HU-027, HU-038, HU-040, HU-043, HU-046, HU-048, HU-050 |
-| Features / metodología | HU-030, HU-031, HU-036 |
+| Features / metodología | HU-030, HU-031, HU-033, HU-035, HU-036 |
 
 > **Cierres con deuda declarada**:
+> - **HU-033**: PM-1..PM-5 PASS (2026-11-06); AC-5/AC-6 son métricas de adopción post-deploy.
+> - **HU-035**: PM-1..PM-4 PASS, PM-5 PASS (static); AC-2 es métrica de eficiencia post-deploy.
 > - **HU-024**: PM-4 (version-bump test) es follow-up opcional; el template OpenCode ya está sincronizado.
 > - **HU-026**: PM-2 (auto-update con ADR real) quedó pendiente; cierre `PASS_DEGRADADO`.
 > - **HU-036**: alcance FlowForge-layer v2 cerrado; AC-2/AC-4/AC-5 y métricas completas quedan para engram Phase 2.
@@ -80,8 +80,8 @@ Según `docs/team/flowforge-hu-report.md` y `.ai-work/engram-dotnet-analysis/con
 
 - **ENG-416** (schema evolution), **ENG-483** (code-aware capture), **ENG-484** (query tools),
   **ENG-412/414** (taxonomy/contradictions) están **Done** en engram-dotnet.
-- Eso desbloquea HU-033/034/035/036 a nivel de herramientas; lo que queda es integración,
-  PM runtime y cierre documental.
+- Eso desbloqueó HU-033/035/036 (cerradas); HU-034 (code-aware capture Part B) sigue pendiente
+  porque el MCP `mem_save` no expone `file_path`/`symbol`/`namespace` (el CLI sí).
 - Phase 2 de contradicciones (métricas de retrieval, cron, thresholds) sigue upstream.
 
 ---
@@ -91,6 +91,6 @@ Según `docs/team/flowforge-hu-report.md` y `.ai-work/engram-dotnet-analysis/con
 1. **HU-041 D2/D4** + `validate-agent-models.sh` — afectan instalación/actualización.
 2. **HU-039** — fix pequeño, cierra un bug de UX.
 3. **HU-032** — impacto OSS alto, esfuerzo acotado.
-4. **Cierre de HU-033/035** — ejecutar PM runtime; luego `forge-memory` promueve a `done`.
-5. **HU-034/HU-045** — completar integración/verificación.
+4. **HU-034** — captura code-aware (Part B); es el write-path que falta para cerrar el ciclo 033/035.
+5. **HU-045** — verificar subagent-first y paridad Cursor.
 6. **HU-028/HU-037** — decidir prioridad según demanda real.

@@ -1,7 +1,7 @@
 ---
 hu_id: HU-033
 title: "Code-Aware Dev Agent"
-status: in-progress
+status: done
 category: feature
 flowforge_slug: "hu-033-code-aware-dev-agent"
 ---
@@ -21,32 +21,32 @@ As a development team, I want the Dev agent to have access to our project's code
 
 ## Scenarios (SDD Spec)
 ### Happy Path
-- [ ] **Agent initializes with project context**
+- [x] **Agent initializes with project context**
   **GIVEN** a Dev agent session is started for module `auth`
   **WHEN** the agent queries `mem_recall_for_module("auth")`
   **THEN** it loads existing decisions about auth architecture, conventions, and patterns
   **🧪 Ref**: ENG-484
 
-- [ ] **Agent surfaces memories before file edit**
+- [x] **Agent surfaces memories before file edit**
   **GIVEN** a Dev agent is about to edit `src/services/UserService.ts`
   **WHEN** it queries `mem_recall_for_file("src/services/UserService.ts")`
   **THEN** relevant memories about the file's design decisions are surfaced
   **🧪 Ref**: ENG-484
 
-- [ ] **Agent captures change after edit**
+- [x] **Agent captures change after edit**
   **GIVEN** a Dev agent successfully edits `src/services/UserService.ts`
   **WHEN** the edit is applied and validated
   **THEN** the agent offers to capture the change as a memory for future reference
   **🧪 Ref**: ENG-483
 
-- [ ] **Agent recalls symbol context**
+- [x] **Agent recalls symbol context**
   **GIVEN** a Dev agent is about to modify the `UserService` class
   **WHEN** it queries `mem_recall_for_symbol("UserService")`
   **THEN** relevant memories about the class design are surfaced
   **🧪 Ref**: ENG-484
 
 ### Edge Cases
-- [ ] **No memories found for file/module**
+- [x] **No memories found for file/module**
   **GIVEN** no prior memories exist for a target file
   **WHEN** `mem_recall_for_file` is called
   **THEN** the agent proceeds with standard behavior without error
@@ -57,6 +57,7 @@ As a development team, I want the Dev agent to have access to our project's code
   **WHEN** context is loaded
   **THEN** the agent indicates confidence level and proceeds cautiously
   **🧪 Ref**: ENG-416
+  > Not executed in the 2026-11-06 runtime validation; requires a deliberately stale fixture.
 
 ## Context / Notes
 A Dev agent without project memory is essentially a smarter autocomplete—it can generate syntactically correct code but lacks awareness of architectural decisions, team conventions, and design patterns that have already been established. This leads to:
@@ -77,7 +78,7 @@ A Dev agent without project memory is essentially a smarter autocomplete—it ca
   - ENG-483 (code-aware memory capture): ✅ Done
 - **Effort**: XL (2-3 weeks including engram work)
 - **Priority**: P1
-- **Status**: IN PROGRESS — implementation merged; PM runtime pending
+- **Status**: DONE — runtime validated 2026-11-06
 
 ## Definition of Done
 - [x] Dev agent initializes with `mem_recall_for_module` context
@@ -99,14 +100,22 @@ A Dev agent without project memory is essentially a smarter autocomplete—it ca
 
 > **Implementation**: `ec8abea` (`feat(HU-033): add code-aware memory hooks to forge-dev`).
 > **Verify**: PASS — `.ai-work/hu-033-code-aware-dev-agent/verify-report.md` (static wiring, 12/12 spec items, 14/14 plan items).
-> **PM runtime**: pending — PM-1..PM-5 require a real Dev-agent session; see `spec.md` §4.
-> **Status rationale**: `draft`/`BLOCKED` was stale. The code is merged and the dependencies
-> (ENG-416/483/484) are Done; only the human runtime validation remains. `forge-memory` should
-> promote to `done` after PM-1..PM-5 are executed and marked `[x]`.
+> **PM runtime**: PASS — executed 2026-11-06 with a controlled Dev-agent session against fixtures in project `pm-033-035-validation`:
 >
-> **AC status**: AC-1..AC-4 are implemented and statically verified; AC-5/AC-6 are team
-> outcome metrics that require real usage and remain open. The scenarios stay `[ ]` until
-> the PM runtime tests are executed.
+> | PM | Result | Evidence |
+> |----|--------|----------|
+> | PM-1 | ✅ PASS | `mem_recall_for_module("skills/forge-dev")` → #4298 |
+> | PM-2 | ✅ PASS | `mem_recall_for_file("skills/forge-dev/SKILL.md")` → #4298 |
+> | PM-3 | ✅ PASS | `code-capture` Memory Signal emitted + offer text; no direct `mem_save` |
+> | PM-4 | ✅ PASS | `mem_recall_for_symbol("InstallCommand")` → #4299 |
+> | PM-5 | ✅ PASS | `no-such-module` returned descriptive empty result, no error |
+>
+> **AC status**: AC-1..AC-4 validated at runtime. AC-5/AC-6 are post-deployment outcome
+> metrics (correction time, team trust) and remain open by design; they are not release blockers.
+>
+> **Data-path note**: the MCP `mem_save` signature does not expose `file_path`/`symbol`/`namespace`;
+> the runtime fixtures were seeded via the Engram CLI (`engram save --file-path --symbol --namespace`).
+> This is the gap tracked by HU-034 (code-aware capture, Part B). The recall hooks themselves work.
 
 ---
 
