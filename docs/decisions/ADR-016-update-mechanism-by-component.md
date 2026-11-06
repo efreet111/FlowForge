@@ -4,7 +4,7 @@
 > **Date**: 2026-08-12
 > **Feature**: `flowforge-update-mechanism`
 > **Deciders**: Engineering (FlowForge methodology team)
-> **Links**: [`spec`](../../.ai-work/flowforge-update-mechanism/spec.md) · [`plan`](../../.ai-work/flowforge-update-mechanism/plan.md) · [`verify-report`](../../.ai-work/flowforge-update-mechanism/verify-report.md) · [`summary`](../../.ai-work/flowforge-update-mechanism/summary.md) · [`installer-baseline`](../../.ai-work/flowforge-update-mechanism/installer-baseline.md) · [ADR-002](ADR-002-scaffold-doc-policy.md) · [ADR-008](ADR-008-ide-installer-path-matrix.md)
+> **Links**: `spec` · `plan` · `verify-report` · `summary` · `installer-baseline` · [ADR-002](ADR-002-scaffold-doc-policy.md) · [ADR-008](ADR-008-ide-installer-path-matrix.md)
 
 ---
 

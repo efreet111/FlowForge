@@ -4,7 +4,7 @@
 > **Date**: 2026-10-16
 > **Feature**: `fforge-init` (HU-047)
 > **Deciders**: FlowForge methodology team
-> **Links**: [HU-047](../../docs/tasks/HU-001-HU-099/HU-047-fforge-init.md) · [spec](../../.ai-work/fforge-init/spec.md) · [plan](../../.ai-work/fforge-init/plan.md) · [contracts](../../skills/forge-init/contracts.md) · [SKILL.md](../../skills/forge-init/SKILL.md) · [engine](../../skills/forge-init/scripts/fforge-init.sh) · [PM-TEST-RESULTS](../../.ai-work/fforge-init/PM-TEST-RESULTS.md) · [ADR-022](ADR-022-opencode-agents-md-merge.md) · [ADR-016](ADR-016-update-mechanism-by-component.md) · [ADR-025](ADR-025-post-plan-decision-extraction.md)
+> **Links**: [HU-047](../../docs/tasks/HU-001-HU-099/HU-047-fforge-init.md) · spec · plan · [contracts](../../skills/forge-init/contracts.md) · [SKILL.md](../../skills/forge-init/SKILL.md) · [engine](../../skills/forge-init/scripts/fforge-init.sh) · PM-TEST-RESULTS · [ADR-022](ADR-022-opencode-agents-md-merge.md) · [ADR-016](ADR-016-update-mechanism-by-component.md) · [ADR-025](ADR-025-post-plan-decision-extraction.md)
 
 ---
 

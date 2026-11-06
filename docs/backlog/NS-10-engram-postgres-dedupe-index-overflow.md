@@ -4,7 +4,7 @@
 > **Priority:** P0 — Critical (sync push fails silently, data loss)  
 > **Created:** 2026-07-24  
 > **IDs:** NS-10 · engram-dotnet ENG-475  
-> **Related:** [engram-dotnet ticket](../../../engram-dotnet/.ai-work/eng-475-postgres-dedupe-index-overflow/ticket.md) ·
+> **Related:** engram-dotnet ticket ·
 > [ENG-474 Obsidian Memory Graph](../../../engram-dotnet/docs/BACKLOG.md) ·
 > [06-engram-sync-convention](../06-engram-sync-convention.md)
 
@@ -211,6 +211,6 @@ sqlite3 ~/.engram/engram.db "UPDATE sync_mutations SET acked_at = datetime('now'
 ## References
 
 - [PostgreSQL B-tree limitations](https://www.postgresql.org/docs/current/btree.html)
-- [engram-dotnet ENG-475 ticket](../../../engram-dotnet/.ai-work/eng-475-postgres-dedupe-index-overflow/ticket.md)
+- engram-dotnet ENG-475 ticket
 - [PostgresStore.cs:99](../../../engram-dotnet/src/Engram.Store/PostgresStore.cs) — index definition
 - [PostgresStore.cs:2525](../../../engram-dotnet/src/Engram.Store/PostgresStore.cs) — ApplyObservationUpsertAsync (failure point)

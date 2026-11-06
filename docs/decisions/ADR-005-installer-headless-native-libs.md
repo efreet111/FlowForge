@@ -4,8 +4,8 @@
 > **Date**: 2026-06-27
 > **Feature**: `stack-installer` (ENG-301) + cross-cutting (`engram-dotnet` releases)
 > **Deciders**: Engineering (FlowForge methodology team)
-> **Links**: [`spec.md`](../.ai-work/stack-installer/spec.md) ·
-> [`verify-report.md`](../.ai-work/stack-installer/verify-report.md) ·
+> **Links**: `spec.md` ·
+> `verify-report.md` ·
 > [`EngramModule.cs`](../../src/FlowForge.Installer/Modules/EngramModule.cs) ·
 > [`InstallCommand.cs`](../../src/FlowForge.Installer/Commands/InstallCommand.cs) ·
 > [engram-dotnet `release.yml`](https://github.com/efreet111/engram-dotnet/blob/main/.github/workflows/release.yml)

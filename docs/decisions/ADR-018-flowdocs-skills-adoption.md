@@ -4,7 +4,7 @@
 > **Date**: 2026-08-25
 > **Feature**: `adopt-flowdocs-skills` (HU-021)
 > **Deciders**: FlowForge methodology team
-> **Links**: [`ADR-004`](ADR-004-flowdoc-integration.md) · [`ADR-005`](ADR-005-installer-headless-native-libs.md) · [`ADR-007`](ADR-007-flowdocs-v2-absorption.md) · [`docs/20-flowdoc-ecosystem.md`](../20-flowdoc-ecosystem.md) · [`base-context-mapping`](../../.ai-work/adopt-flowdocs-skills/base-context-mapping.md)
+> **Links**: [`ADR-004`](ADR-004-flowdoc-integration.md) · [`ADR-005`](ADR-005-installer-headless-native-libs.md) · [`ADR-007`](ADR-007-flowdocs-v2-absorption.md) · [`docs/20-flowdoc-ecosystem.md`](../20-flowdoc-ecosystem.md) · `base-context-mapping`
 
 ---
 

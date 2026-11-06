@@ -4,8 +4,8 @@
 > **Date**: 2026-05-30
 > **Feature**: `agent-proactive-memory`
 > **Deciders**: Engineering (FlowForge methodology team)
-> **Links**: [`spec.md`](../.ai-work/agent-proactive-memory/spec.md) ·
-> [`plan.md`](../.ai-work/agent-proactive-memory/plan.md)
+> **Links**: `spec.md` ·
+> `plan.md`
 
 ---
 

@@ -4,7 +4,7 @@
 > **Date**: 2026-09-11
 > **Feature**: `hu-030-decision-extraction` (FF-002, Parte A)
 > **Deciders**: FlowForge methodology team
-> **Links**: [HU-030](../../docs/tasks/HU-001-HU-099/HU-030-ff-002-parte-a-decision-extraction.md) · [spec](../../.ai-work/hu-030-decision-extraction/spec.md) · [plan](../../.ai-work/hu-030-decision-extraction/plan.md) · [verify-report](../../.ai-work/hu-030-decision-extraction/verify-report.md) · [ADR-001](ADR-001-memory-curation-protocol.md) · [ADR-021](ADR-021-doc-indexing-topic-key-namespace.md) · [ADR-020](ADR-020-memory-observation-quality.md)
+> **Links**: [HU-030](../../docs/tasks/HU-001-HU-099/HU-030-ff-002-parte-a-decision-extraction.md) · spec · plan · verify-report · [ADR-001](ADR-001-memory-curation-protocol.md) · [ADR-021](ADR-021-doc-indexing-topic-key-namespace.md) · [ADR-020](ADR-020-memory-observation-quality.md)
 
 ---
 

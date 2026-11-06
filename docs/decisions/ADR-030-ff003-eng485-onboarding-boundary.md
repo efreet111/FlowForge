@@ -4,7 +4,7 @@
 > **Date**: 2026-08-23
 > **Feature**: `ff-003-onboarding-flow` (`flowforge onboard`)
 > **Deciders**: Engineering (FlowForge methodology team) + engram-dotnet team
-> **Links**: [Engram obs #115](https://engram/observation/115) · [spec §1.3 AD-1](../../.ai-work/ff-003-onboarding-flow/spec.md) · [ADR-003](ADR-003-pattern-search-mandate.md) · [ADR-017](ADR-017-installer-protection-policy.md) · [ENG-485/HU-055](https://github.com/efreet111/engram-dotnet)
+> **Links**: [Engram obs #115](https://engram/observation/115) · spec §1.3 AD-1 · [ADR-003](ADR-003-pattern-search-mandate.md) · [ADR-017](ADR-017-installer-protection-policy.md) · [ENG-485/HU-055](https://github.com/efreet111/engram-dotnet)
 
 ---
 

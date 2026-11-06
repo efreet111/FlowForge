@@ -4,7 +4,7 @@
 > **Date**: 2026-08-31
 > **Feature**: `hu-025` (opencode-agents-merge)
 > **Deciders**: FlowForge methodology team
-> **Links**: [HU-025](../../docs/tasks/HU-001-HU-099/HU-025-opencode-agents-merge.md) · [spec](../../.ai-work/hu-025/spec.md) · [plan](../../.ai-work/hu-025/plan.md) · [AgentsMdMerger.cs](../../src/FlowForge.Installer/Update/AgentsMdMerger.cs) · [ADR-006](ADR-006-opencode-mcp-config.md) · [ADR-016](ADR-016-update-mechanism-by-component.md) · [ADR-017](ADR-017-installer-protection-policy.md) · [ADR-019](ADR-019-opencode-antigravity-customizations.md)
+> **Links**: [HU-025](../../docs/tasks/HU-001-HU-099/HU-025-opencode-agents-merge.md) · spec · plan · [AgentsMdMerger.cs](../../src/FlowForge.Installer/Update/AgentsMdMerger.cs) · [ADR-006](ADR-006-opencode-mcp-config.md) · [ADR-016](ADR-016-update-mechanism-by-component.md) · [ADR-017](ADR-017-installer-protection-policy.md) · [ADR-019](ADR-019-opencode-antigravity-customizations.md)
 
 ---
 

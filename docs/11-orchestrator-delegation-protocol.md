@@ -30,7 +30,7 @@ Orchestrator creates `.ai-work/{slug}/rework_ticket.md` and delegates to **forge
 
 ## 1b. FlowDocs delegation (documentation skills)
 
-> **Governing ADR**: [`ADR-018`](decisions/ADR-018-flowdocs-skills-adoption.md) · **Base context contract**: [`.ai-work/adopt-flowdocs-skills/base-context-mapping.md`](../.ai-work/adopt-flowdocs-skills/base-context-mapping.md) · **Agent reference**: [`AGENTS.md` §FlowDocs Skills](../AGENTS.md)
+> **Governing ADR**: [`ADR-018`](decisions/ADR-018-flowdocs-skills-adoption.md) · **Base context contract**: `.ai-work/adopt-flowdocs-skills/base-context-mapping.md` · **Agent reference**: [`AGENTS.md` §FlowDocs Skills](../AGENTS.md)
 
 `forge-orchestrator` delegates documentation tasks to FlowDoc skills via **two independent cycles**. The orchestrator is the single hub connecting both — no specialist communicates directly with another.
 
@@ -88,7 +88,7 @@ Before invoking any flowdoc skill, `forge-orchestrator` injects the following in
 }
 ```
 
-> Full mapping contract: [`.ai-work/adopt-flowdocs-skills/base-context-mapping.md`](../.ai-work/adopt-flowdocs-skills/base-context-mapping.md)
+> Full mapping contract: `.ai-work/adopt-flowdocs-skills/base-context-mapping.md`
 
 ### Two-cycle interaction example
 
@@ -183,4 +183,4 @@ Use **kebab-case** slugs. Do not use `FLOW-` prefix or `cert-report.md`.
 - [`20-flowdoc-ecosystem.md`](20-flowdoc-ecosystem.md) — FlowDoc v2.0 adopter guide + skill version pins
 - [`decisions/ADR-018-flowdocs-skills-adoption.md`](decisions/ADR-018-flowdocs-skills-adoption.md) — two-cycle model decision
 - [`AGENTS.md` §FlowDocs Skills](../AGENTS.md) — invocation protocol table for agents
-- [`.ai-work/adopt-flowdocs-skills/base-context-mapping.md`](../.ai-work/adopt-flowdocs-skills/base-context-mapping.md) — template ref + path mapping contract
+- `.ai-work/adopt-flowdocs-skills/base-context-mapping.md` — template ref + path mapping contract

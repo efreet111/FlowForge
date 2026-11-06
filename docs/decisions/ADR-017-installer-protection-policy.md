@@ -4,7 +4,7 @@
 > **Date**: 2026-08-12
 > **Feature**: `flowforge-update-mechanism` (added as §6.1 "Installer Protection Policy" criterion during arch)
 > **Deciders**: Engineering (FlowForge methodology team)
-> **Links**: [`installer-baseline.md`](../../.ai-work/flowforge-update-mechanism/installer-baseline.md) · [`spec §6.1`](../../.ai-work/flowforge-update-mechanism/spec.md) · [ADR-001](ADR-001-memory-curation-protocol.md) · [ADR-002](ADR-002-scaffold-doc-policy.md) · [ADR-008](ADR-008-ide-installer-path-matrix.md) · [ADR-010](ADR-010-installer-prompt-for-server-url.md)
+> **Links**: `installer-baseline.md` · `spec §6.1` · [ADR-001](ADR-001-memory-curation-protocol.md) · [ADR-002](ADR-002-scaffold-doc-policy.md) · [ADR-008](ADR-008-ide-installer-path-matrix.md) · [ADR-010](ADR-010-installer-prompt-for-server-url.md)
 
 ---
 

@@ -5,7 +5,7 @@
 > **Feature**: `engram-observation-quality`
 > **Deciders**: Engineering (FlowForge methodology team)
 > **Incident**: ENG-475 (engram-dotnet)
-> **Links**: [ENG-475 ticket](../../../engram-dotnet/.ai-work/eng-475-postgres-dedupe-index-overflow/ticket.md) · [ADR-001 Memory Curation Protocol](ADR-001-memory-curation-protocol.md)
+> **Links**: ENG-475 ticket · [ADR-001 Memory Curation Protocol](ADR-001-memory-curation-protocol.md)
 
 ---
 

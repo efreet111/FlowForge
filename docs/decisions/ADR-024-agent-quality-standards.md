@@ -4,7 +4,7 @@
 > **Date**: 2026-09-08
 > **Feature**: `agent-quality-improvement` (HU-027 / NS-08)
 > **Deciders**: FlowForge methodology team
-> **Links**: [HU-027](../../docs/tasks/HU-001-HU-099/HU-027-ns-08-agent-quality-improvement.md) · [spec](../../.ai-work/agent-quality-improvement/spec.md) · [summary](../../.ai-work/agent-quality-improvement/summary.md) · [ADR-009](ADR-009-flowforge-sync-connect.md) · [ADR-019](ADR-019-opencode-antigravity-customizations.md)
+> **Links**: [HU-027](../../docs/tasks/HU-001-HU-099/HU-027-ns-08-agent-quality-improvement.md) · spec · summary · [ADR-009](ADR-009-flowforge-sync-connect.md) · [ADR-019](ADR-019-opencode-antigravity-customizations.md)
 
 ---
 

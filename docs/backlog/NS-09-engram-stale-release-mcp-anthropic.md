@@ -5,7 +5,7 @@
 > **Created:** 2026-07-19  
 > **IDs:** NS-09 · ADR-013 (Proposed) · engram-dotnet ENG-456 (already fixed in `main`)  
 > **Related:** [ADR-013](../decisions/ADR-013-engram-mcp-no-anthropic-dependency.md) ·
-> [Failure report](../../.ai-work/engram-mcp-anthropic-false-dependency/failure-report.md) ·
+> Failure report ·
 > [ADR-002 manifest](../architecture/adr/ADR-002-runtime-manifest-for-compatibility.md)
 
 ---
@@ -84,4 +84,4 @@
 ```
 
 Owner agent should start at
-[`.ai-work/engram-mcp-anthropic-false-dependency/failure-report.md`](../../.ai-work/engram-mcp-anthropic-false-dependency/failure-report.md).
+`.ai-work/engram-mcp-anthropic-false-dependency/failure-report.md`.

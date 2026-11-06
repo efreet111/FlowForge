@@ -4,7 +4,7 @@
 > **Date**: 2026-09-08
 > **Feature**: `hu-029-onboarding-flow` (FF-003)
 > **Deciders**: FlowForge methodology team
-> **Links**: [HU-029](../../docs/tasks/HU-001-HU-099/HU-029-ff-003-onboarding-flow.md) · [spec](../../.ai-work/hu-029-onboarding-flow/spec.md) · [plan](../../.ai-work/hu-029-onboarding-flow/plan.md) · [verify-report](../../.ai-work/hu-029-onboarding-flow/verify-report.md) · [ADR-001](ADR-001-memory-curation-protocol.md) · [ADR-004](ADR-004-flowdoc-integration.md)
+> **Links**: [HU-029](../../docs/tasks/HU-001-HU-099/HU-029-ff-003-onboarding-flow.md) · spec · plan · verify-report · [ADR-001](ADR-001-memory-curation-protocol.md) · [ADR-004](ADR-004-flowdoc-integration.md)
 
 ---
 

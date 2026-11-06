@@ -15,14 +15,14 @@
 | Markdown files scanned | 123 under `docs/` + 5 root docs |
 | Internal links checked | 477 (excluding `docs/archive/`) |
 | Broken links found initially | 56 |
-| Broken links remaining | 20 — all point to `.ai-work/` session artifacts (not versioned, ADR-002) |
+| Broken links remaining | **0** — all `.ai-work/` links converted to code/text references |
 | Duplicate ADR numbers | 4 numbers / 8 files → **fixed** (renumbered to ADR-030…033) |
 | Missing base docs | `docs/README.md`, `docs/endpoints.md`, `docs/schema.md`, `docs/architecture/rfc/INDEX.md` → **created** |
 | Skill count mismatch | 31 claimed vs 35 actual → **fixed** |
 | Skill index gap | `forge-memory-contradiction` missing from `AGENTS.md` → **fixed** |
 | Historical plans presented as current | `docs/04`, `docs/08`, `docs/17` → **banners added** |
 | HU format deviations | 6 HUs use alternative formats (content present, headings differ) → **mitigated with template-compliance notes** |
-| PRD status stale | `docs/PRD.md` still `Draft` → **open warning** |
+| PRD status stale | `docs/PRD.md` moved to **In Review** |
 
 ---
 
@@ -235,13 +235,25 @@ Added explicit status banners:
 - Replaced the two “6-stage workflow” references with **CKP-0→4 (5 checkpoints / 5 phases)**.
 - `docs/README.md` PRD status updated from `Draft` to `In Review`.
 
+### 2.19 `.ai-work` link cleanup — WARNING → fixed
+
+- Converted **53** markdown links whose target contained `.ai-work` across active docs and
+  `CHANGELOG.md` into code/text references. The labels were preserved; only the broken link
+  syntax was removed.
+- Affected: `docs/11`, ADR-001/005/013/016/017/018/020/021/022/023/024/025/027/030/031/032/033,
+  `docs/backlog/NS-09` and `NS-10`, and `CHANGELOG.md`.
+- Added a session-artifact note to `docs/decisions/README.md`: `.ai-work/` is not versioned
+  (ADR-002); ADR headers may reference it as code paths, not live links.
+- Removed the remaining spec/plan/related-ADR placeholder links in the ADR template.
+- **Verification**: active-doc link check → **0 broken**; `.ai-work` markdown links → **0**.
+
 ---
 
 ## 3. Open findings
 
 | ID | Severity | Document | Finding | Recommendation |
 |----|----------|----------|---------|----------------|
-| D-01 | suggestion | `docs/decisions/ADR-001, 005, 016, 017, 024, 027`; `CHANGELOG.md`; `docs/backlog/NS-09` | 20 links point to `.ai-work/` session artifacts that are not versioned (ADR-002). They are broken in a clean clone. | Keep as session references or replace with plain text. `docs/README.md` now documents the rule. |
+| D-01 | suggestion | `docs/decisions/ADR-001, 005, 016, 017, 024, 027`; `CHANGELOG.md`; `docs/backlog/NS-09` | 20 links point to `.ai-work/` session artifacts that are not versioned (ADR-002). They are broken in a clean clone. | **Fixed 2026-11-06**: converted **53** `.ai-work` links across active docs and `CHANGELOG.md` to code/text references; active-doc link check is now **0 broken**. `docs/decisions/README.md` documents the session-artifact convention. |
 | D-02 | warning | `docs/PRD.md` | Status is still `Draft` (last updated 2026-05-13). | **Fixed 2026-11-06**: moved to **In Review** (v1.1.0-in-review), added a last-reviewed date and an implementation-status note listing what v0.5.0 covers and what remains partial (brew/winget, stack references, old “6-stage” wording). |
 | D-03 | warning | HUs 042, 043, 046, 047, 048, 050 | They do not use the standard HU template headings (`User Story`, `Acceptance Criteria`, `Scenarios`, `Definition of Done`). They use equivalent sections (`Requirements`, `Acceptance Criteria`, `Implementation Tasks`, `Criterios de Aceptación`). | **Mitigated 2026-11-06**: a “Template compliance note” was added to each HU; the content is present under equivalent headings. Normalize headings only if a future FlowDoc tool requires literal section names. |
 | D-04 | suggestion | `docs/14-flowforge-complete-reference.md` | Header now says 1.3/35 skills, but some Part 1–4 sections still reflect v0.4-era commands (e.g. `forge-orchestrator` naming). | **Fixed 2026-11-06**: header/version, `forge-orchestrator` → `flowforge`, CLI status sample, 35-skill table, FR/NFR notation, `/fforge-init` command, on-demand skills section, and current-tooling table. |

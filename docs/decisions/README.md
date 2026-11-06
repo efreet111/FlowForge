@@ -51,6 +51,9 @@ docs/04-roadmap.md   ← "What is planned / why it was added to the backlog"
 docs/decisions/ADR-NNN-*.md  ← "Why this approach" — decision + trade-offs
 ```
 
+> **Session artifacts**: `.ai-work/` is not versioned (ADR-002). ADR headers may reference
+> `.ai-work/...` as code paths; those are historical session artifacts, not live links.
+
 Each artifact serves a different reader:
 
 | Reader | Wants to know | Goes to |
@@ -115,7 +118,7 @@ Copy this template when creating a new ADR:
 > **Status**: Proposed | Accepted | Deprecated | Superseded by ADR-NNN
 > **Date**: YYYY-MM-DD
 > **Feature**: `feature-slug` (if applicable)
-> **Links**: [spec](...) · [plan](...) · [related ADR](...)
+> **Links**: `spec` · `plan` · `related ADR` (replace with real links)
 
 ---
 

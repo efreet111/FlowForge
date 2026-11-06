@@ -4,7 +4,7 @@
 > **Date**: 2026-08-28
 > **Feature**: `index-docs-engram` (HU-022)
 > **Deciders**: FlowForge methodology team
-> **Links**: [HU-022](../../docs/tasks/HU-001-HU-099/HU-022-index-docs-engram.md) · [spec](../../.ai-work/index-docs-engram/spec.md) · [plan](../../.ai-work/index-docs-engram/plan.md) · [`forge-index-docs` skill](../../skills/forge-index-docs/SKILL.md) · [ADR-004](ADR-004-flowdoc-integration.md) · [ADR-018](ADR-018-flowdocs-skills-adoption.md) · [ADR-020](ADR-020-memory-observation-quality.md)
+> **Links**: [HU-022](../../docs/tasks/HU-001-HU-099/HU-022-index-docs-engram.md) · spec · plan · [`forge-index-docs` skill](../../skills/forge-index-docs/SKILL.md) · [ADR-004](ADR-004-flowdoc-integration.md) · [ADR-018](ADR-018-flowdocs-skills-adoption.md) · [ADR-020](ADR-020-memory-observation-quality.md)
 
 ---
 

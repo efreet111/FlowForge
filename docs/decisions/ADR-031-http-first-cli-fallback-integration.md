@@ -4,7 +4,7 @@
 > **Date**: 2026-08-23
 > **Feature**: `ff-003-onboarding-flow` (`flowforge onboard`)
 > **Deciders**: Engineering (FlowForge methodology team)
-> **Links**: [Engram obs #116](https://engram/observation/116) · [spec §1.3 AD-2](../../.ai-work/ff-003-onboarding-flow/spec.md) · [ADR-030](ADR-030-ff003-eng485-onboarding-boundary.md) · [ADR-017](ADR-017-installer-protection-policy.md)
+> **Links**: [Engram obs #116](https://engram/observation/116) · spec §1.3 AD-2 · [ADR-030](ADR-030-ff003-eng485-onboarding-boundary.md) · [ADR-017](ADR-017-installer-protection-policy.md)
 
 ---
 

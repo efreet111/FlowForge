@@ -9,7 +9,7 @@
 > [ADR-010 server URL prompt](ADR-010-installer-prompt-for-server-url.md) ·
 > [engram-dotnet ENG-456](https://github.com/efreet111/engram-dotnet/blob/main/docs/BACKLOG.md) ·
 > [NS-09 backlog](../backlog/NS-09-engram-stale-release-mcp-anthropic.md) ·
-> [Failure handoff](../../.ai-work/engram-mcp-anthropic-false-dependency/failure-report.md)
+> Failure handoff
 
 ---
 

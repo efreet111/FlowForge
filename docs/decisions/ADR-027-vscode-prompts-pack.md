@@ -102,7 +102,7 @@ Este ADR queda **Proposed** hasta que `forge-verify` emita verdict `PASS` y todo
 **Promovido a Accepted el 2026-10-20** por `forge-memory`.
 
 Criterios cumplidos:
-- Verdict de verificación: **PASS** (ver [`verify-report.md`](../../.ai-work/hotfix-vscode-slash-commands/verify-report.md))
+- Verdict de verificación: **PASS** (ver `verify-report.md`)
 - PM-VSC-1, 2, 5, 6, 7: `[x]` (verificados por sandbox + máquina real + build .NET)
 - PM-VSC-3: `[x]` (el usuario confirmó "ya tengo los comandos" tras Reload Window)
 - PM-VSC-4: `[x]` (el usuario verificó `/flow-status` sobre `.ai-work/`)
