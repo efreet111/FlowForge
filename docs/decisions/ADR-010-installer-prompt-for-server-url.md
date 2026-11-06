@@ -131,7 +131,7 @@ The hardcoded IP is gone. The config store becomes the source of truth.
 
 ### Persisted schema in `~/.engram/config.json`
 
-Already proposed in [ADR-009](../../decisions/ADR-009-flowforge-sync-connect.md)
+Already proposed in [ADR-009](ADR-009-flowforge-sync-connect.md)
 schema, but now also written by the installer at first install:
 
 ```json

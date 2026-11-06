@@ -33,6 +33,10 @@
 | ADR-027 | VS Code prompts pack (slash commands `/flow-*`): Flatpak-aware path detection | Accepted | 2026-10-20 | hu-040-vscode-slash-commands |
 | ADR-028 | Shared IDE destinations manifest consumed by shell installer and C# updater | Proposed | 2026-10-20 | hu-041-installer-updater-parity |
 | ADR-029 | Antigravity customizations contract | Accepted | 2026-10-29 | hu-050-antigravity-customizations-contract |
+| ADR-030 | FF-003 ↔ ENG-485 onboarding boundary (CLI orchestration vs memory aggregation) | Accepted | 2026-08-23 | ff-003-onboarding-flow |
+| ADR-031 | HTTP-first integration with CLI-subprocess fallback (installer ↔ engram) | Accepted | 2026-08-23 | ff-003-onboarding-flow |
+| ADR-032 | User identity from config (CLI flags are display-only, never auth) | Accepted | 2026-08-23 | ff-003-onboarding-flow |
+| ADR-033 | `/fforge-init` hybrid skill architecture (SKILL.md orchestrator + bash engine) | Accepted | 2026-10-16 | fforge-init (HU-047) |
 
 ---
 
@@ -44,6 +48,10 @@
 | ADR-013 (engram-mcp-no-anthropic) | ADR-020 | Duplicate number |
 | ADR-011 (planned for vscode-prompts) | ADR-027 | Duplicate with ADR-019's lineage at merge time |
 | ADR-026 (planned for shared-manifest) | ADR-028 | Duplicate with ADR-026 (cache refresh) |
+| ADR-018 (ff003 onboarding boundary) | ADR-030 | Duplicate number |
+| ADR-019 (http-first fallback) | ADR-031 | Duplicate number |
+| ADR-020 (user identity) | ADR-032 | Duplicate number |
+| ADR-026 (fforge-init hybrid skill) | ADR-033 | Duplicate number |
 
 ## Guidelines
 

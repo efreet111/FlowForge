@@ -1,4 +1,4 @@
-# ADR-026 — `/fforge-init`: arquitectura híbrida de skill (SKILL.md orquestador + engine bash zero-dependency) con `plan.json` como seam
+# ADR-033 — `/fforge-init`: arquitectura híbrida de skill (SKILL.md orquestador + engine bash zero-dependency) con `plan.json` como seam
 
 > **Status**: Accepted
 > **Date**: 2026-10-16

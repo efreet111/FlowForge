@@ -1,5 +1,6 @@
 # Plan de Mejora — Especificación Detallada de los 14 Items
 
+> **Status**: Historical plan (2026-05-26). Current status lives in [`docs/backlog/BACKLOG-MASTER.md`](backlog/BACKLOG-MASTER.md).
 > **Propósito**: Tener claro qué hay que hacer, cómo y cuándo en cada item del plan de mejora.
 > **Versión**: 1.0 — 2026-05-26
 > **Roadmap**: [`04-roadmap.md`](04-roadmap.md) § Plan de Mejora

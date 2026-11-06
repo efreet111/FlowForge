@@ -10,7 +10,7 @@
 
 **Version:** [`0.5.0`](VERSION.md) · [Changelog](CHANGELOG.md)
 
-FlowForge is an **Agentic SDLC methodology** for small and mid-size teams (2–20 people). It defines how to integrate AI agents into the software lifecycle with **5 formal checkpoints**, **7 agents**, **31 specialized skills**, and a versioned artifact protocol under `.ai-work/{feature-slug}/`.
+FlowForge is an **Agentic SDLC methodology** for small and mid-size teams (2–20 people). It defines how to integrate AI agents into the software lifecycle with **5 formal checkpoints**, **7 agents**, **35 skills**, and a versioned artifact protocol under `.ai-work/{feature-slug}/`.
 
 ## Related projects
 
@@ -222,7 +222,7 @@ PHASE 4: CLOSE      ── CKP-4 🟢 deploy gate (human decides)
 | Principle | Detail |
 |-----------|--------|
 | **7 agents** | Orchestrator, Discovery, Arch, Plan, Dev, Verify, Memory |
-| **31 skills** | 7 core + specialized (security, SOLID, performance, …) + optional teacher |
+| **35 skills** | 7 core + 27 specialized + 1 teacher |
 | **Orchestrator coordinates only** | Does not patch product code; bug reports → `rework_ticket.md` → **forge-dev** |
 | **Same flow, any IDE** | Cursor, VS Code, Antigravity, OpenCode — see [`ide/README.md`](ide/README.md) |
 
@@ -245,7 +245,7 @@ FlowForge writes agent packs to the directories each IDE actually reads so that 
 
 Shared orchestrator contract: [`ide/shared/workflow-orchestrator-parity.md`](ide/shared/workflow-orchestrator-parity.md)
 
-## Skills overview (31)
+## Skills overview (35)
 
 | Wave | Count | Focus |
 |------|-------|--------|

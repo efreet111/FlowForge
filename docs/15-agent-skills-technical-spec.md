@@ -2,7 +2,7 @@
 
 > **Purpose**: What each agent does with each skill; gap tracking  
 > **Version**: 1.2 (v0.4.0 — core skills in English)  
-> **Skills**: 31 (7 core + 23 specialized + 1 teacher) | **Agents**: 7 | **Checkpoints**: 5
+> **Skills**: 35 (7 core + 27 specialized + 1 teacher) | **Agents**: 7 | **Checkpoints**: 5
 
 ---
 
@@ -38,7 +38,7 @@ FlowForge organizes how AI agents build software: **5 phases** and **5 checkpoin
 
 ### Differentiators
 
-- **31 specialized skills** (security, SOLID, performance, migrations, …)
+- **27 specialized skills** (security, SOLID, performance, migrations, …)
 - **Persistent memory** via engram-dotnet (optional)
 - **IDE packs** — OpenCode, Cursor, Antigravity, VS Code
 
@@ -849,7 +849,7 @@ rules:
 
 ## CONCLUSIÓN
 
-FlowForge tiene **30 skills funcionales** que cubren **7 roles de agente** en **5 fases** con **5 checkpoints**.
+FlowForge tiene **35 skills funcionales** que cubren **7 roles de agente** en **5 fases** con **5 checkpoints**.
 
 **What works well:**
 

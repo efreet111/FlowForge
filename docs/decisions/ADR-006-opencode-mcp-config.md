@@ -62,9 +62,9 @@ opencode mcp add context7 --url https://mcp.context7.com/mcp --global
 
 **Graceful failure**: If installation fails, the installer logs a warning and continues. Manual fix instructions are provided in the troubleshooting output.
 
-See [HU-042](docs/tasks/HU-001-HU-099/HU-042-context7-mcp-auto-install.md) for implementation details.
+See [HU-042](../tasks/HU-001-HU-099/HU-042-context7-mcp-auto-install.md) for implementation details.
 
-**User-facing documentation**: See [POST-INSTALL.md §2](POST-INSTALL.md#2-decide-your-sync-mode) for troubleshooting steps and manual installation instructions.
+**User-facing documentation**: See [POST-INSTALL.md §2](../../POST-INSTALL.md#2-decide-your-sync-mode) for troubleshooting steps and manual installation instructions.
 
 ## Update (2026-10-15) — V2 MCP structure (`mcp.servers`)
 
@@ -102,5 +102,5 @@ Or regenerate via:
 bash ide/opencode/generate-config.sh /path/to/flowforge
 ```
 
-See [HU-046](docs/tasks/HU-001-HU-099/HU-046-opencode-v2-legacy-compat.md) for implementation details.
+See [HU-046](../tasks/HU-001-HU-099/HU-046-opencode-v2-legacy-compat.md) for implementation details.
 

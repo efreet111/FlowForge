@@ -11,6 +11,11 @@ completed_date: 2026-10-15
 
 # HU-046 — FIX: OpenCode V2 legacy format compatibility
 
+> **Template compliance note (2026-11-06)**: This HU uses the FlowDoc feature format
+> (`User Story`, `Requirements`, `Acceptance Criteria`, `Implementation Tasks`). The generic
+> `Scenarios` / `Definition of Done` headings are replaced by the requirements and task
+> checklist below; no content is missing.
+
 ## User Story
 
 As a FlowForge maintainer,

@@ -1,5 +1,6 @@
 # Test Plan: EngramFlow Validation in VS Code (OpenSpec Isolation)
 
+> **Status**: Historical test plan (OpenSpec isolation). Current test suites live in `tests/` and the replicable demo runbook in [`18-replicable-demo-definition.md`](18-replicable-demo-definition.md).
 > **Objective**: Empirically, objectively, and non-subjectively validate the behavior of the 5 Core EngramFlow Skills in Visual Studio Code using the change-isolation structure of **FlowForge (Agentic SDLC)**. This ensures phase rules, the Capability Matrix, the Ralph Wiggum Loop, and the Sentinel Judge work cleanly before applying them in production.
 
 ---

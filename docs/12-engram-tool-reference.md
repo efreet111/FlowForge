@@ -14,7 +14,7 @@ Para sacarle el 100% del provecho, nuestros agentes tienen que entender qué hac
 `engram-dotnet` está estructurado en 6 grandes superpoderes que el agente puede (y debe) explotar en su flujo diario:
 
 ```
-engram-dotnet (25 Herramientas MCP)
+engram-dotnet (34 Herramientas MCP)
 ├── 1. Core Memory Layer (Deduplicación, FTS, Control de Sesión)
 ├── 2. Colaboración & Sync (Multi-User, Offline-First, HTTP Proxy)
 ├── 3. LLM-as-Judge Verification (Auditoría de Requisitos, Trazabilidad, Rework)
@@ -50,7 +50,7 @@ Es la base del sistema. Permite capturar el contexto de desarrollo y recuperarlo
 
 ### Herramientas de Relación y Contradicción:
 *   `mem_relations`: Registra relaciones entre memorias (tipo: `depends_on`, `supersedes`, `conflicts_with`, `related_to`). Útil para tracking manual de contradicciones.
-*   `mem_check_contradictions`: **[HU-036 Phase 1 — STUB]** Detecta contradicciones activas en la store. Phase 1 stub devuelve `{"contradictions": [], "phase": "stub"}`. Full implementation awaiting ENG-412/ENG-414. Para registro manual de contradicciones en Phase 1, usar `mem_relations --type conflicts_with`.
+*   `mem_check_contradictions`: Detecta contradicciones activas en la store. Implementada en engram 1.4 con detección `direct`, `temporal` y `embedding` (placeholder ENG-418) y opciones de resolución (`keep_both`, `mark_superseded`, `merge`, `ignore`). Limitación conocida: `mem_update` no soporta el campo `resolution`; el workaround documentado es guardar un memory signal (ver HU-036 / `HU-PARTIALS`).
 
 ---
 
@@ -167,8 +167,31 @@ Para sacarle jugo a esto, el agente debe cambiar su mentalidad y seguir este cic
 
 ---
 
+## Herramientas añadidas post-25 (catálogo actual: 34)
+
+El mapa histórico de las 6 áreas cubre 24 herramientas. El catálogo actual de engram-dotnet
+incluye 10 herramientas adicionales, principalmente code-aware y de gestión de proyecto:
+
+| Tool | Propósito |
+|------|-----------|
+| `mem_current_project` | Verifica el proyecto detectado y su fuente antes de escribir |
+| `mem_decision_tree` | Panorama de decisiones por `topic_key` (activa + predecesoras deprecadas) |
+| `mem_decisions_for_module` | Decisiones arquitectónicas por namespace/módulo |
+| `mem_delete` | Soft-delete o hard-delete de una observación |
+| `mem_lineage_obs` | Árbol de linaje de una observación (`depends_on`/`supersedes`/`related_to`) |
+| `mem_merge_projects` | Fusiona variantes de nombre de proyecto en un nombre canónico (destructivo) |
+| `mem_recall_for_file` | Memorias por `file_path` (match exacto o prefijo) |
+| `mem_recall_for_module` | Memorias por namespace/módulo (prefijo) |
+| `mem_recall_for_symbol` | Memorias por nombre exacto de símbolo |
+| `mem_stats` | Estadísticas globales de sesiones, observaciones y proyectos |
+
+> **Nota code-aware**: `mem_save` MCP **no** expone `file_path`/`symbol`/`namespace`; el CLI
+> `engram save` y `engram watch` sí. Esa asimetría es el gap de HU-034 (Parte B).
+
+---
+
 ## Conclusión
 
 El uso inteligente de `engram-dotnet` convierte a un agente de desarrollo común en un **Arquitecto Senior Sistemático**. En lugar de adivinar el código o perder el contexto entre compactions, el agente usa la memoria neuronal para auto-corregirse, auditar su calidad, versionar sus decisiones y documentar el repositorio de manera impecable. 
 
-¡Es así de fácil, loco! Incorporando estas 25 herramientas en nuestro flujo diario, llevamos la calidad de desarrollo a una **locura cósmica**.
+¡Es así de fácil, loco! Incorporando estas 34 herramientas en nuestro flujo diario, llevamos la calidad de desarrollo a una **locura cósmica**.

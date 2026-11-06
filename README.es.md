@@ -10,7 +10,7 @@
 
 **Versión:** [`0.5.0`](VERSION.md) · [Changelog](CHANGELOG.md)
 
-FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños y medianos (SMB, 2–20 personas). Define cómo integrar agentes de IA en el ciclo de desarrollo con 5 checkpoints formales, 7 agentes, 31 skills especializadas y un protocolo de artefactos versionados.
+FlowForge es una **metodología Agentic SDLC** diseñada para equipos pequeños y medianos (SMB, 2–20 personas). Define cómo integrar agentes de IA en el ciclo de desarrollo con 5 checkpoints formales, 7 agentes, 35 skills y un protocolo de artefactos versionados.
 
 ## Repositorios
 
@@ -183,7 +183,7 @@ FASE 4: CIERRE ─────── CKP-4 🟢 deploy gate
 ```
 
 - **7 agentes**: Orchestrator, Discovery, Arch, Plan, Dev, Verify, Memory
-- **31 skills** (7 core + especializadas + teacher)
+- **35 skills** (7 core + 27 especializadas + 1 teacher)
 - **Orquestador no codea**: delega; bugs → `rework_ticket.md` → forge-dev
 
 ## Integración IDE
@@ -210,7 +210,7 @@ Detalle: [`ide/README.md`](ide/README.md)
 | Documento | Descripción |
 |-----------|-------------|
 | [`QUICKSTART.es.md`](QUICKSTART.es.md) | Inicio en 5 minutos |
-| [`examples/crud-tareas/`](../examples/crud-tareas/) | Artefactos de ejemplo (spec, plan, verify) |
+| [`examples/crud-tareas/`](examples/crud-tareas/) | Artefactos de ejemplo (spec, plan, verify) |
 | [`QUICKSTART.md`](QUICKSTART.md) | Quickstart (English) |
 | [`docs/14-flowforge-complete-reference.md`](docs/14-flowforge-complete-reference.md) | Referencia + casos de prueba |
 | [`docs/18-replicable-demo-definition.md`](docs/18-replicable-demo-definition.md) | Runbook replicable (sin repo demo obligatorio) |

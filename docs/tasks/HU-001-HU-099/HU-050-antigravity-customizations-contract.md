@@ -1,5 +1,9 @@
 # HU-050: Contrato de customizations de Antigravity (rules `trigger:`, `/flow-*` como skills, subagentes)
 
+> **Template compliance note (2026-11-06)**: This HU uses the incident/feature proposal format
+> (`Metadata`, `Resumen`, `Criterios de Aceptación`). The generic `User Story` / `Scenarios` /
+> `Definition of Done` headings are intentionally replaced by those sections; no content is missing.
+
 ## Metadata
 
 | Campo | Valor |
@@ -18,7 +22,7 @@
 
 ## 1. Resumen
 
-La integración de Antigravity estaba **100% rota**: Antigravity descartaba las reglas en silencio, los `/flow-*` se entregaban como workflows muertos desde el 2026-10-19 y no se instalaba ni la skill orquestadora ni ningún subagente. Esta HU fija el **contrato real** (verificado contra la documentación oficial y el CLI `agy` 1.4.10) en el pack fuente, en los dos caminos de instalación, en los validadores y en `flowforge doctor`, y deja la evidencia en [ADR-029](../../docs/decisions/ADR-029-antigravity-customizations-contract.md).
+La integración de Antigravity estaba **100% rota**: Antigravity descartaba las reglas en silencio, los `/flow-*` se entregaban como workflows muertos desde el 2026-10-19 y no se instalaba ni la skill orquestadora ni ningún subagente. Esta HU fija el **contrato real** (verificado contra la documentación oficial y el CLI `agy` 1.4.10) en el pack fuente, en los dos caminos de instalación, en los validadores y en `flowforge doctor`, y deja la evidencia en [ADR-029](../../decisions/ADR-029-antigravity-customizations-contract.md).
 
 ---
 
@@ -187,8 +191,8 @@ Detalle: `.ai-work/hu-050-antigravity-customizations-contract/installer-baseline
 
 ## 9. Referencias
 
-- [ADR-029](../../docs/decisions/ADR-029-antigravity-customizations-contract.md) — contrato de customizations (supersede el de ADR-019).
-- [ADR-019](../../docs/decisions/ADR-019-opencode-antigravity-customizations.md) — rutas (vigentes).
-- [ADR-008](../../docs/decisions/ADR-008-ide-installer-path-matrix.md) · [ADR-011](../../docs/decisions/ADR-011-ide-pack-parity-and-delivery.md) · [ADR-017](../../docs/decisions/ADR-017-installer-protection-policy.md)
+- [ADR-029](../../decisions/ADR-029-antigravity-customizations-contract.md) — contrato de customizations (supersede el de ADR-019).
+- [ADR-019](../../decisions/ADR-019-opencode-antigravity-customizations.md) — rutas (vigentes).
+- [ADR-008](../../decisions/ADR-008-ide-installer-path-matrix.md) · [ADR-011](../../decisions/ADR-011-ide-pack-parity-and-delivery.md) · [ADR-017](../../decisions/ADR-017-installer-protection-policy.md)
 - Docs oficiales: [rules](https://antigravity.google/docs/rules) · [skills](https://antigravity.google/docs/skills) · [subagents](https://antigravity.google/docs/subagents) · [workflows → skills](https://antigravity.google/docs/migration/workflows-to-skills)
 - Spec / plan / verificación: `.ai-work/hu-050-antigravity-customizations-contract/` (artefacto de sesión, no versionado — ADR-002)

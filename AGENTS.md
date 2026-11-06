@@ -191,3 +191,4 @@ flowforge onboard --project <project-name> --output ONBOARDING.md
 | Skill | Trigger | Path |
 |-------|---------|------|
 | `forge-teacher` | Only when `.flowforge.json` explicitly sets `"teacher_mode": true` under `forge.persona`. **Default is OFF** — do not load unless explicitly configured. In Cursor, use `ide/cursor/agents/forge-teacher.md` instead. | [`skills/forge-teacher/SKILL.md`](skills/forge-teacher/SKILL.md) |
+| `forge-memory-contradiction` | Memory curation / `/flow-close` when contradiction detection is needed. Uses `mem_check_contradictions` + `mem_relations`; PM-3 has a known third-party limitation (`mem_update` lacks `resolution`). | [`skills/forge-memory-contradiction/SKILL.md`](skills/forge-memory-contradiction/SKILL.md) |

@@ -38,7 +38,7 @@ This document is an **index** to the seven core agents. Executable instructions 
 | Full walkthrough + 7 test cases | [`14-flowforge-complete-reference.md`](14-flowforge-complete-reference.md) |
 | Function catalog (conceptual) | [`15-agent-skills-technical-spec.md`](15-agent-skills-technical-spec.md) |
 | Architecture | [`01-engramflow-architecture.md`](01-engramflow-architecture.md) |
-| Orchestrator behavior | [`06-ai-orchestrator.md`](06-ai-orchestrator.md) + [`skills/forge-orchestrator/SKILL.md`](../skills/forge-orchestrator/SKILL.md) |
+| Orchestrator behavior | [`06-ai-orchestrator.md`](06-ai-orchestrator.md) + [`skills/flowforge/SKILL.md`](../skills/flowforge/SKILL.md) |
 
 ---
 

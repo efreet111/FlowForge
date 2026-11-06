@@ -1,6 +1,7 @@
 # FlowForge + engram-dotnet — Combined roadmap
 
 > **Last updated**: 2026-06-21  
+> **Status**: Historical snapshot — current status lives in [`docs/backlog/BACKLOG-MASTER.md`](backlog/BACKLOG-MASTER.md).
 > **FlowForge version**: [`0.5.0`](../VERSION.md) — see [`CHANGELOG.md`](../CHANGELOG.md)  
 > **engram-dotnet**: `main` (archived SDD features)
 
@@ -49,7 +50,7 @@ The repo is **public** as of ENG-301 release (v0.1.0-alpha.2, 2026-06-23). Remot
 
 ## 🚀 OSS Launch — semana 2026-06-23
 
-Ítems bloqueantes y de alta prioridad identificados en el audit crítico pre-lanzamiento OSS del 2026-06-23. Ver análisis completo en [`.ai-work/oss-launch-audit/context-map.md`](../.ai-work/oss-launch-audit/context-map.md).
+Ítems bloqueantes y de alta prioridad identificados en el audit crítico pre-lanzamiento OSS del 2026-06-23. Ver análisis completo en `.ai-work/oss-launch-audit/context-map.md` (session artifact, not versioned).
 
 ### P0 — Antes de publicitar en comunidades
 
@@ -69,7 +70,7 @@ The repo is **public** as of ENG-301 release (v0.1.0-alpha.2, 2026-06-23). Remot
 
 #### FF-OSS-01 — Fix versión en README (XS, ~5 minutos)
 
-**Problema:** `README.md` línea 5 dice `**Version:** [\`0.4.0\`](VERSION.md)`. `VERSION.md` dice `0.5.0`. El CHANGELOG tiene `[0.5.0]` con adiciones significativas (CKP-1 BLOCKER gate, FlowDoc, Pattern Search, Stack Installer). Un visitante de GitHub hace clic en el link del changelog y ve `0.5.0` — inconsistencia visible en segundos.
+**Problema:** `README.md` línea 5 dice `**Version:** [\`0.4.0\`](../VERSION.md)`. `VERSION.md` dice `0.5.0`. El CHANGELOG tiene `[0.5.0]` con adiciones significativas (CKP-1 BLOCKER gate, FlowDoc, Pattern Search, Stack Installer). Un visitante de GitHub hace clic en el link del changelog y ve `0.5.0` — inconsistencia visible en segundos.
 
 **Criterios:**
 - [ ] `README.md` dice `0.5.0` y el link apunta correctamente a `VERSION.md`
@@ -141,7 +142,7 @@ Un nuevo usuario no sabe cuál usar. El Stack installer es la opción recomendad
 | **2** CRUD case | ✅ [`CASE-1-VALIDATION.md`](../examples/crud-tareas/CASE-1-VALIDATION.md) |
 | **3** Example artifacts | `examples/crud-tareas/` |
 | **14** (partial) | `VERSION.md`, `CHANGELOG.md`, tag `v0.4.0` |
-| **20** Memory Curation Protocol | ✅ ADR-001, skills + 4 IDEs, [`.ai-work/agent-proactive-memory/`](../.ai-work/agent-proactive-memory/summary.md) |
+| **20** Memory Curation Protocol | ✅ ADR-001, skills + 4 IDEs, `.ai-work/agent-proactive-memory/` (session artifact) |
 
 ### 🟡 Before broad public adoption (resolved)
 
@@ -304,7 +305,7 @@ This is the "integration test" for the methodology.
 | IDE delegation protocol | FlowForge | ✅ |
 | Memory Curation Protocol (item 20) | FlowForge | ✅ [`ADR-001`](decisions/ADR-001-memory-curation-protocol.md) |
 | Scaffold doc policy (item 21) | FlowForge | ✅ [`ADR-002`](decisions/ADR-002-scaffold-doc-policy.md) · 📋 templates/`flow-init` pending |
-| ENG-301 Stack Installer (C# AOT binary, bootstrap scripts, remote manifest) | FlowForge | ✅ v0.1.0-alpha.2 — see [CHANGELOG](../CHANGELOG.md) and [summary](../.ai-work/stack-installer/summary.md) |
+| ENG-301 Stack Installer (C# AOT binary, bootstrap scripts, remote manifest) | FlowForge | ✅ v0.1.0-alpha.2 — see [CHANGELOG](../CHANGELOG.md) and `.ai-work/stack-installer/summary.md` (session artifact) |
 | Update mechanism by component (`flowforge update --component`) | FlowForge | ✅ v0.1.0-alpha.13 — see [CHANGELOG](../CHANGELOG.md), [ADR-016](decisions/ADR-016-update-mechanism-by-component.md), [ADR-017](decisions/ADR-017-installer-protection-policy.md) |
 | Model Router MCP server | FlowForge | ❌ Discarded — host IDE routing |
 

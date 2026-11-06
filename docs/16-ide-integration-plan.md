@@ -84,7 +84,7 @@ FlowForge writes agent packs to the directories each IDE actually reads. The mat
 | **Antigravity** | `~/.gemini/config/` (`AGENTS.md`, `rules/`, `agents/`, `skills/`, `GEMINI.md`, `mcp_config.json`) | `.agents/rules/`, `.agents/agents/`, `.agents/skills/`, `AGENTS.md` | `~/.gemini` — ver [ADR-019](decisions/ADR-019-opencode-antigravity-customizations.md) |
 | **Claude Desktop** | `~/.config/Claude/claude_desktop_config.json` (MCP only) | — | `%APPDATA%\Claude` / `~/.config/Claude/` |
 
-This matrix is the reference for `flowforge install`, `ide/install.sh`, `ide/install.ps1`, and the CI checks. See [`docs/decisions/ADR-008-ide-installer-path-matrix.md`](docs/decisions/ADR-008-ide-installer-path-matrix.md) for the rationale and detection logic.
+This matrix is the reference for `flowforge install`, `ide/install.sh`, `ide/install.ps1`, and the CI checks. See [`ADR-008`](decisions/ADR-008-ide-installer-path-matrix.md) for the rationale and detection logic.
 
 ### Files per IDE (current layout)
 
@@ -202,7 +202,7 @@ skills/forge-dev/security/
     └── stack-sql.md
 ```
 
-Documented in [referencias-stack.md](referencias-stack.md); implementation is a follow-up iteration.
+Documented in `referencias-stack.md` (session artifact, not versioned); implementation is a follow-up iteration.
 
 ---
 

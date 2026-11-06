@@ -1,7 +1,7 @@
 # FlowForge — Complete Reference and Test Cases
 
-> **Version**: 1.1 (post-OLA 1–4, parity v0.4)
-> **Skills**: 31 total (7 core + 23 specialized + 1 teacher)
+> **Version**: 1.2 (post-OLA 1–4, parity v0.4)
+> **Skills**: 35 total (7 core + 27 specialized + 1 teacher)
 > **Checkpoints**: 5 (CKP-0 → CKP-4)
 > **Agents**: 7 roles
 > **Artifacts**: `spec.md` → `plan.md` → code/tests → `verify-report.md` → `summary.md`

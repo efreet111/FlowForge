@@ -1,4 +1,4 @@
-# ADR-018 — FF-003 ↔ ENG-485 Onboarding Boundary (CLI orchestration vs memory aggregation)
+# ADR-030 — FF-003 ↔ ENG-485 Onboarding Boundary (CLI orchestration vs memory aggregation)
 
 > **Status**: **Accepted — applied** (2026-08-23) in `ff-003-onboarding-flow`
 > **Date**: 2026-08-23

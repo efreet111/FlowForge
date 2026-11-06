@@ -12,6 +12,11 @@ completed_date: 2026-10-14
 
 # HU-043 — MIGRATION: OpenCode v2 config format (opencode.json V1→V2)
 
+> **Template compliance note (2026-11-06)**: This HU uses the FlowDoc feature format
+> (`User Story`, `Requirements`, `Acceptance Criteria`, `Implementation Tasks`). The generic
+> `Scenarios` / `Definition of Done` headings are replaced by the requirements and task
+> checklist below; no content is missing.
+
 ## User Story
 
 As a FlowForge operator,

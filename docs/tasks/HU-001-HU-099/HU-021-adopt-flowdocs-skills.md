@@ -99,8 +99,8 @@ Al adoptar las skills de FlowDocs, el equipo podrá:
 
 ### References
 
-- [ADR-004: FlowDoc integration](docs/decisions/ADR-004-flowdoc-integration.md)
-- [docs/20-flowdoc-ecosystem.md](docs/20-flowdoc-ecosystem.md)
+- [ADR-004: FlowDoc integration](../../decisions/ADR-004-flowdoc-integration.md)
+- [docs/20-flowdoc-ecosystem.md](../../20-flowdoc-ecosystem.md)
 - Skills de FlowDocs: `flowdoc-assist`, `flowdoc-prd`, `flowdoc-hu`, `flowdoc-adr`, `flowdoc-rfc`, `flowdoc-api`, `flowdoc-db`, `flowdoc-discover`, `flowdoc-review`
 
 ---

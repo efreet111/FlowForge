@@ -3,7 +3,7 @@
 > **Status**: Active  
 > **FlowForge version**: 0.5.0+  
 > **FlowDoc version referenced**: 2.0 (2026-06-05 — original v1.1 superseded 2026-07-08)  
-> **Related**: [ADR-004](decisions/ADR-004-flowdoc-integration.md) · [GLOSSARY.md](../GLOSSARY.md) · [21-flowdoc-integration-proposal.md](21-flowdoc-integration-proposal.md)
+> **Related**: [ADR-004](decisions/ADR-004-flowdoc-integration.md) · [GLOSSARY.md](../GLOSSARY.md) · [21-flowdoc-integration-proposal.archived.md](archive/21-flowdoc-integration-proposal.archived.md)
 
 ---
 
@@ -236,5 +236,5 @@ See [`GLOSSARY.md`](../GLOSSARY.md) for term definitions.
 
 ---
 
-*Adapted from the integration analysis in [`docs/21-flowdoc-integration-proposal.md`](21-flowdoc-integration-proposal.md).*  
+*Adapted from the integration analysis in [`docs/archive/21-flowdoc-integration-proposal.archived.md`](archive/21-flowdoc-integration-proposal.archived.md).*
 *FlowDoc templates used under MIT license — see [ADR-004](decisions/ADR-004-flowdoc-integration.md) for full attribution.*

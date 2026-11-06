@@ -1,10 +1,10 @@
-# ADR-020 — User Identity from Config (CLI flags are display-only, never auth)
+# ADR-032 — User Identity from Config (CLI flags are display-only, never auth)
 
 > **Status**: **Accepted — applied** (2026-08-23) in `ff-003-onboarding-flow`
 > **Date**: 2026-08-23
 > **Feature**: `ff-003-onboarding-flow` (`flowforge onboard`)
 > **Deciders**: Engineering (FlowForge methodology team)
-> **Links**: [Engram obs #118](https://engram/observation/118) · [spec §1.3 AD-4 + FR-014](../../.ai-work/ff-003-onboarding-flow/spec.md) · [ADR-019](ADR-019-http-first-cli-fallback-integration.md) · [ADR-001](ADR-001-memory-curation-protocol.md)
+> **Links**: [Engram obs #118](https://engram/observation/118) · [spec §1.3 AD-4 + FR-014](../../.ai-work/ff-003-onboarding-flow/spec.md) · [ADR-031](ADR-031-http-first-cli-fallback-integration.md) · [ADR-001](ADR-001-memory-curation-protocol.md)
 
 ---
 

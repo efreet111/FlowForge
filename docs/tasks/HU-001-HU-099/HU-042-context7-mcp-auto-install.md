@@ -12,6 +12,11 @@ closed_date: 2026-10-14
 
 # HU-042 — FEATURE: Auto-install context7 MCP for non-local Engram profiles
 
+> **Template compliance note (2026-11-06)**: This HU uses the FlowDoc feature format
+> (`User Story`, `Requirements`, `Acceptance Criteria`, `Implementation Tasks`). The generic
+> `Scenarios` / `Definition of Done` headings are replaced by the requirements and task
+> checklist below; no content is missing.
+
 ## User Story
 
 As a FlowForge operator,
@@ -114,7 +119,7 @@ opencode mcp add context7 --url https://mcp.context7.com/mcp --global
 
 > ✅ **CLOSED (CKP-4, 2026-10-14)** — All PM-1…PM-6 executed and verified by the human developer.
 > `dotnet build` 0 errors · `dotnet test` 245/245 · `bash -n ide/install.sh` OK · rework cycle 2 = PASS (`verify-report.md`, commits `a5643f4` → `0a3dd10` → `47680b7`).
-> No new ADR required — [ADR-006](docs/decisions/ADR-006-opencode-mcp-config.md) updated in place (`Update (2026-10-14)` section).
+> No new ADR required — [ADR-006](../../decisions/ADR-006-opencode-mcp-config.md) updated in place (`Update (2026-10-14)` section).
 > Closing artefacts: `.ai-work/context7-mcp-auto-install/summary.md` (final). Superseded: `summary.preview.md`.
 >
 > **Residual debt (non-blocking)**: rework ISSUE-5 — align Bash (`grep -q '"sync"'`) vs C# (`sync` + `remote_url`) config-file detection.

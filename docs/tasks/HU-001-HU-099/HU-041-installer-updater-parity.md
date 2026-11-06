@@ -37,7 +37,7 @@ Durante la validación de [HU-040](HU-040-vscode-slash-commands-missing.md) en l
 | **D3** | `CacheRefresher.RefreshCache()` usa `git clone` (no el working tree). Un dev con commits locales corre `flowforge update` y pierde features: `forge-orchestrator` perdió Decision Extraction (HU-030), `forge-verify` perdió Drift Health Check (HU-031). | 6/40 archivos degradados, verificado por hash |
 | **D4** | `FLOWFORGE_PROVIDER` se lee en `install.sh` pero el C# no lo respeta; el shell default `opencode-zen` pisa modelos `opencode-go` (suscripción) y deja `flowforge.md` con `__FLOWFORGE_MODEL__` sin sustituir. | 8/8 agentes OpenCode degradados |
 
-**Causa raíz común**: `install.sh` (bash) y `UpdateOrchestrator.cs` (C#) implementan la instalación de forma **duplicada e independiente**. Ninguno lee el otro. La matriz de rutas vive sólo en [ADR-008](../decisions/ADR-008-ide-installer-path-matrix.md) como documento — ningún código la consume.
+**Causa raíz común**: `install.sh` (bash) y `UpdateOrchestrator.cs` (C#) implementan la instalación de forma **duplicada e independiente**. Ninguno lee el otro. La matriz de rutas vive sólo en [ADR-008](../../decisions/ADR-008-ide-installer-path-matrix.md) como documento — ningún código la consume.
 
 ---
 

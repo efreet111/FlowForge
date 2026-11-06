@@ -1,5 +1,9 @@
 # HU-048: `mem_retention_prune` — Fix de Filtrado y Gate de Dry-Run
 
+> **Template compliance note (2026-11-06)**: This HU uses the incident/feature proposal format
+> (`Metadata`, `Resumen`, `Criterios de Aceptación`). The generic `User Story` / `Scenarios` /
+> `Definition of Done` headings are intentionally replaced by those sections; no content is missing.
+
 ## Metadata
 
 | Campo | Valor |

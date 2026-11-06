@@ -77,8 +77,8 @@ PHASE 4: CLOSE ─────────────── CKP-4 🟢 DEPLOY G
 | Model routing per task | — | 2026-05 | Don't use one model for everything. Complex reasoning → Sonnet/Opus. Read/write → Haiku. Persistence → $0 (direct SQL). |
 | Versioned artifacts as protocol | — | 2026-05 | `spec.md`, `plan.md`, `verify-report.md`, `rework_ticket.md` are the contract between agents. Orchestrator is optional — artifacts manage the flow. |
 | Offline-first sync | — | 2026-05 | Teams need to share memories without constant network dependency. Local SQLite + PostgreSQL server. |
-| Canonical context file in `docs/` | [ADR-004](../decisions/ADR-004-flowdoc-integration.md) | 2026-09 | New team members lose 2-3 days on onboarding without centralized context. Aligned with FlowDoc integration. |
-| Hybrid skill architecture: markdown orchestrator + zero-dependency bash engine | [ADR-026](../decisions/ADR-026-fforge-init-hybrid-skill-architecture.md) | 2026-10 | One medium cannot serve both `ai_reasoning` (judgement) and `deterministic` (file ops). SKILL.md owns the dialogue; a POSIX engine owns every deterministic operation behind a frozen `plan.json` seam, so NFR-006 self-containment holds and `--dry-run` runs the identical code path as `apply`. Precedent for future executable skills. |
+| Canonical context file in `docs/` | [ADR-004](decisions/ADR-004-flowdoc-integration.md) | 2026-09 | New team members lose 2-3 days on onboarding without centralized context. Aligned with FlowDoc integration. |
+| Hybrid skill architecture: markdown orchestrator + zero-dependency bash engine | [ADR-033](decisions/ADR-033-fforge-init-hybrid-skill-architecture.md) | 2026-10 | One medium cannot serve both `ai_reasoning` (judgement) and `deterministic` (file ops). SKILL.md owns the dialogue; a POSIX engine owns every deterministic operation behind a frozen `plan.json` seam, so NFR-006 self-containment holds and `--dry-run` runs the identical code path as `apply`. Precedent for future executable skills. |
 
 ---
 
