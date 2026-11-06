@@ -1,7 +1,7 @@
 # FlowForge — Technical specification: agents, skills, and flows
 
 > **Purpose**: What each agent does with each skill; gap tracking  
-> **Version**: 1.2 (v0.4.0 — core skills in English)  
+> **Version**: 1.3 (FlowForge v0.5.0 — core skills in English)
 > **Skills**: 35 (7 core + 27 specialized + 1 teacher) | **Agents**: 7 | **Checkpoints**: 5
 
 ---
@@ -26,7 +26,7 @@ FlowForge organizes how AI agents build software: **5 phases** and **5 checkpoin
 | 4 | Dev | Code + tests | 3 |
 | 5 | Verify | `verify-report.md` / rework | 3 |
 | 6 | Memory | Session summary, ADRs | 4 |
-| 7 | Orchestrator | Delegation + CKPs | All |
+| 7 | Orchestrator (`flowforge`) | Delegation + CKPs | All |
 
 ### Checkpoints (traffic lights)
 
@@ -75,16 +75,20 @@ User: "Build feature X"
 
 ### Skills per agent
 
-| Agent | Core | OLA 1 | OLA 2 | OLA 3 | OLA 4 | Total |
-|--------|------|-------|-------|-------|-------|-------|
-| Orchestrator | 1 | — | — | — | — | 1 |
-| Discovery | 1 | — | — | security, compliance | cost | 4 |
-| Arch | 1 | security | — | performance, a11y, domain | — | 5 |
-| Plan | 1 | security | patterns | migrations, rollback | — | 5 |
-| Dev | 1 | security, solid | testing, performance | refactor | — | 6 |
-| Verify | 1 | security | complexity, performance | — | a11y | 5 |
-| Memory | 1 | — | — | — | metrics, changelog, knowledge | 4 |
-| Teacher (cross) | — | — | — | — | — | 1 |
+> Counts reflect the 35 `SKILL.md` files as of 2026-11-06.
+
+| Agent | Core | OLA 1 | OLA 2 | OLA 3 | OLA 4 | On-demand | Total |
+|--------|------|-------|-------|-------|-------|-----------|-------|
+| Orchestrator (`flowforge`) | 1 | — | — | — | — | — | 1 |
+| Discovery | 1 | — | — | security, compliance | cost | — | 4 |
+| Arch | 1 | security | — | performance, a11y, domain | — | — | 5 |
+| Plan | 1 | security | patterns | migrations, rollback | — | — | 5 |
+| Dev | 1 | security, solid | testing, performance | refactor | — | — | 6 |
+| Verify | 1 | security | complexity, performance | — | a11y | — | 5 |
+| Memory | 1 | — | — | — | metrics, changelog, knowledge | contradiction | 5 |
+| On-demand / cross-cutting | — | — | — | — | — | index-docs, onboarding, init | 3 |
+| Teacher (cross) | — | — | — | — | — | teacher | 1 |
+| **TOTAL** | **7** | **5** | **5** | **8** | **5** | **5** | **35** |
 
 ### Critical gaps — status
 
@@ -94,7 +98,8 @@ User: "Build feature X"
 | Verify without runtime | Modes A/B/C in forge-verify | ✅ |
 | CKP timestamps for metrics | Optional `mem_save` per CKP | ✅ |
 | Real SAST (not mental scan) | Needs MCP security tooling | 📌 Open |
-| Orchestrator inline dev on bugs | `rework_ticket.md` → forge-dev | ✅ v0.4 |
+| Mutation testing (P1) | P0 assertion/coverage gates shipped (ADR-015); Stryker/PIT pending | 📌 Open (HU-028) |
+| Orchestrator inline dev on bugs | `rework_ticket.md` → forge-dev | ✅ v0.5 |
 
 ### Related docs
 
@@ -117,14 +122,17 @@ Each agent has:
 
 ---
 
-### 1. forge-orchestrator — Traffic light
+### 1. flowforge — Traffic light
 
-**Role**: State director. No product code or specs. Delegates and applies checkpoints. On bugs → `rework_ticket.md` → forge-dev (v0.4).
+> **Canonical name**: `flowforge` (formerly `forge-orchestrator`). The runtime skill is
+> `skills/flowforge/SKILL.md`; the function names below are legacy conceptual identifiers.
+
+**Role**: State director. No product code or specs. Delegates and applies checkpoints. On bugs → `rework_ticket.md` → forge-dev (v0.5).
 **Checkpoint**: CKP-0 → CKP-4 (transversal)
 
 ---
 
-#### Core Skill `forge-orchestrator/SKILL.md`
+#### Core Skill `flowforge/SKILL.md`
 
 | Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
@@ -141,7 +149,7 @@ Each agent has:
 | `delegar_memory()` | Cycle result | Session summary + ADRs | Invokes forge-memory | Verify PASS |
 | `aplicar_ckp4()` | Session summary | 🟢 deploy question | Human deploy decision | Memory done |
 
-**Gap (resolved)**: Phase rollback uses `revision_cycle.md` (max 3) — see `forge-orchestrator/SKILL.md`.
+**Gap (resolved)**: Phase rollback uses `revision_cycle.md` (max 3) — see `flowforge/SKILL.md`.
 
 ---
 
@@ -177,7 +185,7 @@ Each agent has:
 | Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `identificar_regulaciones()` | Tipo de datos que procesa la feature | GDPR, SOC2, HIPAA, PCI-DSS, o Ninguna | Clasifica el tipo de dato (personal/salud/pago/biométrico) y cruza con regulación aplicable | Feature toca datos de usuarios |
-| `generar_requisitos_compliance()` | Regulación identificada | Checklist de requisitos (consentimiento, retención, cifrado, etc.) | Según la regulación, genera los RNF de compliance que deben aparecer en el spec | Regulación identificada |
+| `generar_requisitos_compliance()` | Regulación identificada | Checklist de requisitos (consentimiento, retención, cifrado, etc.) | Según la regulación, genera los NFR de compliance que deben aparecer en el spec | Regulación identificada |
 | `alertar_hard_stop_compliance()` | Requisitos vs. infraestructura actual | 🔴 STOP | Si la infra no está certificada para el nivel requerido (ej: PHI sin BAA) | Brecha de compliance detectada |
 
 #### Specialized: Cost `forge-discovery/cost/SKILL.md`
@@ -209,46 +217,46 @@ Each agent has:
 | Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `escribir_objetivo()` | Context Map + prompt | Sección "Objetivo y Alcance" del spec | Define qué resuelve y qué queda fuera del alcance | Inicio de spec |
-| `definir_rf()` | Requerimientos funcionales del prompt | RF-001 a RF-N con escenarios GWT | Cada RF tiene descripción + 2 escenarios Given-When-Then | Objetivo definido |
-| `definir_rnf()` | Requerimientos no funcionales | RNF-001 a RNF-N | Performance, seguridad, disponibilidad, etc. | RF definidos |
-| `definir_capability_matrix()` | RFs + RNFs | Tabla ai_reasoning vs deterministic | Qué decisiones delega al LLM y qué reglas son inmutables | Spec completo |
+| `definir_fr()` | Requerimientos funcionales del prompt | FR-001 a FR-N con escenarios GWT | Cada FR tiene descripción + 2 escenarios Given-When-Then | Objetivo definido |
+| `definir_nfr()` | Requerimientos no funcionales | NFR-001 a NFR-N | Performance, seguridad, disponibilidad, etc. | FR definidos |
+| `definir_capability_matrix()` | FRs + NFRs | Tabla ai_reasoning vs deterministic | Qué decisiones delega al LLM y qué reglas son inmutables | Spec completo |
 | `definir_validacion_manual()` | Escenarios no capturados por tests | Escenarios de prueba manual para el humano | Casos como interacción visual, flujo de consola, error de red en caliente | Spec casi completo |
-| `detectar_conflictos_memoria()` | RFs propuestos | ⚠️ Alerta de conflicto o ✅ Sin conflicto | Busca en memoria decisiones previas que contradigan lo propuesto | Antes de finalizar spec |
+| `detectar_conflictos_memoria()` | FRs propuestos | ⚠️ Alerta de conflicto o ✅ Sin conflicto | Busca en memoria decisiones previas que contradigan lo propuesto | Antes de finalizar spec |
 
 #### Specialized: Security `forge-arch/security/SKILL.md`
 
 | Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
-| `aplicar_stride()` | Arquitectura propuesta | 6 RNF-SEC obligatorios (Spoofing, Tampering, Repudiation, Disclosure, DoS, Elevation) | Por cada threat del modelo STRIDE, genera al menos 1 RNF-SEC | Feature toca auth/datos/APIs |
-| `definir_rnf_auth()` | Feature con auth | RNF-SEC-AUTH-001-003 | Endpoints protegidos, JWT con expiración, lockout por intentos fallidos | Feature requiere login |
-| `definir_rnf_input()` | Feature con input de usuario | RNF-SEC-INPUT-001-003 | Validación server-side, whitelist, max length | Feature acepta input |
-| `definir_rnf_data()` | Feature con datos sensibles | RNF-SEC-DATA-001-003 | Bcrypt/argon2, AES-256, parameterized queries | Feature persiste datos |
-| `definir_rnf_config()` | Feature con secrets | RNF-SEC-CONFIG-001-002 | No secrets en código, environment variables | Feature usa API keys |
+| `aplicar_stride()` | Arquitectura propuesta | 6 NFR-SEC obligatorios (Spoofing, Tampering, Repudiation, Disclosure, DoS, Elevation) | Por cada threat del modelo STRIDE, genera al menos 1 NFR-SEC | Feature toca auth/datos/APIs |
+| `definir_nfr_auth()` | Feature con auth | NFR-SEC-AUTH-001-003 | Endpoints protegidos, JWT con expiración, lockout por intentos fallidos | Feature requiere login |
+| `definir_nfr_input()` | Feature con input de usuario | NFR-SEC-INPUT-001-003 | Validación server-side, whitelist, max length | Feature acepta input |
+| `definir_nfr_data()` | Feature con datos sensibles | NFR-SEC-DATA-001-003 | Bcrypt/argon2, AES-256, parameterized queries | Feature persiste datos |
+| `definir_nfr_config()` | Feature con secrets | NFR-SEC-CONFIG-001-002 | No secrets en código, environment variables | Feature usa API keys |
 | `declarar_sin_riesgo()` | Feature sin superficie de ataque | "## Security Assessment: No aplica" | Documenta explícitamente que la feature no requiere seguridad | Evaluación completa y no hay riesgos |
 
 #### Specialized: Performance `forge-arch/performance/SKILL.md`
 
 | Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
-| `definir_slo_api()` | Endpoints expuestos | RNF-PERF-001 a 004 (p99, p50, throughput, TTFB) | Define latencias máximas por endpoint según tipo | Feature expone API |
-| `definir_slo_db()` | Consultas a DB | RNF-PERF-005 a 008 (query time, pool, index hit, write batch) | Limita tiempos de consulta y conexiones concurrentes | Feature accede a DB |
-| `definir_slo_ui()` | Componentes frontend | RNF-PERF-009 a 013 (FCP, LCP, FID, CLS, TTI) | Define métricas Core Web Vitals | Feature tiene UI |
-| `definir_slo_batch()` | Jobs background | RNF-PERF-014 a 016 (items/min, max execution, memory limit) | Define rendimiento de procesamiento por lotes | Feature procesa batches |
+| `definir_slo_api()` | Endpoints expuestos | NFR-PERF-001 a 004 (p99, p50, throughput, TTFB) | Define latencias máximas por endpoint según tipo | Feature expone API |
+| `definir_slo_db()` | Consultas a DB | NFR-PERF-005 a 008 (query time, pool, index hit, write batch) | Limita tiempos de consulta y conexiones concurrentes | Feature accede a DB |
+| `definir_slo_ui()` | Componentes frontend | NFR-PERF-009 a 013 (FCP, LCP, FID, CLS, TTI) | Define métricas Core Web Vitals | Feature tiene UI |
+| `definir_slo_batch()` | Jobs background | NFR-PERF-014 a 016 (items/min, max execution, memory limit) | Define rendimiento de procesamiento por lotes | Feature procesa batches |
 | `identificar_hot_paths()` | Todos los paths de ejecución | Lista de hot paths con recomendaciones | Si un path está en el ciclo request-response y es llamado > 100 req/s → hot path | Análisis de paths |
-| `alertar_riesgo_performance()` | Detección de riesgos | RNFs mitigando cada riesgo | Datos sin paginación → RNF de paginación. Reportes en tiempo real → RNF de pre-cómputo | Riesgo detectado |
+| `alertar_riesgo_performance()` | Detección de riesgos | NFRs mitigando cada riesgo | Datos sin paginación → NFR de paginación. Reportes en tiempo real → NFR de pre-cómputo | Riesgo detectado |
 
 #### Specialized: A11y `forge-arch/a11y/SKILL.md`
 
 | Function | Input | Output | Process | Trigger |
 |---------|-------|--------|---------|---------|
 | `determinar_nivel_wcag()` | Proyecto + tipo de feature | Nivel A / AA / AAA requerido | Customer-facing → AA. Gobierno → AAA. Internal tool → A. Default: AA | Feature con UI |
-| `definir_rnf_formularios()` | Componentes de formulario | RNF-A11Y-001 a 005 | Labels, errores asociados, autocomplete, required fields | Feature tiene formularios |
-| `definir_rnf_navegacion()` | Menús y navegación | RNF-A11Y-006 a 009 | Keyboard accessible, skip-to-content, aria-current, múltiples métodos de navegación | Feature tiene navegación |
-| `definir_rnf_tablas()` | Datos tabulares | RNF-A11Y-010 a 012 | <th> con scope, sort direction, summary/caption | Feature muestra datos en tabla |
-| `definir_rnf_modal()` | Modales y diálogos | RNF-A11Y-013 a 016 | Focus trap, Escape key, focus return, aria-labelledby | Feature usa modales |
-| `definir_rnf_media()` | Imágenes/video/audio | RNF-A11Y-017 a 020 | Alt text, captions, transcripts, color-not-only | Feature incluye media |
-| `definir_rnf_color()` | Paleta de colores | RNF-A11Y-024 a 027 | Contraste 4.5:1, 3:1 para componentes, focus indicator, no color-only | Feature tiene UI visual |
-| `definir_rnf_responsive()` | Layout | RNF-A11Y-028 a 030 | 200% zoom funcional, touch targets 44x44px, sin scroll horizontal | Feature tiene layout |
+| `definir_nfr_formularios()` | Componentes de formulario | NFR-A11Y-001 a 005 | Labels, errores asociados, autocomplete, required fields | Feature tiene formularios |
+| `definir_nfr_navegacion()` | Menús y navegación | NFR-A11Y-006 a 009 | Keyboard accessible, skip-to-content, aria-current, múltiples métodos de navegación | Feature tiene navegación |
+| `definir_nfr_tablas()` | Datos tabulares | NFR-A11Y-010 a 012 | <th> con scope, sort direction, summary/caption | Feature muestra datos en tabla |
+| `definir_nfr_modal()` | Modales y diálogos | NFR-A11Y-013 a 016 | Focus trap, Escape key, focus return, aria-labelledby | Feature usa modales |
+| `definir_nfr_media()` | Imágenes/video/audio | NFR-A11Y-017 a 020 | Alt text, captions, transcripts, color-not-only | Feature incluye media |
+| `definir_nfr_color()` | Paleta de colores | NFR-A11Y-024 a 027 | Contraste 4.5:1, 3:1 para componentes, focus indicator, no color-only | Feature tiene UI visual |
+| `definir_nfr_responsive()` | Layout | NFR-A11Y-028 a 030 | 200% zoom funcional, touch targets 44x44px, sin scroll horizontal | Feature tiene layout |
 | `declarar_sin_riesgo_a11y()` | Feature sin UI | "## Accessibility Assessment: No UI — no WCAG requirements apply" | Feature es backend-only | Evaluación completa, no hay UI |
 
 #### Specialized: Domain `forge-arch/domain/SKILL.md`
@@ -282,7 +290,7 @@ Each agent has:
 |---------|-------|--------|---------|---------|
 | `analizar_impacto()` | spec.md | Análisis de impacto: componentes existentes tocados + nuevas dependencias | Identifica qué archivos existen y se modifican, qué librerías nuevas se necesitan | Inicio de plan |
 | `ordenar_tareas_topologicas()` | Lista de cambios necesarios | Checklist ordenado: DB/DTOs → lógica → controllers → tests | Primero dependencias (DB, modelos), luego infraestructura (endpoints), al final tests | Análisis de impacto listo |
-| `definir_contratos()` | RFs del spec | Estructuras de datos exactas: DTOs, esquemas DB, firmas de métodos | Cada contrato tiene propiedades, tipos, constraints. Nada queda a interpretación del dev | Antes de escribir tareas |
+| `definir_contratos()` | FRs del spec | Estructuras de datos exactas: DTOs, esquemas DB, firmas de métodos | Cada contrato tiene propiedades, tipos, constraints. Nada queda a interpretación del dev | Antes de escribir tareas |
 | `proponer_cambios_archivos()` | Contratos + checklist | Lista de [NEW] / [MODIFY] / [DELETE] por archivo | Cada archivo tiene: ruta, responsabilidad, cambios exactos | Contratos definidos |
 | `buscar_patrones_existentes()` | Código existente | Patrones previos a respetar | `mem_search(topic_key: pattern)` para encontrar convenciones del proyecto | Antes de definir estructura de archivos |
 
@@ -350,7 +358,7 @@ Each agent has:
 |---------|-------|--------|---------|---------|
 | `implementar_plan()` | plan.md (checklist) | Código implementado | Para cada tarea del checklist en orden, escribe el código | CKP-2 aprobado |
 | `reportar_defecto_plan()` | Firma inviable detectada | ⚠️ STOP + reporte de defecto estructural | Si el plan pide una firma imposible en el lenguaje, NO inventa una solución — reporta | Durante implementación, firma inviable |
-| `escribir_tests_unitarios()` | Escenarios GWT del spec.md | Tests con nombre [RF-XXX] en descripción | 1 test por escenario Given-When-Then, con trazabilidad directa al RF | Por cada función implementada |
+| `escribir_tests_unitarios()` | Escenarios GWT del spec.md | Tests con nombre [FR-XXX] en descripción | 1 test por escenario Given-When-Then, con trazabilidad directa al FR | Por cada función implementada |
 | `ralph_wiggum_loop()` | Código escrito | Código compilado + tests verdes | Compilar → testear → fallar → corregir. Loop autónomo hasta verde. | Después de escribir código |
 | `reportar_limite_loop()` | 3 iteraciones en el mismo error | 🚨 Solicitar ayuda + reporte | Si después de 3 intentos el mismo error persiste, se detiene y pide ayuda | Mismo error 3 veces |
 | `mem_save_gotcha()` | Bug difícil resuelto o comportamiento oscuro | Observación tipo `bugfix` o `discovery` en engram | Guarda el gotcha antes de entregar resultado para que futuras sesiones lo tengan | Durante debug, encuentra algo no obvio |
@@ -469,7 +477,7 @@ Each agent has:
 |---------|-------|--------|---------|---------|
 | `auditar_n_plus_1()` | Endpoints del diff | 🚨 N+1 detectado → rework | Por cada endpoint: contar DB round trips. Si loop + query → N+1 | Endpoint con acceso a datos |
 | `detectar_memory_leaks()` | Código con recursos | 🚨 Leak detectado (event handler sin unsubscribe, static collection, timer sin dispose, HttpClient sin reuse) | Escanea: ¿+= event sin -=? ¿static List/Dictionary? ¿new Timer()? ¿new HttpClient()? | Código con recursos |
-| `verificar_benchmark()` | Benchmarks provistos por dev | ✅ Benchmark válido o 🚨 No válido | ¿Aislamiento? ¿Iteraciones ≥ 100? ¿Determinístico? ¿Allocations medidas? ¿Baseline comparada? | RNF-PERF en spec |
+| `verificar_benchmark()` | Benchmarks provistos por dev | ✅ Benchmark válido o 🚨 No válido | ¿Aislamiento? ¿Iteraciones ≥ 100? ¿Determinístico? ¿Allocations medidas? ¿Baseline comparada? | NFR-PERF en spec |
 | `analizar_big_o()` | Algoritmos del código | Notación Big-O de cada algoritmo + alerta si O(n²) o superior | ¿Nested loops? ¿List vs HashSet? ¿String concat en loop? ¿Recursión sin memoization? | Código con loops o recursión |
 | `auditar_resource_limits()` | Configuración de la app | Checklist: timeout configurado, connection pool, thread pool, file upload limit, response size limit, retry con backoff, circuit breaker | Verifica configuraciones de producción | Siempre |
 
@@ -487,7 +495,7 @@ Each agent has:
 1. `verify/core/ejecutar_tests()` depende de poder correr el test suite — en entornos donde no hay runtime (ej: solo chat), esto no es posible. No hay fallback claro.
 2. `verify/security/auditar_owasp_top10()` no tiene acceso a un SAST real (SonarQube, Semgrep) — solo hace escaneo mental. Faltan herramientas reales.
 3. `verify/performance/verificar_benchmark()` requiere que el dev haya escrito benchmarks — si no los escribió, no hay nada que verificar.
-4. No hay `verify/core/verificar_trazabilidad_rf()` — el core skill menciona `mem_traceability` pero no especifica cómo verificar que cada test tiene el prefijo [RF-XXX].
+4. No hay `verify/core/verificar_trazabilidad_fr()` — el core skill menciona `mem_traceability` pero no especifica cómo verificar que cada test tiene el prefijo [FR-XXX].
 
 ---
 
@@ -505,7 +513,7 @@ Each agent has:
 | `detectar_topicos_evolutivos()` | Título de observación a guardar | topic_key normalizado | `mem_suggest_topic_key(title)` → devuelve key estable como `architecture/auth-model` | Antes de mem_save |
 | `sintetizar_offline()` | Archivos en `.engram/local_memory/` | Observaciones consolidadas deduplicadas | Lee archivos locales, filtra noise (debug prints), mergea bugs similares, comprime en 1 observación canónica | Modo offline detectado |
 | `promover_a_adr()` | Decisión de arquitectura importante | ADR.md en `docs/decisions/` + índice actualizado | `mem_promote_to_md(obs_id)` + `mem_sync_md_to_repo()` | Decisión permanente detectada |
-| `aplicar_retention_prune()` | Ninguno (automático) | DB limpiada de observaciones expiradas | `mem_doctor()` (healthcheck) + `mem_retention_prune()` (TTL cleanup) | Al inicio y cierre de sesión |
+| `aplicar_retention_prune()` | Ninguno | Reporte de retención + prune aprobado por humano | `mem_retention_stats()` + `mem_retention_prune(dry_run=true)` + confirmación explícita (HU-048) | Al inicio y cierre de sesión |
 | `escribir_session_summary()` | Todo el ciclo de la feature | Session summary con: Goal, Discoveries, Accomplished, Next Steps, Relevant Files | Sintetiza aprendizajes del ciclo en formato estructurado | Cierre de sesión |
 
 #### Specialized: Metrics `forge-memory/metrics/SKILL.md`
@@ -553,7 +561,7 @@ Each agent has:
 ```
 Usuario: "Agregar endpoint GET /users/{id} que devuelva datos del usuario"
    │
-   ├── forge-orchestrator.evaluar_fase() → new
+   ├── flowforge.evaluar_fase() → new
    │
    ├── forge-discovery
    │   ├── extraer_keywords("GET /users/{id}", "user data")
@@ -564,8 +572,8 @@ Usuario: "Agregar endpoint GET /users/{id} que devuelva datos del usuario"
    │
    ├── forge-arch
    │   ├── escribir_objetivo() → "Endpoint GET /users/{id}"
-   │   ├── definir_rf() → RF-001: GET /users/{id} retorna 200 + UserDto
-   │   ├── definir_rnf() → RNF-001: Response time < 200ms
+   │   ├── definir_fr() → FR-001: GET /users/{id} retorna 200 + UserDto
+   │   ├── definir_nfr() → NFR-001: Response time < 200ms
    │   └── definir_capability_matrix() → ai_reasoning [formato error] deterministic [auth check, DB query]
    │
    ├── CKP-1: humano aprueba spec ✅
@@ -579,7 +587,7 @@ Usuario: "Agregar endpoint GET /users/{id} que devuelva datos del usuario"
    │
    ├── forge-dev.ralph_wiggum_loop()
    │   ├── implementar_plan() → código de repository, service, controller
-   │   ├── escribir_tests_unitarios() → RF-001 scenarios
+   │   ├── escribir_tests_unitarios() → FR-001 scenarios
    │   └── compila + tests verdes después de 1 ciclo ✅
    │
    ├── forge-verify
@@ -591,7 +599,7 @@ Usuario: "Agregar endpoint GET /users/{id} que devuelva datos del usuario"
    │
    ├── forge-memory
    │   ├── escribir_session_summary()
-   │   └── mem_save(id=..., title="GET /users/{id} endpoint", type=feature)
+   │   └── mem_save(title="GET /users/{id} endpoint", type="feature")
    │
    └── CKP-4: humano decide deploy ✅
 ```
@@ -695,7 +703,7 @@ Usuario: "Mejorar el login"
    │   └── evaluar_ambigüedad() → VAGO 🔴
    │
    └── CKP-0: HARD STOP 🔴
-       forge-orchestrator: "Tu pedido es muy vago. 'Mejorar el login' puede significar:
+       flowforge: "Tu pedido es muy vago. 'Mejorar el login' puede significar:
        a) Agregar OAuth (Google, GitHub)
        b) Cambiar UI del formulario de login
        c) Agregar 2FA
@@ -737,7 +745,7 @@ Usuario: "Agregar reportes con agregaciones complejas en SQL"
    │       → cycle_count = 3 → 🔴 CKP-3 ENGAGE
    │
    └── CKP-3: FRENO DE EMERGENCIA 🔴
-       forge-orchestrator: "El agente Dev falló 3 veces:
+       flowforge: "El agente Dev falló 3 veces:
        Cycle 1: N+1 queries (15 por request)
        Cycle 2: Memory leak (static list sin límite)
        Cycle 3: Test existente roto
@@ -754,12 +762,16 @@ Usuario: "Agregar reportes con agregaciones complejas en SQL"
 
 ## PARTE 3: GAPS DETECTADOS (30 en total)
 
+> **Status (2026-11-06)**: gaps 1, 2, 4 and 23 are addressed in v0.5. Gap 10 has the P0
+> assertion/coverage gates shipped; P1 mutation tooling remains open (HU-028). The rest are
+> open or incubator items. The tables preserve the original analysis.
+
 ### 🚨 Gaps Críticos (bloquean el flujo)
 
 | # | Gap | Skills afectadas | Solución propuesta |
 |---|-----|-----------------|-------------------|
-| 1 | No hay `rollback_de_fase()` — si humano rechaza spec/plan, no hay ciclo formal | orchestrator/core | Agregar función que permita re-apertura controlada de fase anterior con contexto |
-| 2 | `verify/core/ejecutar_tests()` no funciona sin runtime (chat-only) | verify/core | Fallback: pedir al humano output de tests, o usar análisis estático de cobertura |
+| 1 | No hay `rollback_de_fase()` — si humano rechaza spec/plan, no hay ciclo formal | flowforge/core | ✅ Resuelto — `revision_cycle.md` (max 3) |
+| 2 | `verify/core/ejecutar_tests()` no funciona sin runtime (chat-only) | verify/core | ✅ Resuelto — modes A/B/C in forge-verify |
 | 3 | No hay SAST real — solo escaneo mental del LLM | verify/security | Ver análisis detallado abajo |
 | 4 | `metrics/medir_cycle_time()` no tiene tracking automático de tiempo | memory/metrics | ✅ Resuelto — timestamps automáticos por CKP |
 
@@ -813,7 +825,7 @@ rules:
 | 7 | `patterns/` depende del conocimiento del modelo, no de un catálogo formal | plan/patterns | Crear catálogo en skills/forge-plan/patterns/references/ |
 | 8 | No hay `estimar_esfuerzo()` por tarea | plan/core | Sin estimación vs real, las métricas de cycle time son débiles |
 | 9 | `testing/escribir_fuzzing()` no es específico por lenguaje | dev/testing | Agregar secciones por lenguaje (JS, .NET, Python, Java, Go) |
-| 10 | No hay `testing/cobertura_mutation_tool()` real | dev/testing | Recomendar Stryker (JS), PIT (.NET), MutPy (Python) |
+| 10 | No hay `testing/cobertura_mutation_tool()` real | dev/testing | P0 assertion/coverage gates shipped (ADR-015); P1 Stryker/PIT pending (HU-028) |
 | 11 | `performance/detectar_n_plus_1()` es escaneo estático solamente | dev/performance | Necesita profiler real o al menos ORM logging configurado |
 | 12 | No hay `refactor/split_large_class()` | dev/refactor | Agregar extract class pattern con algoritmo de identificación de responsabilidades |
 | 13 | `changelog/parsear_git_log()` requiere conventional commits | memory/changelog | Si no hay conventional commits, parsear mensajes completos con LLM |
@@ -831,8 +843,8 @@ rules:
 | 20 | `rollback/calcular_nivel_riesgo()` es subjetivo | plan/rollback | Agregar matriz de riesgo con pesos objetivos (schema=3, payment=5, auth=4, etc.) |
 | 21 | No hay `memory/core/promover_a_wiki()` | memory/core | Exportación a wiki viva (Confluence, Notion, Obsidian) |
 | 22 | `metrics/evaluar_tech_debt()` depende de verify/complexity report | memory/metrics | Si no hay reporte, calcular estimación básica desde simple grep de TODOs y FIXMEs |
-| 23 | No hay tracking automático de tiempo por fase | memory/metrics | Timestamps automáticos al pasar cada CKP |
-| 24 | No hay verificación de trazabilidad [RF-XXX] en tests | verify/core | Agregar grep obligatorio de prefijos en nombres de tests |
+| 23 | No hay tracking automático de tiempo por fase | memory/metrics | ✅ Resuelto — timestamps en cada CKP |
+| 24 | No hay verificación de trazabilidad [FR-XXX] en tests | verify/core | Parcial: `mem_traceability` existe; falta gate obligatorio de prefijos en nombres de tests |
 
 ### 🔮 Gaps de Incubadora (de docs/13-edge-cases-and-risks.md)
 
@@ -865,12 +877,13 @@ FlowForge tiene **35 skills funcionales** que cubren **7 roles de agente** en **
 2. Verify without runtime — ✅ modes A/B/C in forge-verify  
 3. Real SAST — 📌 pending MCP tooling  
 4. CKP timestamps — ✅ optional metrics in orchestrator  
-5. Orchestrator inline dev — ✅ fixed v0.4 (rework delegation)
+5. Orchestrator inline dev — ✅ fixed v0.5 (rework delegation)
 
-**Incubator gaps (25–30)** — post-MVP: context poisoning guardrail, drift health check, etc. See [`04-roadmap.md`](04-roadmap.md).
+**Incubator gaps (25–30)** — post-MVP: context poisoning guardrail, drift health check
+(lite shipped in HU-031), etc. See [`04-roadmap.md`](04-roadmap.md).
 
 ---
 
-> **Last updated**: 2026-05-27  
-> **Methodology version**: 0.4.0  
-> **Catalog**: ~30 tracked gaps (4 critical addressed, remainder in tables above)
+> **Last updated**: 2026-11-06
+> **Methodology version**: 0.5.0
+> **Catalog**: ~30 tracked gaps (6 addressed, remainder open/incubator)

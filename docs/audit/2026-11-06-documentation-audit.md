@@ -113,6 +113,18 @@ Added explicit status banners:
 - Added `/fforge-init` to the command map and an on-demand skills section.
 - Part 4 “Planned tooling” → **“Current tooling”** with implemented/incubator status.
 
+### 2.8 `docs/15` content refresh — WARNING → fixed
+
+- Header/version updated to **1.3 (FlowForge v0.5.0)**.
+- `forge-orchestrator` → **`flowforge`** canonical name (with historical note).
+- Legacy `RF`/`RNF` IDs → **`FR`/`NFR`**, including conceptual function names.
+- Skills-per-agent table: 31 → **35**, with on-demand/cross-cutting and teacher rows.
+- Gap statuses refreshed: rollback, verify-without-runtime, CKP timestamps and cycle-time
+  tracking marked resolved; mutation testing marked P0-shipped/P1-pending (HU-028); traceability
+  marked partial.
+- `forge-memory` retention row now documents the **mandatory dry-run + human confirmation** gate (HU-048).
+- Conclusion/footer updated to v0.5.0 and 2026-11-06.
+
 ---
 
 ## 3. Open findings
@@ -123,7 +135,7 @@ Added explicit status banners:
 | D-02 | warning | `docs/PRD.md` | Status is still `Draft` (last updated 2026-05-13). | Human decision: move to `In Review` / `Accepted`, or mark as a historical PRD. |
 | D-03 | warning | HUs 042, 043, 046, 047, 048, 050 | They do not use the standard HU template headings (`User Story`, `Acceptance Criteria`, `Scenarios`, `Definition of Done`). They use equivalent sections (`Requirements`, `Acceptance Criteria`, `Implementation Tasks`, `Criterios de Aceptación`). | **Mitigated 2026-11-06**: a “Template compliance note” was added to each HU; the content is present under equivalent headings. Normalize headings only if a future FlowDoc tool requires literal section names. |
 | D-04 | suggestion | `docs/14-flowforge-complete-reference.md` | Header now says 1.3/35 skills, but some Part 1–4 sections still reflect v0.4-era commands (e.g. `forge-orchestrator` naming). | **Fixed 2026-11-06**: header/version, `forge-orchestrator` → `flowforge`, CLI status sample, 35-skill table, FR/NFR notation, `/fforge-init` command, on-demand skills section, and current-tooling table. |
-| D-05 | suggestion | `docs/15-agent-skills-technical-spec.md` | Header now says 35 skills, but Part 1 tables still use legacy conceptual identifiers and some Spanish labels. | Historical catalog; keep the existing “runtime follows English SKILL.md” note, or rewrite Part 1 in a dedicated pass. |
+| D-05 | suggestion | `docs/15-agent-skills-technical-spec.md` | Header now says 35 skills, but Part 1 tables still use legacy conceptual identifiers and some Spanish labels. | **Mitigated 2026-11-06**: header/version, `flowforge` naming, FR/NFR IDs, 35-skill table, gap statuses, and retention dry-run gate updated. Legacy conceptual function names remain by design (Part 1 note). |
 | D-06 | suggestion | `docs/04-roadmap.md` | Many checkboxes for completed items remain `[ ]`. The historical banner explains this, but the checkboxes are still misleading. | Leave as historical, or convert the checklists to a “Done” summary table. |
 
 ---
