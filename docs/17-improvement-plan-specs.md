@@ -1,9 +1,34 @@
-# Plan de Mejora — Especificación Detallada de los 14 Items
+# Plan de Mejora — Especificación Detallada (15 items)
 
 > **Status**: Historical plan (2026-05-26). Current status lives in [`docs/backlog/BACKLOG-MASTER.md`](backlog/BACKLOG-MASTER.md).
 > **Propósito**: Tener claro qué hay que hacer, cómo y cuándo en cada item del plan de mejora.
-> **Versión**: 1.0 — 2026-05-26
+> **Versión**: 1.1 — 2026-05-26 (status refreshed 2026-11-06)
 > **Roadmap**: [`04-roadmap.md`](04-roadmap.md) § Plan de Mejora
+
+---
+
+## Resultado actual (2026-11-06)
+
+> Las checklists de abajo son el plan original del 2026-05-26. **No** son el estado actual:
+> esta tabla es la fuente de verdad para el seguimiento.
+
+| Item | Tema | Estado | Evidencia / nota |
+|------|------|--------|------------------|
+| 1 | Pack OpenCode | ✅ Done | `ide/opencode/agents/` + `commands/`, `opencode-smoke.yml`; el JSON legacy quedó superseded por V2 (HU-043/046) |
+| 2 | Caso CRUD real | ✅ Done | [`examples/crud-tareas/`](../examples/crud-tareas/) con spec/plan/verify/summary |
+| 3 | Artefactos de ejemplo | ✅ Done | [`examples/crud-tareas/`](../examples/crud-tareas/) |
+| 4 | QUICKSTART | ✅ Done | [`QUICKSTART.md`](../QUICKSTART.md) + [`QUICKSTART.es.md`](../QUICKSTART.es.md) |
+| 5 | Template de proyecto | ✅ Done | [`templates/project/`](../templates/project/) + `flowforge init` |
+| 6 | Schema `.flowforge.json` | 🟡 Partial | Template en `templates/project/.flowforge.json.template`; falta `docs/flowforge-config-schema.md` |
+| 7 | `install.sh` / `install.ps1` | ✅ Done | Ambos viven en `ide/`; además `flowforge install/update` |
+| 8 | Probar packs en IDEs | 🟡 Partial | Packs Cursor/Antigravity/VS Code/OpenCode/Copilot/Kilo; smoke end-to-end pendiente |
+| 9 | Diagnóstico engram | ✅ Done | `mem_doctor` operativo (engram v1.4.0); ver `docs/team/engram-dotnet-dependencies-report.md` |
+| 10 | Features concurrentes | 📋 Open | No hay protocolo versionado todavía |
+| 11 | KPIs de efectividad | 📋 Open | `forge-memory/metrics` existe, pero no hay baseline/KPI doc |
+| 12 | 3 features vs 3 | 📋 Open | Sin benchmark ejecutado |
+| 13 | Guía de migración | 📋 Open | `docs/migration-guide.md` no existe |
+| 14 | Release versioning | ✅ Done | `VERSION.md` 0.5.0, `CHANGELOG.md`, tags `v0.4.x` / `v0.1.0-alpha.*` |
+| 15 | Auditoría de documentación | 🟡 In progress | [`docs/audit/2026-11-06-documentation-audit.md`](audit/2026-11-06-documentation-audit.md); `docs/README.md` creado |
 
 ---
 
@@ -11,7 +36,7 @@
 
 ---
 
-### Item 1: Probar `ide/opencode/opencode.flowforge.json` en OpenCode
+### Item 1: Probar el pack OpenCode en OpenCode
 
 **Objetivo**: Verificar que los 7 subagentes de FlowForge se cargan correctamente en OpenCode y pueden ser invocados mediante delegación.
 
@@ -24,10 +49,12 @@
 - [ ] **Manual test validates runtime**: human invokes OpenCode and verifies agents load correctly (CI cannot test runtime agent loading)
 
 **Enfoque**:
-1. Mergear las entradas de `agent` del `opencode.flowforge.json` en el `~/.config/opencode/opencode.json` activo
+1. Instalar el pack actual en `~/.config/opencode/agents/` + `commands/` (o usar `flowforge install`)
 2. Verificar que los paths `{file:.../skills/...}` existen (no deben estar hardcodeados a una máquina específica)
 3. Invocar a cada subagente manualmente y verificar que cargue la skill correcta
 4. Probar un ciclo completo: discovery → arch → plan → dev → verify → memory
+
+> **Nota**: `opencode.flowforge.json` es una ruta legacy; el pack actual usa `ide/opencode/agents/` y `ide/opencode/commands/` (HU-043/HU-046).
 
 **Dependencias**: Ninguna. Solo tener OpenCode funcionando.
 
@@ -35,7 +62,7 @@
 
 **Deliverables**:
 - Confirmación de que los 7 agentes funcionan
-- O ajustes al `opencode.flowforge.json` si algo falla
+- O ajustes al pack `ide/opencode/` si algo falla
 
 ---
 
@@ -46,7 +73,7 @@
 **Criterios de éxito**:
 - [ ] Discovery genera Context Map con búsqueda en memoria
 - [ ] CKP-0 se supera (requerimiento claro)
-- [ ] Arch escribe spec.md con RF + RNF + Capability Matrix
+- [ ] Arch escribe spec.md con FR + NFR + Capability Matrix
 - [ ] CKP-1: humano aprueba spec
 - [ ] Plan escribe plan.md con checklist ordenado
 - [ ] CKP-2: humano da luz verde
@@ -77,7 +104,7 @@
 **Objetivo**: Tener spec.md, plan.md y verify-report.md reales producidos por FlowForge para mostrar a otros miembros del equipo.
 
 **Criterios de éxito**:
-- [ ] spec.md con RF-001 a RF-N, escenarios GWT, Capability Matrix, RNFs
+- [ ] spec.md con FR-001 a FR-N, escenarios GWT, Capability Matrix, NFRs
 - [ ] plan.md con análisis de impacto, contratos, checklist topológico
 - [ ] verify-report.md con veredicto, cobertura de tests, observaciones
 - [ ] Los artefactos están en un lugar accesible (`.ai-work/{feature-slug}/` o runbook en docs/18)
@@ -282,7 +309,7 @@
 
 ### Item 8: Probar IDE files en los 4 IDEs
 
-**Objetivo**: Verificar que los 20 archivos de `ide/` funcionan correctamente en cada IDE: OpenCode, Cursor, Antigravity, VS Code.
+**Objetivo**: Verificar que los packs IDE actuales funcionan correctamente en cada IDE: OpenCode, Cursor, Antigravity, VS Code/Copilot y Kilo.
 
 **Criterios de éxito**:
 - [ ] OpenCode: los 7 subagentes cargan y delegan
@@ -318,7 +345,7 @@
 **Enfoque**:
 1. Analizar escenarios: (a) mismo archivo, (b) mismo namespace engram, (c) API que cambia
 2. Proponer protocolo basado en git branching + comunicación entre orquestadores
-3. Si aplica, crear skill `forge-orchestrator/conflict-resolution`
+3. Si aplica, crear skill `flowforge/conflict-resolution`
 
 **Dependencias**: Items 1-3 (entender el flujo base antes de agregar concurrencia)
 
@@ -415,13 +442,13 @@
 **Criterios de éxito**:
 - [ ] Versión actual documentada en VERSION.md
 - [ ] CHANGELOG.md con formato Keep a Changelog
-- [ ] Tags de git para releases: v0.3.0, v0.4.0, etc.
+- [ ] Tags de git para releases: v0.4.x, v0.1.0-alpha.x, etc.
 - [ ] GitHub Release notes publicados
 
 **Enfoque**:
-1. Crear `VERSION.md` con versión actual (0.3.0)
+1. Mantener `VERSION.md` con la versión actual (hoy 0.5.0)
 2. Mantener `CHANGELOG.md` con cambios desde v0.1
-3. Taggear el commit actual como v0.3.0
+3. Taggear cada release (tags actuales: `v0.4.x`, `v0.1.0-alpha.x`)
 4. Publicar release en GitHub con resumen de cambios
 
 **Dependencias**: Items 1-3 (tener algo que versionar)

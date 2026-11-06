@@ -139,6 +139,18 @@ Added explicit status banners:
   legacy shell installers.
 - Part 5 split into “Done (v0.4–v0.5)” and refreshed short/medium-term items.
 
+### 2.10 `docs/17` status refresh — WARNING → fixed
+
+- Title corrected from “14 items” to **15 items**; version bumped to 1.1 with a 2026-11-06
+  status refresh.
+- Added a **Resultado actual** table mapping all 15 items to `Done` / `Partial` / `Open`,
+  with evidence links to `examples/crud-tareas/`, `templates/project/`, QUICKSTART, VERSION and
+  the documentation audit.
+- Item 1 now describes the current OpenCode pack (`agents/` + `commands/`) and marks
+  `opencode.flowforge.json` as a legacy path.
+- Replaced legacy `RF`/`RNF` with `FR`/`NFR`, updated the IDE scope to include Copilot/Kilo,
+  and refreshed the release tags to `v0.4.x` / `v0.1.0-alpha.x`.
+
 ---
 
 ## 3. Open findings
