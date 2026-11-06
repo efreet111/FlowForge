@@ -180,6 +180,20 @@ Added explicit status banners:
 - Known-gaps section marked "last reviewed 2026-11-06; not re-verified upstream".
 - All 10 local links resolve; `git diff --check` clean.
 
+### 2.14 `docs/12` Engram tool reference refresh — WARNING → fixed
+
+- Header now records `Last reviewed 2026-11-06` and the **34-tool** catalog.
+- Corrected `mem_project_redirects`: read-only migration list; merges are
+  `mem_merge_projects`.
+- `mem_retention_prune` now documents the **HU-048 mandatory dry-run + human
+  confirmation** gate.
+- `mem_save` now states that the MCP surface does not accept
+  `file_path`/`symbol`/`namespace`; the CLI/watch path does.
+- `mem_search` now lists the `include_deprecated`, `status`, `grouped`, `scope` and
+  `type` filters.
+- Legacy `RF`/`RNF` references normalized to **`FR`/`NFR`**; ADR index path corrected to
+  `docs/decisions/INDEX.md`.
+
 ---
 
 ## 3. Open findings
@@ -194,7 +208,7 @@ Added explicit status banners:
 | D-06 | suggestion | `docs/04-roadmap.md` | Many checkboxes for completed items remain `[ ]`. The historical banner explains this, but the checkboxes are still misleading. | Leave as historical, or convert the checklists to a “Done” summary table. |
 | D-07 | warning | `examples/crud-tareas/CASE-1-VALIDATION.md` | The canonical demo artifact set was validated on 2026-05-27 under v0.4.x; it has not been re-run under v0.5.0. | Re-run the demo under v0.5.0 and refresh `CASE-1-VALIDATION.md` before treating `docs/18` as a hard release gate. |
 | D-08 | suggestion | `README.md`, `README.es.md`, `QUICKSTART.md` | `README*.md` still name `forge-orchestrator` as the owner of `/flow-*` commands; `QUICKSTART.md` §1 sample output shows `v0.1.0-alpha.13`. | Normalize to `flowforge` / current version in a README/QUICKSTART pass. |
-| D-09 | suggestion | `docs/12-engram-tool-reference.md` | It describes `mem_project_redirects` as managing redirects **and merges**; the tool is read-only (merges are `mem_merge_projects`). | Correct in the `docs/12` pass. |
+| D-09 | suggestion | `docs/12-engram-tool-reference.md` | It describes `mem_project_redirects` as managing redirects **and merges**; the tool is read-only (merges are `mem_merge_projects`). | **Fixed 2026-11-06**: corrected the read-only/merge split, refreshed the 34-tool catalog, normalized FR/NFR, documented the HU-048 retention dry-run gate and the MCP/CLI code-metadata asymmetry. |
 | D-10 | suggestion | `docs/PRD-starter-kit.md` | Treats `engram.scope` as an existing/expected `.flowforge.json` field, while the current config only has `engram.project`. | Reconcile the starter-kit PRD with the actual `.flowforge.json` schema. |
 
 ---

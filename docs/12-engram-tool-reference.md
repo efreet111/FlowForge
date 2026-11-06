@@ -1,5 +1,9 @@
 # Exploración: Análisis de Capacidades Avanzadas de engram-dotnet
 
+> **Last reviewed**: 2026-11-06
+> **Catalog**: 34 MCP tools (engram-dotnet 1.4+)
+> **Scope**: tool reference for FlowForge agents; the 6-area map is conceptual, the tool tables are authoritative.
+
 ## Estado Actual
 Actualmente, los agentes de IA (nosotros incluidos) solemos limitarnos a un uso muy elemental de `engram-dotnet`: guardar memorias sueltas con `mem_save` y buscar con `mem_search`. Esto es desperdiciar una **locura cósmica** de potencia. 
 
@@ -37,8 +41,8 @@ Es la base del sistema. Permite capturar el contexto de desarrollo y recuperarlo
 
 ### Herramientas MCP del Core:
 *   `mem_session_start`: Inicializa una sesión asignándola a un proyecto específico.
-*   `mem_save`: Guarda una observación estructurada bajo el formato canónico (**What / Why / Where / Learned**).
-*   `mem_search`: Busca memorias. **IMPORTANTE**: Devuelve resultados truncados (`[preview]`). ¡Siempre hay que llamar a `mem_get_observation` con el ID para ver el contenido completo!
+*   `mem_save`: Guarda una observación estructurada bajo el formato canónico (**What / Why / Where / Learned**). El MCP no acepta `file_path`/`symbol`/`namespace`; para metadata code-aware usar el CLI (`engram save`) o `engram watch` (ver nota al final).
+*   `mem_search`: Busca memorias. **IMPORTANTE**: Devuelve resultados truncados (`[preview]`). ¡Siempre hay que llamar a `mem_get_observation` con el ID para ver el contenido completo! Soporta `include_deprecated`, `status`, `grouped`, `scope` y `type`.
 *   `mem_get_observation`: Devuelve el contenido completo y real de una memoria.
 *   `mem_suggest_topic_key`: Ayuda al agente a generar una clave estable y normalizada antes de guardar (ej: espacios a guiones, minúsculas, etc.).
 *   `mem_update`: Edita o corrige una observación directamente por su ID.
@@ -79,14 +83,14 @@ Soluciona el problema de que los miembros del equipo no compartan contexto. Comb
 **LLM-as-Judge** permite verificar de forma autónoma si el código escrito cumple con los requisitos de la especificación.
 
 ### Características Clave:
-*   **LLM-as-Judge**: Toma un archivo `spec.md` escrito en formato canónico (requisitos funcionales como `- RF-001` y no funcionales como `- RNF-001`) y el diff de git. Envía el contexto al modelo evaluador (Claude) para dictaminar si el código cumple la spec.
+*   **LLM-as-Judge**: Toma un archivo `spec.md` escrito en formato canónico (requisitos funcionales como `- FR-001` y no funcionales como `- NFR-001`) y el diff de git. Envía el contexto al modelo evaluador (Claude) para dictaminar si el código cumple la spec.
 *   **Veredicto Estructurado**: Retorna un JSON con veredictos individuales (`Pass`, `Fail`, `Untested`), justificaciones detalladas y evidencia de archivos/líneas de código.
 *   **Cycle Tracker (Rework limits)**: Rastrea cuántas veces se ha intentado verificar el mismo cambio. Si llega al límite de ciclos de corrección configurado (por defecto 3), detiene el reintento automático y escala el problema a un desarrollador humano para evitar bucles infinitos del agente de desarrollo.
 *   **Matriz de Trazabilidad**: Mapea dinámicamente cada requisito de la spec a archivos específicos del código fuente.
 
 ### Herramientas MCP de Verificación:
 *   `mem_verify_artifact`: Evalúa un cambio (`code_diff`) contra una especificación (`spec_path`). Genera un reporte detallado con veredicto, tasa de éxito y el plan de re-trabajo (Rework Ticket) si algo falló.
-*   `mem_traceability`: Construye y actualiza la matriz de trazabilidad RF/RNF → archivos de código.
+*   `mem_traceability`: Construye y actualiza la matriz de trazabilidad FR/NFR → archivos de código.
 *   `mem_trace_source` y `mem_lineage`: Permiten rastrear el origen de una lógica y cómo evolucionaron las modificaciones a lo largo del tiempo.
 
 ---
@@ -97,7 +101,7 @@ La DB local de SQLite y Postgres central es el **Nivel 1 (Memoria Operativa)**, 
 
 ### Características Clave:
 *   **Generación de ADRs canónicos**: Convierte observaciones dinámicas de la DB en archivos markdown limpios con frontmatter completo (ID, título, autor, fecha, tipo, etc.).
-*   **Mantenimiento de Índices**: Genera o actualiza automáticamente un índice maestro en `docs/decisions/index.md` con enlaces cruzados.
+*   **Mantenimiento de Índices**: Genera o actualiza automáticamente un índice maestro en `docs/decisions/INDEX.md` con enlaces cruzados.
 *   **Verificación de Links**: Valida que los enlaces en la base de datos coincidan exactamente con la ruta física del archivo en el repositorio de manera bidireccional.
 
 ### Herramientas MCP de Promoción:
@@ -134,8 +138,8 @@ Mantiene la base de datos limpia y el entorno libre de fallos de configuración.
 ### Herramientas MCP de Diagnóstico:
 *   `mem_doctor`: Corre diagnósticos completos del estado operativo.
 *   `mem_retention_stats`: Muestra estadísticas de la cantidad de registros por tipo y su fecha de expiración.
-*   `mem_retention_prune`: Ejecuta el pruning manual para liberar espacio en disco borrando registros expirados.
-*   `mem_project_redirects`: Administra redirecciones y fusiones de proyectos que hayan cambiado de nombre o namespace.
+*   `mem_retention_prune`: Ejecuta el pruning manual de registros expirados. **⚠️ Gate obligatorio (HU-048)**: correr primero `mem_retention_prune(dry_run=true)` y validar que no se borren tipos durables (`bugfix`, `pattern`, `discovery`, `learning`); solo continuar con confirmación humana explícita.
+*   `mem_project_redirects`: Lista (solo lectura) las migraciones de nombre de proyecto (`from` → `to`). Las fusiones se ejecutan con `mem_merge_projects`.
 
 ---
 
@@ -149,7 +153,7 @@ Para sacarle jugo a esto, el agente debe cambiar su mentalidad y seguir este cic
   └── 2. mem_search: Buscar antecedentes o decisiones de diseño previas.
 
 [Fase de Especificación (Spec Phase)]
-  └── 3. Escribir un `spec.md` canónico con IDs claros (RF-001, RNF-001).
+  └── 3. Escribir un `spec.md` canónico con IDs claros (FR-001, NFR-001).
 
 [Fase de Codificación (Apply Phase)]
   └── 4. Escribir código enfocado únicamente en la especificación.
