@@ -103,6 +103,16 @@ Added explicit status banners:
   (code-aware recall, decision tree, project management, stats).
 - Added the MCP/CLI code-metadata asymmetry note (HU-034 Part B).
 
+### 2.7 `docs/14` content refresh — WARNING → fixed
+
+- Header/version updated to **1.3 (FlowForge v0.5.0, FlowDoc v2.0)**.
+- `forge-orchestrator` → **`flowforge`** canonical orchestrator name.
+- `flowforge status` sample de-hardcoded (current v0.5.0 / engram v1.4.0 placeholders).
+- Skills summary table: 31 → **35**, with an explicit on-demand/cross-cutting row.
+- Legacy `RF`/`RNF` notation → **`FR`/`NFR`** throughout Parts 1–3.
+- Added `/fforge-init` to the command map and an on-demand skills section.
+- Part 4 “Planned tooling” → **“Current tooling”** with implemented/incubator status.
+
 ---
 
 ## 3. Open findings
@@ -112,7 +122,7 @@ Added explicit status banners:
 | D-01 | suggestion | `docs/decisions/ADR-001, 005, 016, 017, 024, 027`; `CHANGELOG.md`; `docs/backlog/NS-09` | 20 links point to `.ai-work/` session artifacts that are not versioned (ADR-002). They are broken in a clean clone. | Keep as session references or replace with plain text. `docs/README.md` now documents the rule. |
 | D-02 | warning | `docs/PRD.md` | Status is still `Draft` (last updated 2026-05-13). | Human decision: move to `In Review` / `Accepted`, or mark as a historical PRD. |
 | D-03 | warning | HUs 042, 043, 046, 047, 048, 050 | They do not use the standard HU template headings (`User Story`, `Acceptance Criteria`, `Scenarios`, `Definition of Done`). They use equivalent sections (`Requirements`, `Acceptance Criteria`, `Implementation Tasks`, `Criterios de Aceptación`). | **Mitigated 2026-11-06**: a “Template compliance note” was added to each HU; the content is present under equivalent headings. Normalize headings only if a future FlowDoc tool requires literal section names. |
-| D-04 | suggestion | `docs/14-flowforge-complete-reference.md` | Header now says 1.2/35 skills, but some Part 1–4 sections still reflect v0.4-era commands (e.g. `forge-orchestrator` naming). | Run a full content pass against current `AGENTS.md`/skills before the next release. |
+| D-04 | suggestion | `docs/14-flowforge-complete-reference.md` | Header now says 1.3/35 skills, but some Part 1–4 sections still reflect v0.4-era commands (e.g. `forge-orchestrator` naming). | **Fixed 2026-11-06**: header/version, `forge-orchestrator` → `flowforge`, CLI status sample, 35-skill table, FR/NFR notation, `/fforge-init` command, on-demand skills section, and current-tooling table. |
 | D-05 | suggestion | `docs/15-agent-skills-technical-spec.md` | Header now says 35 skills, but Part 1 tables still use legacy conceptual identifiers and some Spanish labels. | Historical catalog; keep the existing “runtime follows English SKILL.md” note, or rewrite Part 1 in a dedicated pass. |
 | D-06 | suggestion | `docs/04-roadmap.md` | Many checkboxes for completed items remain `[ ]`. The historical banner explains this, but the checkboxes are still misleading. | Leave as historical, or convert the checklists to a “Done” summary table. |
 

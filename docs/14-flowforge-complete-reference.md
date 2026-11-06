@@ -1,10 +1,14 @@
 # FlowForge — Complete Reference and Test Cases
 
-> **Version**: 1.2 (post-OLA 1–4, parity v0.4)
+> **Version**: 1.3 (FlowForge v0.5.0, FlowDoc v2.0)
 > **Skills**: 35 total (7 core + 27 specialized + 1 teacher)
 > **Checkpoints**: 5 (CKP-0 → CKP-4)
 > **Agents**: 7 roles
 > **Artifacts**: `spec.md` → `plan.md` → code/tests → `verify-report.md` → `summary.md`
+
+> **Canonical sources**: [`AGENTS.md`](../AGENTS.md) is the skill index and checkpoint contract;
+> [`docs/README.md`](README.md) is the documentation map. If this reference disagrees with
+> `skills/*/SKILL.md`, the skill wins.
 
 🇪🇸 Spanish overview: [`README.es.md`](../README.es.md)
 
@@ -74,6 +78,7 @@ On verify failure:
 | `/flow-rework` | Bug → ticket → dev |
 | `/flow-close` | Memory + CKP-4 |
 | `/flow-status` | Read `.ai-work/` only |
+| `/fforge-init` | On-demand: initialize/sync `AGENTS.md` |
 
 ### Commands vs agents
 
@@ -85,7 +90,10 @@ On verify failure:
 | `/flow-plan` | `forge-plan` |
 | `/flow-dev` | `forge-dev` |
 | `/flow-verify` | `forge-verify` |
+| `/flow-rework` | `forge-dev` (rework intake) |
 | `/flow-close` | `forge-memory` |
+| `/flow-status` | `flowforge` (read-only) |
+| `/fforge-init` | `forge-init` (on-demand) |
 
 There is **no** official `/forge-memory`, `/forge-dev`, etc. Legacy docs and IDEs may expose `@forge-arch` for direct invocation — that skips CKP gates and orchestrator Memory Curation. Prefer `/flow-*` unless you are debugging a single agent in isolation.
 
@@ -101,7 +109,7 @@ The `flowforge` CLI provides system-level commands for installation, updates, an
 | `flowforge status` | Show installed components and versions | `flowforge status` |
 | `flowforge update` | Update components with backup + rollback | `flowforge update --component engram` |
 | `flowforge doctor` | Diagnose installation issues | `flowforge doctor` |
-| `flowforge init` | Initialize FlowDoc in a project | `flowforge init ~/projects/my-app` |
+| `flowforge init` | Initialize FlowDoc + `AGENTS.md` in a project | `flowforge init ~/projects/my-app` |
 | `flowforge config` | Manage configuration | `flowforge config get` |
 | `flowforge uninstall` | Remove FlowForge installation | `flowforge uninstall` |
 | `flowforge onboard` | First-day onboarding briefing from engram memories | `flowforge onboard --project flowforge` |
@@ -114,13 +122,15 @@ Shows the current state of all installed components:
 $ flowforge status
 
 ── FlowForge ───────────────────────────────────────────────────────────────────
-  Versión: v0.1.0-alpha.17  |  Canal: stable
+  Versión: v0.5.0  |  Canal: stable
 
-  engram-dotnet   instalado    v1.3.0
-  FlowForge       instalado    2026.08.13
+  engram-dotnet   instalado    v1.4.0
+  FlowForge       instalado    0.5.0
   FlowDoc         habilitado   -
   Installer       activo       0.1.0-alpha.17
 ```
+
+> Sample values vary by installation. Run `flowforge status` for the real versions.
 
 #### `flowforge update` (v0.1.0-alpha.13+)
 
@@ -205,7 +215,10 @@ See [installer-baseline.md](installer-baseline.md) for the complete command refe
 
 ## PART 2: Agents and skills catalog
 
-### forge-orchestrator (traffic light)
+### flowforge (traffic light)
+
+> Canonical orchestrator name: **`flowforge`** (formerly `forge-orchestrator`). It delegates to
+> the `forge-*` subagents and never writes spec/plan/code/verify reports inline.
 
 - **Skills**: 1 core
 - **Phase**: All (coordinates only)
@@ -226,8 +239,8 @@ See [installer-baseline.md](installer-baseline.md) for the complete command refe
 
 | Skill | Trigger | Role |
 |-------|---------|------|
-| core | Always | `spec.md`, RF/RNF, Given-When-Then, PM-* |
-| security | Auth/data/APIs | STRIDE, security RNFs |
+| core | Always | `spec.md`, FR/NFR, Given-When-Then, PM-* |
+| security | Auth/data/APIs | STRIDE, security NFRs |
 | performance | Critical paths | SLAs/SLOs |
 | a11y | UI | WCAG 2.1 AA |
 | domain | Multiple contexts | DDD boundaries |
@@ -257,7 +270,7 @@ See [installer-baseline.md](installer-baseline.md) for the complete command refe
 | performance | DB/APIs | N+1, caching |
 | refactor | Smells in loop | Fowler transforms |
 
-**Output:** code + tests (`[RF-XXX]` traceability)
+**Output:** code + tests (`[FR-XXX]` traceability)
 
 ### forge-verify (phase 3b)
 
@@ -266,7 +279,7 @@ See [installer-baseline.md](installer-baseline.md) for the complete command refe
 | core | Always | Spec compliance, tests, PASS/rework |
 | security | Always | SAST-style review, OWASP |
 | complexity | Dense logic | MCC, nesting, cognitive load |
-| performance | Perf RNFs | N+1, memory, Big-O |
+| performance | Perf NFRs | N+1, memory, Big-O |
 | a11y | UI | WCAG audit |
 
 **Output:** `verify-report.md` or `rework_ticket.md` (does not grade PM-*)
@@ -282,18 +295,31 @@ See [installer-baseline.md](installer-baseline.md) for the complete command refe
 
 **Output:** `summary.md` (blocked if PM-* pending)
 
+### On-demand / cross-cutting skills
+
+| Skill | Trigger | Output |
+|-------|---------|--------|
+| `forge-index-docs` | "index docs", backfill, drift-check | Engram observations (`docs/{type}/{id}`) |
+| `forge-init` | "fforge-init", initialize/sync `AGENTS.md` | `AGENTS.md` + `.agents.md.backup` |
+| `forge-onboarding` | New user, long break, project switch, no `ONBOARDING.md` | Briefing / `ONBOARDING.md` |
+| `forge-memory-contradiction` | `/flow-close` contradiction curation | Resolution memory signal |
+
 ### Skills summary by role
 
-| Role | Core | OLA 1 | OLA 2 | OLA 3 | OLA 4 | Total |
-|------|------|-------|-------|-------|-------|-------|
-| Orchestrator | 1 | — | — | — | — | **1** |
-| Discovery | 1 | — | — | 2 | 1 | **4** |
-| Arch | 1 | 1 | — | 3 | — | **5** |
-| Plan | 1 | 1 | 1 | 2 | — | **5** |
-| Dev | 1 | 2 | 2 | 1 | — | **6** |
-| Verify | 1 | 1 | 2 | — | 1 | **5** |
-| Memory | 1 | — | — | — | 3 | **4** |
-| **TOTAL** | **7** | **5** | **5** | **8** | **5** | **31** |
+> Counts reflect the 35 `SKILL.md` files as of 2026-11-06.
+
+| Role | Core | OLA 1 | OLA 2 | OLA 3 | OLA 4 | On-demand | Total |
+|------|------|-------|-------|-------|-------|-----------|-------|
+| Orchestrator (`flowforge`) | 1 | — | — | — | — | — | **1** |
+| Discovery | 1 | — | — | 2 | 1 | — | **4** |
+| Arch | 1 | 1 | — | 3 | — | — | **5** |
+| Plan | 1 | 1 | 1 | 2 | — | — | **5** |
+| Dev | 1 | 2 | 2 | 1 | — | — | **6** |
+| Verify | 1 | 1 | 2 | — | 1 | — | **5** |
+| Memory | 1 | — | — | — | 3 | 1 | **5** |
+| On-demand / cross-cutting | — | — | — | — | — | 3 | **3** |
+| Teacher | — | — | — | — | — | 1 | **1** |
+| **TOTAL** | **7** | **5** | **5** | **8** | **5** | **5** | **35** |
 
 ---
 
@@ -311,7 +337,7 @@ See [installer-baseline.md](installer-baseline.md) for the complete command refe
 |-------|----------|--------|
 | Discovery | Prior art / context map | discovery/core |
 | CKP-0 | Clear requirement → proceed | — |
-| Arch | RF-001… + GWT + PM-* | arch/core |
+| Arch | FR-001… + GWT + PM-* | arch/core |
 | CKP-1 | Human approves spec | — |
 | Plan | Ordered checklist | plan/core |
 | CKP-2 | Human green-lights | — |
@@ -325,7 +351,7 @@ See [installer-baseline.md](installer-baseline.md) for the complete command refe
 
 Extra skills: discovery/security, arch/security (STRIDE), plan/security (OWASP ASVS), dev/security, verify/security.
 
-**Success:** RNF-SEC-* in spec, `[SEC]` tasks in plan, verify PASS with security notes.
+**Success:** NFR-SEC-* in spec, `[SEC]` tasks in plan, verify PASS with security notes.
 
 ### Case 3: Performance — “Real-time dashboard”
 
@@ -337,7 +363,7 @@ Extra: discovery/cost, arch/performance (SLOs), plan/patterns, dev/performance, 
 
 Extra: arch/a11y, verify/a11y.
 
-**Success:** RNF-A11Y-* in spec; a11y issues found and fixed before PASS.
+**Success:** NFR-A11Y-* in spec; a11y issues found and fixed before PASS.
 
 ### Case 5: Migration — “Add user field”
 
@@ -368,8 +394,8 @@ CKP-0:
   [ ] security/compliance/cost skills if applicable
 
 CKP-1 (spec.md):
-  [ ] RF-* and RNF-* IDs
-  [ ] Given-When-Then per RF
+  [ ] FR-* and NFR-* IDs
+  [ ] Given-When-Then per FR
   [ ] Capability Matrix (ai_reasoning vs deterministic)
   [ ] PM-* manual tests section
 
@@ -381,7 +407,7 @@ CKP-2 (plan.md):
 
 Phase 3:
   [ ] forge-dev marked completed plan items [x]
-  [ ] Tests named with RF-XXX traceability
+  [ ] Tests named with FR-XXX traceability
   [ ] Tests green (Ralph Wiggum)
   [ ] rework_ticket resolved if any
 
@@ -396,16 +422,20 @@ CKP-4:
 
 ---
 
-## PART 4: Next steps
+## PART 4: Tooling and next steps
 
-### Planned tooling
+### Current tooling
 
-| Tool | Purpose |
-|------|---------|
-| Rules generator | Compile skills into IDE rule bundles |
-| `forge init` CLI | Interactive `.flowforge.json` |
-| Metrics dashboard | Optional project health UI |
-| Engram config file | File-based engram-dotnet config |
+| Tool | Status | Purpose |
+|------|--------|---------|
+| `flowforge init` | ✅ Implemented | Initialize `.flowforge.json`, `AGENTS.md`, `docs/` and `.ai-work/` in a project |
+| `flowforge onboard` | ✅ Implemented | First-day briefing from engram memories |
+| `flowforge update` | ✅ Implemented | Component updates with backup/rollback and health-check |
+| `flowforge doctor` | ✅ Implemented | Diagnose installation and IDE-pack issues |
+| `ide/cursor/compile-agents-from-skills.py` | ✅ Implemented | Compile Cursor agents from `skills/*/SKILL.md` |
+| `~/.engram/config.json` | ✅ Implemented | Local Engram profile/sync configuration |
+| Metrics dashboard | 📋 Incubator | Optional project health UI |
+| Rules generator | 📋 Incubator | Compile skills into IDE rule bundles beyond the current compiled agents |
 
 ### Incubator ideas
 
@@ -413,5 +443,5 @@ See [`13-edge-cases-and-risks.md`](13-edge-cases-and-risks.md) — context poiso
 
 ---
 
-> **Last updated**: 2026-05-27  
-> **Checkpoints**: 5 | **Phases**: 5 | **Agents**: 7 | **Skills**: 31
+> **Last updated**: 2026-11-06
+> **Checkpoints**: 5 | **Phases**: 5 | **Agents**: 7 | **Skills**: 35
