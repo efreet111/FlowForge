@@ -226,6 +226,15 @@ Added explicit status banners:
 - Appendix C replaced the ambiguous “schema update” with explicit **Current (v0.5.0)** and
   **Proposed (not implemented)** JSON examples and field lists.
 
+### 2.18 `docs/PRD.md` status refresh — WARNING → fixed
+
+- Status moved from `Draft` to **In Review** (`1.1.0-in-review`, last reviewed 2026-11-06).
+- Added an implementation-status note: v0.5.0 covers the installer, Engram memory, 35 skills,
+  multi-IDE packs and CKP-0→4; package-manager distribution, full stack references and the old
+  “6-stage” wording remain partial/divergent.
+- Replaced the two “6-stage workflow” references with **CKP-0→4 (5 checkpoints / 5 phases)**.
+- `docs/README.md` PRD status updated from `Draft` to `In Review`.
+
 ---
 
 ## 3. Open findings
@@ -233,7 +242,7 @@ Added explicit status banners:
 | ID | Severity | Document | Finding | Recommendation |
 |----|----------|----------|---------|----------------|
 | D-01 | suggestion | `docs/decisions/ADR-001, 005, 016, 017, 024, 027`; `CHANGELOG.md`; `docs/backlog/NS-09` | 20 links point to `.ai-work/` session artifacts that are not versioned (ADR-002). They are broken in a clean clone. | Keep as session references or replace with plain text. `docs/README.md` now documents the rule. |
-| D-02 | warning | `docs/PRD.md` | Status is still `Draft` (last updated 2026-05-13). | Human decision: move to `In Review` / `Accepted`, or mark as a historical PRD. |
+| D-02 | warning | `docs/PRD.md` | Status is still `Draft` (last updated 2026-05-13). | **Fixed 2026-11-06**: moved to **In Review** (v1.1.0-in-review), added a last-reviewed date and an implementation-status note listing what v0.5.0 covers and what remains partial (brew/winget, stack references, old “6-stage” wording). |
 | D-03 | warning | HUs 042, 043, 046, 047, 048, 050 | They do not use the standard HU template headings (`User Story`, `Acceptance Criteria`, `Scenarios`, `Definition of Done`). They use equivalent sections (`Requirements`, `Acceptance Criteria`, `Implementation Tasks`, `Criterios de Aceptación`). | **Mitigated 2026-11-06**: a “Template compliance note” was added to each HU; the content is present under equivalent headings. Normalize headings only if a future FlowDoc tool requires literal section names. |
 | D-04 | suggestion | `docs/14-flowforge-complete-reference.md` | Header now says 1.3/35 skills, but some Part 1–4 sections still reflect v0.4-era commands (e.g. `forge-orchestrator` naming). | **Fixed 2026-11-06**: header/version, `forge-orchestrator` → `flowforge`, CLI status sample, 35-skill table, FR/NFR notation, `/fforge-init` command, on-demand skills section, and current-tooling table. |
 | D-05 | suggestion | `docs/15-agent-skills-technical-spec.md` | Header now says 35 skills, but Part 1 tables still use legacy conceptual identifiers and some Spanish labels. | **Mitigated 2026-11-06**: header/version, `flowforge` naming, FR/NFR IDs, 35-skill table, gap statuses, and retention dry-run gate updated. Legacy conceptual function names remain by design (Part 1 note). |

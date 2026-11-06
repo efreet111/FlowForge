@@ -2,10 +2,19 @@
 
 > **One command. Any stack. Any team. The FlowForge ecosystem — configured and ready for small and medium businesses.**
 
-**Version**: 1.0.0-draft
+**Version**: 1.1.0-in-review
 **Author**: FlowForge Team
 **Date**: 13 de mayo de 2026
-**Status**: Draft
+**Last reviewed**: 2026-11-06
+**Status**: In Review
+
+> **Implementation status (2026-11-06)**: this PRD captures the original product vision.
+> FlowForge v0.5.0 implements the core: one-command installer, Engram memory, 35 skills,
+> multi-IDE packs and the CKP-0→4 workflow. Still partial or divergent: package-manager
+> distribution (`brew`/`winget`/`scoop`/`choco`), stack-specific references for every language
+> listed below, and the old “6-stage” wording (current: **5 checkpoints / 5 phases**).
+> Current implementation details live in [`README.md`](../README.md), [`AGENTS.md`](../AGENTS.md)
+> and [`PRD-starter-kit.md`](PRD-starter-kit.md).
 
 ---
 
@@ -119,7 +128,7 @@ This is NOT an "AI agent installer." Most agents are already easy to install. Th
 - **Customizable settings** per team and project
 
 ### 6.4 Simplified Workflow
-- **6-stage workflow** instead of complex SDD
+- **CKP-0→4 workflow** (5 checkpoints / 5 phases) instead of complex SDD
 - **Quick setup** (minutes, not days)
 - **Clear documentation** and guidance
 - **Progressive onboarding** from basic to advanced features
@@ -135,7 +144,7 @@ This is NOT an "AI agent installer." Most agents are already easy to install. Th
 - ✅ Security-first permissions and settings
 - ✅ Multi-platform support (macOS, Linux, Windows)
 - ✅ Multi-stack support (.NET, Python, JavaScript, etc.)
-- ✅ Simplified 6-stage workflow
+- ✅ Simplified CKP-0→4 workflow (5 checkpoints / 5 phases)
 - ✅ Basic CI/CD integration guidance
 
 ### Out of Scope

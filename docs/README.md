@@ -10,7 +10,7 @@
 
 | Type | Path | Status | Notes |
 |------|------|--------|-------|
-| **PRD** | [`docs/PRD.md`](PRD.md) | Draft | Product requirements; review status before using as a decision source |
+| **PRD** | [`docs/PRD.md`](PRD.md) | In Review | Original product vision; implementation status tracked in the header |
 | **PRD starter kit** | [`docs/PRD-starter-kit.md`](PRD-starter-kit.md) | Active | Scaffold/template PRD |
 | **Project context** | [`docs/project-context.md`](project-context.md) | Active | Structural context for new contributors and agents |
 | **Methodology ADRs** | [`docs/decisions/INDEX.md`](decisions/INDEX.md) | Active | 33 ADRs (ADR-001…ADR-033) |
